@@ -579,7 +579,7 @@ viewOutline outline =
             in
             div [] (List.map viewHelp (toForest oz))
 
-        OutlineEdit oz string ->
+        OutlineEdit _ _ ->
             Debug.todo "viewEDIT"
 
 
