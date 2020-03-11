@@ -40,9 +40,7 @@ main =
 
 
 type alias Model =
-    { dnd : Maybe DnD
-    , oz : Maybe OZ
-    , outline : Outline
+    { outline : Outline
     }
 
 
@@ -212,17 +210,10 @@ init flags =
                     Debug.log "oz" (JD.errorToString err)
                         |> always Nothing
     in
-    ( { dnd = Nothing
-      , oz = oz
-      , outline = Maybe.map Outline oz |> Maybe.withDefault EmptyOutline
+    ( { outline = Maybe.map Outline oz |> Maybe.withDefault EmptyOutline
       }
     , Cmd.none
     )
-
-
-mapDnD : (DnD -> DnD) -> Model -> Model
-mapDnD func model =
-    { model | dnd = Maybe.map func model.dnd }
 
 
 
@@ -433,7 +424,7 @@ update message model =
                     Debug.todo "impl"
 
                 OutlineDnD dnd oz ->
-                    ( { model | outline = Outline oz }, getBeacons () )
+                    ( { model | outline = Outline oz }, Cmd.none )
 
                 OutlineEdit oz string ->
                     Debug.todo "impl"
@@ -526,14 +517,22 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
 subscriptions : Model -> Sub Msg
 subscriptions m =
     Sub.batch
-        [ Browser.Events.onMouseUp (JD.succeed Stop)
-        , case m.dnd of
-            Just _ ->
-                Browser.Events.onMouseMove (JD.map Move clientXYDecoder)
-
-            Nothing ->
+        [ case m.outline of
+            EmptyOutline ->
                 Sub.none
-        , gotBeacons GotBeacons
+
+            Outline oz ->
+                Sub.none
+
+            OutlineDnD dnD oz ->
+                Sub.batch
+                    [ Browser.Events.onMouseMove (JD.map Move clientXYDecoder)
+                    , Browser.Events.onMouseUp (JD.succeed Stop)
+                    , gotBeacons GotBeacons
+                    ]
+
+            OutlineEdit oz string ->
+                Sub.none
         ]
 
 
@@ -546,48 +545,6 @@ view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
         [ div [ class "pv2" ] [ text "DND Beacons Ports" ]
         , viewOutline m.outline
-        , always (text "") <|
-            div []
-                [ case m.oz |> Maybe.map toForest of
-                    Just ol ->
-                        let
-                            maybeDraggedItemId =
-                                m.dnd |> Maybe.map .dragItemId
-
-                            info =
-                                { dragId = maybeDraggedItemId
-                                , focusedId = m.oz |> Maybe.map (.center >> (\(Tree item _) -> item.id))
-                                }
-
-                            viewHelp =
-                                viewItemTree info
-                        in
-                        div [] (List.map viewHelp ol)
-
-                    Nothing ->
-                        text ""
-                , let
-                    dragInfo =
-                        Maybe.Extra.andThen2
-                            (\dnd ->
-                                gotoNodeWithId dnd.dragItemId
-                                    >> Maybe.map (.center >> Tuple.pair (dndDraggedXY dnd))
-                            )
-                            m.dnd
-                            m.oz
-                  in
-                  case dragInfo of
-                    Just ( xy, tree ) ->
-                        div
-                            [ class "no-pe fixed"
-                            , style "top" (String.fromFloat xy.y ++ "px")
-                            , style "left" (String.fromFloat xy.x ++ "px")
-                            ]
-                            [ viewItemTreeWithoutBeacons tree ]
-
-                    Nothing ->
-                        text ""
-                ]
         ]
 
 
@@ -623,7 +580,7 @@ viewOutline outline =
             div [] (List.map viewHelp (toForest oz))
 
         OutlineEdit oz string ->
-            Debug.todo "viewTODO"
+            Debug.todo "viewEDIT"
 
 
 type alias ViewInfo =
