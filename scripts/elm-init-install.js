@@ -2,6 +2,8 @@ const DEBUG = true
 const execa = require('execa')
 const pSeries = require('p-series')
 
+// npm i -D execa p-series
+
 ;(async () => {
   try {
     await execa('elm', ['init'], {
@@ -17,14 +19,16 @@ const pSeries = require('p-series')
 
   const packageNames = [
     //
-    'elm/svg',
+    // 'elm/svg',
     'elm/json',
     'elm/random',
     'elm/time',
     'elm-community/list-extra',
-    'elm-community/basics-extra',
-    'elm-community/html-extra',
-    'laserpants/elm-update-pipeline',
+    'elm-community/maybe-extra',
+    'savardd/elm-time-travel'
+    // 'elm-community/basics-extra',
+    // 'elm-community/html-extra',
+    // 'laserpants/elm-update-pipeline',
   ]
   await pSeries(packageNames.map(name => () => installPackage(name)))
 })()
