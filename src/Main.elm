@@ -47,7 +47,7 @@ type alias Model =
 type Outline
     = EmptyOutline
     | Outline OZ
-    | OutlineDnD DnD OZ
+    | OutlineDnD Dnd OZ
     | OutlineEdit OZ String
 
 
@@ -139,7 +139,7 @@ crumbDecoder =
 -- OUTLINE DRAG AND DROP
 
 
-type alias DnD =
+type alias Dnd =
     { dragItemId : ItemId
     , clientXY : XY
     , offsetXY : XY
@@ -258,12 +258,12 @@ itemIdDecoder =
 -- DND HELPERS
 
 
-dndDraggedXY : DnD -> XY
+dndDraggedXY : Dnd -> XY
 dndDraggedXY dnd =
     subtractXY dnd.clientXY dnd.offsetXY
 
 
-dndClosestCandidateLocation : List Beacon -> DnD -> Maybe CandidateLocation
+dndClosestCandidateLocation : List Beacon -> Dnd -> Maybe CandidateLocation
 dndClosestCandidateLocation beacons dnd =
     let
         draggedXY : XY
@@ -346,7 +346,7 @@ candidateLocationDecoder =
 
 type Msg
     = NoOp
-    | Start DnD
+    | Start Dnd
     | Move XY
     | Stop
     | GotBeacons Value
@@ -395,10 +395,10 @@ update message model =
                 Outline oz ->
                     ( { model | outline = OutlineDnD dnd oz }, getBeacons () )
 
-                OutlineDnD dnd_ oz ->
+                OutlineDnD _ _ ->
                     Debug.todo "impl"
 
-                OutlineEdit oz string ->
+                OutlineEdit _ _ ->
                     Debug.todo "impl"
 
         Move clientXY ->
@@ -406,13 +406,13 @@ update message model =
                 EmptyOutline ->
                     Debug.todo "impl"
 
-                Outline oz ->
+                Outline _ ->
                     Debug.todo "impl"
 
                 OutlineDnD dnd oz ->
                     ( { model | outline = OutlineDnD { dnd | clientXY = clientXY } oz }, getBeacons () )
 
-                OutlineEdit oz string ->
+                OutlineEdit _ _ ->
                     Debug.todo "impl"
 
         Stop ->
@@ -420,13 +420,13 @@ update message model =
                 EmptyOutline ->
                     Debug.todo "impl"
 
-                Outline oz ->
+                Outline _ ->
                     Debug.todo "impl"
 
-                OutlineDnD dnd oz ->
+                OutlineDnD _ oz ->
                     ( { model | outline = Outline oz }, Cmd.none )
 
-                OutlineEdit oz string ->
+                OutlineEdit _ _ ->
                     Debug.todo "impl"
 
         GotBeacons encodedBeacons ->
@@ -434,7 +434,7 @@ update message model =
                 EmptyOutline ->
                     Debug.todo "impl"
 
-                Outline oz ->
+                Outline _ ->
                     Debug.todo "impl"
 
                 OutlineDnD dnd oz ->
@@ -457,7 +457,7 @@ update message model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                OutlineEdit oz string ->
+                OutlineEdit _ _ ->
                     Debug.todo "impl"
 
 
@@ -521,10 +521,10 @@ subscriptions m =
             EmptyOutline ->
                 Sub.none
 
-            Outline oz ->
+            Outline _ ->
                 Sub.none
 
-            OutlineDnD dnD oz ->
+            OutlineDnD _ _ ->
                 Sub.batch
                     [ Browser.Events.onMouseMove (JD.map Move clientXYDecoder)
                     , Browser.Events.onMouseUp (JD.succeed Stop)
@@ -653,7 +653,7 @@ dragEvents : ItemId -> List (Html.Attribute Msg)
 dragEvents itemId =
     [ draggable "true"
     , Event.preventDefaultOn "dragstart"
-        (JD.map2 (\clientXY offsetXY -> Start (DnD itemId clientXY offsetXY))
+        (JD.map2 (\clientXY offsetXY -> Start (Dnd itemId clientXY offsetXY))
             clientXYDecoder
             offsetXYDecoder
             |> preventDefault True
