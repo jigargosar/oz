@@ -451,22 +451,15 @@ update message model =
                         beaconsResult =
                             JD.decodeValue (JD.list beaconDecoder) encodedBeacons
 
-                        updateOutlineWithDnDAndBeacons : List Beacon -> Maybe OZ
-                        updateOutlineWithDnDAndBeacons beacons =
-                            dndClosestCandidateLocation beacons dnd
+                        maybeNoz =
+                            Result.toMaybe beaconsResult
                                 |> Maybe.andThen
-                                    (\cl ->
-                                        moveItemWithIdToCandidateLocation
-                                            dnd.dragItemId
-                                            cl
-                                            oz
-                                    )
+                                    (\beacons -> dndClosestCandidateLocation beacons dnd)
+                                |> Maybe.andThen
+                                    (\cl -> moveItemWithIdToCandidateLocation dnd.dragItemId cl oz)
                                 |> Maybe.andThen (gotoNodeWithId dnd.dragItemId)
                     in
-                    case
-                        Maybe.andThen updateOutlineWithDnDAndBeacons
-                            (Result.toMaybe beaconsResult)
-                    of
+                    case maybeNoz of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }, cacheOZCmd noz )
 
