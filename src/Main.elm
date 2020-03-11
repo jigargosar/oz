@@ -461,9 +461,14 @@ update message model =
                     Debug.todo "impl"
 
 
+ozItem : OZ -> Item
+ozItem =
+    getTree >> treeData
+
+
 ozId : OZ -> ItemId
 ozId =
-    getTree >> treeData >> .id
+    ozItem >> .id
 
 
 ozSetTitle : String -> OZ -> OZ
