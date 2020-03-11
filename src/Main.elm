@@ -362,11 +362,6 @@ type Msg
     | ItemTitleClicked ItemId
 
 
-withCacheOZCmd : Model -> ( Model, Cmd msg )
-withCacheOZCmd model =
-    ( model, Maybe.map cacheOZCmd model.oz |> Maybe.withDefault Cmd.none )
-
-
 cacheOZCmd : OZ -> Cmd msg
 cacheOZCmd =
     outlineZipperEncoder >> saveOZ
