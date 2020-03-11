@@ -25,6 +25,7 @@ const pSeries = require('p-series')
     'elm/time',
     'elm-community/list-extra',
     'elm-community/maybe-extra',
+    'elm-community/random-extra',
     'savardd/elm-time-travel'
     // 'elm-community/basics-extra',
     // 'elm-community/html-extra',
