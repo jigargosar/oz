@@ -439,27 +439,42 @@ update message model =
                     Debug.todo "impl"
 
         GotBeacons encodedBeacons ->
-            let
-                beaconsResult =
-                    JD.decodeValue (JD.list beaconDecoder) encodedBeacons
+            case model.outline of
+                EmptyOutline ->
+                    Debug.todo "impl"
 
-                updateOutlineWithDnDAndBeacons : DnD -> List Beacon -> Maybe OZ
-                updateOutlineWithDnDAndBeacons dnd beacons =
-                    Maybe.Extra.andThen2 (moveItemWithIdToCandidateLocation dnd.dragItemId)
-                        (dndClosestCandidateLocation beacons dnd)
-                        model.oz
-                        |> Maybe.andThen (gotoNodeWithId dnd.dragItemId)
-            in
-            case
-                Maybe.Extra.andThen2 updateOutlineWithDnDAndBeacons
-                    model.dnd
-                    (Result.toMaybe beaconsResult)
-            of
-                Just oz ->
-                    ( { model | oz = Just oz }, cacheOZCmd oz )
+                Outline oz ->
+                    Debug.todo "impl"
 
-                Nothing ->
-                    ( model, Cmd.none )
+                OutlineDnD dnd oz ->
+                    let
+                        beaconsResult =
+                            JD.decodeValue (JD.list beaconDecoder) encodedBeacons
+
+                        updateOutlineWithDnDAndBeacons : List Beacon -> Maybe OZ
+                        updateOutlineWithDnDAndBeacons beacons =
+                            dndClosestCandidateLocation beacons dnd
+                                |> Maybe.andThen
+                                    (\cl ->
+                                        moveItemWithIdToCandidateLocation
+                                            dnd.dragItemId
+                                            cl
+                                            oz
+                                    )
+                                |> Maybe.andThen (gotoNodeWithId dnd.dragItemId)
+                    in
+                    case
+                        Maybe.andThen updateOutlineWithDnDAndBeacons
+                            (Result.toMaybe beaconsResult)
+                    of
+                        Just noz ->
+                            ( { model | outline = OutlineDnD dnd noz }, cacheOZCmd noz )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                OutlineEdit oz string ->
+                    Debug.todo "impl"
 
 
 
