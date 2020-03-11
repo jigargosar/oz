@@ -402,7 +402,7 @@ update message model =
                     ( model, Cmd.none )
 
                 Outline oz ->
-                    ( { model | dnd = Just dnd }, getBeacons () )
+                    ( { model | outline = OutlineDnD dnd oz }, getBeacons () )
 
                 OutlineDnD dnd_ oz ->
                     Debug.todo "impl"
