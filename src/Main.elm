@@ -425,7 +425,18 @@ update message model =
                     Debug.todo "impl"
 
         Stop ->
-            ( { model | dnd = Nothing }, Cmd.none )
+            case model.outline of
+                EmptyOutline ->
+                    Debug.todo "impl"
+
+                Outline oz ->
+                    Debug.todo "impl"
+
+                OutlineDnD dnd oz ->
+                    ( { model | outline = Outline oz }, getBeacons () )
+
+                OutlineEdit oz string ->
+                    Debug.todo "impl"
 
         GotBeacons encodedBeacons ->
             let
