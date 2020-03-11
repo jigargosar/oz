@@ -473,7 +473,7 @@ ozId =
 
 ozSetTitle : String -> OZ -> OZ
 ozSetTitle title =
-    mapTree (mapTreeData (\item -> { item | title = title }))
+    mapCData (\item -> { item | title = title })
 
 
 gotoNodeWithId : ItemId -> OZ -> Maybe OZ
@@ -736,6 +736,11 @@ withRollback func oz =
 mapTree : (Tree a -> Tree a) -> ForestZipper a -> ForestZipper a
 mapTree func fz =
     { fz | center = func fz.center }
+
+
+mapCData : (a -> a) -> ForestZipper a -> ForestZipper a
+mapCData func =
+    mapTree (mapTreeData func)
 
 
 getTree : ForestZipper a -> Tree a
