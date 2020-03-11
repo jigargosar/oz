@@ -213,8 +213,6 @@ init flags =
                         |> always Nothing
     in
     ( { dnd = Nothing
-
-      --, oz = fromForest outline
       , oz = oz
       , outline = Maybe.map Outline oz |> Maybe.withDefault EmptyOutline
       }
