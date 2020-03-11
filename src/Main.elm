@@ -442,6 +442,11 @@ update message model =
 --    getTree >> treeData >> .title
 
 
+ozId : OZ -> ItemId
+ozId =
+    getTree >> treeData >> .id
+
+
 ozSetTitle : String -> OZ -> OZ
 ozSetTitle title =
     mapTree (mapTreeData (\item -> { item | title = title }))
@@ -563,13 +568,25 @@ viewOutline outline =
                 vh =
                     viewItemTree
                         { dragId = Nothing
-                        , focusedId = oz |> getTree |> treeData |> .id |> Just
+                        , focusedId = Just (ozId oz)
                         }
             in
             div [] (List.map vh (toForest oz))
 
         OutlineDnD dnd oz ->
-            Debug.todo "view DND"
+            let
+                maybeDraggedItemId =
+                    Just dnd.dragItemId
+
+                info =
+                    { dragId = maybeDraggedItemId
+                    , focusedId = Just (ozId oz)
+                    }
+
+                viewHelp =
+                    viewItemTree info
+            in
+            div [] (List.map viewHelp (toForest oz))
 
         OutlineEdit oz string ->
             Debug.todo "viewTODO"
