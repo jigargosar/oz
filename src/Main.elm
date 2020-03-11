@@ -384,22 +384,22 @@ update message model =
                     ( model, Cmd.none )
 
                 Outline oz ->
-                    { model
-                        | outline = Outline (withRollback (gotoNodeWithId iid) oz)
-                    }
-                        |> withCacheOZCmd
+                    let
+                        noz =
+                            withRollback (gotoNodeWithId iid) oz
+                    in
+                    ( { model | outline = Outline noz }, cacheOZCmd noz )
 
                 OutlineDnD _ _ ->
                     ( model, Cmd.none )
 
                 OutlineEdit oz title ->
-                    { model
-                        | outline =
+                    let
+                        noz =
                             ozSetTitle title oz
                                 |> withRollback (gotoNodeWithId iid)
-                                |> Outline
-                    }
-                        |> withCacheOZCmd
+                    in
+                    ( { model | outline = Outline noz }, cacheOZCmd noz )
 
         Start dnd ->
             ( { model | dnd = Just dnd }, getBeacons () )
