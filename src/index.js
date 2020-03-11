@@ -22,7 +22,7 @@ require('tachyons')
         changes: JSON.parse(localStorage.getItem('changes') || null),
       },
     },
-    require('./DnDBeaconPortsExp.elm'),
+    require('./Main.elm'),
   )
 
   subscribe('getBeacons', function() {
