@@ -1,0 +1,7 @@
+.no-selection {
+  user-select: none;
+}
+
+.no-pe {
+  pointer-events: none;
+}

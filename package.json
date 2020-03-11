@@ -1,0 +1,12 @@
+{
+  "name": "elm-template",
+  "version": "1.0.0",
+  "description": "Elm Template",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "webpack -p"
+  },
+  "keywords": [],
+  "author": "Jigar Gosar <jigar.gosar@gmail.com>",
+  "license": "ISC"
+}
