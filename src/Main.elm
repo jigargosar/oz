@@ -397,7 +397,18 @@ update message model =
                     ( { model | outline = Outline noz }, cacheOZCmd noz )
 
         Start dnd ->
-            ( { model | dnd = Just dnd }, getBeacons () )
+            case model.outline of
+                EmptyOutline ->
+                    ( model, Cmd.none )
+
+                Outline oz ->
+                    ( { model | dnd = Just dnd }, getBeacons () )
+
+                OutlineDnD dnd_ oz ->
+                    Debug.todo "impl"
+
+                OutlineEdit oz string ->
+                    Debug.todo "impl"
 
         Move clientXY ->
             ( mapDnD (\dnd -> { dnd | clientXY = clientXY }) model
