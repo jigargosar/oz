@@ -399,7 +399,7 @@ update message model =
         Start dnd ->
             case model.outline of
                 EmptyOutline ->
-                    ( model, Cmd.none )
+                    Debug.todo "impl"
 
                 Outline oz ->
                     ( { model | outline = OutlineDnD dnd oz }, getBeacons () )
