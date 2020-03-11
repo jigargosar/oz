@@ -411,9 +411,18 @@ update message model =
                     Debug.todo "impl"
 
         Move clientXY ->
-            ( mapDnD (\dnd -> { dnd | clientXY = clientXY }) model
-            , getBeacons ()
-            )
+            case model.outline of
+                EmptyOutline ->
+                    Debug.todo "impl"
+
+                Outline oz ->
+                    Debug.todo "impl"
+
+                OutlineDnD dnd oz ->
+                    ( { model | outline = OutlineDnD { dnd | clientXY = clientXY } oz }, getBeacons () )
+
+                OutlineEdit oz string ->
+                    Debug.todo "impl"
 
         Stop ->
             ( { model | dnd = Nothing }, Cmd.none )
