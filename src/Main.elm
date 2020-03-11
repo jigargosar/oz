@@ -531,7 +531,7 @@ subscriptions m =
                     , gotBeacons GotBeacons
                     ]
 
-            OutlineEdit oz string ->
+            OutlineEdit _ _ ->
                 Sub.none
         ]
 
