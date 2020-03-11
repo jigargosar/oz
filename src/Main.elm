@@ -421,7 +421,7 @@ view m =
                     m.items
     in
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
-        [ div [ class "pv2" ] [ text "ITEMS DND LAZY EXP" ]
+        [ div [ class "pv2" ] [ text "OZ Outliner" ]
         , div [] (List.map iv sortedItems)
         ]
 
