@@ -367,7 +367,7 @@ update message model =
         ItemTitleClicked iid ->
             case model.outline of
                 EmptyOutline ->
-                    ( model, Cmd.none )
+                    Debug.todo "impl"
 
                 Outline oz ->
                     let
@@ -377,7 +377,7 @@ update message model =
                     ( { model | outline = Outline noz }, cacheOZCmd noz )
 
                 OutlineDnD _ _ ->
-                    ( model, Cmd.none )
+                    Debug.todo "impl"
 
                 OutlineEdit oz title ->
                     let
