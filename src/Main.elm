@@ -550,6 +550,7 @@ view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
         [ div [ class "pv2" ] [ text "DND Beacons Ports" ]
         , List.map viewFlatLine (toFlatLines m.outline) |> div []
+        , viewDraggedNode m.outline
         ]
 
 
@@ -728,6 +729,8 @@ viewDraggedNode outline =
                     dndDraggedXY dnd
             in
             gotoNodeWithId dnd.dragItemId oz
+                |> Maybe.map (getTree >> List.singleton)
+                |> Maybe.andThen fromForest
                 |> Maybe.map (ozToFlatLines dnd.dragItemId True)
                 |> Maybe.map (List.map viewFlatLine)
                 |> Maybe.map
