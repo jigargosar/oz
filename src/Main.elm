@@ -643,6 +643,23 @@ ozToFlatLines2 highlightedId isBeingDragged =
         hasDraggedAncestor oz =
             isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
 
+        toAppendInBeaconLine oz =
+            BeaconLine (getLevel oz) (AppendIn (ozId oz))
+
+        parentAppendInBeaconLines : ForestZipper Item -> List FlatLine
+        parentAppendInBeaconLines oz =
+            case ( right oz, up oz ) of
+                ( Nothing, Just poz ) ->
+                    if hasDraggedAncestor poz then
+                        []
+
+                    else
+                        [ toAppendInBeaconLine poz ]
+
+                _ ->
+                    []
+    in
+    let
         flatLinesAt : OZ -> List FlatLine
         flatLinesAt oz =
             let
@@ -671,11 +688,13 @@ ozToFlatLines2 highlightedId isBeingDragged =
                 withoutBeacons =
                     [ itemLine ]
             in
-            if isDraggable then
+            (if isDraggable then
                 withBeacons
 
-            else
+             else
                 withoutBeacons
+            )
+                ++ parentAppendInBeaconLines oz
     in
     let
         collect list0 oz =
