@@ -668,11 +668,8 @@ toFlatLines outline =
             let
                 highlightedItemId =
                     ozId oz
-
-                startOZ =
-                    firstRoot oz
             in
-            Debug.todo "impl"
+            ozToFlatLines highlightedItemId oz
 
         OutlineDnD dnd oz ->
             Debug.todo "impl"
