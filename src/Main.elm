@@ -642,7 +642,13 @@ hasAncestorWithIdIncludingSelf itemId oz =
 --    }
 
 
-fzVisit : { enter : ForestZipper a -> acc -> acc, exit : ForestZipper a -> acc -> acc } -> acc -> ForestZipper a -> acc
+fzVisit :
+    { enter : ForestZipper a -> acc -> acc
+    , exit : ForestZipper a -> acc -> acc
+    }
+    -> acc
+    -> ForestZipper a
+    -> acc
 fzVisit { enter, exit } =
     let
         exitParentsTillRight : acc -> ForestZipper a -> ( acc, Maybe (ForestZipper a) )
