@@ -682,12 +682,8 @@ ozToFlatLines highlightedId isBeingDragged =
                     ++ [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
                        , BeaconLine (getLevel oz) (After (ozId oz))
                        ]
-
-        startHelp : OZ -> List FlatLine
-        startHelp oz =
-            fzVisit { enter = enter, exit = exit } [] oz
     in
-    startHelp
+    fzVisit { enter = enter, exit = exit } []
 
 
 toFlatLines : Outline -> List FlatLine
