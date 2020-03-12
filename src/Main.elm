@@ -637,6 +637,10 @@ hasAncestorWithIdIncludingSelf itemId oz =
 ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
 ozToFlatLines highlightedId isBeingDragged =
     let
+        hasDraggedAncestor oz =
+            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
+    in
+    let
         func : OZ -> List FlatLine -> List FlatLine
         func oz acc =
             let
@@ -649,35 +653,27 @@ ozToFlatLines highlightedId isBeingDragged =
                 isHighlighted =
                     highlightedId == iid
 
-                shouldAddBeacons =
-                    hasAncestorWithIdIncludingSelf iid oz
-
                 isDraggable =
-                    not shouldAddBeacons
+                    not (hasDraggedAncestor oz)
 
                 itemLine : FlatLine
                 itemLine =
                     ItemLine level item { isHighlighted = isHighlighted, isDraggable = isDraggable }
 
-                appendInParent parentItemId =
-                    BeaconLine (level - 1) (AppendIn parentItemId)
+                maybeBeaconLine bool lvl cl =
+                    if bool then
+                        Just (BeaconLine lvl cl)
 
-                maybeAppendInBeaconLine : Maybe FlatLine
-                maybeAppendInBeaconLine =
-                    case right oz of
-                        Nothing ->
-                            up oz |> Maybe.map (ozId >> appendInParent)
-
-                        Just _ ->
-                            Nothing
+                    else
+                        Nothing
             in
             acc
-                ++ ([ BeaconLine level (Before item.id)
-                    , itemLine
-                    , BeaconLine level (After item.id)
-                    , BeaconLine (level + 1) (PrependIn item.id)
+                ++ ([ maybeBeaconLine isDraggable level (Before item.id)
+                    , Just itemLine
+                    , maybeBeaconLine isDraggable level (After item.id)
+                    , maybeBeaconLine isDraggable (level + 1) (PrependIn item.id)
                     ]
-                        ++ Maybe.Extra.toList maybeAppendInBeaconLine
+                        |> List.filterMap identity
                    )
     in
     \oz -> fzFoldl func oz []
