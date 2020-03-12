@@ -713,6 +713,36 @@ toFlatLines outline =
             Debug.todo "impl"
 
 
+viewDraggedNode : Outline -> Html Msg
+viewDraggedNode outline =
+    case outline of
+        EmptyOutline ->
+            text ""
+
+        Outline _ ->
+            text ""
+
+        OutlineDnD dnd oz ->
+            let
+                xy =
+                    dndDraggedXY dnd
+            in
+            gotoNodeWithId dnd.dragItemId oz
+                |> Maybe.map (ozToFlatLines dnd.dragItemId True)
+                |> Maybe.map (List.map viewFlatLine)
+                |> Maybe.map
+                    (div
+                        [ class "fixed no-pe"
+                        , style "left" (String.fromFloat xy.x ++ "px")
+                        , style "top" (String.fromFloat xy.y ++ "px")
+                        ]
+                    )
+                |> Maybe.withDefault (text "")
+
+        OutlineEdit _ _ ->
+            text ""
+
+
 viewFlatLine : FlatLine -> Html Msg
 viewFlatLine flatLine =
     case flatLine of
