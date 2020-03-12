@@ -482,6 +482,11 @@ ozSetTitle title =
     fzMapData (\item -> { item | title = title })
 
 
+ozParentId : OZ -> Maybe ItemId
+ozParentId =
+    up >> Maybe.map ozId
+
+
 gotoNodeWithId : ItemId -> OZ -> Maybe OZ
 gotoNodeWithId itemId =
     findFirst (propEq .id itemId)
@@ -612,6 +617,27 @@ hasAncestorWithIdIncludingSelf itemId oz =
             up oz
                 |> Maybe.map (hasAncestorWithIdIncludingSelf itemId)
                 |> Maybe.withDefault False
+
+
+type alias ItemView =
+    { itemId : ItemId
+    , title : String
+    , isFirst : Bool
+    , isLast : Bool
+    , level : Int
+    , parentId : Maybe ItemId
+    }
+
+
+toItemView : OZ -> ItemView
+toItemView oz =
+    { itemId = ozId oz
+    , title = ozTitle oz
+    , isFirst = isFirst oz
+    , isLast = isLast oz
+    , level = getLevel oz
+    , parentId = ozParentId oz
+    }
 
 
 ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
@@ -918,6 +944,16 @@ getTree fz =
 getLevel : ForestZipper a -> Int
 getLevel fz =
     List.length fz.crumbs
+
+
+isFirst : ForestZipper a -> Bool
+isFirst fz =
+    List.isEmpty fz.leftReversed
+
+
+isLast : ForestZipper a -> Bool
+isLast fz =
+    List.isEmpty fz.right_
 
 
 
