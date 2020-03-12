@@ -863,8 +863,15 @@ viewFlatLine : FlatLine -> Html Msg
 viewFlatLine flatLine =
     case flatLine of
         BeaconLine level candidateLocation ->
-            div [ style "padding-left" (String.fromInt (level * 32) ++ "px") ]
-                [ viewBeacon candidateLocation
+            div [ style "margin-left" (String.fromInt (level * 32) ++ "px") ]
+                [ div
+                    [ style "height" "1px"
+                    , style "width" "50px"
+                    , class "bg-red"
+                    , class "absolute"
+                    , attribute "data-beacon" (JE.encode 0 (candidateLocationEncoder candidateLocation))
+                    ]
+                    []
                 ]
 
         ItemLine level item { isHighlighted, isDraggable } ->
@@ -892,7 +899,7 @@ viewFlatLine flatLine =
                                 []
                            )
                     )
-                    [ div [ class "lh-title" ] [ text item.title ] ]
+                    [ div [ class "lh-title" ] [ text item.title, text (Debug.toString item.id) ] ]
                 ]
 
         EditItemLine ->
