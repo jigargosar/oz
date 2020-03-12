@@ -619,25 +619,27 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-type alias ItemView =
-    { itemId : ItemId
-    , title : String
-    , isFirst : Bool
-    , isLast : Bool
-    , level : Int
-    , parentId : Maybe ItemId
-    }
 
-
-toItemView : OZ -> ItemView
-toItemView oz =
-    { itemId = ozId oz
-    , title = ozTitle oz
-    , isFirst = isFirst oz
-    , isLast = isLast oz
-    , level = getLevel oz
-    , parentId = ozParentId oz
-    }
+--
+--type alias ItemView =
+--    { itemId : ItemId
+--    , title : String
+--    , isFirst : Bool
+--    , isLast : Bool
+--    , level : Int
+--    , parentId : Maybe ItemId
+--    }
+--
+--
+--toItemView : OZ -> ItemView
+--toItemView oz =
+--    { itemId = ozId oz
+--    , title = ozTitle oz
+--    , isFirst = isFirst oz
+--    , isLast = isLast oz
+--    , level = getLevel oz
+--    , parentId = ozParentId oz
+--    }
 
 
 ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
@@ -946,17 +948,16 @@ getLevel fz =
     List.length fz.crumbs
 
 
-isFirst : ForestZipper a -> Bool
-isFirst fz =
-    List.isEmpty fz.leftReversed
 
-
-isLast : ForestZipper a -> Bool
-isLast fz =
-    List.isEmpty fz.right_
-
-
-
+--isFirst : ForestZipper a -> Bool
+--isFirst fz =
+--    List.isEmpty fz.leftReversed
+--
+--
+--isLast : ForestZipper a -> Bool
+--isLast fz =
+--    List.isEmpty fz.right_
+--
 -- CORE NAVIGATION
 
 
