@@ -595,6 +595,30 @@ viewOutline outline =
             div [] (List.map vh (toForest oz))
 
 
+type FlatLine
+    = BeaconLine
+    | ItemLine
+    | EditItemLine
+
+
+toFlatLines : Outline -> List FlatLine
+toFlatLines outline =
+    Debug.todo "impl"
+
+
+viewFlatLine : FlatLine -> Html Msg
+viewFlatLine flatLine =
+    case flatLine of
+        BeaconLine ->
+            text ""
+
+        ItemLine ->
+            text ""
+
+        EditItemLine ->
+            text ""
+
+
 type alias ViewInfo =
     { dragId : Maybe ItemId
     , focusedId : Maybe ItemId
