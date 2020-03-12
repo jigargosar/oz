@@ -741,7 +741,14 @@ viewFlatLine flatLine =
                 ]
 
         ItemLine level item { isHighlighted, isDraggable } ->
-            div [ style "padding-left" (String.fromInt (level * 32) ++ "px") ]
+            div
+                [ style "padding-left" (String.fromInt (level * 32) ++ "px")
+                , if isDraggable then
+                    class ""
+
+                  else
+                    class "o-50"
+                ]
                 [ div
                     (class "pa1 bb b--black-10 pointer no-selection"
                         :: (if isHighlighted then
