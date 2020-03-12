@@ -550,8 +550,7 @@ view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
         [ div [ class "pv2" ] [ text "DND Beacons Ports" ]
         , viewOutline m.outline
-
-        -- |> always ((List.map viewFlatLine (toFlatLines m.outline)) |> div [])
+            |> always (List.map viewFlatLine (toFlatLines m.outline) |> div [])
         ]
 
 
@@ -623,8 +622,20 @@ fzFoldl func fz =
     fzFoldlHelp func (firstRoot fz)
 
 
-ozToFlatLines : ItemId -> OZ -> List FlatLine
-ozToFlatLines highlightedId =
+hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
+hasAncestorWithIdIncludingSelf itemId oz =
+    case ozId oz == itemId of
+        True ->
+            True
+
+        False ->
+            up oz
+                |> Maybe.map (hasAncestorWithIdIncludingSelf itemId)
+                |> Maybe.withDefault False
+
+
+ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
+ozToFlatLines highlightedId isBeingDragged =
     let
         func : OZ -> List FlatLine -> List FlatLine
         func oz acc =
@@ -632,9 +643,21 @@ ozToFlatLines highlightedId =
                 ( level, item ) =
                     ( getLevel oz, ozItem oz )
 
+                iid =
+                    item.id
+
+                isHighlighted =
+                    highlightedId == iid
+
+                shouldAddBeacons =
+                    hasAncestorWithIdIncludingSelf iid oz
+
+                isDraggable =
+                    not shouldAddBeacons
+
                 itemLine : FlatLine
                 itemLine =
-                    ItemLine level item { isHighlighted = highlightedId == item.id, isDraggable = True }
+                    ItemLine level item { isHighlighted = isHighlighted, isDraggable = isDraggable }
 
                 appendInParent parentItemId =
                     BeaconLine (level - 1) (AppendIn parentItemId)
@@ -671,10 +694,10 @@ toFlatLines outline =
                 highlightedItemId =
                     ozId oz
             in
-            ozToFlatLines highlightedItemId oz
+            ozToFlatLines highlightedItemId False oz
 
         OutlineDnD dnd oz ->
-            Debug.todo "impl"
+            ozToFlatLines dnd.dragItemId True oz
 
         OutlineEdit oz string ->
             Debug.todo "impl"
