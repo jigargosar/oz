@@ -711,10 +711,13 @@ fzVisit { enter, exit } =
 ozToFlatLines2 : ItemId -> Bool -> OZ -> List FlatLine
 ozToFlatLines2 highlightedId isBeingDragged =
     let
-        collect list oz =
-            Debug.todo "impl"
+        enter oz acc =
+            acc
+
+        exit oz acc =
+            acc
     in
-    firstRoot >> collect []
+    fzVisit { enter = enter, exit = exit } []
 
 
 ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
