@@ -634,6 +634,59 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
+ozToFlatLines2 : ItemId -> Bool -> OZ -> List FlatLine
+ozToFlatLines2 highlightedId isBeingDragged =
+    let
+        hasDraggedAncestor oz =
+            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
+    in
+    let
+        collect list oz =
+            let
+                level =
+                    getLevel oz
+
+                item =
+                    ozItem oz
+
+                isHighlighted =
+                    highlightedId == item.id
+
+                isDraggable =
+                    not (hasDraggedAncestor oz)
+
+                itemLine =
+                    ItemLine level item { isHighlighted = isHighlighted, isDraggable = isDraggable }
+
+                withBeacons =
+                    [ BeaconLine level (Before item.id)
+                    , itemLine
+                    , BeaconLine level (After item.id)
+                    , BeaconLine (level + 1) (PrependIn item.id)
+                    ]
+
+                withoutBeacons =
+                    [ itemLine ]
+
+                newList =
+                    list
+                        ++ (if isDraggable then
+                                withBeacons
+
+                            else
+                                withoutBeacons
+                           )
+            in
+            case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] oz of
+                Just noz ->
+                    collect newList noz
+
+                Nothing ->
+                    newList
+    in
+    firstRoot >> collect []
+
+
 ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
 ozToFlatLines highlightedId isBeingDragged =
     let
