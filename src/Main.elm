@@ -602,29 +602,6 @@ type FlatLine
     | EditItemLine
 
 
-
---
---fzFoldlHelp : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
---fzFoldlHelp func fz acc =
---    let
---        acc2 : acc
---        acc2 =
---            func fz acc
---    in
---    case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] fz of
---        Just nfz ->
---            fzFoldlHelp func nfz acc2
---
---        Nothing ->
---            acc2
---
---
---fzFoldl : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
---fzFoldl func fz =
---    fzFoldlHelp func (firstRoot fz)
---
-
-
 hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
 hasAncestorWithIdIncludingSelf itemId oz =
     case ozId oz == itemId of
