@@ -711,19 +711,55 @@ fzVisit { enter, exit } =
 ozToFlatLines2 : ItemId -> Bool -> OZ -> List FlatLine
 ozToFlatLines2 highlightedId isBeingDragged =
     let
-        enter oz acc =
-            acc
+        hasDraggedAncestor oz =
+            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
+    in
+    let
+        enter oz list =
+            let
+                level =
+                    getLevel oz
 
-        exit oz acc =
-            acc
+                item =
+                    ozItem oz
+
+                isDraggable =
+                    not (hasDraggedAncestor oz)
+
+                isHighlighted =
+                    not isBeingDragged && highlightedId == item.id
+
+                itemLine =
+                    ItemLine level item { isHighlighted = isHighlighted, isDraggable = isDraggable }
+
+                withBeacons =
+                    [ BeaconLine level (Before item.id)
+                    , itemLine
+                    , BeaconLine level (After item.id)
+                    , BeaconLine (level + 1) (PrependIn item.id)
+                    ]
+
+                withoutBeacons =
+                    [ itemLine ]
+            in
+            list
+                ++ (if isDraggable then
+                        withBeacons
+
+                    else
+                        withoutBeacons
+                   )
+
+        exit oz list =
+            if hasDraggedAncestor oz then
+                list
+
+            else
+                list ++ [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz)) ]
 
         startHelp : OZ -> List FlatLine
         startHelp oz =
-            let
-                ( _, list ) =
-                    fzVisit { enter = enter, exit = exit } ( (), [] ) oz
-            in
-            list
+            fzVisit { enter = enter, exit = exit } [] oz
     in
     startHelp
 
