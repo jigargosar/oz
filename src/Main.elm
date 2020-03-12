@@ -446,7 +446,7 @@ update message model =
                         maybeNoz =
                             Result.toMaybe beaconsResult
                                 |> Maybe.andThen
-                                    (\beacons -> dndClosestCandidateLocation beacons dnd)
+                                    (\beacons -> dndClosestCandidateLocation beacons dnd |> Debug.log "debug")
                                 |> Maybe.andThen
                                     (\cl -> moveItemWithIdToCandidateLocation dnd.dragItemId cl oz)
                                 |> Maybe.andThen (gotoNodeWithId dnd.dragItemId)
