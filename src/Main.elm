@@ -646,8 +646,8 @@ fzVisit { enter, exit } =
     startVisitHelp
 
 
-ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
-ozToFlatLines highlightedId isBeingDragged =
+ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
+ozToFlatLines highlightedId isBeingDragged editTitle =
     let
         hasDraggedAncestor oz =
             isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
@@ -706,13 +706,13 @@ toFlatLines outline =
                 highlightedItemId =
                     ozId oz
             in
-            ozToFlatLines highlightedItemId False oz
+            ozToFlatLines highlightedItemId False Nothing oz
 
         OutlineDnD dnd oz ->
-            ozToFlatLines dnd.dragItemId True oz
+            ozToFlatLines dnd.dragItemId True Nothing oz
 
         OutlineEdit oz title ->
-            Debug.todo "impl toFlatLines for OutlineEdit"
+            ozToFlatLines (ozId oz) False (Just title) oz
 
 
 viewDraggedNode : Outline -> Html Msg
@@ -732,7 +732,7 @@ viewDraggedNode outline =
             gotoNodeWithId dnd.dragItemId oz
                 |> Maybe.map (getTree >> List.singleton)
                 |> Maybe.andThen fromForest
-                |> Maybe.map (ozToFlatLines dnd.dragItemId True)
+                |> Maybe.map (ozToFlatLines dnd.dragItemId True Nothing)
                 |> Maybe.map (List.map (viewFlatLineWithConfig False))
                 |> Maybe.map
                     (div
