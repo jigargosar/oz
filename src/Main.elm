@@ -379,12 +379,16 @@ update message model =
                     Debug.todo "impl"
 
                 Outline oz ->
-                    case gotoItemId iid oz of
-                        Just noz ->
-                            ( { model | outline = OutlineEdit noz (ozTitle noz) }, cacheOZCmd noz )
+                    if ozId oz == iid then
+                        ( { model | outline = OutlineEdit oz (ozTitle oz) }, cacheOZCmd oz )
 
-                        Nothing ->
-                            ( model, Cmd.none )
+                    else
+                        case gotoItemId iid oz of
+                            Just noz ->
+                                ( { model | outline = Outline noz }, cacheOZCmd noz )
+
+                            Nothing ->
+                                ( model, Cmd.none )
 
                 OutlineDnD _ _ ->
                     Debug.todo "impl"
