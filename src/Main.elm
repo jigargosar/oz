@@ -649,11 +649,11 @@ ozToFlatLines2 highlightedId isBeingDragged =
                 item =
                     ozItem oz
 
-                isHighlighted =
-                    highlightedId == item.id
-
                 isDraggable =
                     not (hasDraggedAncestor oz)
+
+                isHighlighted =
+                    not isBeingDragged && highlightedId == item.id
 
                 itemLine =
                     ItemLine level item { isHighlighted = isHighlighted, isDraggable = isDraggable }
