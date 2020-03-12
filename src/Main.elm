@@ -549,51 +549,8 @@ view : Model -> Html Msg
 view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
         [ div [ class "pv2" ] [ text "DND Beacons Ports" ]
-        , viewOutline m.outline
-            |> always (List.map viewFlatLine (toFlatLines m.outline) |> div [])
+        , List.map viewFlatLine (toFlatLines m.outline) |> div []
         ]
-
-
-viewOutline : Outline -> Html Msg
-viewOutline outline =
-    case outline of
-        EmptyOutline ->
-            text "IMPLEMENT : EMPTY OUTLINE VIEW"
-
-        Outline oz ->
-            let
-                vh =
-                    viewItemTree
-                        { dragId = Nothing
-                        , focusedId = Just (ozId oz)
-                        }
-            in
-            div [] (List.map vh (toForest oz))
-
-        OutlineDnD dnd oz ->
-            let
-                maybeDraggedItemId =
-                    Just dnd.dragItemId
-
-                info =
-                    { dragId = maybeDraggedItemId
-                    , focusedId = Just (ozId oz)
-                    }
-
-                viewHelp =
-                    viewItemTree info
-            in
-            div [] (List.map viewHelp (toForest oz))
-
-        OutlineEdit oz _ ->
-            let
-                vh =
-                    viewItemTree
-                        { dragId = Nothing
-                        , focusedId = Just (ozId oz)
-                        }
-            in
-            div [] (List.map vh (toForest oz))
 
 
 type FlatLine
@@ -809,66 +766,6 @@ type alias ViewInfo =
     }
 
 
-viewItemTree : ViewInfo -> OutlineNode -> Html Msg
-viewItemTree info (Tree item children) =
-    if info.dragId == Just item.id then
-        div [ class "o-50" ] [ viewItemTreeWithoutBeacons (Tree item children) ]
-
-    else
-        div
-            []
-            [ viewBeacon (Before item.id)
-            , viewItemTitle (info.focusedId == Just item.id) item
-            , let
-                itemId =
-                    item.id
-              in
-              childrenContainer
-                (viewBeacon (PrependIn itemId)
-                    :: List.map (viewItemTree info) children
-                    ++ [ viewBeacon (AppendIn itemId) ]
-                )
-            , viewBeacon (After item.id)
-            ]
-
-
-viewBeacon : CandidateLocation -> Html msg
-viewBeacon cl =
-    div
-        [ style "height" "1px"
-        , style "width" "1px"
-        , class "bg-blue"
-        , class "absolute"
-        , attribute "data-beacon" (JE.encode 0 (candidateLocationEncoder cl))
-        ]
-        []
-
-
-viewItemTreeWithoutBeacons : OutlineNode -> Html Msg
-viewItemTreeWithoutBeacons (Tree item children) =
-    div []
-        [ viewItemTitle False item
-        , childrenContainer
-            (List.map viewItemTreeWithoutBeacons children)
-        ]
-
-
-viewItemTitle : Bool -> Item -> Html Msg
-viewItemTitle isSelected item =
-    div
-        (class "pa1 bb b--black-10 pointer no-selection"
-            :: (if isSelected then
-                    class "bg-blue white"
-
-                else
-                    class ""
-               )
-            :: onClick (ItemTitleClicked item.id)
-            :: dragEvents item.id
-        )
-        [ div [ class "lh-title" ] [ text item.title ] ]
-
-
 dragEvents : ItemId -> List (Html.Attribute Msg)
 dragEvents itemId =
     [ draggable "true"
@@ -884,11 +781,6 @@ dragEvents itemId =
 preventDefault : Bool -> Decoder b -> Decoder ( b, Bool )
 preventDefault bool =
     JD.map (\msg -> ( msg, bool ))
-
-
-childrenContainer : List (Html Msg) -> Html Msg
-childrenContainer =
-    div [ class "pl4" ]
 
 
 
@@ -940,13 +832,6 @@ fromForest forest =
 
         first :: rest ->
             Just { leftReversed = [], center = first, right_ = rest, crumbs = [] }
-
-
-toForest : ForestZipper a -> Forest a
-toForest acc =
-    case root acc of
-        { leftReversed, center, right_ } ->
-            List.reverse leftReversed ++ center :: right_
 
 
 withRollback : (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> ForestZipper a
