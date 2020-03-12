@@ -602,24 +602,27 @@ type FlatLine
     | EditItemLine
 
 
-fzFoldlHelp : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
-fzFoldlHelp func fz acc =
-    let
-        acc2 : acc
-        acc2 =
-            func fz acc
-    in
-    case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] fz of
-        Just nfz ->
-            fzFoldlHelp func nfz acc2
 
-        Nothing ->
-            acc2
-
-
-fzFoldl : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
-fzFoldl func fz =
-    fzFoldlHelp func (firstRoot fz)
+--
+--fzFoldlHelp : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
+--fzFoldlHelp func fz acc =
+--    let
+--        acc2 : acc
+--        acc2 =
+--            func fz acc
+--    in
+--    case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] fz of
+--        Just nfz ->
+--            fzFoldlHelp func nfz acc2
+--
+--        Nothing ->
+--            acc2
+--
+--
+--fzFoldl : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
+--fzFoldl func fz =
+--    fzFoldlHelp func (firstRoot fz)
+--
 
 
 hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
@@ -690,51 +693,6 @@ ozToFlatLines2 highlightedId isBeingDragged =
     firstRoot >> collect []
 
 
-ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
-ozToFlatLines highlightedId isBeingDragged =
-    let
-        hasDraggedAncestor oz =
-            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
-    in
-    let
-        func : OZ -> List FlatLine -> List FlatLine
-        func oz acc =
-            let
-                ( level, item ) =
-                    ( getLevel oz, ozItem oz )
-
-                iid =
-                    item.id
-
-                isHighlighted =
-                    highlightedId == iid
-
-                isDraggable =
-                    not (hasDraggedAncestor oz)
-
-                itemLine : FlatLine
-                itemLine =
-                    ItemLine level item { isHighlighted = isHighlighted, isDraggable = isDraggable }
-
-                maybeBeaconLine bool lvl cl =
-                    if bool then
-                        Just (BeaconLine lvl cl)
-
-                    else
-                        Nothing
-            in
-            acc
-                ++ ([ maybeBeaconLine isDraggable level (Before item.id)
-                    , Just itemLine
-                    , maybeBeaconLine isDraggable level (After item.id)
-                    , maybeBeaconLine isDraggable (level + 1) (PrependIn item.id)
-                    ]
-                        |> List.filterMap identity
-                   )
-    in
-    \oz -> fzFoldl func oz []
-
-
 toFlatLines : Outline -> List FlatLine
 toFlatLines outline =
     case outline of
@@ -746,10 +704,10 @@ toFlatLines outline =
                 highlightedItemId =
                     ozId oz
             in
-            ozToFlatLines highlightedItemId False oz
+            ozToFlatLines2 highlightedItemId False oz
 
         OutlineDnD dnd oz ->
-            ozToFlatLines dnd.dragItemId True oz
+            ozToFlatLines2 dnd.dragItemId True oz
 
         OutlineEdit oz string ->
             Debug.todo "impl"
