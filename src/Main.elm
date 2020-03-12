@@ -653,8 +653,8 @@ ozToFlatLines highlightedId isBeingDragged =
             isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
     in
     let
-        enter : OZ -> List FlatLine -> List FlatLine
-        enter oz list =
+        enter : OZ -> List FlatLine
+        enter oz =
             let
                 itemLine =
                     ItemLine (getLevel oz)
@@ -672,26 +672,27 @@ ozToFlatLines highlightedId isBeingDragged =
                 withoutBeacons =
                     [ itemLine ]
             in
-            list
-                ++ (if hasDraggedAncestor oz then
-                        withoutBeacons
-
-                    else
-                        withBeacons
-                   )
-
-        exit : OZ -> List FlatLine -> List FlatLine
-        exit oz list =
             if hasDraggedAncestor oz then
-                list
+                withoutBeacons
 
             else
-                list
-                    ++ [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
-                       , BeaconLine (getLevel oz) (After (ozId oz))
-                       ]
+                withBeacons
+
+        exit : OZ -> List FlatLine
+        exit oz =
+            if hasDraggedAncestor oz then
+                []
+
+            else
+                [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
+                , BeaconLine (getLevel oz) (After (ozId oz))
+                ]
     in
-    fzVisit { enter = enter, exit = exit } []
+    fzVisit
+        { enter = \oz list -> list ++ enter oz
+        , exit = \oz list -> list ++ exit oz
+        }
+        []
 
 
 toFlatLines : Outline -> List FlatLine
