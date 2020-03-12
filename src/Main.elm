@@ -642,6 +642,75 @@ hasAncestorWithIdIncludingSelf itemId oz =
 --    }
 
 
+fzVisit : { enter : ForestZipper a -> acc -> acc, exit : ForestZipper a -> acc -> acc } -> acc -> ForestZipper a -> acc
+fzVisit { enter, exit } =
+    let
+        exitParentsTillRight : acc -> ForestZipper a -> ( acc, Maybe (ForestZipper a) )
+        exitParentsTillRight acc oz =
+            let
+                exitAcc =
+                    exit oz acc
+            in
+            case right oz of
+                Just rightOZ ->
+                    ( exitAcc, Just rightOZ )
+
+                Nothing ->
+                    case up oz of
+                        Just parentOZ ->
+                            exitParentsTillRight exitAcc parentOZ
+
+                        Nothing ->
+                            ( exitAcc, Nothing )
+
+        visitHelp : acc -> ForestZipper a -> acc
+        visitHelp acc oz =
+            let
+                enterAcc =
+                    enter oz acc
+            in
+            case down oz of
+                Just childOZ ->
+                    visitHelp enterAcc childOZ
+
+                Nothing ->
+                    let
+                        exitAcc =
+                            exit oz enterAcc
+                    in
+                    case right oz of
+                        Just rightSiblingOZ ->
+                            visitHelp exitAcc rightSiblingOZ
+
+                        Nothing ->
+                            case up oz of
+                                Nothing ->
+                                    acc
+
+                                Just poz ->
+                                    case exitParentsTillRight exitAcc poz of
+                                        ( parentExitAcc, Just rightOZ ) ->
+                                            visitHelp parentExitAcc rightOZ
+
+                                        ( parentExitAcc, Nothing ) ->
+                                            parentExitAcc
+
+        startVisitHelp : acc -> ForestZipper a -> acc
+        startVisitHelp acc fz =
+            visitHelp acc (firstRoot fz)
+    in
+    startVisitHelp
+
+
+ozToFlatLines2 : ItemId -> Bool -> OZ -> List FlatLine
+ozToFlatLines2 highlightedId isBeingDragged =
+    let
+        collect list oz =
+            Debug.todo "impl"
+    in
+    firstRoot >> collect []
+
+
 ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
 ozToFlatLines highlightedId isBeingDragged =
     let
