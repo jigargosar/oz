@@ -601,23 +601,19 @@ type FlatLine
     | EditItemLine
 
 
-ozNext : OZ -> Maybe OZ
-ozNext oz =
-    Debug.todo "impl"
-
-
-collectReverseItems : List Item -> OZ -> List Item
-collectReverseItems reverseItems oz =
+fzFold : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
+fzFold func fz acc =
     let
-        newReverseItems =
-            ozItem oz :: reverseItems
+        acc2 : acc
+        acc2 =
+            func fz acc
     in
-    case ozNext oz of
-        Just nextOZ ->
-            collectReverseItems newReverseItems nextOZ
+    case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] fz of
+        Just nfz ->
+            fzFold func nfz acc2
 
         Nothing ->
-            reverseItems
+            acc
 
 
 toFlatLines : Outline -> List FlatLine
@@ -633,9 +629,6 @@ toFlatLines outline =
 
                 startOZ =
                     firstRoot oz
-
-                _ =
-                    collectReverseItems
             in
             Debug.todo "impl"
 
