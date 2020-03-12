@@ -710,7 +710,7 @@ toFlatLines outline =
         OutlineDnD dnd oz ->
             ozToFlatLines dnd.dragItemId True oz
 
-        OutlineEdit _ _ ->
+        OutlineEdit oz title ->
             Debug.todo "impl toFlatLines for OutlineEdit"
 
 
