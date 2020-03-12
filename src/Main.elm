@@ -747,7 +747,7 @@ viewDraggedNode outline =
 
 
 debug =
-    True
+    False
 
 
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
