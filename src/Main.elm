@@ -746,18 +746,29 @@ viewDraggedNode outline =
             text ""
 
 
+debug =
+    True
+
+
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
 viewFlatLineWithConfig dimDragged flatLine =
     case flatLine of
         BeaconLine level candidateLocation ->
             div [ style "margin-left" (String.fromInt (level * 32) ++ "px") ]
                 [ div
-                    [ style "height" "1px"
-                    , style "width" "50px"
-                    , class "bg-red"
-                    , class "absolute"
-                    , attribute "data-beacon" (JE.encode 0 (candidateLocationEncoder candidateLocation))
-                    ]
+                    ([ class "absolute"
+                     , attribute "data-beacon" (JE.encode 0 (candidateLocationEncoder candidateLocation))
+                     ]
+                        ++ (if debug then
+                                [ style "height" "1px"
+                                , style "width" "1px"
+                                , class "bg-red"
+                                ]
+
+                            else
+                                []
+                           )
+                    )
                     []
                 ]
 
