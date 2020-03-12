@@ -574,7 +574,7 @@ view m =
 type FlatLine
     = BeaconLine Int CandidateLocation
     | ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
-    | EditLine Int ItemId String
+    | EditLine Int String
 
 
 hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
@@ -655,6 +655,12 @@ fzVisit { enter, exit } =
     startVisitHelp
 
 
+
+--ozLevel: OZ -> Int
+--ozLevel  =
+--    getLevel
+
+
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
 ozToFlatLines highlightedId isBeingDragged editTitle =
     let
@@ -665,21 +671,26 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
         enter : OZ -> List FlatLine
         enter oz =
             let
-                itemLine =
-                    ItemLine (getLevel oz)
-                        (ozItem oz)
-                        { isHighlighted = not isBeingDragged && highlightedId == ozId oz
-                        , isDraggable = not (hasDraggedAncestor oz)
-                        }
+                editOrItemLine =
+                    case ( ozId oz == highlightedId, editTitle ) of
+                        ( True, Just title ) ->
+                            EditLine (getLevel oz) title
+
+                        _ ->
+                            ItemLine (getLevel oz)
+                                (ozItem oz)
+                                { isHighlighted = not isBeingDragged && highlightedId == ozId oz
+                                , isDraggable = not (hasDraggedAncestor oz)
+                                }
 
                 withBeacons =
                     [ BeaconLine (getLevel oz) (Before (ozId oz))
-                    , itemLine
+                    , editOrItemLine
                     , BeaconLine (getLevel oz + 1) (PrependIn (ozId oz))
                     ]
 
                 withoutBeacons =
-                    [ itemLine ]
+                    [ editOrItemLine ]
             in
             if hasDraggedAncestor oz then
                 withoutBeacons
@@ -818,7 +829,7 @@ viewFlatLineWithConfig dimDragged flatLine =
                     ]
                 ]
 
-        EditLine level _ title ->
+        EditLine level title ->
             div
                 [ style "padding-left" (String.fromInt (level * 32) ++ "px")
                 ]
