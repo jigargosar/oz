@@ -645,47 +645,43 @@ ozToFlatLines highlightedId isBeingDragged =
             isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
     in
     let
+        enter : OZ -> List FlatLine -> List FlatLine
         enter oz list =
             let
-                level =
-                    getLevel oz
-
-                item =
-                    ozItem oz
-
-                isDraggable =
-                    not (hasDraggedAncestor oz)
-
-                isHighlighted =
-                    not isBeingDragged && highlightedId == item.id
-
                 itemLine =
-                    ItemLine level item { isHighlighted = isHighlighted, isDraggable = isDraggable }
+                    ItemLine (getLevel oz)
+                        (ozItem oz)
+                        { isHighlighted = not isBeingDragged && highlightedId == ozId oz
+                        , isDraggable = not (hasDraggedAncestor oz)
+                        }
 
                 withBeacons =
-                    [ BeaconLine level (Before item.id)
+                    [ BeaconLine (getLevel oz) (Before (ozId oz))
                     , itemLine
-                    , BeaconLine level (After item.id)
-                    , BeaconLine (level + 1) (PrependIn item.id)
+                    , BeaconLine (getLevel oz + 1) (PrependIn (ozId oz))
                     ]
 
                 withoutBeacons =
                     [ itemLine ]
             in
             list
-                ++ (if isDraggable then
-                        withBeacons
+                ++ (if hasDraggedAncestor oz then
+                        withoutBeacons
 
                     else
-                        withoutBeacons
+                        withBeacons
                    )
 
+        exit : OZ -> List FlatLine -> List FlatLine
         exit oz list =
             if hasDraggedAncestor oz then
                 list
 
             else
-                list ++ [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz)) ]
+                list
+                    ++ [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
+                       , BeaconLine (getLevel oz) (After (ozId oz))
+                       ]
 
         startHelp : OZ -> List FlatLine
         startHelp oz =
