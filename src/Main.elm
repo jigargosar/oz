@@ -716,8 +716,16 @@ ozToFlatLines2 highlightedId isBeingDragged =
 
         exit oz acc =
             acc
+
+        startHelp : OZ -> List FlatLine
+        startHelp oz =
+            let
+                ( _, list ) =
+                    fzVisit { enter = enter, exit = exit } ( (), [] ) oz
+            in
+            list
     in
-    fzVisit { enter = enter, exit = exit } []
+    startHelp
 
 
 ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
