@@ -482,11 +482,6 @@ ozSetTitle title =
     fzMapData (\item -> { item | title = title })
 
 
-ozParentId : OZ -> Maybe ItemId
-ozParentId =
-    up >> Maybe.map ozId
-
-
 gotoNodeWithId : ItemId -> OZ -> Maybe OZ
 gotoNodeWithId itemId =
     findFirst (propEq .id itemId)
@@ -762,81 +757,6 @@ ozToFlatLines2 highlightedId isBeingDragged =
             fzVisit { enter = enter, exit = exit } [] oz
     in
     startHelp
-
-
-ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
-ozToFlatLines highlightedId isBeingDragged =
-    let
-        hasDraggedAncestor oz =
-            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
-
-        toAppendInBeaconLine oz =
-            BeaconLine (getLevel oz) (AppendIn (ozId oz))
-
-        parentAppendInBeaconLines : ForestZipper Item -> List FlatLine
-        parentAppendInBeaconLines oz =
-            case ( right oz, up oz ) of
-                ( Nothing, Just poz ) ->
-                    if hasDraggedAncestor poz then
-                        []
-
-                    else
-                        [ toAppendInBeaconLine poz ]
-
-                _ ->
-                    []
-    in
-    let
-        flatLinesAt : OZ -> List FlatLine
-        flatLinesAt oz =
-            let
-                level =
-                    getLevel oz
-
-                item =
-                    ozItem oz
-
-                isDraggable =
-                    not (hasDraggedAncestor oz)
-
-                isHighlighted =
-                    not isBeingDragged && highlightedId == item.id
-
-                itemLine =
-                    ItemLine level item { isHighlighted = isHighlighted, isDraggable = isDraggable }
-
-                withBeacons =
-                    [ BeaconLine level (Before item.id)
-                    , itemLine
-                    , BeaconLine level (After item.id)
-                    , BeaconLine (level + 1) (PrependIn item.id)
-                    ]
-
-                withoutBeacons =
-                    [ itemLine ]
-            in
-            (if isDraggable then
-                withBeacons
-
-             else
-                withoutBeacons
-            )
-                ++ parentAppendInBeaconLines oz
-    in
-    let
-        collect list0 oz =
-            let
-                newList =
-                    list0 ++ flatLinesAt oz
-            in
-            case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] oz of
-                Just noz ->
-                    collect newList noz
-
-                Nothing ->
-                    newList
-    in
-    firstRoot >> collect []
 
 
 toFlatLines : Outline -> List FlatLine
