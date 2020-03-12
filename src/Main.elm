@@ -637,8 +637,8 @@ fzVisit { enter, exit } =
     startVisitHelp
 
 
-ozToFlatLines2 : ItemId -> Bool -> OZ -> List FlatLine
-ozToFlatLines2 highlightedId isBeingDragged =
+ozToFlatLines : ItemId -> Bool -> OZ -> List FlatLine
+ozToFlatLines highlightedId isBeingDragged =
     let
         hasDraggedAncestor oz =
             isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
@@ -704,10 +704,10 @@ toFlatLines outline =
                 highlightedItemId =
                     ozId oz
             in
-            ozToFlatLines2 highlightedItemId False oz
+            ozToFlatLines highlightedItemId False oz
 
         OutlineDnD dnd oz ->
-            ozToFlatLines2 dnd.dragItemId True oz
+            ozToFlatLines dnd.dragItemId True oz
 
         OutlineEdit _ _ ->
             Debug.todo "impl"
