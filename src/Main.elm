@@ -601,8 +601,8 @@ type FlatLine
     | EditItemLine
 
 
-fzFold : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
-fzFold func fz acc =
+fzFoldl : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
+fzFoldl func fz acc =
     let
         acc2 : acc
         acc2 =
@@ -610,7 +610,7 @@ fzFold func fz acc =
     in
     case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] fz of
         Just nfz ->
-            fzFold func nfz acc2
+            fzFoldl func nfz acc2
 
         Nothing ->
             acc
