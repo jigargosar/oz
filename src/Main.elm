@@ -639,9 +639,9 @@ ozToFlatLines2 highlightedId isBeingDragged =
     let
         hasDraggedAncestor oz =
             isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
-    in
-    let
-        collect list oz =
+
+        flatLinesAt : OZ -> List FlatLine
+        flatLinesAt oz =
             let
                 level =
                     getLevel oz
@@ -667,15 +667,18 @@ ozToFlatLines2 highlightedId isBeingDragged =
 
                 withoutBeacons =
                     [ itemLine ]
+            in
+            if isDraggable then
+                withBeacons
 
+            else
+                withoutBeacons
+    in
+    let
+        collect list0 oz =
+            let
                 newList =
-                    list
-                        ++ (if isDraggable then
-                                withBeacons
-
-                            else
-                                withoutBeacons
-                           )
+                    list0 ++ flatLinesAt oz
             in
             case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] oz of
                 Just noz ->
