@@ -746,8 +746,8 @@ viewDraggedNode outline =
             text ""
 
 
-viewFlatLine : FlatLine -> Html Msg
-viewFlatLine flatLine =
+viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
+viewFlatLineWithConfig dimDragged flatLine =
     case flatLine of
         BeaconLine level candidateLocation ->
             div [ style "margin-left" (String.fromInt (level * 32) ++ "px") ]
@@ -764,11 +764,11 @@ viewFlatLine flatLine =
         ItemLine level item { isHighlighted, isDraggable } ->
             div
                 [ style "padding-left" (String.fromInt (level * 32) ++ "px")
-                , if isDraggable then
-                    class ""
+                , if not isDraggable && dimDragged then
+                    class "o-50"
 
                   else
-                    class "o-50"
+                    class ""
                 ]
                 [ div
                     (class "pa1 bb b--black-10 pointer no-selection"
@@ -791,6 +791,11 @@ viewFlatLine flatLine =
 
         EditItemLine ->
             text ""
+
+
+viewFlatLine : FlatLine -> Html Msg
+viewFlatLine =
+    viewFlatLineWithConfig True
 
 
 type alias ViewInfo =
