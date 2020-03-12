@@ -624,8 +624,8 @@ fzFoldl func fz =
 ozToFlatLines : ItemId -> OZ -> List FlatLine
 ozToFlatLines highlightedId =
     let
-        func : OZ -> List (List FlatLine) -> List (List FlatLine)
-        func oz lists =
+        func : OZ -> List FlatLine -> List FlatLine
+        func oz acc =
             let
                 ( level, item ) =
                     ( getLevel oz, ozItem oz )
@@ -646,18 +646,16 @@ ozToFlatLines highlightedId =
                         Just _ ->
                             Nothing
             in
-            ([ BeaconLine level (Before item.id)
-             , itemLine
-             , BeaconLine level (After item.id)
-             , BeaconLine (level + 1) (PrependIn item.id)
-             ]
-                ++ Maybe.Extra.toList maybeAppendInBeaconLine
-            )
-                :: lists
+            acc
+                ++ ([ BeaconLine level (Before item.id)
+                    , itemLine
+                    , BeaconLine level (After item.id)
+                    , BeaconLine (level + 1) (PrependIn item.id)
+                    ]
+                        ++ Maybe.Extra.toList maybeAppendInBeaconLine
+                   )
     in
-    (\oz -> fzFoldl func oz [])
-        >> List.reverse
-        >> List.concat
+    \oz -> fzFoldl func oz []
 
 
 toFlatLines : Outline -> List FlatLine
