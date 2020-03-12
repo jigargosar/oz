@@ -2,9 +2,9 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Events
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (attribute, class, draggable, style)
-import Html.Events as Event exposing (onClick)
+import Html exposing (Html, div, input, text)
+import Html.Attributes exposing (attribute, class, draggable, style, value)
+import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
@@ -351,6 +351,7 @@ type Msg
     | Stop
     | GotBeacons Value
     | ItemTitleClicked ItemId
+    | TitleChanged String
 
 
 cacheOZCmd : OZ -> Cmd msg
@@ -363,6 +364,14 @@ update message model =
     case message of
         NoOp ->
             ( model, Cmd.none )
+
+        TitleChanged title ->
+            case model.outline of
+                OutlineEdit oz _ ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    Debug.todo "impl"
 
         ItemTitleClicked iid ->
             case model.outline of
@@ -378,7 +387,7 @@ update message model =
                             ( model, Cmd.none )
 
                 OutlineDnD _ _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 OutlineEdit oz title ->
                     let
@@ -391,52 +400,52 @@ update message model =
         Start dnd ->
             case model.outline of
                 EmptyOutline ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 Outline oz ->
                     ( { model | outline = OutlineDnD dnd oz }, getBeacons () )
 
                 OutlineDnD _ _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 OutlineEdit _ _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
         Move clientXY ->
             case model.outline of
                 EmptyOutline ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 Outline _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 OutlineDnD dnd oz ->
                     ( { model | outline = OutlineDnD { dnd | clientXY = clientXY } oz }, getBeacons () )
 
                 OutlineEdit _ _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
         Stop ->
             case model.outline of
                 EmptyOutline ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 Outline _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 OutlineDnD _ oz ->
                     ( { model | outline = Outline oz }, Cmd.none )
 
                 OutlineEdit _ _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
         GotBeacons encodedBeacons ->
             case model.outline of
                 EmptyOutline ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 Outline _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
                 OutlineDnD dnd oz ->
                     let
@@ -467,7 +476,7 @@ update message model =
                             ( model, Cmd.none )
 
                 OutlineEdit _ _ ->
-                    Debug.todo (Debug.toString ( message, model ))
+                    Debug.todo "impl"
 
 
 ozTitle : OZ -> String
@@ -565,7 +574,7 @@ view m =
 type FlatLine
     = BeaconLine Int CandidateLocation
     | ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
-    | EditItemLine
+    | EditLine Int ItemId String
 
 
 hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
@@ -809,8 +818,17 @@ viewFlatLineWithConfig dimDragged flatLine =
                     ]
                 ]
 
-        EditItemLine ->
-            text ""
+        EditLine level _ title ->
+            div
+                [ style "padding-left" (String.fromInt (level * 32) ++ "px")
+                ]
+                [ div
+                    (class "pa1 bb b--black-10 pointer no-selection" :: [])
+                    [ div [ class "flex lh-title" ]
+                        [ input [ class "flex-auto", value title, onInput TitleChanged ] []
+                        ]
+                    ]
+                ]
 
 
 viewFlatLine : FlatLine -> Html Msg
