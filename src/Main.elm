@@ -601,9 +601,49 @@ type FlatLine
     | EditItemLine
 
 
+ozNext : OZ -> Maybe OZ
+ozNext oz =
+    Debug.todo "impl"
+
+
+collectReverseItems : List Item -> OZ -> List Item
+collectReverseItems reverseItems oz =
+    let
+        newReverseItems =
+            ozItem oz :: reverseItems
+    in
+    case ozNext oz of
+        Just nextOZ ->
+            collectReverseItems newReverseItems nextOZ
+
+        Nothing ->
+            reverseItems
+
+
 toFlatLines : Outline -> List FlatLine
 toFlatLines outline =
-    Debug.todo "impl"
+    case outline of
+        EmptyOutline ->
+            []
+
+        Outline oz ->
+            let
+                highlightedItemId =
+                    ozId oz
+
+                startOZ =
+                    firstRoot oz
+
+                _ =
+                    collectReverseItems
+            in
+            Debug.todo "impl"
+
+        OutlineDnD dnd oz ->
+            Debug.todo "impl"
+
+        OutlineEdit oz string ->
+            Debug.todo "impl"
 
 
 viewFlatLine : FlatLine -> Html Msg
