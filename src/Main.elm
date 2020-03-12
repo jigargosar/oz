@@ -614,29 +614,6 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-
---
---type alias ItemView =
---    { itemId : ItemId
---    , title : String
---    , isFirst : Bool
---    , isLast : Bool
---    , level : Int
---    , parentId : Maybe ItemId
---    }
---
---
---toItemView : OZ -> ItemView
---toItemView oz =
---    { itemId = ozId oz
---    , title = ozTitle oz
---    , isFirst = isFirst oz
---    , isLast = isLast oz
---    , level = getLevel oz
---    , parentId = ozParentId oz
---    }
-
-
 fzVisit :
     { enter : ForestZipper a -> acc -> acc
     , exit : ForestZipper a -> acc -> acc
