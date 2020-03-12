@@ -732,7 +732,7 @@ viewDraggedNode outline =
                 |> Maybe.map (getTree >> List.singleton)
                 |> Maybe.andThen fromForest
                 |> Maybe.map (ozToFlatLines dnd.dragItemId True)
-                |> Maybe.map (List.map viewFlatLine)
+                |> Maybe.map (List.map (viewFlatLineWithConfig False))
                 |> Maybe.map
                     (div
                         [ class "fixed no-pe"
