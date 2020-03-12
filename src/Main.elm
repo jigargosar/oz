@@ -597,7 +597,7 @@ viewOutline outline =
 
 type FlatLine
     = BeaconLine Int CandidateLocation
-    | ItemLine
+    | ItemLine Int Item Bool Bool
     | EditItemLine
 
 
@@ -614,8 +614,26 @@ viewFlatLine flatLine =
                 [ viewBeacon candidateLocation
                 ]
 
-        ItemLine ->
-            text ""
+        ItemLine level item isHighlighted isDraggable ->
+            div [ style "padding-left" (String.fromInt (level * 32) ++ "px") ]
+                [ div
+                    (class "pa1 bb b--black-10 pointer no-selection"
+                        :: (if isHighlighted then
+                                class "bg-blue white"
+
+                            else
+                                class ""
+                           )
+                        :: onClick (ItemTitleClicked item.id)
+                        :: (if isDraggable then
+                                dragEvents item.id
+
+                            else
+                                []
+                           )
+                    )
+                    [ div [ class "lh-title" ] [ text item.title ] ]
+                ]
 
         EditItemLine ->
             text ""
