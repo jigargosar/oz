@@ -584,8 +584,15 @@ viewOutline outline =
             in
             div [] (List.map viewHelp (toForest oz))
 
-        OutlineEdit _ _ ->
-            Debug.todo "viewEDIT"
+        OutlineEdit oz _ ->
+            let
+                vh =
+                    viewItemTree
+                        { dragId = Nothing
+                        , focusedId = Just (ozId oz)
+                        }
+            in
+            div [] (List.map vh (toForest oz))
 
 
 type alias ViewInfo =
