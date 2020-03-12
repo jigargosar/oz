@@ -370,7 +370,7 @@ update message model =
                     Debug.todo "impl"
 
                 Outline oz ->
-                    case gotoNodeWithId iid oz of
+                    case gotoItemId iid oz of
                         Just noz ->
                             ( { model | outline = OutlineEdit noz (ozTitle noz) }, cacheOZCmd noz )
 
@@ -384,7 +384,7 @@ update message model =
                     let
                         noz =
                             ozSetTitle title oz
-                                |> withRollback (gotoNodeWithId iid)
+                                |> withRollback (gotoItemId iid)
                     in
                     ( { model | outline = Outline noz }, cacheOZCmd noz )
 
@@ -457,7 +457,7 @@ update message model =
                                     )
                                 |> Maybe.andThen
                                     (\cl -> moveItemWithIdToCandidateLocation dnd.dragItemId cl oz)
-                                |> Maybe.andThen (gotoNodeWithId dnd.dragItemId)
+                                |> Maybe.andThen (gotoItemId dnd.dragItemId)
                     in
                     case maybeNoz of
                         Just noz ->
@@ -490,8 +490,8 @@ ozSetTitle title =
     fzMapData (\item -> { item | title = title })
 
 
-gotoNodeWithId : ItemId -> OZ -> Maybe OZ
-gotoNodeWithId itemId =
+gotoItemId : ItemId -> OZ -> Maybe OZ
+gotoItemId itemId =
     findFirst (propEq .id itemId)
 
 
@@ -507,7 +507,7 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
         insertRemovedNodeAtLocation atLocation node =
             let
                 insertHelp targetItemId func =
-                    gotoNodeWithId targetItemId
+                    gotoItemId targetItemId
                         >> Maybe.map (func node)
             in
             case atLocation of
@@ -523,7 +523,7 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
                 AppendIn itemId ->
                     insertHelp itemId insertLastChild
     in
-    gotoNodeWithId srcItemId
+    gotoItemId srcItemId
         >> Maybe.andThen (moveTo candidateLocation)
 
 
@@ -729,7 +729,7 @@ viewDraggedNode outline =
                 xy =
                     dndDraggedXY dnd
             in
-            gotoNodeWithId dnd.dragItemId oz
+            gotoItemId dnd.dragItemId oz
                 |> Maybe.map (getTree >> List.singleton)
                 |> Maybe.andThen fromForest
                 |> Maybe.map (ozToFlatLines dnd.dragItemId True Nothing)
