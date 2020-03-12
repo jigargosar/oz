@@ -412,8 +412,12 @@ update message model =
                 OutlineDnD _ _ ->
                     Debug.todo "impl"
 
-                OutlineEdit _ _ ->
-                    Debug.todo "impl"
+                OutlineEdit oz title ->
+                    let
+                        noz =
+                            ozSetTitle title oz
+                    in
+                    ( { model | outline = OutlineDnD dnd noz }, getBeacons () )
 
         Move clientXY ->
             case model.outline of
