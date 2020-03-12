@@ -360,6 +360,10 @@ cacheOZCmd =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
+    let
+        notImplemented =
+            Debug.todo (Debug.toString ( message, model ))
+    in
     case message of
         NoOp ->
             ( model, Cmd.none )
@@ -378,7 +382,7 @@ update message model =
                             ( model, Cmd.none )
 
                 OutlineDnD _ _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 OutlineEdit oz title ->
                     let
@@ -391,52 +395,52 @@ update message model =
         Start dnd ->
             case model.outline of
                 EmptyOutline ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 Outline oz ->
                     ( { model | outline = OutlineDnD dnd oz }, getBeacons () )
 
                 OutlineDnD _ _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 OutlineEdit _ _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
         Move clientXY ->
             case model.outline of
                 EmptyOutline ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 Outline _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 OutlineDnD dnd oz ->
                     ( { model | outline = OutlineDnD { dnd | clientXY = clientXY } oz }, getBeacons () )
 
                 OutlineEdit _ _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
         Stop ->
             case model.outline of
                 EmptyOutline ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 Outline _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 OutlineDnD _ oz ->
                     ( { model | outline = Outline oz }, Cmd.none )
 
                 OutlineEdit _ _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
         GotBeacons encodedBeacons ->
             case model.outline of
                 EmptyOutline ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 Outline _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
                 OutlineDnD dnd oz ->
                     let
@@ -467,7 +471,7 @@ update message model =
                             ( model, Cmd.none )
 
                 OutlineEdit _ _ ->
-                    Debug.todo "impl"
+                    notImplemented
 
 
 ozTitle : OZ -> String
@@ -711,7 +715,7 @@ toFlatLines outline =
             ozToFlatLines dnd.dragItemId True oz
 
         OutlineEdit _ _ ->
-            Debug.todo "impl"
+            Debug.todo "impl toFlatLines for OutlineEdit"
 
 
 viewDraggedNode : Outline -> Html Msg
