@@ -596,7 +596,7 @@ viewOutline outline =
 
 
 type FlatLine
-    = BeaconLine
+    = BeaconLine Int CandidateLocation
     | ItemLine
     | EditItemLine
 
@@ -609,8 +609,10 @@ toFlatLines outline =
 viewFlatLine : FlatLine -> Html Msg
 viewFlatLine flatLine =
     case flatLine of
-        BeaconLine ->
-            text ""
+        BeaconLine level candidateLocation ->
+            div [ style "padding-left" (String.fromInt (level * 32) ++ "px") ]
+                [ viewBeacon candidateLocation
+                ]
 
         ItemLine ->
             text ""
