@@ -551,7 +551,7 @@ viewOutline : Outline -> Html Msg
 viewOutline outline =
     case outline of
         EmptyOutline ->
-            text "EMPTY OUTLINE IMPLEMENT"
+            text "IMPLEMENT : EMPTY OUTLINE VIEW"
 
         Outline oz ->
             let
