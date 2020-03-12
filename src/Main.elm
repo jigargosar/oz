@@ -670,10 +670,10 @@ fzVisit { enter, exit } =
                             ( exitAcc, Nothing )
 
         visitHelp : acc -> ForestZipper a -> acc
-        visitHelp acc oz =
+        visitHelp acc0 oz =
             let
                 enterAcc =
-                    enter oz acc
+                    enter oz acc0
             in
             case down oz of
                 Just childOZ ->
@@ -691,7 +691,7 @@ fzVisit { enter, exit } =
                         Nothing ->
                             case up oz of
                                 Nothing ->
-                                    acc
+                                    exitAcc
 
                                 Just poz ->
                                     case exitParentsTillRight exitAcc poz of
@@ -850,10 +850,10 @@ toFlatLines outline =
                 highlightedItemId =
                     ozId oz
             in
-            ozToFlatLines highlightedItemId False oz
+            ozToFlatLines2 highlightedItemId False oz
 
         OutlineDnD dnd oz ->
-            ozToFlatLines dnd.dragItemId True oz
+            ozToFlatLines2 dnd.dragItemId True oz
 
         OutlineEdit _ _ ->
             Debug.todo "impl"
