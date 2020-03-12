@@ -597,12 +597,12 @@ viewOutline outline =
 
 type FlatLine
     = BeaconLine Int CandidateLocation
-    | ItemLine Int Item Bool Bool
+    | ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
     | EditItemLine
 
 
-fzFoldl : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
-fzFoldl func fz acc =
+fzFoldlHelp : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
+fzFoldlHelp func fz acc =
     let
         acc2 : acc
         acc2 =
@@ -610,10 +610,54 @@ fzFoldl func fz acc =
     in
     case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] fz of
         Just nfz ->
-            fzFoldl func nfz acc2
+            fzFoldlHelp func nfz acc2
 
         Nothing ->
             acc
+
+
+fzFoldl : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
+fzFoldl func fz =
+    fzFoldlHelp func (firstRoot fz)
+
+
+ozToFlatLines : ItemId -> OZ -> List FlatLine
+ozToFlatLines highlightedId =
+    let
+        func : OZ -> List (List FlatLine) -> List (List FlatLine)
+        func oz lists =
+            let
+                ( level, item ) =
+                    ( getLevel oz, ozItem oz )
+
+                itemLine : FlatLine
+                itemLine =
+                    ItemLine level item { isHighlighted = highlightedId == item.id, isDraggable = True }
+
+                appendInParent parentItemId =
+                    BeaconLine (level - 1) (AppendIn parentItemId)
+
+                maybeAppendInBeaconLine : Maybe FlatLine
+                maybeAppendInBeaconLine =
+                    case right oz of
+                        Nothing ->
+                            up oz |> Maybe.map (ozId >> appendInParent)
+
+                        Just _ ->
+                            Nothing
+            in
+            ([ BeaconLine level (Before item.id)
+             , itemLine
+             , BeaconLine level (After item.id)
+             , BeaconLine (level + 1) (PrependIn item.id)
+             ]
+                ++ Maybe.Extra.toList maybeAppendInBeaconLine
+            )
+                :: lists
+    in
+    (\oz -> fzFoldl func oz [])
+        >> List.reverse
+        >> List.concat
 
 
 toFlatLines : Outline -> List FlatLine
@@ -647,7 +691,7 @@ viewFlatLine flatLine =
                 [ viewBeacon candidateLocation
                 ]
 
-        ItemLine level item isHighlighted isDraggable ->
+        ItemLine level item { isHighlighted, isDraggable } ->
             div [ style "padding-left" (String.fromInt (level * 32) ++ "px") ]
                 [ div
                     (class "pa1 bb b--black-10 pointer no-selection"
@@ -836,6 +880,11 @@ fzMapData func =
 getTree : ForestZipper a -> Tree a
 getTree fz =
     fz.center
+
+
+getLevel : ForestZipper a -> Int
+getLevel fz =
+    List.length fz.crumbs
 
 
 
