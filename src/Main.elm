@@ -550,6 +550,8 @@ view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
         [ div [ class "pv2" ] [ text "DND Beacons Ports" ]
         , viewOutline m.outline
+
+        -- |> always ((List.map viewFlatLine (toFlatLines m.outline)) |> div [])
         ]
 
 
@@ -613,7 +615,7 @@ fzFoldlHelp func fz acc =
             fzFoldlHelp func nfz acc2
 
         Nothing ->
-            acc
+            acc2
 
 
 fzFoldl : (ForestZipper a -> acc -> acc) -> ForestZipper a -> acc -> acc
