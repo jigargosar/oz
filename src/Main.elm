@@ -370,11 +370,12 @@ update message model =
                     Debug.todo "impl"
 
                 Outline oz ->
-                    let
-                        noz =
-                            withRollback (gotoNodeWithId iid) oz
-                    in
-                    ( { model | outline = Outline noz }, cacheOZCmd noz )
+                    case gotoNodeWithId iid oz of
+                        Just noz ->
+                            ( { model | outline = OutlineEdit noz (ozTitle noz) }, cacheOZCmd noz )
+
+                        Nothing ->
+                            ( model, Cmd.none )
 
                 OutlineDnD _ _ ->
                     Debug.todo "impl"
@@ -459,6 +460,11 @@ update message model =
 
                 OutlineEdit _ _ ->
                     Debug.todo "impl"
+
+
+ozTitle : OZ -> String
+ozTitle =
+    ozItem >> .title
 
 
 ozItem : OZ -> Item
