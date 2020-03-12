@@ -368,7 +368,7 @@ update message model =
         TitleChanged title ->
             case model.outline of
                 OutlineEdit oz _ ->
-                    ( model, Cmd.none )
+                    ( { model | outline = OutlineEdit oz title }, Cmd.none )
 
                 _ ->
                     Debug.todo "impl"
