@@ -1,4 +1,4 @@
-module TreeCPS exposing (Tree(..), fzVisit2)
+module TreeCPS exposing (Tree(..), fzVisit)
 
 import Maybe.Extra
 
@@ -7,14 +7,14 @@ import Maybe.Extra
 -- CPS VISIT
 
 
-fzVisit2 :
+fzVisit :
     { enter : ForestZipper a -> acc -> acc
     , exit : ForestZipper a -> acc -> acc
     }
     -> acc
     -> ForestZipper a
     -> acc
-fzVisit2 { enter, exit } =
+fzVisit { enter, exit } =
     let
         step : VisitMsg -> acc -> ForestZipper a -> acc
         step msg acc oz =
