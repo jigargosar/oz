@@ -597,6 +597,67 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
+toFlatLineTree : ItemId -> Bool -> Maybe String -> OZ -> Maybe (ForestZipper (List FlatLine))
+toFlatLineTree highlightedId isBeingDragged editTitle =
+    let
+        hasDraggedAncestor oz =
+            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
+    in
+    let
+        enter : OZ -> List FlatLine
+        enter oz =
+            let
+                editOrItemLine =
+                    case ( ozId oz == highlightedId, editTitle ) of
+                        ( True, Just title ) ->
+                            EditLine (getLevel oz) title
+
+                        _ ->
+                            ItemLine (getLevel oz)
+                                (ozItem oz)
+                                { isHighlighted = not isBeingDragged && highlightedId == ozId oz
+                                , isDraggable = not (hasDraggedAncestor oz)
+                                }
+
+                withBeacons =
+                    [ BeaconLine (getLevel oz) (Before (ozId oz))
+                    , editOrItemLine
+                    , BeaconLine (getLevel oz + 1) (PrependIn (ozId oz))
+                    ]
+
+                withoutBeacons =
+                    [ editOrItemLine ]
+            in
+            if hasDraggedAncestor oz then
+                withoutBeacons
+
+            else
+                withBeacons
+
+        exit : OZ -> List FlatLine
+        exit oz =
+            if hasDraggedAncestor oz then
+                []
+
+            else
+                [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
+                , BeaconLine (getLevel oz) (After (ozId oz))
+                ]
+    in
+    fzVisit
+        { enter =
+            \oz maybeFLZ ->
+                case maybeFLZ of
+                    Nothing ->
+                        Just (fromSingletonForest (Tree (enter oz) []))
+
+                    Just flz ->
+                        Just (insertFirstChild (Tree (enter oz) []) flz)
+        , exit = \oz maybeFLZ -> Nothing
+        }
+        Nothing
+
+
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
 ozToFlatLines highlightedId isBeingDragged editTitle =
     let
@@ -845,6 +906,11 @@ type alias Crumb a =
     , datum : a
     , right_ : Forest a
     }
+
+
+fromSingletonForest : Tree a -> ForestZipper a
+fromSingletonForest tree =
+    { leftReversed = [], center = tree, right_ = [], crumbs = [] }
 
 
 fromForest : Forest a -> Maybe (ForestZipper a)
