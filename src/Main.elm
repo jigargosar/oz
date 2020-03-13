@@ -603,45 +603,45 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-type alias HtmlZipper a out =
+type alias TransformAcc a out =
     { leftReversed : List (() -> out)
     , crumbs : List { leftReversed : List (() -> out), center : a, right : Forest a }
     }
 
 
-forestToLHM : (a -> List (() -> out) -> (() -> out)) -> Forest a -> List out
-forestToLHM toH initialForest =
+transformForest : (a -> List (() -> out) -> (() -> out)) -> Forest a -> List out
+transformForest toOut initialForest =
     let
-        itemToHtml : a -> List (() -> out) -> () -> out
+        itemToHtml : a -> List (() -> out) -> (() -> out)
         itemToHtml =
-            toH
+            toOut
 
-        build : Forest a -> HtmlZipper a out -> List out
-        build rightNodes hz =
+        build : Forest a -> TransformAcc a out -> List out
+        build rightNodes acc =
             case rightNodes of
                 first :: rest ->
                     build (treeChildren first)
                         { leftReversed = []
                         , crumbs =
-                            { leftReversed = hz.leftReversed
+                            { leftReversed = acc.leftReversed
                             , center = treeData first
                             , right = rest
                             }
-                                :: hz.crumbs
+                                :: acc.crumbs
                         }
 
                 [] ->
-                    case hz.crumbs of
+                    case acc.crumbs of
                         parentCrumb :: rest ->
                             build parentCrumb.right
                                 { leftReversed =
-                                    itemToHtml parentCrumb.center hz.leftReversed
+                                    itemToHtml parentCrumb.center acc.leftReversed
                                         :: parentCrumb.leftReversed
                                 , crumbs = rest
                                 }
 
                         [] ->
-                            List.foldl (\c -> (::) (c ())) [] hz.leftReversed
+                            List.foldl (\c -> (::) (c ())) [] acc.leftReversed
     in
     build initialForest
         { leftReversed = []
