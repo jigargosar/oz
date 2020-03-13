@@ -765,7 +765,7 @@ viewDraggedNode outline =
 
 
 debug =
-    False
+    True
 
 
 dataBeacon : Value -> Attribute msg
