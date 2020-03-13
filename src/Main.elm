@@ -836,14 +836,7 @@ viewFlatLineWithConfig dimDragged flatLine =
                                 []
                            )
                     )
-                    [ div [ class "lh-title" ]
-                        [ text item.title
-                        , if debug then
-                            text (Debug.toString item.id)
-
-                          else
-                            text ""
-                        ]
+                    [ div [ class "lh-title" ] [ text (itemDisplayTitle item) ]
                     ]
                 ]
 
