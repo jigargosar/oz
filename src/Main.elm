@@ -617,7 +617,7 @@ type alias HtmlF =
 
 type alias HZ =
     { leftReversed : LHM
-    , current : OutlineNode
+    , center : OutlineNode
     , right : List OutlineNode
     , crumbs : List { leftReversed : LHM, centerF : LHM -> HM, right : List OutlineNode }
     }
@@ -626,9 +626,44 @@ type alias HZ =
 outlineForestToLHM : OutlineForest -> LHM
 outlineForestToLHM =
     let
+        toHtmlF : Item -> HtmlF
+        toHtmlF item lhm =
+            div []
+                [ div [] [ text item.title ]
+                , div [ class "pl3" ] lhm
+                ]
+
         build : HZ -> LHM
         build hz =
-            []
+            case treeChildren hz.center of
+                --go down
+                firstChild :: restOfSiblings ->
+                    build
+                        { leftReversed = []
+                        , center = firstChild
+                        , right = restOfSiblings
+                        , crumbs =
+                            { leftReversed = hz.leftReversed
+                            , centerF = toHtmlF (treeData hz.center)
+                            , right = hz.right
+                            }
+                                :: hz.crumbs
+                        }
+
+                [] ->
+                    case hz.right of
+                        -- go right
+                        first :: rest ->
+                            build
+                                { leftReversed = toHtmlF (treeData hz.center) [] :: hz.leftReversed
+                                , center = first
+                                , right = rest
+                                , crumbs = hz.crumbs
+                                }
+
+                        -- go up
+                        [] ->
+                            []
 
         buildHelp : OutlineForest -> LHM
         buildHelp nodes =
@@ -639,7 +674,7 @@ outlineForestToLHM =
                 first :: rest ->
                     build
                         { leftReversed = []
-                        , current = first
+                        , center = first
                         , right = rest
                         , crumbs = []
                         }
@@ -907,6 +942,11 @@ mapTreeData func (Tree a children) =
 treeData : Tree a -> a
 treeData (Tree a _) =
     a
+
+
+treeChildren : Tree a -> Forest a
+treeChildren (Tree _ children) =
+    children
 
 
 
