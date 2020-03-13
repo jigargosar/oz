@@ -17,37 +17,37 @@ fzVisit2 :
 fzVisit2 { enter, exit } =
     let
         visitHelp : acc -> VisitMsg -> ForestZipper a -> acc
-        visitHelp acc0 msg oz =
+        visitHelp acc msg oz =
             case msg of
                 Enter ->
-                    visitHelp (enter oz acc0) Entered oz
+                    visitHelp (enter oz acc) Entered oz
 
                 Entered ->
                     case down oz of
                         Just childOZ ->
-                            visitHelp acc0 Enter childOZ
+                            visitHelp acc Enter childOZ
 
                         Nothing ->
-                            visitHelp acc0 Exit oz
+                            visitHelp acc Exit oz
 
                 Exit ->
-                    visitHelp (exit oz acc0) Exited oz
+                    visitHelp (exit oz acc) Exited oz
 
                 Exited ->
                     case right oz of
                         Just rightOZ ->
-                            visitHelp acc0 Enter rightOZ
+                            visitHelp acc Enter rightOZ
 
                         Nothing ->
-                            visitHelp acc0 Up oz
+                            visitHelp acc Up oz
 
                 Up ->
                     case up oz of
                         Just parentOZ ->
-                            visitHelp acc0 Exit parentOZ
+                            visitHelp acc Exit parentOZ
 
                         Nothing ->
-                            acc0
+                            acc
 
         startVisitHelp : acc -> ForestZipper a -> acc
         startVisitHelp acc fz =
