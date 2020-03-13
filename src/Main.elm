@@ -789,8 +789,16 @@ itemDisplayTitle item =
            )
 
 
+classIf bool classValue =
+    if bool then
+        class classValue
+
+    else
+        class ""
+
+
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
-viewFlatLineWithConfig dimDragged flatLine =
+viewFlatLineWithConfig fadeNotDraggables flatLine =
     case flatLine of
         BeaconLine level candidateLocation ->
             levelContainer level
@@ -816,18 +824,8 @@ viewFlatLineWithConfig dimDragged flatLine =
             levelContainer level
                 [ div
                     (class "pa1 bb b--black-10 pointer no-selection"
-                        :: (if isHighlighted then
-                                class "bg-blue white"
-
-                            else
-                                class ""
-                           )
-                        :: (if not isDraggable && dimDragged then
-                                class "o-50"
-
-                            else
-                                class ""
-                           )
+                        :: classIf isHighlighted "bg-blue white"
+                        :: classIf (not isDraggable && fadeNotDraggables) "o-50"
                         :: onClick (ItemTitleClicked item.id)
                         :: (if isDraggable then
                                 dragEvents item.id
