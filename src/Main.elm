@@ -603,6 +603,52 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
+type alias HtmlZipper a out =
+    { leftReversed : List (() -> out)
+    , crumbs : List { leftReversed : List (() -> out), center : a, right : Forest a }
+    }
+
+
+forestToLHM : (a -> List (() -> out) -> (() -> out)) -> Forest a -> List out
+forestToLHM toH initialForest =
+    let
+        itemToHtml : a -> List (() -> out) -> () -> out
+        itemToHtml =
+            toH
+
+        build : Forest a -> HtmlZipper a out -> List out
+        build rightNodes hz =
+            case rightNodes of
+                first :: rest ->
+                    build (treeChildren first)
+                        { leftReversed = []
+                        , crumbs =
+                            { leftReversed = hz.leftReversed
+                            , center = treeData first
+                            , right = rest
+                            }
+                                :: hz.crumbs
+                        }
+
+                [] ->
+                    case hz.crumbs of
+                        parentCrumb :: rest ->
+                            build parentCrumb.right
+                                { leftReversed =
+                                    itemToHtml parentCrumb.center hz.leftReversed
+                                        :: parentCrumb.leftReversed
+                                , crumbs = rest
+                                }
+
+                        [] ->
+                            List.foldl (\c -> (::) (c ())) [] hz.leftReversed
+    in
+    build initialForest
+        { leftReversed = []
+        , crumbs = []
+        }
+
+
 type alias HM =
     Html Msg
 
