@@ -826,7 +826,6 @@ viewFlatLineWithConfig fadeNotDraggables flatLine =
                     (class "pa1 bb b--black-10 pointer no-selection"
                         :: classIf isHighlighted "bg-blue white"
                         :: classIf (not isDraggable && fadeNotDraggables) "o-50"
-                        :: onClick (ItemTitleClicked item.id)
                         :: (if isDraggable then
                                 dragEvents item.id
 
@@ -834,7 +833,7 @@ viewFlatLineWithConfig fadeNotDraggables flatLine =
                                 []
                            )
                     )
-                    [ div [ class "lh-title" ] [ text (itemDisplayTitle item) ]
+                    [ div [ class "lh-title", onClick (ItemTitleClicked item.id) ] [ text (itemDisplayTitle item) ]
                     ]
                 ]
 
