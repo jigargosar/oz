@@ -603,20 +603,25 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-type alias TransformAcc a out =
-    { leftReversed : List (() -> out)
-    , crumbs : List { leftReversed : List (() -> out), center : a, right : Forest a }
+type alias TransformAcc ctx data out =
+    { leftReversed : List (ctx -> out)
+    , crumbs : List { leftReversed : List (ctx -> out), center : data, right : Forest data }
     }
 
 
-transformForest : (a -> List (() -> out) -> (() -> out)) -> Forest a -> List out
-transformForest toOut initialForest =
+transformForest :
+    { toOut : data -> List (ctx -> out) -> (ctx -> out)
+    }
+    -> ctx
+    -> Forest data
+    -> List out
+transformForest { toOut } ctx initialForest =
     let
-        itemToHtml : a -> List (() -> out) -> (() -> out)
+        itemToHtml : data -> List (ctx -> out) -> (ctx -> out)
         itemToHtml =
             toOut
 
-        build : Forest a -> TransformAcc a out -> List out
+        build : Forest data -> TransformAcc ctx data out -> List out
         build rightNodes acc =
             case rightNodes of
                 first :: rest ->
@@ -641,7 +646,7 @@ transformForest toOut initialForest =
                                 }
 
                         [] ->
-                            List.foldl (\c -> (::) (c ())) [] acc.leftReversed
+                            List.foldl (\c -> (::) (c ctx)) [] acc.leftReversed
     in
     build initialForest
         { leftReversed = []
