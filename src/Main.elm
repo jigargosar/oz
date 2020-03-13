@@ -613,7 +613,8 @@ type alias LHM =
 
 type alias HZ =
     { leftReversed : LHM
-    , right : OutlineForest
+
+    --, right : OutlineForest
     , crumbs : List { leftReversed : LHM, center : Item, right : OutlineForest }
     }
 
@@ -621,20 +622,19 @@ type alias HZ =
 outlineForestToLHM : OutlineForest -> LHM
 outlineForestToLHM =
     let
-        itemToHtmlReverseC : Item -> LHM -> HM
-        itemToHtmlReverseC item reverseChildren =
+        itemToHtml : Item -> LHM -> HM
+        itemToHtml item children =
             div [ class "" ]
                 [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                , div [ class "pl4" ] (List.reverse reverseChildren)
+                , div [ class "pl4" ] children
                 ]
 
-        build : HZ -> LHM
-        build hz =
-            case hz.right of
+        build : OutlineForest -> HZ -> LHM
+        build rightNodes hz =
+            case rightNodes of
                 first :: rest ->
-                    build
+                    build (treeChildren first)
                         { leftReversed = []
-                        , right = treeChildren first
                         , crumbs =
                             { leftReversed = hz.leftReversed
                             , center = treeData first
@@ -646,25 +646,21 @@ outlineForestToLHM =
                 [] ->
                     case hz.crumbs of
                         parentCrumb :: rest ->
-                            build
+                            build parentCrumb.right
                                 { leftReversed =
-                                    itemToHtmlReverseC parentCrumb.center hz.leftReversed
+                                    itemToHtml parentCrumb.center (List.reverse hz.leftReversed)
                                         :: parentCrumb.leftReversed
-                                , right = parentCrumb.right
                                 , crumbs = rest
                                 }
 
                         [] ->
                             List.reverse hz.leftReversed
-
-        initHZ : OutlineForest -> HZ
-        initHZ nodes =
+    in
+    \a ->
+        build a
             { leftReversed = []
-            , right = nodes
             , crumbs = []
             }
-    in
-    initHZ >> build
 
 
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
