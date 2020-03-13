@@ -617,9 +617,8 @@ type alias HtmlF =
 
 type alias HZ =
     { leftReversed : LHM
-    , center : OutlineNode
-    , right : List OutlineNode
-    , crumbs : List { leftReversed : LHM, centerF : LHM -> HM, right : List OutlineNode }
+    , right : OutlineForest
+    , crumbs : List { leftReversed : LHM, parentItem : Item, right : OutlineForest }
     }
 
 
@@ -635,49 +634,15 @@ outlineForestToLHM =
 
         build : HZ -> LHM
         build hz =
-            case treeChildren hz.center of
-                --go down
-                firstChild :: restOfSiblings ->
-                    build
-                        { leftReversed = []
-                        , center = firstChild
-                        , right = restOfSiblings
-                        , crumbs =
-                            { leftReversed = hz.leftReversed
-                            , centerF = toHtmlF (treeData hz.center)
-                            , right = hz.right
-                            }
-                                :: hz.crumbs
-                        }
-
-                [] ->
-                    case hz.right of
-                        -- go right
-                        first :: rest ->
-                            build
-                                { leftReversed = toHtmlF (treeData hz.center) [] :: hz.leftReversed
-                                , center = first
-                                , right = rest
-                                , crumbs = hz.crumbs
-                                }
-
-                        -- go up
-                        [] ->
-                            []
+            []
 
         buildHelp : OutlineForest -> LHM
         buildHelp nodes =
-            case nodes of
-                [] ->
-                    []
-
-                first :: rest ->
-                    build
-                        { leftReversed = []
-                        , center = first
-                        , right = rest
-                        , crumbs = []
-                        }
+            build
+                { leftReversed = []
+                , right = nodes
+                , crumbs = []
+                }
     in
     buildHelp
 
