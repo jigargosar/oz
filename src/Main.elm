@@ -615,7 +615,7 @@ transformForest :
     -> ctx
     -> Forest data
     -> List out
-transformForest { toOut } ctx initialForest =
+transformForest { toOut } initialCtx initialForest =
     let
         itemToHtml : data -> List (ctx -> out) -> (ctx -> out)
         itemToHtml =
@@ -646,7 +646,7 @@ transformForest { toOut } ctx initialForest =
                                 }
 
                         [] ->
-                            List.foldl (\c -> (::) (c ctx)) [] acc.leftReversed
+                            List.foldl (\c -> (::) (c initialCtx)) [] acc.leftReversed
     in
     build initialForest
         { leftReversed = []
