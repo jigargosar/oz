@@ -603,53 +603,6 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-type alias TransformAcc ctx data out =
-    { leftReversed : List (ctx -> out)
-    , crumbs : List { leftReversed : List (ctx -> out), center : data, right : Forest data }
-    }
-
-
-transformForest :
-    { toOut : data -> List (ctx -> out) -> (ctx -> out)
-    }
-    -> ctx
-    -> Forest data
-    -> List out
-transformForest { toOut } initialCtx initialForest =
-    let
-        build : Forest data -> TransformAcc ctx data out -> List out
-        build rightNodes acc =
-            case rightNodes of
-                first :: rest ->
-                    build (treeChildren first)
-                        { leftReversed = []
-                        , crumbs =
-                            { leftReversed = acc.leftReversed
-                            , center = treeData first
-                            , right = rest
-                            }
-                                :: acc.crumbs
-                        }
-
-                [] ->
-                    case acc.crumbs of
-                        parentCrumb :: rest ->
-                            build parentCrumb.right
-                                { leftReversed =
-                                    toOut parentCrumb.center acc.leftReversed
-                                        :: parentCrumb.leftReversed
-                                , crumbs = rest
-                                }
-
-                        [] ->
-                            List.foldl (\c -> (::) (c initialCtx)) [] acc.leftReversed
-    in
-    build initialForest
-        { leftReversed = []
-        , crumbs = []
-        }
-
-
 type alias HM =
     Html Msg
 
