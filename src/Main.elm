@@ -617,10 +617,6 @@ transformForest :
     -> List out
 transformForest { toOut } initialCtx initialForest =
     let
-        itemToHtml : data -> List (ctx -> out) -> (ctx -> out)
-        itemToHtml =
-            toOut
-
         build : Forest data -> TransformAcc ctx data out -> List out
         build rightNodes acc =
             case rightNodes of
@@ -640,7 +636,7 @@ transformForest { toOut } initialCtx initialForest =
                         parentCrumb :: rest ->
                             build parentCrumb.right
                                 { leftReversed =
-                                    itemToHtml parentCrumb.center acc.leftReversed
+                                    toOut parentCrumb.center acc.leftReversed
                                         :: parentCrumb.leftReversed
                                 , crumbs = rest
                                 }
