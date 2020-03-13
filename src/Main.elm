@@ -779,7 +779,7 @@ viewFlatLineWithConfig dimDragged flatLine =
         BeaconLine level candidateLocation ->
             div [ style "margin-left" (String.fromInt (level * 32) ++ "px") ]
                 [ div
-                    ([ class "absolute"
+                    ([ class ""
                      , dataBeacon (candidateLocationEncoder candidateLocation)
                      ]
                         ++ (if debug then
@@ -789,7 +789,10 @@ viewFlatLineWithConfig dimDragged flatLine =
                                 ]
 
                             else
-                                []
+                                [ style "height" "0px"
+                                , style "width" "0px"
+                                , class "bg-red"
+                                ]
                            )
                     )
                     []
