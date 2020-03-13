@@ -612,21 +612,21 @@ type alias LHM =
 
 
 type alias HZ =
-    { leftReversed : LHM
+    { leftReversed : List (() -> HM)
 
     --, right : OutlineForest
-    , crumbs : List { leftReversed : LHM, center : Item, right : OutlineForest }
+    , crumbs : List { leftReversed : List (() -> HM), center : Item, right : OutlineForest }
     }
 
 
 outlineForestToLHM : OutlineForest -> LHM
 outlineForestToLHM =
     let
-        itemToHtml : Item -> LHM -> HM
-        itemToHtml item children =
+        itemToHtml : Item -> List (() -> HM) -> (() -> HM)
+        itemToHtml item reverseChildrenFns () =
             div [ class "" ]
                 [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                , div [ class "pl4" ] children
+                , div [ class "pl4" ] (List.foldl (\c -> (::) (c ())) [] reverseChildrenFns)
                 ]
 
         build : OutlineForest -> HZ -> LHM
@@ -648,13 +648,13 @@ outlineForestToLHM =
                         parentCrumb :: rest ->
                             build parentCrumb.right
                                 { leftReversed =
-                                    itemToHtml parentCrumb.center (List.reverse hz.leftReversed)
+                                    itemToHtml parentCrumb.center hz.leftReversed
                                         :: parentCrumb.leftReversed
                                 , crumbs = rest
                                 }
 
                         [] ->
-                            List.reverse hz.leftReversed
+                            List.foldl (\c -> (::) (c ())) [] hz.leftReversed
     in
     \a ->
         build a
