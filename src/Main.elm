@@ -780,7 +780,7 @@ viewFlatLineWithConfig dimDragged flatLine =
             div [ style "margin-left" (String.fromInt (level * 32) ++ "px") ]
                 [ div
                     ([ class "absolute"
-                     , attribute "data-beacon" (JE.encode 0 (candidateLocationEncoder candidateLocation))
+                     , dataBeacon (candidateLocationEncoder candidateLocation)
                      ]
                         ++ (if debug then
                                 [ style "height" "1px"
