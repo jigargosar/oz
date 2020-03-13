@@ -535,7 +535,7 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
                     insertHelp itemId insertRight
 
                 PrependIn itemId ->
-                    insertHelp itemId insertFirstChild
+                    insertHelp itemId prependAndGotoChild
 
                 AppendIn itemId ->
                     insertHelp itemId insertLastChild
@@ -583,6 +583,7 @@ type FlatLine
     = BeaconLine Int CandidateLocation
     | ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
     | EditLine Int String
+    | NoLine
 
 
 hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
@@ -597,7 +598,7 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-toFlatLineTree : ItemId -> Bool -> Maybe String -> OZ -> Maybe (ForestZipper (List FlatLine))
+toFlatLineTree : ItemId -> Bool -> Maybe String -> OZ -> ForestZipper (List FlatLine)
 toFlatLineTree highlightedId isBeingDragged editTitle =
     let
         hasDraggedAncestor oz =
@@ -646,16 +647,15 @@ toFlatLineTree highlightedId isBeingDragged editTitle =
     in
     fzVisit
         { enter =
-            \oz maybeFLZ ->
-                case maybeFLZ of
-                    Nothing ->
-                        Just (fromSingletonForest (Tree (enter oz) []))
+            \oz flz ->
+                if isFirst oz then
+                    prependAndGotoChild (leaf (enter oz)) flz
 
-                    Just flz ->
-                        Just (insertFirstChild (Tree (enter oz) []) flz)
-        , exit = \oz maybeFLZ -> Nothing
+                else
+                    insertRight (leaf (enter oz)) flz
+        , exit = \oz flz -> flz
         }
-        Nothing
+        (fromSingletonForest (leaf [ NoLine ]))
 
 
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
@@ -838,6 +838,9 @@ viewFlatLineWithConfig dimDragged flatLine =
                     ]
                 ]
 
+        NoLine ->
+            text ""
+
 
 viewFlatLine : FlatLine -> Html Msg
 viewFlatLine =
@@ -883,6 +886,15 @@ mapTreeData func (Tree a children) =
 treeData : Tree a -> a
 treeData (Tree a _) =
     a
+
+
+leaf : a -> Tree a
+leaf a =
+    Tree a []
+
+
+
+-- FOREST
 
 
 type alias Forest a =
@@ -948,11 +960,12 @@ getLevel fz =
     List.length fz.crumbs
 
 
+isFirst : ForestZipper a -> Bool
+isFirst fz =
+    List.isEmpty fz.leftReversed
 
---isFirst : ForestZipper a -> Bool
---isFirst fz =
---    List.isEmpty fz.leftReversed
---
+
+
 --
 --isLast : ForestZipper a -> Bool
 --isLast fz =
@@ -1170,11 +1183,18 @@ insertRight tree acc =
     { acc | right_ = tree :: acc.right_ }
 
 
-insertFirstChild : Tree a -> ForestZipper a -> ForestZipper a
-insertFirstChild child acc =
+prependAndGotoChild : Tree a -> ForestZipper a -> ForestZipper a
+prependAndGotoChild child acc =
     case acc.center of
         Tree a children ->
-            { acc | center = Tree a (child :: children) }
+            { acc
+                | center = child
+                , leftReversed = []
+                , right_ = children
+                , crumbs =
+                    { leftReversed = acc.leftReversed, datum = a, right_ = acc.right_ }
+                        :: acc.crumbs
+            }
 
 
 insertLastChild : Tree a -> ForestZipper a -> ForestZipper a
