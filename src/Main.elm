@@ -657,15 +657,14 @@ outlineForestToLHM =
                         [] ->
                             List.reverse hz.leftReversed
 
-        buildHelp : OutlineForest -> LHM
-        buildHelp nodes =
-            build
-                { leftReversed = []
-                , right = nodes
-                , crumbs = []
-                }
+        initHZ : OutlineForest -> HZ
+        initHZ nodes =
+            { leftReversed = []
+            , right = nodes
+            , crumbs = []
+            }
     in
-    buildHelp
+    initHZ >> build
 
 
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
