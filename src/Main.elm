@@ -2,7 +2,7 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Events
-import Html exposing (Html, div, input, text)
+import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes exposing (attribute, class, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
@@ -766,6 +766,11 @@ viewDraggedNode outline =
 
 debug =
     False
+
+
+dataBeacon : Value -> Attribute msg
+dataBeacon value =
+    attribute "data-beacon" (JE.encode 0 value)
 
 
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
