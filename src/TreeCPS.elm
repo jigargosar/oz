@@ -1,6 +1,11 @@
-port module TreeCPS exposing (..)
+module TreeCPS exposing (Tree(..))
+
+import Maybe.Extra
+
+
 
 -- CPS VISIT
+
 
 fzVisit2 :
     { enter : ForestZipper a -> acc -> acc
@@ -29,15 +34,15 @@ fzVisit2 { enter, exit } =
                         Nothing ->
                             ( exitAcc, Nothing )
 
-        visitHelp : acc -> ForestZipper a -> acc
-        visitHelp acc0 oz =
+        visitHelp : acc -> Msg -> ForestZipper a -> acc
+        visitHelp acc0 msg oz =
             let
                 enterAcc =
                     enter oz acc0
             in
             case down oz of
                 Just childOZ ->
-                    visitHelp enterAcc childOZ
+                    visitHelp enterAcc msg childOZ
 
                 Nothing ->
                     let
@@ -46,7 +51,7 @@ fzVisit2 { enter, exit } =
                     in
                     case right oz of
                         Just rightSiblingOZ ->
-                            visitHelp exitAcc rightSiblingOZ
+                            visitHelp exitAcc msg rightSiblingOZ
 
                         Nothing ->
                             case up oz of
@@ -56,19 +61,26 @@ fzVisit2 { enter, exit } =
                                 Just poz ->
                                     case exitParentsTillRight exitAcc poz of
                                         ( parentExitAcc, Just rightOZ ) ->
-                                            visitHelp parentExitAcc rightOZ
+                                            visitHelp parentExitAcc msg rightOZ
 
                                         ( parentExitAcc, Nothing ) ->
                                             parentExitAcc
 
         startVisitHelp : acc -> ForestZipper a -> acc
         startVisitHelp acc fz =
-            visitHelp acc (firstRoot fz)
+            visitHelp acc Enter (firstRoot fz)
     in
     startVisitHelp
 
 
+type Msg
+    = Enter
+
+
+
 -- VISIT
+
+
 fzVisit :
     { enter : ForestZipper a -> acc -> acc
     , exit : ForestZipper a -> acc -> acc
@@ -135,9 +147,8 @@ fzVisit { enter, exit } =
     startVisitHelp
 
 
--- TREE
 
-import Maybe.Extra
+-- TREE
 
 
 type Tree a

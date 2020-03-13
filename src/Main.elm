@@ -10,6 +10,7 @@ import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Random exposing (Generator)
 import Random.Extra
+import TreeCPS exposing (Tree(..))
 
 
 port getBeacons : () -> Cmd msg
@@ -880,10 +881,6 @@ preventDefault bool =
 
 
 -- TREE
-
-
-type Tree a
-    = Tree a (List (Tree a))
 
 
 mapTreeData : (a -> a) -> Tree a -> Tree a
