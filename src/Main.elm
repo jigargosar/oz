@@ -628,9 +628,6 @@ outlineForestToLHM =
                 , div [ class "pl4" ] (List.reverse reverseChildren)
                 ]
 
-        --itemTreeToHtml : OutlineNode -> LHM -> HM
-        --itemTreeToHtml t =
-        --    itemToHtml (treeData t)
         build : HZ -> LHM
         build hz =
             case hz.right of
