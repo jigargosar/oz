@@ -717,7 +717,7 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
                 , BeaconLine (getLevel oz) (After (ozId oz))
                 ]
     in
-    fzVisit
+    TreeCPS.fzVisit2
         { enter = \oz list -> list ++ enter oz
         , exit = \oz list -> list ++ exit oz
         }

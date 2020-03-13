@@ -1,4 +1,4 @@
-module TreeCPS exposing (Tree(..))
+module TreeCPS exposing (Tree(..), fzVisit2)
 
 import Maybe.Extra
 
