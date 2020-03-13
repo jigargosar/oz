@@ -532,7 +532,7 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
                     insertHelp itemId insertLeft
 
                 After itemId ->
-                    insertHelp itemId insertRight
+                    insertHelp itemId insertAndGoRight
 
                 PrependIn itemId ->
                     insertHelp itemId prependAndGotoChild
@@ -652,7 +652,7 @@ toFlatLineTree highlightedId isBeingDragged editTitle =
                     prependAndGotoChild (leaf (enter oz)) flz
 
                 else
-                    insertRight (leaf (enter oz)) flz
+                    insertAndGoRight (leaf (enter oz)) flz
         , exit = \oz flz -> flz
         }
         (fromSingletonForest (leaf [ NoLine ]))
@@ -1178,9 +1178,18 @@ insertLeft tree acc =
     { acc | leftReversed = tree :: acc.leftReversed }
 
 
-insertRight : Tree a -> ForestZipper a -> ForestZipper a
-insertRight tree acc =
-    { acc | right_ = tree :: acc.right_ }
+insertAndGoRight : Tree a -> ForestZipper a -> ForestZipper a
+insertAndGoRight =
+    let
+        insertRight : Tree a -> ForestZipper a -> ForestZipper a
+        insertRight tree acc =
+            { acc | right_ = tree :: acc.right_ }
+
+        insertHelp : Tree a -> ForestZipper a -> Maybe (ForestZipper a)
+        insertHelp tree =
+            insertRight tree >> right
+    in
+    withRollback << insertHelp
 
 
 prependAndGotoChild : Tree a -> ForestZipper a -> ForestZipper a
