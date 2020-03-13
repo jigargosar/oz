@@ -765,6 +765,7 @@ viewDraggedNode outline =
 
 
 debug =
+    --False
     True
 
 
@@ -773,44 +774,56 @@ dataBeacon value =
     attribute "data-beacon" (JE.encode 0 value)
 
 
+levelContainer level =
+    div [ style "margin-left" (String.fromInt (level * 32) ++ "px") ]
+
+
+itemDisplayTitle : Item -> String
+itemDisplayTitle item =
+    item.title
+        ++ (if debug then
+                Debug.toString item.id
+
+            else
+                ""
+           )
+
+
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
 viewFlatLineWithConfig dimDragged flatLine =
     case flatLine of
         BeaconLine level candidateLocation ->
-            div [ style "margin-left" (String.fromInt (level * 32) ++ "px") ]
+            levelContainer level
                 [ div
-                    ([ class ""
+                    ([ style "height" "0px"
+                     , style "width" "0px"
                      , dataBeacon (candidateLocationEncoder candidateLocation)
                      ]
                         ++ (if debug then
-                                [ style "height" "1px"
-                                , style "width" "1px"
+                                [ style "height" "10px"
+                                , style "width" "10px"
                                 , class "bg-red"
                                 ]
 
                             else
-                                [ style "height" "0px"
-                                , style "width" "0px"
-                                , class "bg-red"
-                                ]
+                                []
                            )
                     )
-                    []
+                    [ text " " ]
                 ]
 
         ItemLine level item { isHighlighted, isDraggable } ->
-            div
-                [ style "padding-left" (String.fromInt (level * 32) ++ "px")
-                , if not isDraggable && dimDragged then
-                    class "o-50"
-
-                  else
-                    class ""
-                ]
+            levelContainer level
                 [ div
                     (class "pa1 bb b--black-10 pointer no-selection"
                         :: (if isHighlighted then
                                 class "bg-blue white"
+
+                            else
+                                class ""
+                           )
+                        :: (if not isDraggable && dimDragged then
+                                class "o-50"
 
                             else
                                 class ""
