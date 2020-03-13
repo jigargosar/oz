@@ -611,30 +611,54 @@ type alias LHM =
     List HM
 
 
-type alias HtmlF =
-    LHM -> HM
-
-
 type alias HZ =
     { leftReversed : LHM
     , right : OutlineForest
-    , crumbs : List { leftReversed : LHM, parentItem : Item, right : OutlineForest }
+    , crumbs : List { leftReversed : LHM, center : Item, right : OutlineForest }
     }
 
 
 outlineForestToLHM : OutlineForest -> LHM
 outlineForestToLHM =
     let
-        toHtmlF : Item -> HtmlF
-        toHtmlF item lhm =
-            div []
-                [ div [] [ text item.title ]
-                , div [ class "pl3" ] lhm
+        itemToHtmlReverseC : Item -> LHM -> HM
+        itemToHtmlReverseC item reverseChildren =
+            div [ class "" ]
+                [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                , div [ class "pl4" ] (List.reverse reverseChildren)
                 ]
 
+        --itemTreeToHtml : OutlineNode -> LHM -> HM
+        --itemTreeToHtml t =
+        --    itemToHtml (treeData t)
         build : HZ -> LHM
         build hz =
-            []
+            case hz.right of
+                first :: rest ->
+                    build
+                        { leftReversed = []
+                        , right = treeChildren first
+                        , crumbs =
+                            { leftReversed = hz.leftReversed
+                            , center = treeData first
+                            , right = rest
+                            }
+                                :: hz.crumbs
+                        }
+
+                [] ->
+                    case hz.crumbs of
+                        parentCrumb :: rest ->
+                            build
+                                { leftReversed =
+                                    itemToHtmlReverseC parentCrumb.center hz.leftReversed
+                                        :: parentCrumb.leftReversed
+                                , right = parentCrumb.right
+                                , crumbs = rest
+                                }
+
+                        [] ->
+                            List.reverse hz.leftReversed
 
         buildHelp : OutlineForest -> LHM
         buildHelp nodes =
