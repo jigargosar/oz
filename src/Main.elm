@@ -598,66 +598,6 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-toFlatLineTree : ItemId -> Bool -> Maybe String -> OZ -> ForestZipper (List FlatLine)
-toFlatLineTree highlightedId isBeingDragged editTitle =
-    let
-        hasDraggedAncestor oz =
-            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
-    in
-    let
-        enter : OZ -> List FlatLine
-        enter oz =
-            let
-                editOrItemLine =
-                    case ( ozId oz == highlightedId, editTitle ) of
-                        ( True, Just title ) ->
-                            EditLine (getLevel oz) title
-
-                        _ ->
-                            ItemLine (getLevel oz)
-                                (ozItem oz)
-                                { isHighlighted = not isBeingDragged && highlightedId == ozId oz
-                                , isDraggable = not (hasDraggedAncestor oz)
-                                }
-
-                withBeacons =
-                    [ BeaconLine (getLevel oz) (Before (ozId oz))
-                    , editOrItemLine
-                    , BeaconLine (getLevel oz + 1) (PrependIn (ozId oz))
-                    ]
-
-                withoutBeacons =
-                    [ editOrItemLine ]
-            in
-            if hasDraggedAncestor oz then
-                withoutBeacons
-
-            else
-                withBeacons
-
-        exit : OZ -> List FlatLine
-        exit oz =
-            if hasDraggedAncestor oz then
-                []
-
-            else
-                [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
-                , BeaconLine (getLevel oz) (After (ozId oz))
-                ]
-    in
-    fzVisit
-        { enter =
-            \oz flz ->
-                if isFirst oz then
-                    prependAndGotoChild (leaf (enter oz)) flz
-
-                else
-                    insertAndGoRight (leaf (enter oz)) flz
-        , exit = \oz flz -> flz
-        }
-        (fromSingletonForest (leaf [ NoLine ]))
-
-
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
 ozToFlatLines highlightedId isBeingDragged editTitle =
     let
@@ -798,7 +738,7 @@ classIf bool classValue =
 
 
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
-viewFlatLineWithConfig fadeNotDraggables flatLine =
+viewFlatLineWithConfig fadeNotDraggable flatLine =
     case flatLine of
         BeaconLine level candidateLocation ->
             levelContainer level
@@ -825,7 +765,7 @@ viewFlatLineWithConfig fadeNotDraggables flatLine =
                 [ div
                     (class "pa1 bb b--black-10 pointer no-selection"
                         :: classIf isHighlighted "bg-blue white"
-                        :: classIf (not isDraggable && fadeNotDraggables) "o-50"
+                        :: classIf (not isDraggable && fadeNotDraggable) "o-50"
                         :: (if isDraggable then
                                 dragEvents item.id
 
@@ -897,6 +837,10 @@ treeData (Tree a _) =
     a
 
 
+
+--noinspection ElmUnusedSymbol
+
+
 leaf : a -> Tree a
 leaf a =
     Tree a []
@@ -927,6 +871,10 @@ type alias Crumb a =
     , datum : a
     , right_ : Forest a
     }
+
+
+
+--noinspection ElmUnusedSymbol
 
 
 fromSingletonForest : Tree a -> ForestZipper a
@@ -969,17 +917,25 @@ getLevel fz =
     List.length fz.crumbs
 
 
+
+--noinspection ElmUnusedSymbol
+
+
 isFirst : ForestZipper a -> Bool
 isFirst fz =
     List.isEmpty fz.leftReversed
 
 
 
---
---isLast : ForestZipper a -> Bool
---isLast fz =
---    List.isEmpty fz.right_
---
+--noinspection ElmUnusedSymbol
+
+
+isLast : ForestZipper a -> Bool
+isLast fz =
+    List.isEmpty fz.right_
+
+
+
 -- CORE NAVIGATION
 
 
