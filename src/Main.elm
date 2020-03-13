@@ -61,6 +61,10 @@ type alias OutlineNode =
     Tree Item
 
 
+type alias OutlineForest =
+    List OutlineNode
+
+
 type alias OZ =
     ForestZipper Item
 
@@ -596,6 +600,50 @@ hasAncestorWithIdIncludingSelf itemId oz =
             up oz
                 |> Maybe.map (hasAncestorWithIdIncludingSelf itemId)
                 |> Maybe.withDefault False
+
+
+type alias HM =
+    Html Msg
+
+
+type alias LHM =
+    List HM
+
+
+type alias HtmlF =
+    LHM -> HM
+
+
+type alias HZ =
+    { leftReversed : LHM
+    , current : OutlineNode
+    , right : List OutlineNode
+    , crumbs : List { leftReversed : LHM, centerF : LHM -> HM, right : List OutlineNode }
+    }
+
+
+outlineForestToLHM : OutlineForest -> LHM
+outlineForestToLHM =
+    let
+        build : HZ -> LHM
+        build hz =
+            []
+
+        buildHelp : OutlineForest -> LHM
+        buildHelp nodes =
+            case nodes of
+                [] ->
+                    []
+
+                first :: rest ->
+                    build
+                        { leftReversed = []
+                        , current = first
+                        , right = rest
+                        , crumbs = []
+                        }
+    in
+    buildHelp
 
 
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
