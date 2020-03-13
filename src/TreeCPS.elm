@@ -16,25 +16,7 @@ fzVisit2 :
     -> acc
 fzVisit2 { enter, exit } =
     let
-        exitParentsTillRight : acc -> ForestZipper a -> ( acc, Maybe (ForestZipper a) )
-        exitParentsTillRight acc oz =
-            let
-                exitAcc =
-                    exit oz acc
-            in
-            case right oz of
-                Just rightOZ ->
-                    ( exitAcc, Just rightOZ )
-
-                Nothing ->
-                    case up oz of
-                        Just parentOZ ->
-                            exitParentsTillRight exitAcc parentOZ
-
-                        Nothing ->
-                            ( exitAcc, Nothing )
-
-        visitHelp : acc -> Msg -> ForestZipper a -> acc
+        visitHelp : acc -> VisitMsg -> ForestZipper a -> acc
         visitHelp acc0 msg oz =
             case msg of
                 Enter ->
@@ -67,37 +49,6 @@ fzVisit2 { enter, exit } =
                         Nothing ->
                             acc0
 
-                Default ->
-                    let
-                        enterAcc =
-                            enter oz acc0
-                    in
-                    case down oz of
-                        Just childOZ ->
-                            visitHelp enterAcc msg childOZ
-
-                        Nothing ->
-                            let
-                                exitAcc =
-                                    exit oz enterAcc
-                            in
-                            case right oz of
-                                Just rightSiblingOZ ->
-                                    visitHelp exitAcc msg rightSiblingOZ
-
-                                Nothing ->
-                                    case up oz of
-                                        Nothing ->
-                                            exitAcc
-
-                                        Just poz ->
-                                            case exitParentsTillRight exitAcc poz of
-                                                ( parentExitAcc, Just rightOZ ) ->
-                                                    visitHelp parentExitAcc msg rightOZ
-
-                                                ( parentExitAcc, Nothing ) ->
-                                                    parentExitAcc
-
         startVisitHelp : acc -> ForestZipper a -> acc
         startVisitHelp acc fz =
             visitHelp acc Enter (firstRoot fz)
@@ -105,83 +56,12 @@ fzVisit2 { enter, exit } =
     startVisitHelp
 
 
-type Msg
+type VisitMsg
     = Enter
     | Entered
     | Exit
     | Exited
     | Up
-    | Default
-
-
-
--- VISIT
-
-
-fzVisit :
-    { enter : ForestZipper a -> acc -> acc
-    , exit : ForestZipper a -> acc -> acc
-    }
-    -> acc
-    -> ForestZipper a
-    -> acc
-fzVisit { enter, exit } =
-    let
-        exitParentsTillRight : acc -> ForestZipper a -> ( acc, Maybe (ForestZipper a) )
-        exitParentsTillRight acc oz =
-            let
-                exitAcc =
-                    exit oz acc
-            in
-            case right oz of
-                Just rightOZ ->
-                    ( exitAcc, Just rightOZ )
-
-                Nothing ->
-                    case up oz of
-                        Just parentOZ ->
-                            exitParentsTillRight exitAcc parentOZ
-
-                        Nothing ->
-                            ( exitAcc, Nothing )
-
-        visitHelp : acc -> ForestZipper a -> acc
-        visitHelp acc0 oz =
-            let
-                enterAcc =
-                    enter oz acc0
-            in
-            case down oz of
-                Just childOZ ->
-                    visitHelp enterAcc childOZ
-
-                Nothing ->
-                    let
-                        exitAcc =
-                            exit oz enterAcc
-                    in
-                    case right oz of
-                        Just rightSiblingOZ ->
-                            visitHelp exitAcc rightSiblingOZ
-
-                        Nothing ->
-                            case up oz of
-                                Nothing ->
-                                    exitAcc
-
-                                Just poz ->
-                                    case exitParentsTillRight exitAcc poz of
-                                        ( parentExitAcc, Just rightOZ ) ->
-                                            visitHelp parentExitAcc rightOZ
-
-                                        ( parentExitAcc, Nothing ) ->
-                                            parentExitAcc
-
-        startVisitHelp : acc -> ForestZipper a -> acc
-        startVisitHelp acc fz =
-            visitHelp acc (firstRoot fz)
-    in
-    startVisitHelp
 
 
 
