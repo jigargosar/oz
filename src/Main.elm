@@ -838,9 +838,7 @@ viewFlatLineWithConfig fadeNotDraggables flatLine =
                 ]
 
         EditLine level title ->
-            div
-                [ style "padding-left" (String.fromInt (level * 32) ++ "px")
-                ]
+            levelContainer level
                 [ div
                     (class "pa1 bb b--black-10 pointer no-selection" :: [])
                     [ div [ class "flex lh-title" ]
