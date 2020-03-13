@@ -577,7 +577,8 @@ subscriptions m =
 view : Model -> Html Msg
 view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
-        [ div [ class "pv2" ] [ text "DND Beacons Ports" ]
+        [ viewExpOutline m.outline
+        , div [ class "pv2" ] [ text "DND Beacons Ports" ]
         , List.map viewFlatLine (toFlatLines m.outline) |> div []
         , viewDraggedNode m.outline
         ]
@@ -698,6 +699,29 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
         , exit = \oz list -> list ++ exit oz
         }
         []
+
+
+viewExpOutline : Outline -> HM
+viewExpOutline outline =
+    let
+        hml =
+            case outline of
+                EmptyOutline ->
+                    []
+
+                Outline oz ->
+                    outlineForestToLHM (toRootForest oz)
+
+                OutlineDnD dnd oz ->
+                    outlineForestToLHM (toRootForest oz)
+
+                OutlineEdit oz title ->
+                    outlineForestToLHM (toRootForest oz)
+    in
+    div []
+        [ div [ class "f1" ] [ text "exp tree view" ]
+        , div [] hml
+        ]
 
 
 toFlatLines : Outline -> List FlatLine
@@ -938,6 +962,16 @@ fromForest forest =
 
         first :: rest ->
             Just { leftReversed = [], center = first, right_ = rest, crumbs = [] }
+
+
+toRootForest : ForestZipper a -> Forest a
+toRootForest =
+    firstRoot >> getForest
+
+
+getForest : ForestZipper a -> Forest a
+getForest fz =
+    List.reverse fz.leftReversed ++ fz.center :: fz.right_
 
 
 withRollback : (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> ForestZipper a
