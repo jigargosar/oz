@@ -665,56 +665,21 @@ forestToLHM =
             }
 
 
-type alias HZ =
-    { leftReversed : List (() -> HM)
-
-    --, right : OutlineForest
-    , crumbs : List { leftReversed : List (() -> HM), center : Item, right : OutlineForest }
-    }
-
-
 outlineForestToLHM : OutlineForest -> LHM
 outlineForestToLHM =
     let
-        itemToHtml : Item -> List (() -> HM) -> (() -> HM)
-        itemToHtml item reverseChildrenFns () =
+        render : Item -> List (() -> HM) -> (() -> HM)
+        render item reverseChildrenFns () =
             div [ class "" ]
                 [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
                 , div [ class "pl4" ] (List.foldl (\c -> (::) (c ())) [] reverseChildrenFns)
                 ]
 
-        build : OutlineForest -> HZ -> LHM
-        build rightNodes hz =
-            case rightNodes of
-                first :: rest ->
-                    build (treeChildren first)
-                        { leftReversed = []
-                        , crumbs =
-                            { leftReversed = hz.leftReversed
-                            , center = treeData first
-                            , right = rest
-                            }
-                                :: hz.crumbs
-                        }
-
-                [] ->
-                    case hz.crumbs of
-                        parentCrumb :: rest ->
-                            build parentCrumb.right
-                                { leftReversed =
-                                    itemToHtml parentCrumb.center hz.leftReversed
-                                        :: parentCrumb.leftReversed
-                                , crumbs = rest
-                                }
-
-                        [] ->
-                            List.foldl (\c -> (::) (c ())) [] hz.leftReversed
+        config : Config Item ()
+        config =
+            { render = render, context = () }
     in
-    \a ->
-        build a
-            { leftReversed = []
-            , crumbs = []
-            }
+    forestToLHM config
 
 
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
