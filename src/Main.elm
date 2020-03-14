@@ -695,12 +695,12 @@ viewExpOutline outline =
                         highlightedId =
                             ozId oz
                     in
-                    forestToLHMWithoutCtx
+                    forestToLHM
                         (\item -> renderWithBeacons (item.id == highlightedId) item)
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
-                    forestToLHM
+                    forestToLHMWithContext
                         { render =
                             \item ctx ->
                                 if ctx.renderWithoutBeacons then
@@ -720,7 +720,7 @@ viewExpOutline outline =
                         (toRootForest oz)
 
                 OutlineEdit oz title ->
-                    forestToLHMWithoutCtx
+                    forestToLHM
                         (\item ->
                             if item.id == ozId oz then
                                 renderEditItem item title
@@ -764,8 +764,8 @@ type alias LHMConfig a ctx =
     }
 
 
-forestToLHM : LHMConfig a ctx -> ctx -> Forest a -> LHM
-forestToLHM =
+forestToLHMWithContext : LHMConfig a ctx -> ctx -> Forest a -> LHM
+forestToLHMWithContext =
     let
         build : LHMConfig a ctx -> Forest a -> LHMZipper a ctx -> LHM
         build cfg rightForest z =
@@ -815,9 +815,9 @@ forestToLHM =
             }
 
 
-forestToLHMWithoutCtx : (a -> List HM -> HM) -> Forest a -> LHM
-forestToLHMWithoutCtx render =
-    forestToLHM
+forestToLHM : (a -> List HM -> HM) -> Forest a -> LHM
+forestToLHM render =
+    forestToLHMWithContext
         { render = \a () -> render a
         , nodeContext = \_ _ -> ()
         }
