@@ -1005,7 +1005,11 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                     )
                     [ div [ class "lh-title", onClick (ItemTitleClicked item.id) ]
                         [ text (itemDisplayTitle item) ]
-                    , div [] [ text "+" ]
+                    , if isDraggable then
+                        div [ class "" ] [ text "+" ]
+
+                      else
+                        text ""
                     ]
                 ]
 
