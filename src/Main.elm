@@ -2,7 +2,7 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Events
-import Forest.Tree as Tree exposing (Tree)
+import Forest.Tree as Tree exposing (Forest, Tree)
 import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes exposing (attribute, class, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
@@ -1070,14 +1070,6 @@ dragEvents itemId =
 preventDefault : Bool -> Decoder b -> Decoder ( b, Bool )
 preventDefault bool =
     JD.map (\msg -> ( msg, bool ))
-
-
-
--- FOREST
-
-
-type alias Forest a =
-    List (Tree a)
 
 
 
