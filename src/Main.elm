@@ -668,16 +668,30 @@ forestToLHM =
 outlineForestToLHM : Maybe ItemId -> OutlineForest -> LHM
 outlineForestToLHM maybeDraggedIid =
     let
-        render : Item -> List (() -> HM) -> (() -> HM)
-        render item reverseChildrenFns () =
-            div [ class "" ]
-                [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                , div [ class "pl4" ] (List.foldl (\c -> (::) (c ())) [] reverseChildrenFns)
-                ]
+        render : Item -> List ({ renderWithoutBeacons : Bool } -> HM) -> ({ renderWithoutBeacons : Bool } -> HM)
+        render item reverseChildrenFns ctx =
+            let
+                renderWithBeacons =
+                    div [ class "" ]
+                        [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                        , div [ class "pl4" ] (List.foldl (\c -> (::) (c { ctx | renderWithoutBeacons = False })) [] reverseChildrenFns)
+                        ]
 
-        config : Config Item ()
+                renderWithoutBeacons =
+                    div [ class "" ]
+                        [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                        , div [ class "pl4" ] (List.foldl (\c -> (::) (c { ctx | renderWithoutBeacons = True })) [] reverseChildrenFns)
+                        ]
+            in
+            if ctx.renderWithoutBeacons || Just item.id == maybeDraggedIid then
+                renderWithoutBeacons
+
+            else
+                renderWithBeacons
+
+        config : Config Item { renderWithoutBeacons : Bool }
         config =
-            { render = render, context = () }
+            { render = render, context = { renderWithoutBeacons = False } }
     in
     forestToLHM config
 
