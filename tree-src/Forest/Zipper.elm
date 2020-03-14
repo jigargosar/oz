@@ -363,25 +363,25 @@ insertLastChild child acc =
 
 
 remove : ForestZipper a -> Maybe (ForestZipper a)
-remove acc =
-    case ( acc.leftReversed, acc.right_ ) of
+remove fz =
+    case ( fz.leftReversed, fz.right_ ) of
         ( [], [] ) ->
-            case acc.crumbs of
+            case fz.crumbs of
                 [] ->
                     --Nothing
                     Debug.todo "should not happen"
 
                 { leftReversed, datum, right_ } :: rest ->
                     Just
-                        { acc
+                        { fz
                             | leftReversed = leftReversed
-                            , center = Tree.tree datum []
+                            , center = Tree.leaf datum
                             , right_ = right_
                             , crumbs = rest
                         }
 
         ( first :: rest, _ ) ->
-            Just { acc | leftReversed = rest, center = first }
+            Just { fz | leftReversed = rest, center = first }
 
         ( _, first :: rest ) ->
-            Just { acc | center = first, right_ = rest }
+            Just { fz | center = first, right_ = rest }

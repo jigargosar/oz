@@ -199,7 +199,7 @@ init flags =
             Random.step initialItemGenerator seed0
 
         outline =
-            initialItems |> List.map (\item -> Tree.tree item [])
+            initialItems |> List.map (\item -> Tree.leaf item)
 
         oz =
             case JD.decodeValue (JD.nullable outlineZipperDecoder) flags.oz of
