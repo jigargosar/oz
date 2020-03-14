@@ -1003,7 +1003,8 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                                 []
                            )
                     )
-                    [ div [ class "lh-title", onClick (ItemTitleClicked item.id) ] [ text (itemDisplayTitle item) ]
+                    [ div [ class "lh-title", onClick (ItemTitleClicked item.id) ]
+                        [ text (itemDisplayTitle item) ]
                     ]
                 ]
 
