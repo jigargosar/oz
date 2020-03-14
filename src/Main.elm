@@ -620,10 +620,13 @@ viewExpOutline outline =
                     let
                         highlightedId =
                             ozId oz
+
+                        forest =
+                            Zipper.toRootForest oz
                     in
                     restructureForest identity
                         (\item -> renderWithBeacons (item.id == highlightedId) item)
-                        (Zipper.toRootForest oz)
+                        forest
 
                 --transformForest
                 --    (\item -> renderWithBeacons (item.id == highlightedId) item)
