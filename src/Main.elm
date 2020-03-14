@@ -612,32 +612,42 @@ type alias LHM =
 
 
 type alias LHMZipper a ctx =
-    { leftReversed : List (ctx -> HM)
+    { leftReversed : List HM
+    , context : ctx
 
     --, right : OutlineForest
-    , crumbs : List { leftReversed : List (ctx -> HM), center : a, right : Forest a }
+    , crumbs : List { leftReversed : List HM, center : ( a, ctx ), right : Forest a }
     }
 
 
 type alias Config a ctx =
-    { render : a -> List (ctx -> HM) -> (ctx -> HM)
-    , context : ctx
+    { render : ( a, ctx ) -> List HM -> HM
+    , childContext : a -> ctx -> ctx
     }
 
 
-forestToLHM : Config a ctx -> Forest a -> LHM
+forestToLHM : Config a ctx -> ctx -> Forest a -> LHM
 forestToLHM =
     let
         build : Config a ctx -> Forest a -> LHMZipper a ctx -> LHM
         build cfg rightForest z =
             case rightForest of
                 first :: rest ->
+                    let
+                        data =
+                            treeData first
+
+                        childCtx : ctx
+                        childCtx =
+                            cfg.childContext data z.context
+                    in
                     build cfg
                         (treeChildren first)
                         { leftReversed = []
+                        , context = childCtx
                         , crumbs =
                             { leftReversed = z.leftReversed
-                            , center = treeData first
+                            , center = ( data, z.context )
                             , right = rest
                             }
                                 :: z.crumbs
@@ -649,51 +659,61 @@ forestToLHM =
                             build cfg
                                 parentCrumb.right
                                 { leftReversed =
-                                    cfg.render parentCrumb.center z.leftReversed
+                                    cfg.render parentCrumb.center (List.reverse z.leftReversed)
                                         :: parentCrumb.leftReversed
+                                , context = Tuple.second parentCrumb.center
                                 , crumbs = rest
                                 }
 
                         [] ->
-                            List.foldl (\c -> (::) (c cfg.context)) [] z.leftReversed
+                            List.reverse z.leftReversed
     in
-    \cfg forest ->
+    \cfg ctx forest ->
         build cfg
             forest
             { leftReversed = []
+            , context = ctx
             , crumbs = []
             }
+
+
+type alias OCtx =
+    { renderWithoutBeacons : Bool }
 
 
 outlineForestToLHM : Maybe ItemId -> OutlineForest -> LHM
 outlineForestToLHM maybeDraggedIid =
     let
-        render : Item -> List ({ renderWithoutBeacons : Bool } -> HM) -> ({ renderWithoutBeacons : Bool } -> HM)
-        render item reverseChildrenFns ctx =
-            let
-                renderWithBeacons =
-                    div [ class "" ]
-                        [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                        , div [ class "pl4" ] (List.foldl (\c -> (::) (c { ctx | renderWithoutBeacons = False })) [] reverseChildrenFns)
-                        ]
-
-                renderWithoutBeacons =
-                    div [ class "" ]
-                        [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                        , div [ class "pl4" ] (List.foldl (\c -> (::) (c { ctx | renderWithoutBeacons = True })) [] reverseChildrenFns)
-                        ]
-            in
-            if ctx.renderWithoutBeacons || Just item.id == maybeDraggedIid then
-                renderWithoutBeacons
+        render : ( Item, OCtx ) -> LHM -> HM
+        render ( item, ctx ) childrenHtml =
+            if ctx.renderWithoutBeacons then
+                div [ class "" ]
+                    [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                    , div [ class "pl4" ] childrenHtml
+                    ]
 
             else
-                renderWithBeacons
+                div [ class "" ]
+                    [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                    , div [ class "pl4" ] childrenHtml
+                    ]
 
-        config : Config Item { renderWithoutBeacons : Bool }
+        config : Config Item OCtx
         config =
-            { render = render, context = { renderWithoutBeacons = False } }
+            { render = render
+            , childContext =
+                \item ctx ->
+                    if ctx.renderWithoutBeacons then
+                        ctx
+
+                    else if Just item.id == maybeDraggedIid then
+                        { ctx | renderWithoutBeacons = True }
+
+                    else
+                        ctx
+            }
     in
-    forestToLHM config
+    forestToLHM config { renderWithoutBeacons = False }
 
 
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
