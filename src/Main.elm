@@ -855,7 +855,12 @@ levelContainer level =
 
 itemDisplayTitle : Item -> String
 itemDisplayTitle item =
-    item.title
+    (if String.trim item.title |> String.isEmpty then
+        "<empty>"
+
+     else
+        item.title
+    )
         ++ (if debug then
                 Debug.toString item.id
 
