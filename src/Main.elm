@@ -859,24 +859,26 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
         []
 
 
-toFlatLines : Outline -> List FlatLine
-toFlatLines outline =
-    case outline of
-        EmptyOutline ->
-            []
 
-        Outline oz ->
-            let
-                highlightedItemId =
-                    ozId oz
-            in
-            ozToFlatLines highlightedItemId False Nothing oz
-
-        OutlineDnD dnd oz ->
-            ozToFlatLines dnd.dragItemId True Nothing oz
-
-        OutlineEdit oz title ->
-            ozToFlatLines (ozId oz) False (Just title) oz
+--toFlatLines : Outline -> List FlatLine
+--toFlatLines outline =
+--    case outline of
+--        EmptyOutline ->
+--            []
+--
+--        Outline oz ->
+--            let
+--                highlightedItemId =
+--                    ozId oz
+--            in
+--            ozToFlatLines highlightedItemId False Nothing oz
+--
+--        OutlineDnD dnd oz ->
+--            ozToFlatLines dnd.dragItemId True Nothing oz
+--
+--        OutlineEdit oz title ->
+--            ozToFlatLines (ozId oz) False (Just title) oz
+--
 
 
 viewDraggedNode : Outline -> Html Msg
@@ -998,15 +1000,11 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
             text ""
 
 
-viewFlatLine : FlatLine -> Html Msg
-viewFlatLine =
-    viewFlatLineWithConfig True
 
-
-type alias ViewInfo =
-    { dragId : Maybe ItemId
-    , focusedId : Maybe ItemId
-    }
+--viewFlatLine : FlatLine -> Html Msg
+--viewFlatLine =
+--    viewFlatLineWithConfig True
+--
 
 
 dragEvents : ItemId -> List (Html.Attribute Msg)
