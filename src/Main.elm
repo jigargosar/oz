@@ -583,12 +583,8 @@ subscriptions m =
 view : Model -> Html Msg
 view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
-        [ viewExpOutline m.outline
-        , viewExpDraggedNode m.outline
-
-        --, div [ class "pv2" ] [ text "DND Beacons Ports" ]
-        --, List.map viewFlatLine (toFlatLines m.outline) |> div []
-        --, viewDraggedNode m.outline
+        [ viewOutline m.outline
+        , viewDraggedNode m.outline
         ]
 
 
@@ -609,8 +605,8 @@ type alias OCtx =
     }
 
 
-viewExpOutline : Outline -> HM
-viewExpOutline outline =
+viewOutline : Outline -> HM
+viewOutline outline =
     let
         hml =
             case outline of
@@ -672,13 +668,13 @@ viewExpOutline outline =
                     Forest.restructure identity renderItem forest
     in
     div []
-        [ div [ class "f1" ] [ text "exp tree view" ]
+        [ div [ class "f1" ] [ text "Outline View" ]
         , div [] hml
         ]
 
 
-viewExpDraggedNode : Outline -> Html Msg
-viewExpDraggedNode outline =
+viewDraggedNode : Outline -> Html Msg
+viewDraggedNode outline =
     case outline of
         EmptyOutline ->
             text ""
