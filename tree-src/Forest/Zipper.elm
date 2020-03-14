@@ -365,11 +365,12 @@ insertLastChild child acc =
 remove : ForestZipper a -> Maybe (ForestZipper a)
 remove fz =
     case ( fz.leftReversed, fz.right_ ) of
+        -- center is the only child
         ( [], [] ) ->
             case fz.crumbs of
+                -- center is the only tree in entire forest
                 [] ->
-                    --Nothing
-                    Debug.todo "should not happen"
+                    Nothing
 
                 { leftReversed, datum, right_ } :: rest ->
                     Just
