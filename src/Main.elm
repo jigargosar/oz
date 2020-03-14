@@ -680,33 +680,25 @@ viewExpOutline outline =
 -- FOREST TRANSFORM
 
 
-type alias H msg =
-    msg
-
-
-type alias LH msg =
-    List msg
-
-
 type alias FHZipper a ctx msg =
-    { leftReversed : LH msg
+    { leftReversed : List msg
     , context : ctx
 
     --, right : OutlineForest
-    , crumbs : List { leftReversed : LH msg, center : ( a, ctx ), right : Forest a }
+    , crumbs : List { leftReversed : List msg, center : ( a, ctx ), right : Forest a }
     }
 
 
 type alias ForestHtmlConfig a ctx msg =
-    { render : a -> ctx -> LH msg -> msg
+    { render : a -> ctx -> List msg -> msg
     , nodeContext : a -> ctx -> ctx
     }
 
 
-forestToHtmlWithContext : ForestHtmlConfig a ctx msg -> ctx -> Forest a -> LH msg
+forestToHtmlWithContext : ForestHtmlConfig a ctx msg -> ctx -> Forest a -> List msg
 forestToHtmlWithContext cfg =
     let
-        build : Forest a -> FHZipper a ctx msg -> LH msg
+        build : Forest a -> FHZipper a ctx msg -> List msg
         build rightForest z =
             case rightForest of
                 first :: rest ->
