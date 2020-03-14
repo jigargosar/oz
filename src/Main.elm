@@ -699,7 +699,7 @@ viewExpOutline outline =
                         { render = \( item, _ ) -> renderWithBeacons (item.id == highlightedId) item
                         , nodeContext = always identity
                         }
-                        { renderWithoutBeacons = False }
+                        ()
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
@@ -733,7 +733,7 @@ viewExpOutline outline =
                                     renderWithBeacons False item
                         , nodeContext = always identity
                         }
-                        { renderWithoutBeacons = False }
+                        ()
                         (toRootForest oz)
     in
     div []
