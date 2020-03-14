@@ -1,4 +1,10 @@
-module Tree exposing (Tree)
+module CustomTree exposing (foo)
+
+
+foo =
+    1
+
+
 
 -- TREE
 
