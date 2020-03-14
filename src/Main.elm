@@ -679,7 +679,7 @@ viewExpOutline outline =
                 ]
 
         renderEditItem : Item -> String -> LHM -> HM
-        renderEditItem item string lhm =
+        renderEditItem item title lhm =
             div [ class "" ]
                 [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
                 , div [ class "pl4" ] lhm
