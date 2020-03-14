@@ -365,10 +365,10 @@ insertLastChild child acc =
 remove : ForestZipper a -> Maybe (ForestZipper a)
 remove fz =
     case ( fz.leftReversed, fz.right_ ) of
-        -- center is the only child
+        -- center is the only child; go up
         ( [], [] ) ->
             case fz.crumbs of
-                -- center is the only tree in entire forest
+                -- center is the only tree in entire forest; cannot remove
                 [] ->
                     Nothing
 
@@ -381,8 +381,10 @@ remove fz =
                             , crumbs = rest
                         }
 
-        ( first :: rest, _ ) ->
-            Just { fz | leftReversed = rest, center = first }
-
+        -- has right siblings; go right
         ( _, first :: rest ) ->
             Just { fz | center = first, right_ = rest }
+
+        -- has left siblings; go left
+        ( first :: rest, _ ) ->
+            Just { fz | leftReversed = rest, center = first }
