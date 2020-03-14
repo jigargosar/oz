@@ -1,7 +1,7 @@
 module Forest exposing (Forest)
 
-import Forest.Tree exposing (Tree)
+import Forest.Tree exposing (Forest)
 
 
 type alias Forest a =
-    List (Tree a)
+    Forest.Tree.Forest a

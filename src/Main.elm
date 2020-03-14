@@ -2,6 +2,7 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Events
+import Forest.Tree as Tree exposing (Tree)
 import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes exposing (attribute, class, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
@@ -80,10 +81,10 @@ outlineZipperEncoder outlineZipper =
 
 
 itemTreeEncoder : Tree Item -> Value
-itemTreeEncoder (Tree item children) =
+itemTreeEncoder tree =
     JE.object
-        [ ( "item", itemEncoder item )
-        , ( "children", JE.list itemTreeEncoder children )
+        [ ( "item", itemEncoder (treeData tree) )
+        , ( "children", JE.list itemTreeEncoder (treeChildren tree) )
         ]
 
 
@@ -119,7 +120,7 @@ outlineZipperDecoder =
 
 treeDecoder : Decoder OutlineNode
 treeDecoder =
-    JD.succeed Tree
+    JD.succeed Tree.tree
         |> required "item" itemDecoder
         |> required "children" (JD.list (JD.lazy (\_ -> treeDecoder)))
 
@@ -198,7 +199,7 @@ init flags =
             Random.step initialItemGenerator seed0
 
         outline =
-            initialItems |> List.map (\item -> Tree item [])
+            initialItems |> List.map (\item -> Tree.tree item [])
 
         oz =
             case JD.decodeValue (JD.nullable outlineZipperDecoder) flags.oz of
@@ -1075,23 +1076,19 @@ preventDefault bool =
 -- TREE
 
 
-type Tree a
-    = Tree a (List (Tree a))
-
-
 mapTreeData : (a -> a) -> Tree a -> Tree a
-mapTreeData func (Tree a children) =
-    Tree (func a) children
+mapTreeData =
+    Tree.mapData
 
 
 treeData : Tree a -> a
-treeData (Tree a _) =
-    a
+treeData =
+    Tree.data
 
 
 treeChildren : Tree a -> Forest a
-treeChildren (Tree _ children) =
-    children
+treeChildren =
+    Tree.children
 
 
 
@@ -1099,8 +1096,8 @@ treeChildren (Tree _ children) =
 
 
 leaf : a -> Tree a
-leaf a =
-    Tree a []
+leaf =
+    Tree.leaf
 
 
 
@@ -1224,7 +1221,7 @@ up acc =
             Just
                 { acc
                     | leftReversed = leftReversed
-                    , center = Tree datum (List.reverse acc.leftReversed ++ acc.center :: acc.right_)
+                    , center = Tree.tree datum (List.reverse acc.leftReversed ++ acc.center :: acc.right_)
                     , right_ = right_
                     , crumbs = rest
                 }
@@ -1232,11 +1229,11 @@ up acc =
 
 down : ForestZipper a -> Maybe (ForestZipper a)
 down acc =
-    case acc.center of
-        Tree _ [] ->
+    case Tree.toTuple acc.center of
+        ( _, [] ) ->
             Nothing
 
-        Tree a (first :: rest) ->
+        ( a, first :: rest ) ->
             Just
                 { acc
                     | leftReversed = []
@@ -1319,8 +1316,8 @@ nextSiblingOfClosestAncestor acc =
 
 findFromCurrent : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
 findFromCurrent pred acc =
-    case acc.center of
-        Tree a _ ->
+    case Tree.data acc.center of
+        a ->
             if pred a then
                 Just acc
 
@@ -1421,8 +1418,8 @@ insertAndGoRight =
 
 prependAndGotoChild : Tree a -> ForestZipper a -> ForestZipper a
 prependAndGotoChild child acc =
-    case acc.center of
-        Tree a children ->
+    case Tree.toTuple acc.center of
+        ( a, children ) ->
             { acc
                 | center = child
                 , leftReversed = []
@@ -1435,9 +1432,9 @@ prependAndGotoChild child acc =
 
 insertLastChild : Tree a -> ForestZipper a -> ForestZipper a
 insertLastChild child acc =
-    case acc.center of
-        Tree a children ->
-            { acc | center = Tree a (children ++ [ child ]) }
+    case Tree.toTuple acc.center of
+        ( a, children ) ->
+            { acc | center = Tree.tree a (children ++ [ child ]) }
 
 
 
@@ -1457,7 +1454,7 @@ remove acc =
                     Just
                         { acc
                             | leftReversed = leftReversed
-                            , center = Tree datum []
+                            , center = Tree.tree datum []
                             , right_ = right_
                             , crumbs = rest
                         }
