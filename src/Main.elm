@@ -693,10 +693,6 @@ viewExpOutline outline =
                     , div [ class "pl4" ] childrenHtml
                     ]
 
-        initialCtx : { dragId : Maybe ItemId } -> OCtx
-        initialCtx meta =
-            { renderWithoutBeacons = False, meta = meta }
-
         dndCtx dnd =
             { renderWithoutBeacons = False, meta = { dragId = Just dnd.dragItemId } }
 
