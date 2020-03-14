@@ -724,14 +724,14 @@ transformForestWithContext cfg =
                         data =
                             treeData first
 
-                        nodeCtx : ctx
-                        nodeCtx =
+                        childCtx : ctx
+                        childCtx =
                             cfg.childContext data z.context
                     in
                     build
                         (treeChildren first)
                         { leftReversed = []
-                        , context = nodeCtx
+                        , context = childCtx
                         , crumbs =
                             { leftReversed = z.leftReversed
                             , center = ( data, z.context )
