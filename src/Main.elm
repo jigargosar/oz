@@ -653,7 +653,7 @@ outlineToHtmlList outline =
                     Zipper.toRootForest oz
             in
             Forest.restructure identity
-                (\item -> renderWithBeacons (item.id == highlightedId) item)
+                (\item -> renderDraggableWithBeacons (item.id == highlightedId) item)
                 forest
 
         OutlineDnD dnd oz ->
@@ -674,7 +674,7 @@ outlineToHtmlList outline =
                                     renderWithoutBeacons item (children True)
 
                                 else
-                                    renderWithBeacons False item (children False)
+                                    renderDraggableWithBeacons False item (children False)
                         )
                         forest
             in
@@ -691,7 +691,7 @@ outlineToHtmlList outline =
                         renderEditItem title
 
                     else
-                        renderWithBeacons False item
+                        renderDraggableWithBeacons False item
 
                 forest =
                     Zipper.toRootForest oz
@@ -745,8 +745,8 @@ renderDraggedItem item childrenHtml =
         ]
 
 
-renderWithBeacons : Bool -> Item -> LHM -> HM
-renderWithBeacons isHighlighted item childrenHtml =
+renderDraggableWithBeacons : Bool -> Item -> LHM -> HM
+renderDraggableWithBeacons isHighlighted item childrenHtml =
     let
         viewBeaconHelp func =
             viewBeacon (func item.id)
