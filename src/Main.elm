@@ -578,10 +578,11 @@ view : Model -> Html Msg
 view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
         [ viewExpOutline m.outline
+        , viewExpDraggedNode m.outline
 
         --, div [ class "pv2" ] [ text "DND Beacons Ports" ]
         --, List.map viewFlatLine (toFlatLines m.outline) |> div []
-        , viewDraggedNode m.outline
+        --, viewDraggedNode m.outline
         ]
 
 
@@ -605,33 +606,6 @@ type alias OCtx =
 viewExpOutline : Outline -> HM
 viewExpOutline outline =
     let
-        renderWithoutBeacons : Item -> LHM -> HM
-        renderWithoutBeacons item childrenHtml =
-            div [ class "" ]
-                [ viewFadedDraggedItem item
-                , div [ class "pl4" ] childrenHtml
-                ]
-
-        renderWithBeacons : Bool -> Item -> LHM -> HM
-        renderWithBeacons isHighlighted item childrenHtml =
-            let
-                viewBeaconHelp func =
-                    viewBeacon (func item.id)
-            in
-            div [ class "" ]
-                [ viewBeaconHelp Before
-                , viewDraggableItem isHighlighted item
-                , div [ class "pl4" ] (viewBeaconHelp PrependIn :: childrenHtml ++ [ viewBeaconHelp AppendIn ])
-                , viewBeaconHelp After
-                ]
-
-        renderEditItem : String -> LHM -> HM
-        renderEditItem title lhm =
-            div [ class "" ]
-                [ viewEditItem title
-                , div [ class "pl4" ] lhm
-                ]
-
         hml =
             case outline of
                 EmptyOutline ->
@@ -683,6 +657,95 @@ viewExpOutline outline =
         ]
 
 
+viewExpDraggedNode : Outline -> Html Msg
+viewExpDraggedNode outline =
+    case outline of
+        EmptyOutline ->
+            text ""
+
+        Outline _ ->
+            text ""
+
+        OutlineDnD dnd oz ->
+            let
+                xy =
+                    dndDraggedXY dnd
+
+                draggedForest =
+                    gotoItemId dnd.dragItemId oz
+                        |> Maybe.map (getTree >> List.singleton)
+                        |> Maybe.withDefault []
+
+                draggedHtmlList =
+                    transformForest renderDragged draggedForest
+
+                new =
+                    div
+                        [ class "fixed no-pe"
+                        , style "left" (String.fromFloat xy.x ++ "px")
+                        , style "top" (String.fromFloat xy.y ++ "px")
+                        ]
+                        draggedHtmlList
+
+                old =
+                    gotoItemId dnd.dragItemId oz
+                        |> Maybe.map (getTree >> List.singleton)
+                        |> Maybe.andThen fromForest
+                        |> Maybe.map (ozToFlatLines dnd.dragItemId True Nothing)
+                        |> Maybe.map (List.map (viewFlatLineWithConfig False))
+                        |> Maybe.map
+                            (div
+                                [ class "fixed no-pe"
+                                , style "left" (String.fromFloat xy.x ++ "px")
+                                , style "top" (String.fromFloat xy.y ++ "px")
+                                ]
+                            )
+                        |> Maybe.withDefault (text "")
+            in
+            new
+
+        OutlineEdit _ _ ->
+            text ""
+
+
+renderWithoutBeacons : Item -> LHM -> HM
+renderWithoutBeacons item childrenHtml =
+    div [ class "" ]
+        [ viewFadedDraggedItem item
+        , div [ class "pl4" ] childrenHtml
+        ]
+
+
+renderDragged : Item -> LHM -> HM
+renderDragged item childrenHtml =
+    div [ class "" ]
+        [ viewDraggedItem item
+        , div [ class "pl4" ] childrenHtml
+        ]
+
+
+renderWithBeacons : Bool -> Item -> LHM -> HM
+renderWithBeacons isHighlighted item childrenHtml =
+    let
+        viewBeaconHelp func =
+            viewBeacon (func item.id)
+    in
+    div [ class "" ]
+        [ viewBeaconHelp Before
+        , viewDraggableItem isHighlighted item
+        , div [ class "pl4" ] (viewBeaconHelp PrependIn :: childrenHtml ++ [ viewBeaconHelp AppendIn ])
+        , viewBeaconHelp After
+        ]
+
+
+renderEditItem : String -> LHM -> HM
+renderEditItem title lhm =
+    div [ class "" ]
+        [ viewEditItem title
+        , div [ class "pl4" ] lhm
+        ]
+
+
 viewBeacon : CandidateLocation -> Html Msg
 viewBeacon candidateLocation =
     viewFlatLineWithConfig False (BeaconLine 0 candidateLocation)
@@ -696,6 +759,11 @@ viewDraggableItem isHighlighted item =
 viewFadedDraggedItem : Item -> Html Msg
 viewFadedDraggedItem item =
     viewFlatLineWithConfig True (ItemLine 0 item { isHighlighted = False, isDraggable = False })
+
+
+viewDraggedItem : Item -> Html Msg
+viewDraggedItem item =
+    viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = False, isDraggable = False })
 
 
 viewEditItem : String -> Html Msg
@@ -879,38 +947,36 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
 --        OutlineEdit oz title ->
 --            ozToFlatLines (ozId oz) False (Just title) oz
 --
-
-
-viewDraggedNode : Outline -> Html Msg
-viewDraggedNode outline =
-    case outline of
-        EmptyOutline ->
-            text ""
-
-        Outline _ ->
-            text ""
-
-        OutlineDnD dnd oz ->
-            let
-                xy =
-                    dndDraggedXY dnd
-            in
-            gotoItemId dnd.dragItemId oz
-                |> Maybe.map (getTree >> List.singleton)
-                |> Maybe.andThen fromForest
-                |> Maybe.map (ozToFlatLines dnd.dragItemId True Nothing)
-                |> Maybe.map (List.map (viewFlatLineWithConfig False))
-                |> Maybe.map
-                    (div
-                        [ class "fixed no-pe"
-                        , style "left" (String.fromFloat xy.x ++ "px")
-                        , style "top" (String.fromFloat xy.y ++ "px")
-                        ]
-                    )
-                |> Maybe.withDefault (text "")
-
-        OutlineEdit _ _ ->
-            text ""
+--viewDraggedNode : Outline -> Html Msg
+--viewDraggedNode outline =
+--    case outline of
+--        EmptyOutline ->
+--            text ""
+--
+--        Outline _ ->
+--            text ""
+--
+--        OutlineDnD dnd oz ->
+--            let
+--                xy =
+--                    dndDraggedXY dnd
+--            in
+--            gotoItemId dnd.dragItemId oz
+--                |> Maybe.map (getTree >> List.singleton)
+--                |> Maybe.andThen fromForest
+--                |> Maybe.map (ozToFlatLines dnd.dragItemId True Nothing)
+--                |> Maybe.map (List.map (viewFlatLineWithConfig False))
+--                |> Maybe.map
+--                    (div
+--                        [ class "fixed no-pe"
+--                        , style "left" (String.fromFloat xy.x ++ "px")
+--                        , style "top" (String.fromFloat xy.y ++ "px")
+--                        ]
+--                    )
+--                |> Maybe.withDefault (text "")
+--
+--        OutlineEdit _ _ ->
+--            text ""
 
 
 debug =
