@@ -578,8 +578,9 @@ view : Model -> Html Msg
 view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
         [ viewExpOutline m.outline
-        , div [ class "pv2" ] [ text "DND Beacons Ports" ]
-        , List.map viewFlatLine (toFlatLines m.outline) |> div []
+
+        --, div [ class "pv2" ] [ text "DND Beacons Ports" ]
+        --, List.map viewFlatLine (toFlatLines m.outline) |> div []
         , viewDraggedNode m.outline
         ]
 
@@ -613,9 +614,15 @@ viewExpOutline outline =
 
         renderWithBeacons : Bool -> Item -> LHM -> HM
         renderWithBeacons isHighlighted item childrenHtml =
+            let
+                viewBeaconHelp func =
+                    viewBeacon (func item.id)
+            in
             div [ class "" ]
-                [ viewDraggableItem isHighlighted item
-                , div [ class "pl4" ] childrenHtml
+                [ viewBeaconHelp Before
+                , viewDraggableItem isHighlighted item
+                , div [ class "pl4" ] (viewBeaconHelp PrependIn :: childrenHtml ++ [ viewBeaconHelp AppendIn ])
+                , viewBeaconHelp After
                 ]
 
         renderEditItem : String -> LHM -> HM
