@@ -618,8 +618,8 @@ viewExpOutline outline =
                 , div [ class "pl4" ] childrenHtml
                 ]
 
-        renderEditItem : Item -> String -> LHM -> HM
-        renderEditItem item title lhm =
+        renderEditItem : String -> LHM -> HM
+        renderEditItem title lhm =
             div [ class "" ]
                 [ viewEditItem title
                 , div [ class "pl4" ] lhm
@@ -663,7 +663,7 @@ viewExpOutline outline =
                     transformForest
                         (\item ->
                             if item.id == ozId oz then
-                                renderEditItem item title
+                                renderEditItem title
 
                             else
                                 renderWithBeacons False item
