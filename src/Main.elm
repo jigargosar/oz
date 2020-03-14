@@ -672,7 +672,7 @@ viewExpOutline outline =
                     if ctx.renderWithoutBeacons then
                         ctx
 
-                    else if Just item.id == ctx.dragId then
+                    else if Just item.id == ctx.meta.dragId then
                         { ctx | renderWithoutBeacons = True }
 
                     else
@@ -693,6 +693,16 @@ viewExpOutline outline =
                     , div [ class "pl4" ] childrenHtml
                     ]
 
+        initialCtx : { dragId : Maybe ItemId } -> OCtx
+        initialCtx meta =
+            { renderWithoutBeacons = False, meta = meta }
+
+        dndCtx dnd =
+            { renderWithoutBeacons = False, meta = { dragId = Just dnd.dragItemId } }
+
+        defaultCtx =
+            { renderWithoutBeacons = False, meta = { dragId = Nothing } }
+
         hml =
             case outline of
                 EmptyOutline ->
@@ -700,23 +710,17 @@ viewExpOutline outline =
 
                 Outline oz ->
                     forestToLHM config
-                        { renderWithoutBeacons = False
-                        , dragId = Nothing
-                        }
+                        defaultCtx
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
                     forestToLHM config
-                        { renderWithoutBeacons = False
-                        , dragId = Just dnd.dragItemId
-                        }
+                        (dndCtx dnd)
                         (toRootForest oz)
 
                 OutlineEdit oz title ->
                     forestToLHM config
-                        { renderWithoutBeacons = False
-                        , dragId = Nothing
-                        }
+                        defaultCtx
                         (toRootForest oz)
     in
     div []
@@ -727,7 +731,7 @@ viewExpOutline outline =
 
 type alias OCtx =
     { renderWithoutBeacons : Bool
-    , dragId : Maybe ItemId
+    , meta : { dragId : Maybe ItemId }
     }
 
 
