@@ -678,7 +678,9 @@ forestToLHM =
 
 
 type alias OCtx =
-    { renderWithoutBeacons : Bool }
+    { renderWithoutBeacons : Bool
+    , maybeDraggedIid : Maybe ItemId
+    }
 
 
 renderItemWithOCtx : ( Item, OCtx ) -> LHM -> HM
@@ -696,25 +698,25 @@ renderItemWithOCtx ( item, ctx ) childrenHtml =
             ]
 
 
+dragLHMConfig : Config Item OCtx
+dragLHMConfig =
+    { render = renderItemWithOCtx
+    , nodeContext =
+        \item ctx ->
+            if ctx.renderWithoutBeacons then
+                ctx
+
+            else if Just item.id == ctx.maybeDraggedIid then
+                { ctx | renderWithoutBeacons = True }
+
+            else
+                ctx
+    }
+
+
 outlineForestToLHM : Maybe ItemId -> OutlineForest -> LHM
 outlineForestToLHM maybeDraggedIid =
-    let
-        config : Config Item OCtx
-        config =
-            { render = renderItemWithOCtx
-            , nodeContext =
-                \item ctx ->
-                    if ctx.renderWithoutBeacons then
-                        ctx
-
-                    else if Just item.id == maybeDraggedIid then
-                        { ctx | renderWithoutBeacons = True }
-
-                    else
-                        ctx
-            }
-    in
-    forestToLHM config { renderWithoutBeacons = False }
+    forestToLHM dragLHMConfig { renderWithoutBeacons = False, maybeDraggedIid = maybeDraggedIid }
 
 
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
@@ -780,13 +782,25 @@ viewExpOutline outline =
                     []
 
                 Outline oz ->
-                    outlineForestToLHM Nothing (toRootForest oz)
+                    forestToLHM dragLHMConfig
+                        { renderWithoutBeacons = False
+                        , maybeDraggedIid = Nothing
+                        }
+                        (toRootForest oz)
 
                 OutlineDnD dnd oz ->
-                    outlineForestToLHM (Just dnd.dragItemId) (toRootForest oz)
+                    forestToLHM dragLHMConfig
+                        { renderWithoutBeacons = False
+                        , maybeDraggedIid = Just dnd.dragItemId
+                        }
+                        (toRootForest oz)
 
                 OutlineEdit oz title ->
-                    outlineForestToLHM Nothing (toRootForest oz)
+                    forestToLHM dragLHMConfig
+                        { renderWithoutBeacons = False
+                        , maybeDraggedIid = Nothing
+                        }
+                        (toRootForest oz)
     in
     div []
         [ div [ class "f1" ] [ text "exp tree view" ]
