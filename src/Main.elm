@@ -584,79 +584,6 @@ view m =
         ]
 
 
-type FlatLine
-    = BeaconLine Int CandidateLocation
-    | ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
-    | EditLine Int String
-    | NoLine
-
-
-hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
-hasAncestorWithIdIncludingSelf itemId oz =
-    case ozId oz == itemId of
-        True ->
-            True
-
-        False ->
-            up oz
-                |> Maybe.map (hasAncestorWithIdIncludingSelf itemId)
-                |> Maybe.withDefault False
-
-
-ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
-ozToFlatLines highlightedId isBeingDragged editTitle =
-    let
-        hasDraggedAncestor oz =
-            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
-    in
-    let
-        enter : OZ -> List FlatLine
-        enter oz =
-            let
-                editOrItemLine =
-                    case ( ozId oz == highlightedId, editTitle ) of
-                        ( True, Just title ) ->
-                            EditLine (getLevel oz) title
-
-                        _ ->
-                            ItemLine (getLevel oz)
-                                (ozItem oz)
-                                { isHighlighted = not isBeingDragged && highlightedId == ozId oz
-                                , isDraggable = not (hasDraggedAncestor oz)
-                                }
-
-                withBeacons =
-                    [ BeaconLine (getLevel oz) (Before (ozId oz))
-                    , editOrItemLine
-                    , BeaconLine (getLevel oz + 1) (PrependIn (ozId oz))
-                    ]
-
-                withoutBeacons =
-                    [ editOrItemLine ]
-            in
-            if hasDraggedAncestor oz then
-                withoutBeacons
-
-            else
-                withBeacons
-
-        exit : OZ -> List FlatLine
-        exit oz =
-            if hasDraggedAncestor oz then
-                []
-
-            else
-                [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
-                , BeaconLine (getLevel oz) (After (ozId oz))
-                ]
-    in
-    fzVisit
-        { enter = \oz list -> list ++ enter oz
-        , exit = \oz list -> list ++ exit oz
-        }
-        []
-
-
 
 -- Experimental Outline View
 
@@ -826,6 +753,79 @@ forestToLHM render =
 
 
 -- FlatLines View
+
+
+type FlatLine
+    = BeaconLine Int CandidateLocation
+    | ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
+    | EditLine Int String
+    | NoLine
+
+
+hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
+hasAncestorWithIdIncludingSelf itemId oz =
+    case ozId oz == itemId of
+        True ->
+            True
+
+        False ->
+            up oz
+                |> Maybe.map (hasAncestorWithIdIncludingSelf itemId)
+                |> Maybe.withDefault False
+
+
+ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
+ozToFlatLines highlightedId isBeingDragged editTitle =
+    let
+        hasDraggedAncestor oz =
+            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
+    in
+    let
+        enter : OZ -> List FlatLine
+        enter oz =
+            let
+                editOrItemLine =
+                    case ( ozId oz == highlightedId, editTitle ) of
+                        ( True, Just title ) ->
+                            EditLine (getLevel oz) title
+
+                        _ ->
+                            ItemLine (getLevel oz)
+                                (ozItem oz)
+                                { isHighlighted = not isBeingDragged && highlightedId == ozId oz
+                                , isDraggable = not (hasDraggedAncestor oz)
+                                }
+
+                withBeacons =
+                    [ BeaconLine (getLevel oz) (Before (ozId oz))
+                    , editOrItemLine
+                    , BeaconLine (getLevel oz + 1) (PrependIn (ozId oz))
+                    ]
+
+                withoutBeacons =
+                    [ editOrItemLine ]
+            in
+            if hasDraggedAncestor oz then
+                withoutBeacons
+
+            else
+                withBeacons
+
+        exit : OZ -> List FlatLine
+        exit oz =
+            if hasDraggedAncestor oz then
+                []
+
+            else
+                [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
+                , BeaconLine (getLevel oz) (After (ozId oz))
+                ]
+    in
+    fzVisit
+        { enter = \oz list -> list ++ enter oz
+        , exit = \oz list -> list ++ exit oz
+        }
+        []
 
 
 toFlatLines : Outline -> List FlatLine
