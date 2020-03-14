@@ -686,7 +686,7 @@ outlineForestToLHM maybeDraggedIid =
     let
         render : ( Item, OCtx ) -> LHM -> HM
         render ( item, ctx ) childrenHtml =
-            if ctx.renderWithoutBeacons then
+            if ctx.renderWithoutBeacons || Just item.id == maybeDraggedIid then
                 div [ class "" ]
                     [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
                     , div [ class "pl4" ] childrenHtml
