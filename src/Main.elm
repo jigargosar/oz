@@ -643,7 +643,7 @@ viewExpOutline outline =
                     transformForestWithContext
                         { transform =
                             \item ctx ->
-                                if ctx.renderWithoutBeacons then
+                                if ctx.renderWithoutBeacons || item.id == dnd.dragItemId then
                                     renderWithoutBeacons item
 
                                 else
