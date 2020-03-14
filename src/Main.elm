@@ -668,7 +668,7 @@ viewOutline outline =
                     Forest.restructure identity renderItem forest
     in
     div []
-        [ div [ class "f1" ] [ text "Outline View" ]
+        [ div [ class "f1" ] [ text "OZ Outlining" ]
         , div [] hml
         ]
 
