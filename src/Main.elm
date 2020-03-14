@@ -669,16 +669,6 @@ viewExpOutline outline =
                             Zipper.toRootForest oz
                     in
                     restructureForest identity renderItem forest
-
-        --transformForest
-        --    (\item ->
-        --        if item.id == ozId oz then
-        --            renderEditItem title
-        --
-        --        else
-        --            renderWithBeacons False item
-        --    )
-        --    (Zipper.toRootForest oz)
     in
     div []
         [ div [ class "f1" ] [ text "exp tree view" ]
@@ -706,7 +696,7 @@ viewExpDraggedNode outline =
                         |> Maybe.withDefault []
 
                 draggedHtmlList =
-                    transformForest renderDragged draggedForest
+                    restructureForest identity renderDragged draggedForest
 
                 new =
                     div
