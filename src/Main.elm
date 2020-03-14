@@ -636,11 +636,11 @@ viewExpOutline outline =
                         renderForestFns : List (Bool -> HM)
                         renderForestFns =
                             restructureForest identity
-                                (\item cfn ->
+                                (\item renderChildrenFns ->
                                     \shouldRenderWithoutBeacon ->
                                         let
                                             children bool =
-                                                List.map (\f -> f bool) cfn
+                                                List.map (\f -> f bool) renderChildrenFns
                                         in
                                         if shouldRenderWithoutBeacon || item.id == dnd.dragItemId then
                                             renderWithoutBeacons item (children True)
