@@ -435,7 +435,9 @@ update message model =
                 Outline oz ->
                     case gotoItemId dnd.dragItemId oz of
                         Just noz ->
-                            ( { model | outline = OutlineDnD dnd noz }, getBeacons () )
+                            ( { model | outline = OutlineDnD dnd noz }
+                            , Cmd.batch [ cacheOZCmd noz, getBeacons () ]
+                            )
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -450,7 +452,9 @@ update message model =
                             |> gotoItemId dnd.dragItemId
                     of
                         Just noz ->
-                            ( { model | outline = OutlineDnD dnd noz }, getBeacons () )
+                            ( { model | outline = OutlineDnD dnd noz }
+                            , Cmd.batch [ cacheOZCmd noz, getBeacons () ]
+                            )
 
                         Nothing ->
                             ( model, Cmd.none )
