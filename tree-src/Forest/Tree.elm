@@ -21,8 +21,8 @@ type alias Forest a =
 
 
 leaf : a -> Tree a
-leaf =
-    Tree.singleton
+leaf a =
+    tree a []
 
 
 tree : a -> List (Tree a) -> Tree a
