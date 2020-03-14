@@ -613,7 +613,7 @@ viewOutline outline =
         ]
 
 
-outlineToHtmlList : Outline -> List HM
+outlineToHtmlList : Outline -> LHM
 outlineToHtmlList outline =
     case outline of
         EmptyOutline ->
