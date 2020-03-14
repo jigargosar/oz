@@ -653,15 +653,32 @@ viewExpOutline outline =
                     List.map (\fn -> fn False) renderForestFns
 
                 OutlineEdit oz title ->
-                    transformForest
-                        (\item ->
-                            if item.id == ozId oz then
+                    let
+                        editItemId =
+                            ozId oz
+
+                        forest =
+                            Zipper.toRootForest oz
+
+                        renderItem : Item -> LHM -> HM
+                        renderItem item =
+                            if item.id == editItemId then
                                 renderEditItem title
 
                             else
                                 renderWithBeacons False item
-                        )
-                        (Zipper.toRootForest oz)
+                    in
+                    restructureForest identity renderItem forest
+
+        --transformForest
+        --    (\item ->
+        --        if item.id == ozId oz then
+        --            renderEditItem title
+        --
+        --        else
+        --            renderWithBeacons False item
+        --    )
+        --    (Zipper.toRootForest oz)
     in
     div []
         [ div [ class "f1" ] [ text "exp tree view" ]
