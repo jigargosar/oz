@@ -544,10 +544,10 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
                     insertHelp itemId Zipper.insertAndGoRight
 
                 PrependIn itemId ->
-                    insertHelp itemId Zipper.insertChildAndFocus
+                    insertHelp itemId Zipper.prependChildAndFocus
 
                 AppendIn itemId ->
-                    insertHelp itemId Zipper.insertLastChild
+                    insertHelp itemId Zipper.appendChild
     in
     gotoItemId srcItemId
         >> Maybe.andThen (moveTo candidateLocation)

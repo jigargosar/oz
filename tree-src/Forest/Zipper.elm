@@ -1,15 +1,15 @@
 module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
+    , appendChild
     , data
     , findFirst
     , fromForest
     , getTree
     , insertAndGoRight
-    , insertChildAndFocus
-    , insertLastChild
     , insertLeft
     , mapData
+    , prependChildAndFocus
     , remove
     , toRootForest
     )
@@ -338,8 +338,8 @@ insertAndGoRight =
     withRollback << insertHelp
 
 
-insertChildAndFocus : Tree a -> ForestZipper a -> ForestZipper a
-insertChildAndFocus child acc =
+prependChildAndFocus : Tree a -> ForestZipper a -> ForestZipper a
+prependChildAndFocus child acc =
     case Tree.toTuple acc.center of
         ( a, children ) ->
             { acc
@@ -352,8 +352,8 @@ insertChildAndFocus child acc =
             }
 
 
-insertLastChild : Tree a -> ForestZipper a -> ForestZipper a
-insertLastChild child acc =
+appendChild : Tree a -> ForestZipper a -> ForestZipper a
+appendChild child acc =
     case Tree.toTuple acc.center of
         ( a, children ) ->
             { acc | center = Tree.tree a (children ++ [ child ]) }
