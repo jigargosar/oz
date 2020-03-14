@@ -846,19 +846,17 @@ type FlatLine
     | NoLine
 
 
-hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
-hasAncestorWithIdIncludingSelf itemId oz =
-    case ozId oz == itemId of
-        True ->
-            True
 
-        False ->
-            up oz
-                |> Maybe.map (hasAncestorWithIdIncludingSelf itemId)
-                |> Maybe.withDefault False
-
-
-
+--hasAncestorWithIdIncludingSelf : ItemId -> OZ -> Bool
+--hasAncestorWithIdIncludingSelf itemId oz =
+--    case ozId oz == itemId of
+--        True ->
+--            True
+--
+--        False ->
+--            up oz
+--                |> Maybe.map (hasAncestorWithIdIncludingSelf itemId)
+--                |> Maybe.withDefault False
 --ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
 --ozToFlatLines highlightedId isBeingDragged editTitle =
 --    let
