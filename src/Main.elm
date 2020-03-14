@@ -603,122 +603,6 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-type alias HM =
-    Html Msg
-
-
-type alias LHM =
-    List HM
-
-
-type alias LHMZipper a ctx =
-    { leftReversed : List HM
-    , context : ctx
-
-    --, right : OutlineForest
-    , crumbs : List { leftReversed : List HM, center : ( a, ctx ), right : Forest a }
-    }
-
-
-type alias Config a ctx =
-    { render : ( a, ctx ) -> List HM -> HM
-    , nodeContext : a -> ctx -> ctx
-    }
-
-
-forestToLHM : Config a ctx -> ctx -> Forest a -> LHM
-forestToLHM =
-    let
-        build : Config a ctx -> Forest a -> LHMZipper a ctx -> LHM
-        build cfg rightForest z =
-            case rightForest of
-                first :: rest ->
-                    let
-                        data =
-                            treeData first
-
-                        nodeCtx : ctx
-                        nodeCtx =
-                            cfg.nodeContext data z.context
-                    in
-                    build cfg
-                        (treeChildren first)
-                        { leftReversed = []
-                        , context = nodeCtx
-                        , crumbs =
-                            { leftReversed = z.leftReversed
-                            , center = ( data, nodeCtx )
-                            , right = rest
-                            }
-                                :: z.crumbs
-                        }
-
-                [] ->
-                    case z.crumbs of
-                        parentCrumb :: rest ->
-                            build cfg
-                                parentCrumb.right
-                                { leftReversed =
-                                    cfg.render parentCrumb.center (List.reverse z.leftReversed)
-                                        :: parentCrumb.leftReversed
-                                , context = Tuple.second parentCrumb.center
-                                , crumbs = rest
-                                }
-
-                        [] ->
-                            List.reverse z.leftReversed
-    in
-    \cfg ctx forest ->
-        build cfg
-            forest
-            { leftReversed = []
-            , context = ctx
-            , crumbs = []
-            }
-
-
-type alias OCtx =
-    { renderWithoutBeacons : Bool
-    , maybeDraggedIid : Maybe ItemId
-    }
-
-
-renderItemWithOCtx : ( Item, OCtx ) -> LHM -> HM
-renderItemWithOCtx ( item, ctx ) childrenHtml =
-    if ctx.renderWithoutBeacons then
-        div [ class "" ]
-            [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
-            , div [ class "pl4" ] childrenHtml
-            ]
-
-    else
-        div [ class "" ]
-            [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
-            , div [ class "pl4" ] childrenHtml
-            ]
-
-
-dragLHMConfig : Config Item OCtx
-dragLHMConfig =
-    { render = renderItemWithOCtx
-    , nodeContext =
-        \item ctx ->
-            if ctx.renderWithoutBeacons then
-                ctx
-
-            else if Just item.id == ctx.maybeDraggedIid then
-                { ctx | renderWithoutBeacons = True }
-
-            else
-                ctx
-    }
-
-
-outlineForestToLHM : Maybe ItemId -> OutlineForest -> LHM
-outlineForestToLHM maybeDraggedIid =
-    forestToLHM dragLHMConfig { renderWithoutBeacons = False, maybeDraggedIid = maybeDraggedIid }
-
-
 ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
 ozToFlatLines highlightedId isBeingDragged editTitle =
     let
@@ -773,32 +657,65 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
         []
 
 
+
+-- Experimental Outline View
+
+
 viewExpOutline : Outline -> HM
 viewExpOutline outline =
     let
+        outlineToLHMConfig : OConfig Item OCtx
+        outlineToLHMConfig =
+            { render = renderItemWithOCtx
+            , nodeContext =
+                \item ctx ->
+                    if ctx.renderWithoutBeacons then
+                        ctx
+
+                    else if Just item.id == ctx.dragId then
+                        { ctx | renderWithoutBeacons = True }
+
+                    else
+                        ctx
+            }
+
+        renderItemWithOCtx : ( Item, OCtx ) -> LHM -> HM
+        renderItemWithOCtx ( item, ctx ) childrenHtml =
+            if ctx.renderWithoutBeacons then
+                div [ class "" ]
+                    [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                    , div [ class "pl4" ] childrenHtml
+                    ]
+
+            else
+                div [ class "" ]
+                    [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                    , div [ class "pl4" ] childrenHtml
+                    ]
+
         hml =
             case outline of
                 EmptyOutline ->
                     []
 
                 Outline oz ->
-                    forestToLHM dragLHMConfig
+                    forestToLHM outlineToLHMConfig
                         { renderWithoutBeacons = False
-                        , maybeDraggedIid = Nothing
+                        , dragId = Nothing
                         }
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
-                    forestToLHM dragLHMConfig
+                    forestToLHM outlineToLHMConfig
                         { renderWithoutBeacons = False
-                        , maybeDraggedIid = Just dnd.dragItemId
+                        , dragId = Just dnd.dragItemId
                         }
                         (toRootForest oz)
 
                 OutlineEdit oz title ->
-                    forestToLHM dragLHMConfig
+                    forestToLHM outlineToLHMConfig
                         { renderWithoutBeacons = False
-                        , maybeDraggedIid = Nothing
+                        , dragId = Nothing
                         }
                         (toRootForest oz)
     in
@@ -806,6 +723,86 @@ viewExpOutline outline =
         [ div [ class "f1" ] [ text "exp tree view" ]
         , div [] hml
         ]
+
+
+type alias OCtx =
+    { renderWithoutBeacons : Bool
+    , dragId : Maybe ItemId
+    }
+
+
+type alias HM =
+    Html Msg
+
+
+type alias LHM =
+    List HM
+
+
+type alias LHMZipper a ctx =
+    { leftReversed : List HM
+    , context : ctx
+
+    --, right : OutlineForest
+    , crumbs : List { leftReversed : List HM, center : ( a, ctx ), right : Forest a }
+    }
+
+
+type alias OConfig a ctx =
+    { render : ( a, ctx ) -> List HM -> HM
+    , nodeContext : a -> ctx -> ctx
+    }
+
+
+forestToLHM : OConfig a ctx -> ctx -> Forest a -> LHM
+forestToLHM =
+    let
+        build : OConfig a ctx -> Forest a -> LHMZipper a ctx -> LHM
+        build cfg rightForest z =
+            case rightForest of
+                first :: rest ->
+                    let
+                        data =
+                            treeData first
+
+                        nodeCtx : ctx
+                        nodeCtx =
+                            cfg.nodeContext data z.context
+                    in
+                    build cfg
+                        (treeChildren first)
+                        { leftReversed = []
+                        , context = nodeCtx
+                        , crumbs =
+                            { leftReversed = z.leftReversed
+                            , center = ( data, nodeCtx )
+                            , right = rest
+                            }
+                                :: z.crumbs
+                        }
+
+                [] ->
+                    case z.crumbs of
+                        parentCrumb :: rest ->
+                            build cfg
+                                parentCrumb.right
+                                { leftReversed =
+                                    cfg.render parentCrumb.center (List.reverse z.leftReversed)
+                                        :: parentCrumb.leftReversed
+                                , context = Tuple.second parentCrumb.center
+                                , crumbs = rest
+                                }
+
+                        [] ->
+                            List.reverse z.leftReversed
+    in
+    \cfg ctx forest ->
+        build cfg
+            forest
+            { leftReversed = []
+            , context = ctx
+            , crumbs = []
+            }
 
 
 toFlatLines : Outline -> List FlatLine
