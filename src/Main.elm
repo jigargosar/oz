@@ -2,6 +2,7 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Events
+import Forest
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Html exposing (Attribute, Html, div, input, text)
@@ -624,7 +625,7 @@ viewExpOutline outline =
                         forest =
                             Zipper.toRootForest oz
                     in
-                    restructureForest identity
+                    Forest.restructure identity
                         (\item -> renderWithBeacons (item.id == highlightedId) item)
                         forest
 
@@ -635,7 +636,7 @@ viewExpOutline outline =
 
                         renderForestFns : List (Bool -> HM)
                         renderForestFns =
-                            restructureForest identity
+                            Forest.restructure identity
                                 (\item renderChildrenFns ->
                                     \shouldRenderWithoutBeacon ->
                                         let
@@ -668,7 +669,7 @@ viewExpOutline outline =
                         forest =
                             Zipper.toRootForest oz
                     in
-                    restructureForest identity renderItem forest
+                    Forest.restructure identity renderItem forest
     in
     div []
         [ div [ class "f1" ] [ text "exp tree view" ]
@@ -700,7 +701,7 @@ viewExpDraggedNode outline =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                (restructureForest identity renderDraggedItem draggedForest)
+                (Forest.restructure identity renderDraggedItem draggedForest)
 
         OutlineEdit _ _ ->
             text ""
@@ -784,11 +785,6 @@ type alias TransformForestConfig a ctx tree =
     { transform : a -> ctx -> List tree -> tree
     , childContext : a -> ctx -> ctx
     }
-
-
-restructureForest : (a -> b) -> (b -> List c -> c) -> Forest a -> List c
-restructureForest fData fTree =
-    List.map (Tree.restructure fData fTree)
 
 
 
