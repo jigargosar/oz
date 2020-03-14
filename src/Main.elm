@@ -700,7 +700,7 @@ viewExpDraggedNode outline =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                (restructureForest identity renderDragged draggedForest)
+                (restructureForest identity renderDraggedItem draggedForest)
 
         OutlineEdit _ _ ->
             text ""
@@ -714,8 +714,8 @@ renderWithoutBeacons item childrenHtml =
         ]
 
 
-renderDragged : Item -> LHM -> HM
-renderDragged item childrenHtml =
+renderDraggedItem : Item -> LHM -> HM
+renderDraggedItem item childrenHtml =
     div [ class "" ]
         [ viewDraggedItem item
         , div [ class "pl4" ] childrenHtml
