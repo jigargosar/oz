@@ -694,19 +694,13 @@ viewExpDraggedNode outline =
                     gotoItemId dnd.dragItemId oz
                         |> Maybe.map (Zipper.getTree >> List.singleton)
                         |> Maybe.withDefault []
-
-                draggedHtmlList =
-                    restructureForest identity renderDragged draggedForest
-
-                new =
-                    div
-                        [ class "fixed no-pe"
-                        , style "left" (String.fromFloat xy.x ++ "px")
-                        , style "top" (String.fromFloat xy.y ++ "px")
-                        ]
-                        draggedHtmlList
             in
-            new
+            div
+                [ class "fixed no-pe"
+                , style "left" (String.fromFloat xy.x ++ "px")
+                , style "top" (String.fromFloat xy.y ++ "px")
+                ]
+                (restructureForest identity renderDragged draggedForest)
 
         OutlineEdit _ _ ->
             text ""
