@@ -676,7 +676,7 @@ viewExpOutline outline =
         ]
 
 
-type alias LHMZipper a ctx msg =
+type alias FHZ a ctx msg =
     { leftReversed : LH msg
     , context : ctx
 
@@ -698,7 +698,7 @@ type alias ForestHtmlConfig a ctx msg =
 forestToHtmlWithContext : ForestHtmlConfig a ctx msg -> ctx -> Forest a -> LH msg
 forestToHtmlWithContext =
     let
-        build : ForestHtmlConfig a ctx msg -> Forest a -> LHMZipper a ctx msg -> LH msg
+        build : ForestHtmlConfig a ctx msg -> Forest a -> FHZ a ctx msg -> LH msg
         build cfg rightForest z =
             case rightForest of
                 first :: rest ->
