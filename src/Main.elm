@@ -664,22 +664,6 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
 viewExpOutline : Outline -> HM
 viewExpOutline outline =
     let
-        getNodeCtx : Item -> OCtx -> OCtx
-        getNodeCtx item ctx =
-            case ctx.meta of
-                Highlighted _ ->
-                    ctx
-
-                Dragged id ->
-                    if item.id == id then
-                        { ctx | renderWithoutBeacons = True }
-
-                    else
-                        ctx
-
-                Editing _ _ ->
-                    ctx
-
         renderWithoutBeacons : Item -> LHM -> HM
         renderWithoutBeacons item childrenHtml =
             div [ class "" ]
@@ -701,35 +685,6 @@ viewExpOutline outline =
                 , div [ class "pl4" ] lhm
                 ]
 
-        renderItemWithOCtx : ( Item, OCtx ) -> LHM -> HM
-        renderItemWithOCtx ( item, ctx ) childrenHtml =
-            case ctx.meta of
-                Dragged _ ->
-                    if ctx.renderWithoutBeacons then
-                        renderWithoutBeacons item childrenHtml
-
-                    else
-                        renderWithBeacons False item childrenHtml
-
-                Highlighted id ->
-                    renderWithBeacons (item.id == id) item childrenHtml
-
-                Editing id title ->
-                    if item.id == id then
-                        renderEditItem item title childrenHtml
-
-                    else
-                        renderWithBeacons False item childrenHtml
-
-        dndCtx dnd =
-            { renderWithoutBeacons = False, meta = Dragged dnd.dragItemId }
-
-        highlightedCtx oz =
-            { renderWithoutBeacons = False, meta = Highlighted (ozId oz) }
-
-        editCtx oz title =
-            { renderWithoutBeacons = False, meta = Editing (ozId oz) title }
-
         hml =
             case outline of
                 EmptyOutline ->
@@ -742,9 +697,9 @@ viewExpOutline outline =
                     in
                     forestToLHM
                         { render = \( item, _ ) -> renderWithBeacons (item.id == highlightedId) item
-                        , nodeContext = getNodeCtx
+                        , nodeContext = always identity
                         }
-                        (highlightedCtx oz)
+                        { renderWithoutBeacons = False }
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
@@ -756,17 +711,29 @@ viewExpOutline outline =
 
                                 else
                                     renderWithBeacons False item
-                        , nodeContext = getNodeCtx
+                        , nodeContext =
+                            \item ctx ->
+                                if item.id == dnd.dragItemId then
+                                    { ctx | renderWithoutBeacons = True }
+
+                                else
+                                    ctx
                         }
-                        (dndCtx dnd)
+                        { renderWithoutBeacons = False }
                         (toRootForest oz)
 
                 OutlineEdit oz title ->
                     forestToLHM
-                        { render = renderItemWithOCtx
-                        , nodeContext = getNodeCtx
+                        { render =
+                            \( item, _ ) ->
+                                if item.id == ozId oz then
+                                    renderEditItem item title
+
+                                else
+                                    renderWithBeacons False item
+                        , nodeContext = always identity
                         }
-                        (editCtx oz title)
+                        { renderWithoutBeacons = False }
                         (toRootForest oz)
     in
     div []
@@ -775,15 +742,8 @@ viewExpOutline outline =
         ]
 
 
-type ViewMeta
-    = Highlighted ItemId
-    | Dragged ItemId
-    | Editing ItemId String
-
-
 type alias OCtx =
     { renderWithoutBeacons : Bool
-    , meta : ViewMeta
     }
 
 
