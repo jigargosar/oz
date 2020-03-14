@@ -669,14 +669,19 @@ viewExpOutline outline =
             { render = renderItemWithOCtx
             , nodeContext =
                 \item ctx ->
-                    if ctx.renderWithoutBeacons then
-                        ctx
+                    case ctx.meta of
+                        Highlighted _ ->
+                            ctx
 
-                    else if Just item.id == ctx.meta.dragId then
-                        { ctx | renderWithoutBeacons = True }
+                        Dragged id ->
+                            if item.id == id then
+                                { ctx | renderWithoutBeacons = True }
 
-                    else
-                        ctx
+                            else
+                                ctx
+
+                        Editing _ ->
+                            ctx
             }
 
         renderItemWithOCtx : ( Item, OCtx ) -> LHM -> HM
@@ -694,10 +699,10 @@ viewExpOutline outline =
                     ]
 
         dndCtx dnd =
-            { renderWithoutBeacons = False, meta = { dragId = Just dnd.dragItemId } }
+            { renderWithoutBeacons = False, meta = Dragged dnd.dragItemId }
 
-        defaultCtx =
-            { renderWithoutBeacons = False, meta = { dragId = Nothing } }
+        highlightedCtx oz =
+            { renderWithoutBeacons = False, meta = Highlighted (ozId oz) }
 
         hml =
             case outline of
@@ -706,7 +711,7 @@ viewExpOutline outline =
 
                 Outline oz ->
                     forestToLHM config
-                        defaultCtx
+                        (highlightedCtx oz)
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
@@ -716,7 +721,7 @@ viewExpOutline outline =
 
                 OutlineEdit oz title ->
                     forestToLHM config
-                        defaultCtx
+                        (highlightedCtx oz)
                         (toRootForest oz)
     in
     div []
@@ -725,9 +730,15 @@ viewExpOutline outline =
         ]
 
 
+type ViewMeta
+    = Highlighted ItemId
+    | Dragged ItemId
+    | Editing ItemId
+
+
 type alias OCtx =
     { renderWithoutBeacons : Bool
-    , meta : { dragId : Maybe ItemId }
+    , meta : ViewMeta
     }
 
 
