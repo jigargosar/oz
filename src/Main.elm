@@ -840,6 +840,11 @@ transformForest render =
         ()
 
 
+restructureForest : (a -> b) -> (b -> List c -> c) -> Forest a -> List c
+restructureForest fData fTree =
+    List.map (Tree.restructure fData fTree)
+
+
 
 -- FlatLines View
 
