@@ -10,7 +10,7 @@ import Html.Attributes exposing (attribute, class, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Random exposing (Generator)
+import Random exposing (Generator, Seed)
 import Random.Extra
 
 
@@ -43,6 +43,7 @@ main =
 
 type alias Model =
     { outline : Outline
+    , seed : Seed
     }
 
 
@@ -196,7 +197,7 @@ init flags =
         seed0 =
             Random.initialSeed 0
 
-        ( initialItems, _ ) =
+        ( initialItems, seed1 ) =
             Random.step initialItemGenerator seed0
 
         outline =
@@ -217,6 +218,7 @@ init flags =
                         |> always Nothing
     in
     ( { outline = Maybe.map Outline oz |> Maybe.withDefault EmptyOutline
+      , seed = seed1
       }
     , Cmd.none
     )
@@ -378,12 +380,21 @@ update message model =
                     ( model, Cmd.none )
 
                 Outline oz ->
+                    let
+                        ( newItem, newSeed ) =
+                            Random.step (itemGenerator "") model.seed
+                    in
+                    ( { model
+                        | outline = OutlineEdit (ozNew newItem oz) newItem.title
+                        , seed = newSeed
+                      }
+                    , Cmd.none
+                    )
+
+                OutlineDnD _ _ ->
                     ( model, Cmd.none )
 
-                OutlineDnD dnd oz ->
-                    ( model, Cmd.none )
-
-                OutlineEdit oz string ->
+                OutlineEdit _ _ ->
                     ( model, Cmd.none )
 
         TitleChanged title ->
@@ -525,6 +536,11 @@ ozItem =
 ozId : OZ -> ItemId
 ozId =
     ozItem >> .id
+
+
+ozNew : Item -> ForestZipper Item -> ForestZipper Item
+ozNew item oz =
+    Zipper.prependChildAndFocus (Tree.leaf item) oz
 
 
 ozSetTitle : String -> OZ -> OZ
