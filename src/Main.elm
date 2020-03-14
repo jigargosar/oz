@@ -734,7 +734,7 @@ transformForestWithContext cfg =
                         , context = nodeCtx
                         , crumbs =
                             { leftReversed = z.leftReversed
-                            , center = ( data, nodeCtx )
+                            , center = ( data, z.context )
                             , right = rest
                             }
                                 :: z.crumbs
