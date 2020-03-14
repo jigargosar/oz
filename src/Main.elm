@@ -588,6 +588,19 @@ view m =
 -- Experimental Outline View
 
 
+type alias HM =
+    Html Msg
+
+
+type alias LHM =
+    List HM
+
+
+type alias OCtx =
+    { renderWithoutBeacons : Bool
+    }
+
+
 viewExpOutline : Outline -> HM
 viewExpOutline outline =
     let
@@ -627,7 +640,7 @@ viewExpOutline outline =
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
-                    forestToLHMWithContext
+                    forestToHtmlWithContext
                         { render =
                             \item ctx ->
                                 if ctx.renderWithoutBeacons then
@@ -663,19 +676,6 @@ viewExpOutline outline =
         ]
 
 
-type alias OCtx =
-    { renderWithoutBeacons : Bool
-    }
-
-
-type alias HM =
-    Html Msg
-
-
-type alias LHM =
-    List HM
-
-
 type alias LHMZipper a ctx msg =
     { leftReversed : LH msg
     , context : ctx
@@ -689,16 +689,16 @@ type alias LH msg =
     List (Html msg)
 
 
-type alias LHMConfig a ctx msg =
+type alias ForestHtmlConfig a ctx msg =
     { render : a -> ctx -> LH msg -> Html msg
     , nodeContext : a -> ctx -> ctx
     }
 
 
-forestToLHMWithContext : LHMConfig a ctx msg -> ctx -> Forest a -> LH msg
-forestToLHMWithContext =
+forestToHtmlWithContext : ForestHtmlConfig a ctx msg -> ctx -> Forest a -> LH msg
+forestToHtmlWithContext =
     let
-        build : LHMConfig a ctx msg -> Forest a -> LHMZipper a ctx msg -> LH msg
+        build : ForestHtmlConfig a ctx msg -> Forest a -> LHMZipper a ctx msg -> LH msg
         build cfg rightForest z =
             case rightForest of
                 first :: rest ->
@@ -748,7 +748,7 @@ forestToLHMWithContext =
 
 forestToLHM : (a -> LH msg -> Html msg) -> Forest a -> LH msg
 forestToLHM render =
-    forestToLHMWithContext
+    forestToHtmlWithContext
         { render = \a () -> render a
         , nodeContext = \_ _ -> ()
         }
