@@ -375,6 +375,10 @@ update message model =
             ( model, Cmd.none )
 
         New ->
+            let
+                _ =
+                    Debug.log "debug" model.outline
+            in
             case model.outline of
                 Outline oz ->
                     let
