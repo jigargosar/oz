@@ -736,8 +736,12 @@ viewExpOutline outline =
                     []
 
                 Outline oz ->
+                    let
+                        highlightedId =
+                            ozId oz
+                    in
                     forestToLHM
-                        { render = renderItemWithOCtx
+                        { render = \( item, _ ) -> renderWithBeacons (item.id == highlightedId) item
                         , nodeContext = getNodeCtx
                         }
                         (highlightedCtx oz)
@@ -745,7 +749,13 @@ viewExpOutline outline =
 
                 OutlineDnD dnd oz ->
                     forestToLHM
-                        { render = renderItemWithOCtx
+                        { render =
+                            \( item, ctx ) ->
+                                if ctx.renderWithoutBeacons then
+                                    renderWithoutBeacons item
+
+                                else
+                                    renderWithBeacons False item
                         , nodeContext = getNodeCtx
                         }
                         (dndCtx dnd)
