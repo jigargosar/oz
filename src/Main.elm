@@ -898,7 +898,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
         ItemLine level item { isHighlighted, isDraggable } ->
             levelContainer level
                 [ div
-                    (class "pa1 bb b--black-30 pointer no-selection"
+                    (class "pa1 bb b--black-30 pointer no-selection flex"
                         :: classIf isHighlighted "bg-blue white"
                         :: classIf (not isDraggable && fadeNotDraggable) "o-50"
                         :: (if isDraggable then
@@ -908,7 +908,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                                 []
                            )
                     )
-                    [ div [ class "lh-title", onClick (ItemTitleClicked item.id) ]
+                    [ div [ class "flex-auto lh-title", onClick (ItemTitleClicked item.id) ]
                         [ text (itemDisplayTitle item) ]
                     , if isDraggable then
                         div [ class "" ] [ text "+" ]
