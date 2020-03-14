@@ -764,16 +764,16 @@ type alias LHMZipper a ctx =
     }
 
 
-type alias OConfig a ctx =
+type alias LHMConfig a ctx =
     { render : a -> ctx -> List HM -> HM
     , nodeContext : a -> ctx -> ctx
     }
 
 
-forestToLHM : OConfig a ctx -> ctx -> Forest a -> LHM
+forestToLHM : LHMConfig a ctx -> ctx -> Forest a -> LHM
 forestToLHM =
     let
-        build : OConfig a ctx -> Forest a -> LHMZipper a ctx -> LHM
+        build : LHMConfig a ctx -> Forest a -> LHMZipper a ctx -> LHM
         build cfg rightForest z =
             case rightForest of
                 first :: rest ->
@@ -819,6 +819,15 @@ forestToLHM =
             , context = ctx
             , crumbs = []
             }
+
+
+forestToLHMWithoutCtx : (a -> List HM -> HM) -> Forest a -> LHM
+forestToLHMWithoutCtx render =
+    forestToLHM
+        { render = \a () -> render a
+        , nodeContext = \_ _ -> ()
+        }
+        ()
 
 
 toFlatLines : Outline -> List FlatLine
