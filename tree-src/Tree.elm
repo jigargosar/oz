@@ -327,12 +327,27 @@ findFromCurrent pred acc =
                 Just acc
 
             else
-                case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] acc of
+                case firstOf [ down, right, nextSiblingOfClosestAncestor ] acc of
                     Just nextAcc ->
                         findFromCurrent pred nextAcc
 
                     Nothing ->
                         Nothing
+
+
+firstOf : List (a -> Maybe b) -> a -> Maybe b
+firstOf funcList a =
+    case funcList of
+        [] ->
+            Nothing
+
+        firstFunc :: rest ->
+            case firstFunc a of
+                Just b ->
+                    Just b
+
+                Nothing ->
+                    firstOf rest a
 
 
 findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
