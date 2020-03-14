@@ -607,70 +607,71 @@ type alias OCtx =
 
 viewOutline : Outline -> HM
 viewOutline outline =
-    let
-        hml =
-            case outline of
-                EmptyOutline ->
-                    []
-
-                Outline oz ->
-                    let
-                        highlightedId =
-                            ozId oz
-
-                        forest =
-                            Zipper.toRootForest oz
-                    in
-                    Forest.restructure identity
-                        (\item -> renderWithBeacons (item.id == highlightedId) item)
-                        forest
-
-                OutlineDnD dnd oz ->
-                    let
-                        forest =
-                            Zipper.toRootForest oz
-
-                        renderForestFns : List (Bool -> HM)
-                        renderForestFns =
-                            Forest.restructure identity
-                                (\item renderChildrenFns ->
-                                    \shouldRenderWithoutBeacon ->
-                                        let
-                                            children bool =
-                                                List.map (\f -> f bool) renderChildrenFns
-                                        in
-                                        if shouldRenderWithoutBeacon || item.id == dnd.dragItemId then
-                                            renderWithoutBeacons item (children True)
-
-                                        else
-                                            renderWithBeacons False item (children False)
-                                )
-                                forest
-                    in
-                    List.map (\fn -> fn False) renderForestFns
-
-                OutlineEdit oz title ->
-                    let
-                        editItemId =
-                            ozId oz
-
-                        renderItem : Item -> LHM -> HM
-                        renderItem item =
-                            if item.id == editItemId then
-                                renderEditItem title
-
-                            else
-                                renderWithBeacons False item
-
-                        forest =
-                            Zipper.toRootForest oz
-                    in
-                    Forest.restructure identity renderItem forest
-    in
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
-        , div [] hml
+        , div [] (outlineToHtmlList outline)
         ]
+
+
+outlineToHtmlList : Outline -> List HM
+outlineToHtmlList outline =
+    case outline of
+        EmptyOutline ->
+            []
+
+        Outline oz ->
+            let
+                highlightedId =
+                    ozId oz
+
+                forest =
+                    Zipper.toRootForest oz
+            in
+            Forest.restructure identity
+                (\item -> renderWithBeacons (item.id == highlightedId) item)
+                forest
+
+        OutlineDnD dnd oz ->
+            let
+                forest =
+                    Zipper.toRootForest oz
+
+                renderForestFns : List (Bool -> HM)
+                renderForestFns =
+                    Forest.restructure identity
+                        (\item renderChildrenFns ->
+                            \shouldRenderWithoutBeacon ->
+                                let
+                                    children bool =
+                                        List.map (\f -> f bool) renderChildrenFns
+                                in
+                                if shouldRenderWithoutBeacon || item.id == dnd.dragItemId then
+                                    renderWithoutBeacons item (children True)
+
+                                else
+                                    renderWithBeacons False item (children False)
+                        )
+                        forest
+            in
+            List.map (\fn -> fn False) renderForestFns
+
+        OutlineEdit oz title ->
+            let
+                editItemId =
+                    ozId oz
+
+                renderItem : Item -> LHM -> HM
+                renderItem item =
+                    if item.id == editItemId then
+                        renderEditItem title
+
+                    else
+                        renderWithBeacons False item
+
+                forest =
+                    Zipper.toRootForest oz
+            in
+            Forest.restructure identity renderItem forest
 
 
 viewDraggedNode : Outline -> Html Msg
