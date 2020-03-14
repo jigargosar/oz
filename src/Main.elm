@@ -83,8 +83,8 @@ outlineZipperEncoder outlineZipper =
 itemTreeEncoder : Tree Item -> Value
 itemTreeEncoder tree =
     JE.object
-        [ ( "item", itemEncoder (treeData tree) )
-        , ( "children", JE.list itemTreeEncoder (treeChildren tree) )
+        [ ( "item", itemEncoder (Tree.data tree) )
+        , ( "children", JE.list itemTreeEncoder (Tree.children tree) )
         ]
 
 
@@ -499,7 +499,7 @@ ozTitle =
 
 ozItem : OZ -> Item
 ozItem =
-    getTree >> treeData
+    getTree >> Tree.data
 
 
 ozId : OZ -> ItemId
@@ -783,14 +783,14 @@ transformForestWithContext cfg =
                 first :: rest ->
                     let
                         data =
-                            treeData first
+                            Tree.data first
 
                         childCtx : ctx
                         childCtx =
                             cfg.childContext data z.context
                     in
                     build
-                        (treeChildren first)
+                        (Tree.children first)
                         { leftReversed = []
                         , context = childCtx
                         , crumbs =
@@ -1073,34 +1073,6 @@ preventDefault bool =
 
 
 
--- TREE
-
-
-mapTreeData : (a -> a) -> Tree a -> Tree a
-mapTreeData =
-    Tree.mapData
-
-
-treeData : Tree a -> a
-treeData =
-    Tree.data
-
-
-treeChildren : Tree a -> Forest a
-treeChildren =
-    Tree.children
-
-
-
---noinspection ElmUnusedSymbol
-
-
-leaf : a -> Tree a
-leaf =
-    Tree.leaf
-
-
-
 -- FOREST
 
 
@@ -1168,7 +1140,7 @@ mapTree func fz =
 
 fzMapData : (a -> a) -> ForestZipper a -> ForestZipper a
 fzMapData func =
-    mapTree (mapTreeData func)
+    mapTree (Tree.mapData func)
 
 
 getTree : ForestZipper a -> Tree a
