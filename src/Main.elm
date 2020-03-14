@@ -614,14 +614,14 @@ viewExpOutline outline =
         renderWithBeacons : Bool -> Item -> LHM -> HM
         renderWithBeacons isHighlighted item childrenHtml =
             div [ class "" ]
-                [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                [ viewDraggableItem isHighlighted item
                 , div [ class "pl4" ] childrenHtml
                 ]
 
         renderEditItem : Item -> String -> LHM -> HM
         renderEditItem item title lhm =
             div [ class "" ]
-                [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                [ viewEditItem title
                 , div [ class "pl4" ] lhm
                 ]
 
