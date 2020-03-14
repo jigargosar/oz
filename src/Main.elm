@@ -728,7 +728,9 @@ forestToHtmlWithContext =
                             build cfg
                                 parentCrumb.right
                                 { leftReversed =
-                                    cfg.render (Tuple.first parentCrumb.center) (Tuple.second parentCrumb.center) (List.reverse z.leftReversed)
+                                    cfg.render (Tuple.first parentCrumb.center)
+                                        (Tuple.second parentCrumb.center)
+                                        (List.reverse z.leftReversed)
                                         :: parentCrumb.leftReversed
                                 , context = Tuple.second parentCrumb.center
                                 , crumbs = rest
