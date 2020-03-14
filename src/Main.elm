@@ -696,10 +696,10 @@ type alias ForestHtmlConfig a ctx msg =
 
 
 forestToHtmlWithContext : ForestHtmlConfig a ctx msg -> ctx -> Forest a -> LH msg
-forestToHtmlWithContext =
+forestToHtmlWithContext cfg =
     let
-        build : ForestHtmlConfig a ctx msg -> Forest a -> FHZ a ctx msg -> LH msg
-        build cfg rightForest z =
+        build : Forest a -> FHZ a ctx msg -> LH msg
+        build rightForest z =
             case rightForest of
                 first :: rest ->
                     let
@@ -710,7 +710,7 @@ forestToHtmlWithContext =
                         nodeCtx =
                             cfg.nodeContext data z.context
                     in
-                    build cfg
+                    build
                         (treeChildren first)
                         { leftReversed = []
                         , context = nodeCtx
@@ -725,7 +725,7 @@ forestToHtmlWithContext =
                 [] ->
                     case z.crumbs of
                         parentCrumb :: rest ->
-                            build cfg
+                            build
                                 parentCrumb.right
                                 { leftReversed =
                                     cfg.render (Tuple.first parentCrumb.center)
@@ -739,8 +739,8 @@ forestToHtmlWithContext =
                         [] ->
                             List.reverse z.leftReversed
     in
-    \cfg ctx forest ->
-        build cfg
+    \ctx forest ->
+        build
             forest
             { leftReversed = []
             , context = ctx
