@@ -177,7 +177,7 @@ type CandidateLocation
 
 
 type alias Flags =
-    { oz : Value }
+    { oz : Value, now : Int }
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -195,7 +195,7 @@ init flags =
                 |> Random.Extra.combine
 
         seed0 =
-            Random.initialSeed 0
+            Random.initialSeed flags.now
 
         ( initialItems, seed1 ) =
             Random.step initialItemGenerator seed0
