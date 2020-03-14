@@ -824,6 +824,10 @@ forestToLHM render =
         ()
 
 
+
+-- FlatLines View
+
+
 toFlatLines : Outline -> List FlatLine
 toFlatLines outline =
     case outline of
