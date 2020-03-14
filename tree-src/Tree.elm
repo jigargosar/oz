@@ -1,6 +1,38 @@
 module Tree exposing (Tree)
 
-import Maybe.Extra
+-- TREE
+
+
+type Tree a
+    = Tree a (List (Tree a))
+
+
+mapTreeData : (a -> a) -> Tree a -> Tree a
+mapTreeData func (Tree a children) =
+    Tree (func a) children
+
+
+treeData : Tree a -> a
+treeData (Tree a _) =
+    a
+
+
+treeChildren : Tree a -> Forest a
+treeChildren (Tree _ children) =
+    children
+
+
+leaf : a -> Tree a
+leaf a =
+    Tree a []
+
+
+
+-- FOREST
+
+
+type alias Forest a =
+    List (Tree a)
 
 
 
@@ -80,47 +112,6 @@ transformForest render =
         , childContext = \_ _ -> ()
         }
         ()
-
-
-debug =
-    --    True
-    False
-
-
-
--- TREE
-
-
-type Tree a
-    = Tree a (List (Tree a))
-
-
-mapTreeData : (a -> a) -> Tree a -> Tree a
-mapTreeData func (Tree a children) =
-    Tree (func a) children
-
-
-treeData : Tree a -> a
-treeData (Tree a _) =
-    a
-
-
-treeChildren : Tree a -> Forest a
-treeChildren (Tree _ children) =
-    children
-
-
-leaf : a -> Tree a
-leaf a =
-    Tree a []
-
-
-
--- FOREST
-
-
-type alias Forest a =
-    List (Tree a)
 
 
 
