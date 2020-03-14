@@ -681,26 +681,27 @@ type alias OCtx =
     { renderWithoutBeacons : Bool }
 
 
+renderItemWithOCtx : ( Item, OCtx ) -> LHM -> HM
+renderItemWithOCtx ( item, ctx ) childrenHtml =
+    if ctx.renderWithoutBeacons then
+        div [ class "" ]
+            [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
+            , div [ class "pl4" ] childrenHtml
+            ]
+
+    else
+        div [ class "" ]
+            [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+            , div [ class "pl4" ] childrenHtml
+            ]
+
+
 outlineForestToLHM : Maybe ItemId -> OutlineForest -> LHM
 outlineForestToLHM maybeDraggedIid =
     let
-        render : ( Item, OCtx ) -> LHM -> HM
-        render ( item, ctx ) childrenHtml =
-            if ctx.renderWithoutBeacons then
-                div [ class "" ]
-                    [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                    , div [ class "pl4" ] childrenHtml
-                    ]
-
-            else
-                div [ class "" ]
-                    [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                    , div [ class "pl4" ] childrenHtml
-                    ]
-
         config : Config Item OCtx
         config =
-            { render = render
+            { render = renderItemWithOCtx
             , nodeContext =
                 \item ctx ->
                     if ctx.renderWithoutBeacons then
