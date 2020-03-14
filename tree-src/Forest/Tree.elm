@@ -1,4 +1,13 @@
-module Forest.Tree exposing (Forest, Tree, children, data, leaf, mapData, toTuple, tree)
+module Forest.Tree exposing
+    ( Forest
+    , Tree
+    , children
+    , data
+    , leaf
+    , mapData
+    , toTuple
+    , tree
+    )
 
 import Tree exposing (Tree)
 
