@@ -635,13 +635,13 @@ viewExpOutline outline =
                         highlightedId =
                             ozId oz
                     in
-                    forestToLHM
+                    transformForest
                         (\item -> renderWithBeacons (item.id == highlightedId) item)
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
-                    forestToHtmlWithContext
-                        { render =
+                    transformForestWithContext
+                        { transform =
                             \item ctx ->
                                 if ctx.renderWithoutBeacons then
                                     renderWithoutBeacons item
@@ -660,7 +660,7 @@ viewExpOutline outline =
                         (toRootForest oz)
 
                 OutlineEdit oz title ->
-                    forestToLHM
+                    transformForest
                         (\item ->
                             if item.id == ozId oz then
                                 renderEditItem item title
@@ -680,25 +680,23 @@ viewExpOutline outline =
 -- FOREST TRANSFORM
 
 
-type alias FHZipper a ctx msg =
-    { leftReversed : List msg
+type alias ForestTransformZipper a ctx tree =
+    { leftReversed : List tree
     , context : ctx
-
-    --, right : OutlineForest
-    , crumbs : List { leftReversed : List msg, center : ( a, ctx ), right : Forest a }
+    , crumbs : List { leftReversed : List tree, center : ( a, ctx ), right : Forest a }
     }
 
 
-type alias ForestHtmlConfig a ctx msg =
-    { render : a -> ctx -> List msg -> msg
+type alias TransformForestConfig a ctx tree =
+    { transform : a -> ctx -> List tree -> tree
     , nodeContext : a -> ctx -> ctx
     }
 
 
-forestToHtmlWithContext : ForestHtmlConfig a ctx msg -> ctx -> Forest a -> List msg
-forestToHtmlWithContext cfg =
+transformForestWithContext : TransformForestConfig a ctx tree -> ctx -> Forest a -> List tree
+transformForestWithContext cfg =
     let
-        build : Forest a -> FHZipper a ctx msg -> List msg
+        build : Forest a -> ForestTransformZipper a ctx tree -> List tree
         build rightForest z =
             case rightForest of
                 first :: rest ->
@@ -728,7 +726,7 @@ forestToHtmlWithContext cfg =
                             build
                                 parentCrumb.right
                                 { leftReversed =
-                                    cfg.render (Tuple.first parentCrumb.center)
+                                    cfg.transform (Tuple.first parentCrumb.center)
                                         (Tuple.second parentCrumb.center)
                                         (List.reverse z.leftReversed)
                                         :: parentCrumb.leftReversed
@@ -748,10 +746,10 @@ forestToHtmlWithContext cfg =
             }
 
 
-forestToLHM : (a -> List msg -> msg) -> Forest a -> List msg
-forestToLHM render =
-    forestToHtmlWithContext
-        { render = \a () -> render a
+transformForest : (a -> List tree -> tree) -> Forest a -> List tree
+transformForest render =
+    transformForestWithContext
+        { transform = \a () -> render a
         , nodeContext = \_ _ -> ()
         }
         ()
