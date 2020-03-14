@@ -607,7 +607,7 @@ viewExpOutline outline =
         renderWithoutBeacons : Item -> LHM -> HM
         renderWithoutBeacons item childrenHtml =
             div [ class "" ]
-                [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                [ viewFadedDraggedItem item
                 , div [ class "pl4" ] childrenHtml
                 ]
 
@@ -686,8 +686,8 @@ viewDraggableItem isHighlighted item =
     viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = isHighlighted, isDraggable = True })
 
 
-viewFadedItem : Item -> Html Msg
-viewFadedItem item =
+viewFadedDraggedItem : Item -> Html Msg
+viewFadedDraggedItem item =
     viewFlatLineWithConfig True (ItemLine 0 item { isHighlighted = False, isDraggable = False })
 
 
@@ -905,8 +905,8 @@ viewDraggedNode outline =
 
 
 debug =
-    --False
-    True
+    --    True
+    False
 
 
 dataBeacon : Value -> Attribute msg
