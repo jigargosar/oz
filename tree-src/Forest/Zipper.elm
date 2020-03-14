@@ -1,4 +1,18 @@
-module Forest.Zipper exposing (Crumb, ForestZipper, data, findFirst, fromForest, getTree, insertAndGoRight, insertLastChild, insertLeft, mapData, prependAndGotoChild, remove, toRootForest)
+module Forest.Zipper exposing
+    ( Crumb
+    , ForestZipper
+    , data
+    , findFirst
+    , fromForest
+    , getTree
+    , insertAndGoRight
+    , insertLastChild
+    , insertLeft
+    , mapData
+    , prependAndGotoChild
+    , remove
+    , toRootForest
+    )
 
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Maybe.Extra
