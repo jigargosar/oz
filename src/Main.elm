@@ -611,6 +611,60 @@ type alias LHM =
     List HM
 
 
+type alias LHMZipper a ctx =
+    { leftReversed : List (ctx -> HM)
+
+    --, right : OutlineForest
+    , crumbs : List { leftReversed : List (ctx -> HM), center : a, right : Forest a }
+    }
+
+
+type alias Config a ctx =
+    { render : a -> List (ctx -> HM) -> (ctx -> HM)
+    , context : ctx
+    }
+
+
+forestToLHM : Config a ctx -> Forest a -> LHM
+forestToLHM =
+    let
+        build : Config a ctx -> Forest a -> LHMZipper a ctx -> LHM
+        build cfg rightForest z =
+            case rightForest of
+                first :: rest ->
+                    build cfg
+                        (treeChildren first)
+                        { leftReversed = []
+                        , crumbs =
+                            { leftReversed = z.leftReversed
+                            , center = treeData first
+                            , right = rest
+                            }
+                                :: z.crumbs
+                        }
+
+                [] ->
+                    case z.crumbs of
+                        parentCrumb :: rest ->
+                            build cfg
+                                parentCrumb.right
+                                { leftReversed =
+                                    cfg.render parentCrumb.center z.leftReversed
+                                        :: parentCrumb.leftReversed
+                                , crumbs = rest
+                                }
+
+                        [] ->
+                            List.foldl (\c -> (::) (c cfg.context)) [] z.leftReversed
+    in
+    \cfg forest ->
+        build cfg
+            forest
+            { leftReversed = []
+            , crumbs = []
+            }
+
+
 type alias HZ =
     { leftReversed : List (() -> HM)
 
