@@ -664,8 +664,8 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
 viewExpOutline : Outline -> HM
 viewExpOutline outline =
     let
-        outlineToLHMConfig : OConfig Item OCtx
-        outlineToLHMConfig =
+        config : OConfig Item OCtx
+        config =
             { render = renderItemWithOCtx
             , nodeContext =
                 \item ctx ->
@@ -699,21 +699,21 @@ viewExpOutline outline =
                     []
 
                 Outline oz ->
-                    forestToLHM outlineToLHMConfig
+                    forestToLHM config
                         { renderWithoutBeacons = False
                         , dragId = Nothing
                         }
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
-                    forestToLHM outlineToLHMConfig
+                    forestToLHM config
                         { renderWithoutBeacons = False
                         , dragId = Just dnd.dragItemId
                         }
                         (toRootForest oz)
 
                 OutlineEdit oz title ->
-                    forestToLHM outlineToLHMConfig
+                    forestToLHM config
                         { renderWithoutBeacons = False
                         , dragId = Nothing
                         }
