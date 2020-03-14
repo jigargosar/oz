@@ -676,25 +676,29 @@ type alias LHM =
     List HM
 
 
-type alias LHMZipper a ctx =
-    { leftReversed : List HM
+type alias LHMZipper a ctx msg =
+    { leftReversed : LH msg
     , context : ctx
 
     --, right : OutlineForest
-    , crumbs : List { leftReversed : List HM, center : ( a, ctx ), right : Forest a }
+    , crumbs : List { leftReversed : LH msg, center : ( a, ctx ), right : Forest a }
     }
 
 
-type alias LHMConfig a ctx =
-    { render : a -> ctx -> List HM -> HM
+type alias LH msg =
+    List (Html msg)
+
+
+type alias LHMConfig a ctx msg =
+    { render : a -> ctx -> LH msg -> Html msg
     , nodeContext : a -> ctx -> ctx
     }
 
 
-forestToLHMWithContext : LHMConfig a ctx -> ctx -> Forest a -> LHM
+forestToLHMWithContext : LHMConfig a ctx msg -> ctx -> Forest a -> LH msg
 forestToLHMWithContext =
     let
-        build : LHMConfig a ctx -> Forest a -> LHMZipper a ctx -> LHM
+        build : LHMConfig a ctx msg -> Forest a -> LHMZipper a ctx msg -> LH msg
         build cfg rightForest z =
             case rightForest of
                 first :: rest ->
@@ -742,7 +746,7 @@ forestToLHMWithContext =
             }
 
 
-forestToLHM : (a -> List HM -> HM) -> Forest a -> LHM
+forestToLHM : (a -> LH msg -> Html msg) -> Forest a -> LH msg
 forestToLHM render =
     forestToLHMWithContext
         { render = \a () -> render a
