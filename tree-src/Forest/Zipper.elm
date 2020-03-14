@@ -6,10 +6,10 @@ module Forest.Zipper exposing
     , fromForest
     , getTree
     , insertAndGoRight
+    , insertChildAndFocus
     , insertLastChild
     , insertLeft
     , mapData
-    , prependAndGotoChild
     , remove
     , toRootForest
     )
@@ -323,13 +323,14 @@ insertLeft tree acc =
     { acc | leftReversed = tree :: acc.leftReversed }
 
 
+insertRight : Tree a -> ForestZipper a -> ForestZipper a
+insertRight tree acc =
+    { acc | right_ = tree :: acc.right_ }
+
+
 insertAndGoRight : Tree a -> ForestZipper a -> ForestZipper a
 insertAndGoRight =
     let
-        insertRight : Tree a -> ForestZipper a -> ForestZipper a
-        insertRight tree acc =
-            { acc | right_ = tree :: acc.right_ }
-
         insertHelp : Tree a -> ForestZipper a -> Maybe (ForestZipper a)
         insertHelp tree =
             insertRight tree >> right
@@ -337,8 +338,8 @@ insertAndGoRight =
     withRollback << insertHelp
 
 
-prependAndGotoChild : Tree a -> ForestZipper a -> ForestZipper a
-prependAndGotoChild child acc =
+insertChildAndFocus : Tree a -> ForestZipper a -> ForestZipper a
+insertChildAndFocus child acc =
     case Tree.toTuple acc.center of
         ( a, children ) ->
             { acc
