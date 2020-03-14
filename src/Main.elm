@@ -622,7 +622,7 @@ type alias LHMZipper a ctx =
 
 type alias Config a ctx =
     { render : ( a, ctx ) -> List HM -> HM
-    , childContext : a -> ctx -> ctx
+    , nodeContext : a -> ctx -> ctx
     }
 
 
@@ -637,17 +637,17 @@ forestToLHM =
                         data =
                             treeData first
 
-                        childCtx : ctx
-                        childCtx =
-                            cfg.childContext data z.context
+                        nodeCtx : ctx
+                        nodeCtx =
+                            cfg.nodeContext data z.context
                     in
                     build cfg
                         (treeChildren first)
                         { leftReversed = []
-                        , context = childCtx
+                        , context = nodeCtx
                         , crumbs =
                             { leftReversed = z.leftReversed
-                            , center = ( data, z.context )
+                            , center = ( data, nodeCtx )
                             , right = rest
                             }
                                 :: z.crumbs
@@ -701,7 +701,7 @@ outlineForestToLHM maybeDraggedIid =
         config : Config Item OCtx
         config =
             { render = render
-            , childContext =
+            , nodeContext =
                 \item ctx ->
                     if ctx.renderWithoutBeacons then
                         ctx
