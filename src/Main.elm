@@ -786,68 +786,6 @@ type alias TransformForestConfig a ctx tree =
     }
 
 
-transformForestWithContext : TransformForestConfig a ctx tree -> ctx -> Forest a -> List tree
-transformForestWithContext cfg =
-    let
-        build : Forest a -> ForestTransformZipper a ctx tree -> List tree
-        build rightForest z =
-            case rightForest of
-                first :: rest ->
-                    let
-                        data =
-                            Tree.data first
-
-                        childCtx : ctx
-                        childCtx =
-                            cfg.childContext data z.context
-                    in
-                    build
-                        (Tree.children first)
-                        { leftReversed = []
-                        , context = childCtx
-                        , crumbs =
-                            { leftReversed = z.leftReversed
-                            , center = ( data, z.context )
-                            , right = rest
-                            }
-                                :: z.crumbs
-                        }
-
-                [] ->
-                    case z.crumbs of
-                        parentCrumb :: rest ->
-                            build
-                                parentCrumb.right
-                                { leftReversed =
-                                    cfg.transform (Tuple.first parentCrumb.center)
-                                        (Tuple.second parentCrumb.center)
-                                        (List.reverse z.leftReversed)
-                                        :: parentCrumb.leftReversed
-                                , context = Tuple.second parentCrumb.center
-                                , crumbs = rest
-                                }
-
-                        [] ->
-                            List.reverse z.leftReversed
-    in
-    \ctx forest ->
-        build
-            forest
-            { leftReversed = []
-            , context = ctx
-            , crumbs = []
-            }
-
-
-transformForest : (a -> List tree -> tree) -> Forest a -> List tree
-transformForest render =
-    transformForestWithContext
-        { transform = \a () -> render a
-        , childContext = \_ _ -> ()
-        }
-        ()
-
-
 restructureForest : (a -> b) -> (b -> List c -> c) -> Forest a -> List c
 restructureForest fData fTree =
     List.map (Tree.restructure fData fTree)
