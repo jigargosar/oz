@@ -695,11 +695,8 @@ viewExpOutline outline =
                         highlightedId =
                             ozId oz
                     in
-                    forestToLHM
-                        { render = \item _ -> renderWithBeacons (item.id == highlightedId) item
-                        , nodeContext = always identity
-                        }
-                        ()
+                    forestToLHMWithoutCtx
+                        (\item -> renderWithBeacons (item.id == highlightedId) item)
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
@@ -723,17 +720,14 @@ viewExpOutline outline =
                         (toRootForest oz)
 
                 OutlineEdit oz title ->
-                    forestToLHM
-                        { render =
-                            \item _ ->
-                                if item.id == ozId oz then
-                                    renderEditItem item title
+                    forestToLHMWithoutCtx
+                        (\item ->
+                            if item.id == ozId oz then
+                                renderEditItem item title
 
-                                else
-                                    renderWithBeacons False item
-                        , nodeContext = always identity
-                        }
-                        ()
+                            else
+                                renderWithBeacons False item
+                        )
                         (toRootForest oz)
     in
     div []
