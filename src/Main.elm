@@ -680,12 +680,6 @@ viewExpOutline outline =
                 Editing _ _ ->
                     ctx
 
-        config : OConfig Item OCtx
-        config =
-            { render = renderItemWithOCtx
-            , nodeContext = getNodeCtx
-            }
-
         renderWithoutBeacons : Item -> LHM -> HM
         renderWithoutBeacons item childrenHtml =
             div [ class "" ]
@@ -742,17 +736,26 @@ viewExpOutline outline =
                     []
 
                 Outline oz ->
-                    forestToLHM config
+                    forestToLHM
+                        { render = renderItemWithOCtx
+                        , nodeContext = getNodeCtx
+                        }
                         (highlightedCtx oz)
                         (toRootForest oz)
 
                 OutlineDnD dnd oz ->
-                    forestToLHM config
+                    forestToLHM
+                        { render = renderItemWithOCtx
+                        , nodeContext = getNodeCtx
+                        }
                         (dndCtx dnd)
                         (toRootForest oz)
 
                 OutlineEdit oz title ->
-                    forestToLHM config
+                    forestToLHM
+                        { render = renderItemWithOCtx
+                        , nodeContext = getNodeCtx
+                        }
                         (editCtx oz title)
                         (toRootForest oz)
     in
