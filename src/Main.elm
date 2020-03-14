@@ -376,9 +376,6 @@ update message model =
 
         New ->
             case model.outline of
-                EmptyOutline ->
-                    ( model, Cmd.none )
-
                 Outline oz ->
                     let
                         ( newItem, newSeed ) =
@@ -391,11 +388,8 @@ update message model =
                     , Cmd.none
                     )
 
-                OutlineDnD _ _ ->
-                    ( model, Cmd.none )
-
-                OutlineEdit _ _ ->
-                    ( model, Cmd.none )
+                _ ->
+                    Debug.todo "impl"
 
         TitleChanged title ->
             case model.outline of
