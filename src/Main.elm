@@ -623,56 +623,34 @@ viewExpOutline outline =
 
                         forest =
                             Zipper.toRootForest oz
+                    in
+                    restructureForest identity
+                        (\item -> renderWithBeacons (item.id == highlightedId) item)
+                        forest
 
-                        fff : List (Bool -> HM)
-                        fff =
+                OutlineDnD dnd oz ->
+                    let
+                        forest =
+                            Zipper.toRootForest oz
+
+                        renderForestFns : List (Bool -> HM)
+                        renderForestFns =
                             restructureForest identity
                                 (\item cfn ->
-                                    \bool ->
+                                    \shouldRenderWithoutBeacon ->
                                         let
-                                            children =
+                                            children bool =
                                                 List.map (\f -> f bool) cfn
                                         in
-                                        if bool then
-                                            renderWithBeacons (item.id == highlightedId) item children
+                                        if shouldRenderWithoutBeacon || item.id == dnd.dragItemId then
+                                            renderWithoutBeacons item (children True)
 
                                         else
-                                            text ""
+                                            renderWithBeacons False item (children False)
                                 )
                                 forest
-
-                        res1 =
-                            restructureForest identity
-                                (\item -> renderWithBeacons (item.id == highlightedId) item)
-                                forest
-
-                        res =
-                            List.map (\fn -> fn True) fff
                     in
-                    res
-
-                --transformForest
-                --    (\item -> renderWithBeacons (item.id == highlightedId) item)
-                --    (Zipper.toRootForest oz)
-                OutlineDnD dnd oz ->
-                    transformForestWithContext
-                        { transform =
-                            \item ctx ->
-                                if ctx.renderWithoutBeacons || item.id == dnd.dragItemId then
-                                    renderWithoutBeacons item
-
-                                else
-                                    renderWithBeacons False item
-                        , childContext =
-                            \item ctx ->
-                                if item.id == dnd.dragItemId then
-                                    { ctx | renderWithoutBeacons = True }
-
-                                else
-                                    ctx
-                        }
-                        { renderWithoutBeacons = False }
-                        (Zipper.toRootForest oz)
+                    List.map (\fn -> fn False) renderForestFns
 
                 OutlineEdit oz title ->
                     transformForest
