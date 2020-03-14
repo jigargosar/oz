@@ -696,7 +696,7 @@ viewExpOutline outline =
                             ozId oz
                     in
                     forestToLHM
-                        { render = \( item, _ ) -> renderWithBeacons (item.id == highlightedId) item
+                        { render = \item _ -> renderWithBeacons (item.id == highlightedId) item
                         , nodeContext = always identity
                         }
                         ()
@@ -705,7 +705,7 @@ viewExpOutline outline =
                 OutlineDnD dnd oz ->
                     forestToLHM
                         { render =
-                            \( item, ctx ) ->
+                            \item ctx ->
                                 if ctx.renderWithoutBeacons then
                                     renderWithoutBeacons item
 
@@ -725,7 +725,7 @@ viewExpOutline outline =
                 OutlineEdit oz title ->
                     forestToLHM
                         { render =
-                            \( item, _ ) ->
+                            \item _ ->
                                 if item.id == ozId oz then
                                     renderEditItem item title
 
@@ -765,7 +765,7 @@ type alias LHMZipper a ctx =
 
 
 type alias OConfig a ctx =
-    { render : ( a, ctx ) -> List HM -> HM
+    { render : a -> ctx -> List HM -> HM
     , nodeContext : a -> ctx -> ctx
     }
 
@@ -803,7 +803,7 @@ forestToLHM =
                             build cfg
                                 parentCrumb.right
                                 { leftReversed =
-                                    cfg.render parentCrumb.center (List.reverse z.leftReversed)
+                                    cfg.render (Tuple.first parentCrumb.center) (Tuple.second parentCrumb.center) (List.reverse z.leftReversed)
                                         :: parentCrumb.leftReversed
                                 , context = Tuple.second parentCrumb.center
                                 , crumbs = rest
