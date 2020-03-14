@@ -421,12 +421,22 @@ update message model =
 
                 OutlineEdit oz title ->
                     if isBlank title then
-                        let
-                            noz =
-                                oz
-                                    |> withRollback (gotoItemId iid)
-                        in
-                        ( { model | outline = Outline noz }, cacheOZCmd noz )
+                        if Zipper.isLeaf oz then
+                            let
+                                noz =
+                                    oz
+                                        |> withRollback Zipper.remove
+                                        |> withRollback (gotoItemId iid)
+                            in
+                            ( { model | outline = Outline noz }, cacheOZCmd noz )
+
+                        else
+                            let
+                                noz =
+                                    oz
+                                        |> withRollback (gotoItemId iid)
+                            in
+                            ( { model | outline = Outline noz }, cacheOZCmd noz )
 
                     else
                         let

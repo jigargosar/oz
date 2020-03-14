@@ -8,6 +8,7 @@ module Forest.Zipper exposing
     , getTree
     , insertAndGoRight
     , insertLeft
+    , isLeaf
     , mapData
     , prependChildAndFocus
     , remove
@@ -89,6 +90,11 @@ getTree fz =
 data : ForestZipper a -> a
 data =
     getTree >> Tree.data
+
+
+isLeaf : ForestZipper a -> Bool
+isLeaf =
+    getTree >> Tree.isLeaf
 
 
 
