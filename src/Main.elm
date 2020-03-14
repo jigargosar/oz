@@ -664,24 +664,26 @@ ozToFlatLines highlightedId isBeingDragged editTitle =
 viewExpOutline : Outline -> HM
 viewExpOutline outline =
     let
+        getNodeCtx : Item -> OCtx -> OCtx
+        getNodeCtx item ctx =
+            case ctx.meta of
+                Highlighted _ ->
+                    ctx
+
+                Dragged id ->
+                    if item.id == id then
+                        { ctx | renderWithoutBeacons = True }
+
+                    else
+                        ctx
+
+                Editing _ _ ->
+                    ctx
+
         config : OConfig Item OCtx
         config =
             { render = renderItemWithOCtx
-            , nodeContext =
-                \item ctx ->
-                    case ctx.meta of
-                        Highlighted _ ->
-                            ctx
-
-                        Dragged id ->
-                            if item.id == id then
-                                { ctx | renderWithoutBeacons = True }
-
-                            else
-                                ctx
-
-                        Editing _ _ ->
-                            ctx
+            , nodeContext = getNodeCtx
             }
 
         renderWithoutBeacons : Item -> LHM -> HM
