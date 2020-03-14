@@ -648,7 +648,7 @@ viewExpOutline outline =
 
                                 else
                                     renderWithBeacons False item
-                        , nodeContext =
+                        , childContext =
                             \item ctx ->
                                 if item.id == dnd.dragItemId then
                                     { ctx | renderWithoutBeacons = True }
@@ -709,7 +709,7 @@ type alias ForestTransformZipper a ctx tree =
 
 type alias TransformForestConfig a ctx tree =
     { transform : a -> ctx -> List tree -> tree
-    , nodeContext : a -> ctx -> ctx
+    , childContext : a -> ctx -> ctx
     }
 
 
@@ -726,7 +726,7 @@ transformForestWithContext cfg =
 
                         nodeCtx : ctx
                         nodeCtx =
-                            cfg.nodeContext data z.context
+                            cfg.childContext data z.context
                     in
                     build
                         (treeChildren first)
@@ -770,7 +770,7 @@ transformForest : (a -> List tree -> tree) -> Forest a -> List tree
 transformForest render =
     transformForestWithContext
         { transform = \a () -> render a
-        , nodeContext = \_ _ -> ()
+        , childContext = \_ _ -> ()
         }
         ()
 
