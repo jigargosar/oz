@@ -358,6 +358,7 @@ type Msg
     | GotBeacons Value
     | ItemTitleClicked ItemId
     | TitleChanged String
+    | New
 
 
 cacheOZCmd : OZ -> Cmd msg
@@ -370,6 +371,20 @@ update message model =
     case message of
         NoOp ->
             ( model, Cmd.none )
+
+        New ->
+            case model.outline of
+                EmptyOutline ->
+                    ( model, Cmd.none )
+
+                Outline oz ->
+                    ( model, Cmd.none )
+
+                OutlineDnD dnd oz ->
+                    ( model, Cmd.none )
+
+                OutlineEdit oz string ->
+                    ( model, Cmd.none )
 
         TitleChanged title ->
             case model.outline of
