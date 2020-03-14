@@ -665,8 +665,8 @@ forestToLHM =
             }
 
 
-outlineForestToLHM : OutlineForest -> LHM
-outlineForestToLHM =
+outlineForestToLHM : Maybe ItemId -> OutlineForest -> LHM
+outlineForestToLHM maybeDraggedIid =
     let
         render : Item -> List (() -> HM) -> (() -> HM)
         render item reverseChildrenFns () =
@@ -745,13 +745,13 @@ viewExpOutline outline =
                     []
 
                 Outline oz ->
-                    outlineForestToLHM (toRootForest oz)
+                    outlineForestToLHM Nothing (toRootForest oz)
 
                 OutlineDnD dnd oz ->
-                    outlineForestToLHM (toRootForest oz)
+                    outlineForestToLHM (Just dnd.dragItemId) (toRootForest oz)
 
                 OutlineEdit oz title ->
-                    outlineForestToLHM (toRootForest oz)
+                    outlineForestToLHM Nothing (toRootForest oz)
     in
     div []
         [ div [ class "f1" ] [ text "exp tree view" ]
