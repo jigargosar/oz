@@ -657,9 +657,6 @@ viewExpOutline outline =
                         editItemId =
                             ozId oz
 
-                        forest =
-                            Zipper.toRootForest oz
-
                         renderItem : Item -> LHM -> HM
                         renderItem item =
                             if item.id == editItemId then
@@ -667,6 +664,9 @@ viewExpOutline outline =
 
                             else
                                 renderWithBeacons False item
+
+                        forest =
+                            Zipper.toRootForest oz
                     in
                     restructureForest identity renderItem forest
 
