@@ -439,11 +439,16 @@ update message model =
                     Debug.todo "impl"
 
                 OutlineEdit oz title ->
-                    let
-                        noz =
-                            ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
-                    in
-                    ( { model | outline = OutlineDnD dnd noz }, getBeacons () )
+                    case
+                        oz
+                            |> ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title
+                            |> gotoItemId dnd.dragItemId
+                    of
+                        Just noz ->
+                            ( { model | outline = OutlineDnD dnd noz }, getBeacons () )
+
+                        Nothing ->
+                            ( model, Cmd.none )
 
         Move clientXY ->
             case model.outline of
