@@ -623,10 +623,33 @@ viewExpOutline outline =
 
                         forest =
                             Zipper.toRootForest oz
+
+                        fff : List (Bool -> HM)
+                        fff =
+                            restructureForest identity
+                                (\item cfn ->
+                                    \bool ->
+                                        let
+                                            children =
+                                                List.map (\f -> f bool) cfn
+                                        in
+                                        if bool then
+                                            renderWithBeacons (item.id == highlightedId) item children
+
+                                        else
+                                            text ""
+                                )
+                                forest
+
+                        res1 =
+                            restructureForest identity
+                                (\item -> renderWithBeacons (item.id == highlightedId) item)
+                                forest
+
+                        res =
+                            List.map (\fn -> fn True) fff
                     in
-                    restructureForest identity
-                        (\item -> renderWithBeacons (item.id == highlightedId) item)
-                        forest
+                    res
 
                 --transformForest
                 --    (\item -> renderWithBeacons (item.id == highlightedId) item)
