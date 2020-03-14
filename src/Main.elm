@@ -420,12 +420,21 @@ update message model =
                     Debug.todo "impl"
 
                 OutlineEdit oz title ->
-                    let
-                        noz =
-                            ozSetTitle title oz
-                                |> withRollback (gotoItemId iid)
-                    in
-                    ( { model | outline = Outline noz }, cacheOZCmd noz )
+                    if isBlank title then
+                        let
+                            noz =
+                                oz
+                                    |> withRollback (gotoItemId iid)
+                        in
+                        ( { model | outline = Outline noz }, cacheOZCmd noz )
+
+                    else
+                        let
+                            noz =
+                                ozSetTitle title oz
+                                    |> withRollback (gotoItemId iid)
+                        in
+                        ( { model | outline = Outline noz }, cacheOZCmd noz )
 
         Start dnd ->
             case model.outline of
@@ -511,6 +520,11 @@ update message model =
 
                 OutlineEdit _ _ ->
                     Debug.todo "impl"
+
+
+isBlank : String -> Bool
+isBlank =
+    String.trim >> String.isEmpty
 
 
 withRollback func oz =
