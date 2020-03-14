@@ -441,7 +441,7 @@ update message model =
                 OutlineEdit oz title ->
                     let
                         noz =
-                            ozSetTitle title oz
+                            ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
                     in
                     ( { model | outline = OutlineDnD dnd noz }, getBeacons () )
 
