@@ -684,19 +684,49 @@ viewExpOutline outline =
                             ctx
             }
 
+        renderWithoutBeacons : Item -> LHM -> HM
+        renderWithoutBeacons item childrenHtml =
+            div [ class "" ]
+                [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                , div [ class "pl4" ] childrenHtml
+                ]
+
+        renderWithBeacons : Bool -> Item -> LHM -> HM
+        renderWithBeacons isHighlighted item childrenHtml =
+            div [ class "" ]
+                [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                , div [ class "pl4" ] childrenHtml
+                ]
+
+        renderEditItem : Item -> String -> LHM -> HM
+        renderEditItem item string lhm =
+            div [ class "" ]
+                [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                , div [ class "pl4" ] lhm
+                ]
+
         renderItemWithOCtx : ( Item, OCtx ) -> LHM -> HM
         renderItemWithOCtx ( item, ctx ) childrenHtml =
-            if ctx.renderWithoutBeacons then
-                div [ class "" ]
-                    [ div [ class "o-50 pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                    , div [ class "pl4" ] childrenHtml
-                    ]
+            case ctx.meta of
+                Dragged _ ->
+                    if ctx.renderWithoutBeacons then
+                        renderWithoutBeacons item childrenHtml
 
-            else
-                div [ class "" ]
-                    [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                    , div [ class "pl4" ] childrenHtml
-                    ]
+                    else
+                        div [ class "" ]
+                            [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
+                            , div [ class "pl4" ] childrenHtml
+                            ]
+
+                Highlighted id ->
+                    renderWithBeacons (item.id == id) item childrenHtml
+
+                Editing id title ->
+                    if item.id == id then
+                        renderEditItem item title childrenHtml
+
+                    else
+                        renderWithBeacons False item childrenHtml
 
         dndCtx dnd =
             { renderWithoutBeacons = False, meta = Dragged dnd.dragItemId }
