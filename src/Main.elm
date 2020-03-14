@@ -420,31 +420,12 @@ update message model =
                     Debug.todo "impl"
 
                 OutlineEdit oz title ->
-                    if isBlank title then
-                        if Zipper.isLeaf oz then
-                            let
-                                noz =
-                                    oz
-                                        |> withRollback Zipper.remove
-                                        |> withRollback (gotoItemId iid)
-                            in
-                            ( { model | outline = Outline noz }, cacheOZCmd noz )
-
-                        else
-                            let
-                                noz =
-                                    oz
-                                        |> withRollback (gotoItemId iid)
-                            in
-                            ( { model | outline = Outline noz }, cacheOZCmd noz )
-
-                    else
-                        let
-                            noz =
-                                ozSetTitle title oz
-                                    |> withRollback (gotoItemId iid)
-                        in
-                        ( { model | outline = Outline noz }, cacheOZCmd noz )
+                    let
+                        noz =
+                            ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
+                                |> withRollback (gotoItemId iid)
+                    in
+                    ( { model | outline = Outline noz }, cacheOZCmd noz )
 
         Start dnd ->
             case model.outline of
@@ -530,6 +511,20 @@ update message model =
 
                 OutlineEdit _ _ ->
                     Debug.todo "impl"
+
+
+ozSetTitleUnlessBlankOrRemoveIfBlankLeaf : String -> OZ -> OZ
+ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz =
+    if isBlank title then
+        if Zipper.isLeaf oz then
+            oz
+                |> withRollback Zipper.remove
+
+        else
+            oz
+
+    else
+        ozSetTitle title oz
 
 
 isBlank : String -> Bool
