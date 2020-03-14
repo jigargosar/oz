@@ -713,10 +713,7 @@ viewExpOutline outline =
                         renderWithoutBeacons item childrenHtml
 
                     else
-                        div [ class "" ]
-                            [ div [ class "pv1 lh-solid bb b--black-20" ] [ text item.title ]
-                            , div [ class "pl4" ] childrenHtml
-                            ]
+                        renderWithBeacons False item childrenHtml
 
                 Highlighted id ->
                     renderWithBeacons (item.id == id) item childrenHtml
