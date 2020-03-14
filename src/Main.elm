@@ -674,7 +674,7 @@ outlineToHtmlList outline =
                                     renderWithoutBeacons item (children True)
 
                                 else
-                                    renderDraggableWithBeacons False item (children False)
+                                    renderNotDraggableWithBeacons item (children False)
                         )
                         forest
             in
@@ -745,6 +745,20 @@ renderDraggedItem item childrenHtml =
         ]
 
 
+renderNotDraggableWithBeacons : Item -> LHM -> HM
+renderNotDraggableWithBeacons item childrenHtml =
+    let
+        viewBeaconHelp func =
+            viewBeacon (func item.id)
+    in
+    div [ class "" ]
+        [ viewBeaconHelp Before
+        , viewNotDraggableItem item
+        , div [ class "pl4" ] (viewBeaconHelp PrependIn :: childrenHtml ++ [ viewBeaconHelp AppendIn ])
+        , viewBeaconHelp After
+        ]
+
+
 renderDraggableWithBeacons : Bool -> Item -> LHM -> HM
 renderDraggableWithBeacons isHighlighted item childrenHtml =
     let
@@ -775,6 +789,11 @@ viewBeacon candidateLocation =
 viewDraggableItem : Bool -> Item -> Html Msg
 viewDraggableItem isHighlighted item =
     viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = isHighlighted, isDraggable = True })
+
+
+viewNotDraggableItem : Item -> Html Msg
+viewNotDraggableItem item =
+    viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = False, isDraggable = False })
 
 
 viewFadedDraggedItem : Item -> Html Msg
