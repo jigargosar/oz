@@ -680,7 +680,7 @@ viewExpOutline outline =
                             else
                                 ctx
 
-                        Editing _ ->
+                        Editing _ _ ->
                             ctx
             }
 
@@ -704,6 +704,9 @@ viewExpOutline outline =
         highlightedCtx oz =
             { renderWithoutBeacons = False, meta = Highlighted (ozId oz) }
 
+        editCtx oz title =
+            { renderWithoutBeacons = False, meta = Editing (ozId oz) title }
+
         hml =
             case outline of
                 EmptyOutline ->
@@ -721,7 +724,7 @@ viewExpOutline outline =
 
                 OutlineEdit oz title ->
                     forestToLHM config
-                        (highlightedCtx oz)
+                        (editCtx oz title)
                         (toRootForest oz)
     in
     div []
@@ -733,7 +736,7 @@ viewExpOutline outline =
 type ViewMeta
     = Highlighted ItemId
     | Dragged ItemId
-    | Editing ItemId
+    | Editing ItemId String
 
 
 type alias OCtx =
