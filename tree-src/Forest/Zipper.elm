@@ -78,9 +78,15 @@ data =
 
 
 
---getLevel : ForestZipper a -> Int
---getLevel fz =
---    List.length fz.crumbs
+--noinspection ElmUnusedSymbol
+
+
+getLevel : ForestZipper a -> Int
+getLevel fz =
+    List.length fz.crumbs
+
+
+
 --noinspection ElmUnusedSymbol
 
 
