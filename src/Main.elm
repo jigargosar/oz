@@ -910,7 +910,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                     )
                     [ div [ class "flex-auto lh-title", onClick (ItemTitleClicked item.id) ]
                         [ text (itemDisplayTitle item) ]
-                    , if isDraggable then
+                    , if isDraggable && isHighlighted then
                         div [ class "ph2", onClick New ] [ text "+" ]
 
                       else
