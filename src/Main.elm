@@ -433,7 +433,12 @@ update message model =
                     Debug.todo "impl"
 
                 Outline oz ->
-                    ( { model | outline = OutlineDnD dnd oz }, getBeacons () )
+                    case gotoItemId dnd.dragItemId oz of
+                        Just noz ->
+                            ( { model | outline = OutlineDnD dnd noz }, getBeacons () )
+
+                        Nothing ->
+                            ( model, Cmd.none )
 
                 OutlineDnD _ _ ->
                     Debug.todo "impl"
