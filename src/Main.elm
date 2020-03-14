@@ -686,21 +686,6 @@ viewExpDraggedNode outline =
                         , style "top" (String.fromFloat xy.y ++ "px")
                         ]
                         draggedHtmlList
-
-                old =
-                    gotoItemId dnd.dragItemId oz
-                        |> Maybe.map (getTree >> List.singleton)
-                        |> Maybe.andThen fromForest
-                        |> Maybe.map (ozToFlatLines dnd.dragItemId True Nothing)
-                        |> Maybe.map (List.map (viewFlatLineWithConfig False))
-                        |> Maybe.map
-                            (div
-                                [ class "fixed no-pe"
-                                , style "left" (String.fromFloat xy.x ++ "px")
-                                , style "top" (String.fromFloat xy.y ++ "px")
-                                ]
-                            )
-                        |> Maybe.withDefault (text "")
             in
             new
 
@@ -873,61 +858,59 @@ hasAncestorWithIdIncludingSelf itemId oz =
                 |> Maybe.withDefault False
 
 
-ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
-ozToFlatLines highlightedId isBeingDragged editTitle =
-    let
-        hasDraggedAncestor oz =
-            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
-    in
-    let
-        enter : OZ -> List FlatLine
-        enter oz =
-            let
-                editOrItemLine =
-                    case ( ozId oz == highlightedId, editTitle ) of
-                        ( True, Just title ) ->
-                            EditLine (getLevel oz) title
 
-                        _ ->
-                            ItemLine (getLevel oz)
-                                (ozItem oz)
-                                { isHighlighted = not isBeingDragged && highlightedId == ozId oz
-                                , isDraggable = not (hasDraggedAncestor oz)
-                                }
-
-                withBeacons =
-                    [ BeaconLine (getLevel oz) (Before (ozId oz))
-                    , editOrItemLine
-                    , BeaconLine (getLevel oz + 1) (PrependIn (ozId oz))
-                    ]
-
-                withoutBeacons =
-                    [ editOrItemLine ]
-            in
-            if hasDraggedAncestor oz then
-                withoutBeacons
-
-            else
-                withBeacons
-
-        exit : OZ -> List FlatLine
-        exit oz =
-            if hasDraggedAncestor oz then
-                []
-
-            else
-                [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
-                , BeaconLine (getLevel oz) (After (ozId oz))
-                ]
-    in
-    fzVisit
-        { enter = \oz list -> list ++ enter oz
-        , exit = \oz list -> list ++ exit oz
-        }
-        []
-
-
-
+--ozToFlatLines : ItemId -> Bool -> Maybe String -> OZ -> List FlatLine
+--ozToFlatLines highlightedId isBeingDragged editTitle =
+--    let
+--        hasDraggedAncestor oz =
+--            isBeingDragged && hasAncestorWithIdIncludingSelf highlightedId oz
+--    in
+--    let
+--        enter : OZ -> List FlatLine
+--        enter oz =
+--            let
+--                editOrItemLine =
+--                    case ( ozId oz == highlightedId, editTitle ) of
+--                        ( True, Just title ) ->
+--                            EditLine (getLevel oz) title
+--
+--                        _ ->
+--                            ItemLine (getLevel oz)
+--                                (ozItem oz)
+--                                { isHighlighted = not isBeingDragged && highlightedId == ozId oz
+--                                , isDraggable = not (hasDraggedAncestor oz)
+--                                }
+--
+--                withBeacons =
+--                    [ BeaconLine (getLevel oz) (Before (ozId oz))
+--                    , editOrItemLine
+--                    , BeaconLine (getLevel oz + 1) (PrependIn (ozId oz))
+--                    ]
+--
+--                withoutBeacons =
+--                    [ editOrItemLine ]
+--            in
+--            if hasDraggedAncestor oz then
+--                withoutBeacons
+--
+--            else
+--                withBeacons
+--
+--        exit : OZ -> List FlatLine
+--        exit oz =
+--            if hasDraggedAncestor oz then
+--                []
+--
+--            else
+--                [ BeaconLine (getLevel oz + 1) (AppendIn (ozId oz))
+--                , BeaconLine (getLevel oz) (After (ozId oz))
+--                ]
+--    in
+--    fzVisit
+--        { enter = \oz list -> list ++ enter oz
+--        , exit = \oz list -> list ++ exit oz
+--        }
+--        []
 --toFlatLines : Outline -> List FlatLine
 --toFlatLines outline =
 --    case outline of
@@ -1198,12 +1181,10 @@ getTree fz =
     fz.center
 
 
-getLevel : ForestZipper a -> Int
-getLevel fz =
-    List.length fz.crumbs
 
-
-
+--getLevel : ForestZipper a -> Int
+--getLevel fz =
+--    List.length fz.crumbs
 --noinspection ElmUnusedSymbol
 
 
@@ -1361,66 +1342,63 @@ findFirst pred acc =
 
 
 -- VISIT
-
-
-fzVisit :
-    { enter : ForestZipper a -> acc -> acc
-    , exit : ForestZipper a -> acc -> acc
-    }
-    -> acc
-    -> ForestZipper a
-    -> acc
-fzVisit { enter, exit } =
-    let
-        step : VisitMsg -> acc -> ForestZipper a -> acc
-        step msg acc oz =
-            case msg of
-                Enter ->
-                    step Entered (enter oz acc) oz
-
-                Entered ->
-                    case down oz of
-                        Just childOZ ->
-                            step Enter acc childOZ
-
-                        Nothing ->
-                            step Exit acc oz
-
-                Exit ->
-                    step Exited (exit oz acc) oz
-
-                Exited ->
-                    case right oz of
-                        Just rightOZ ->
-                            step Enter acc rightOZ
-
-                        Nothing ->
-                            step Up acc oz
-
-                Up ->
-                    case up oz of
-                        Just parentOZ ->
-                            step Exit acc parentOZ
-
-                        Nothing ->
-                            acc
-
-        enterFirstRoot : acc -> ForestZipper a -> acc
-        enterFirstRoot acc fz =
-            step Enter acc (firstRoot fz)
-    in
-    enterFirstRoot
-
-
-type VisitMsg
-    = Enter
-    | Entered
-    | Exit
-    | Exited
-    | Up
-
-
-
+--
+--
+--fzVisit :
+--    { enter : ForestZipper a -> acc -> acc
+--    , exit : ForestZipper a -> acc -> acc
+--    }
+--    -> acc
+--    -> ForestZipper a
+--    -> acc
+--fzVisit { enter, exit } =
+--    let
+--        step : VisitMsg -> acc -> ForestZipper a -> acc
+--        step msg acc oz =
+--            case msg of
+--                Enter ->
+--                    step Entered (enter oz acc) oz
+--
+--                Entered ->
+--                    case down oz of
+--                        Just childOZ ->
+--                            step Enter acc childOZ
+--
+--                        Nothing ->
+--                            step Exit acc oz
+--
+--                Exit ->
+--                    step Exited (exit oz acc) oz
+--
+--                Exited ->
+--                    case right oz of
+--                        Just rightOZ ->
+--                            step Enter acc rightOZ
+--
+--                        Nothing ->
+--                            step Up acc oz
+--
+--                Up ->
+--                    case up oz of
+--                        Just parentOZ ->
+--                            step Exit acc parentOZ
+--
+--                        Nothing ->
+--                            acc
+--
+--        enterFirstRoot : acc -> ForestZipper a -> acc
+--        enterFirstRoot acc fz =
+--            step Enter acc (firstRoot fz)
+--    in
+--    enterFirstRoot
+--
+--
+--type VisitMsg
+--    = Enter
+--    | Entered
+--    | Exit
+--    | Exited
+--    | Up
 -- INSERTION
 
 
