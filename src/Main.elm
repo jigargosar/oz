@@ -676,6 +676,26 @@ viewExpOutline outline =
         ]
 
 
+viewBeacon : CandidateLocation -> Html Msg
+viewBeacon candidateLocation =
+    viewFlatLineWithConfig False (BeaconLine 0 candidateLocation)
+
+
+viewDraggableItem : Bool -> Item -> Html Msg
+viewDraggableItem isHighlighted item =
+    viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = isHighlighted, isDraggable = True })
+
+
+viewFadedItem : Item -> Html Msg
+viewFadedItem item =
+    viewFlatLineWithConfig True (ItemLine 0 item { isHighlighted = False, isDraggable = False })
+
+
+viewEditItem : String -> Html Msg
+viewEditItem title =
+    viewFlatLineWithConfig False (EditLine 0 title)
+
+
 
 -- FOREST TRANSFORM
 
@@ -915,26 +935,6 @@ classIf bool classValue =
 
     else
         class ""
-
-
-viewBeacon : CandidateLocation -> Html Msg
-viewBeacon candidateLocation =
-    viewFlatLineWithConfig False (BeaconLine 0 candidateLocation)
-
-
-viewDraggableItem : Bool -> Item -> Html Msg
-viewDraggableItem isHighlighted item =
-    viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = isHighlighted, isDraggable = True })
-
-
-viewFadedItem : Item -> Html Msg
-viewFadedItem item =
-    viewFlatLineWithConfig True (ItemLine 0 item { isHighlighted = False, isDraggable = False })
-
-
-viewEditItem : String -> Html Msg
-viewEditItem title =
-    viewFlatLineWithConfig False (EditLine 0 title)
 
 
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
