@@ -248,13 +248,7 @@ update message model =
         New ->
             case model.outline of
                 Browsing doc ->
-                    ( let
-                        ( newDoc, newModel ) =
-                            generate (OutlineDoc.addNewLine "" doc) model
-                      in
-                      { newModel | outline = initEdit newDoc }
-                    , Cmd.none
-                    )
+                    updateWithUserIntentWhenBrowsing InsertNewChild doc model
 
                 _ ->
                     Debug.todo "impl"
