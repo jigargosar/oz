@@ -18,11 +18,10 @@ module OutlineDoc exposing
     , goForward
     , itemIdDecoder
     , itemIdEncoder
-    , moveAfterNextSibling
+    , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSibling
     , moveCurrentToCandidateLocation
-    , prependInNextSiblingOfParent
     , removeIfBlankLeaf
     , restructure
     , restructureFocused
@@ -34,6 +33,7 @@ import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import Maybe.Extra
 import Random exposing (Generator)
 
 
@@ -341,6 +341,14 @@ prependInNextSiblingOfParent =
 moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
 moveAfterNextSibling =
     relocateFocused After right
+
+
+moveAfterNextSiblingOrPrependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
+moveAfterNextSiblingOrPrependInNextSiblingOfParent =
+    Maybe.Extra.oneOf
+        [ moveAfterNextSibling
+        , prependInNextSiblingOfParent
+        ]
 
 
 relocateFocused :

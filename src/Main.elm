@@ -456,11 +456,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
                     Browsing
                         (doc
                             |> ignoreNothing
-                                (Maybe.Extra.oneOf
-                                    [ OutlineDoc.moveAfterNextSibling
-                                    , OutlineDoc.prependInNextSiblingOfParent
-                                    ]
-                                )
+                                OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
                         )
               }
             , Cmd.none
