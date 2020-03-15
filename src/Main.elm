@@ -369,8 +369,9 @@ type Msg
 
 cacheOZOnChangeCmd : OZ -> OZ -> Cmd msg
 cacheOZOnChangeCmd oldOZ newOZ =
-    if oldOZ /= newOZ
+    if oldOZ /= newOZ then
         newOZ |> (outlineZipperEncoder >> saveOZ)
+
     else
         Cmd.none
 
@@ -378,21 +379,22 @@ cacheOZOnChangeCmd oldOZ newOZ =
 outlineToOZ : Outline -> Maybe OZ
 outlineToOZ outline =
     case outline of
-            EmptyOutline ->
-                Nothing
+        EmptyOutline ->
+            Nothing
 
-            Outline oz ->
-                Just oz
+        Outline oz ->
+            Just oz
 
-            OutlineDnD _ oz ->
-                Just oz
+        OutlineDnD _ oz ->
+            Just oz
 
-            OutlineEdit oz _ ->
-                Just oz
+        OutlineEdit oz _ ->
+            Just oz
+
 
 cacheOutlineOnChangeCmd : Outline -> Outline -> Cmd msg
 cacheOutlineOnChangeCmd oldOutline newOutline =
-    Maybe.map2 (cacheOZOnChangeCmd) (outlineToOZ oldOutline)(outlineToOZ newOutline)
+    Maybe.map2 cacheOZOnChangeCmd (outlineToOZ oldOutline) (outlineToOZ newOutline)
         |> Maybe.withDefault Cmd.none
 
 
