@@ -541,10 +541,14 @@ requiredBool name =
     required name JD.bool
 
 
+requiredString name =
+    required name JD.string
+
+
 keyEventDecoder : Decoder KeyEvent
 keyEventDecoder =
     JD.succeed KeyEvent
-        |> required "key" JD.string
+        |> requiredString "key"
         |> requiredBool "ctrlKey"
         |> requiredBool "shiftKey"
         |> requiredBool "altKey"
