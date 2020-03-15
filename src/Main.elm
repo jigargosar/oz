@@ -149,8 +149,8 @@ type Msg
     | OnKeyDown KeyEvent
 
 
-cacheOZOnChangeCmd : OutlineDoc -> OutlineDoc -> Cmd msg
-cacheOZOnChangeCmd oldOZ newOZ =
+cacheDocIfChanged : OutlineDoc -> OutlineDoc -> Cmd msg
+cacheDocIfChanged oldOZ newOZ =
     if oldOZ /= newOZ then
         newOZ |> (OutlineDoc.encoder >> saveOZ)
 
@@ -158,8 +158,8 @@ cacheOZOnChangeCmd oldOZ newOZ =
         Cmd.none
 
 
-outlineToOZ : Outline -> Maybe OutlineDoc
-outlineToOZ outline =
+outlineToDoc : Outline -> Maybe OutlineDoc
+outlineToDoc outline =
     case outline of
         NoDoc ->
             Nothing
@@ -176,7 +176,7 @@ outlineToOZ outline =
 
 cacheOutlineOnChangeCmd : Outline -> Outline -> Cmd msg
 cacheOutlineOnChangeCmd oldOutline newOutline =
-    Maybe.map2 cacheOZOnChangeCmd (outlineToOZ oldOutline) (outlineToOZ newOutline)
+    Maybe.map2 cacheDocIfChanged (outlineToDoc oldOutline) (outlineToDoc newOutline)
         |> Maybe.withDefault Cmd.none
 
 
