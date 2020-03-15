@@ -6,6 +6,7 @@ module OutlineDoc exposing
     , OutlineNode
     , addNewLine
     , appendInPreviousSibling
+    , appendInPreviousSiblingOfParent
     , candidateLocationDecoder
     , candidateLocationEncoder
     , currentId
@@ -322,14 +323,9 @@ unwrap (OutlineDoc z) =
     z
 
 
-zParentId : ForestZipper Item -> Maybe ItemId
-zParentId =
-    Zipper.up >> Maybe.map (Zipper.data >> .id)
-
-
 parentId : OutlineDoc -> Maybe ItemId
 parentId =
-    unwrap >> zParentId
+    up >> Maybe.map currentId
 
 
 moveAfterParent : OutlineDoc -> Maybe OutlineDoc
@@ -367,6 +363,16 @@ moveBeforePreviousSibling doc =
     case leftId doc of
         Just id ->
             moveToCandidateLocation (Before id) doc
+
+        Nothing ->
+            Nothing
+
+
+appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
+appendInPreviousSiblingOfParent doc =
+    case doc |> up |> Maybe.andThen leftId of
+        Just appendTargetId ->
+            moveToCandidateLocation (AppendIn appendTargetId) doc
 
         Nothing ->
             Nothing
@@ -477,6 +483,11 @@ left =
 right : OutlineDoc -> Maybe OutlineDoc
 right =
     mapMaybe Zipper.right
+
+
+up : OutlineDoc -> Maybe OutlineDoc
+up =
+    mapMaybe Zipper.up
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
