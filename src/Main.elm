@@ -356,6 +356,27 @@ update message model =
                     Debug.todo "impossible state"
 
 
+enter : KeyEvent -> Bool
+enter =
+    hk "Enter"
+
+
+arrowUp =
+    hk "ArrowUp"
+
+
+arrowDown =
+    hk "ArrowDown"
+
+
+arrowLeft =
+    hk "ArrowLeft"
+
+
+arrowRight =
+    hk "ArrowRight"
+
+
 onKeyDownWhenBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 onKeyDownWhenBrowsing ke doc model =
     if ke.ctrl then
@@ -391,26 +412,24 @@ onKeyDownWhenBrowsing ke doc model =
             _ ->
                 ( model, Cmd.none )
 
+    else if ctrl "ArrowLeft" ke then
+        ( { model
+            | outline =
+                Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
+          }
+        , Cmd.none
+        )
+
+    else if ctrl "ArrowRight" ke then
+        ( { model
+            | outline =
+                Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
+          }
+        , Cmd.none
+        )
+
     else
-        case ke.key of
-            "ArrowLeft" ->
-                ( { model
-                    | outline =
-                        Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
-                  }
-                , Cmd.none
-                )
-
-            "ArrowRight" ->
-                ( { model
-                    | outline =
-                        Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
-                  }
-                , Cmd.none
-                )
-
-            _ ->
-                ( model, Cmd.none )
+        ( model, Cmd.none )
 
 
 endEdit : String -> OutlineDoc -> OutlineDoc
