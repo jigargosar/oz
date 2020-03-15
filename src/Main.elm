@@ -305,12 +305,10 @@ update message model =
 
                 Editing doc title ->
                     case
-                        doc
-                            |> endEdit title
-                            |> OutlineDoc.focusId dragItemId
+                        endEditAndStartDragging dragItemId cursor title doc
                     of
-                        Just noz ->
-                            ( { model | outline = Dragging cursor noz }
+                        Just outline ->
+                            ( { model | outline = outline }
                             , getBeacons ()
                             )
 
@@ -408,6 +406,11 @@ endEditAndInitBrowsing title =
 endEditAndBrowseId : ItemId -> String -> OutlineDoc -> Outline
 endEditAndBrowseId id title =
     endEdit title >> ignoreNothing (OutlineDoc.focusId id) >> Browsing
+
+
+endEditAndStartDragging : ItemId -> Cursor -> String -> OutlineDoc -> Maybe Outline
+endEditAndStartDragging dragId cursor title =
+    endEdit title >> OutlineDoc.focusId dragId >> Maybe.map (Dragging cursor)
 
 
 cancelEditAndInitBrowsing : OutlineDoc -> Outline
