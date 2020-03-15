@@ -217,7 +217,7 @@ update message model =
         OnKeyDown ke ->
             case model.outline of
                 Browsing doc ->
-                    onKeyDownBrowsing ke doc model
+                    onKeyDownWhenBrowsing ke doc model
 
                 NoDoc ->
                     ( model, Cmd.none )
@@ -356,8 +356,8 @@ update message model =
                     Debug.todo "impossible state"
 
 
-onKeyDownBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
-onKeyDownBrowsing ke doc model =
+onKeyDownWhenBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
+onKeyDownWhenBrowsing ke doc model =
     if ke.ctrl then
         case ke.key of
             "Enter" ->
