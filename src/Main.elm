@@ -522,6 +522,16 @@ type alias KeyEvent =
     }
 
 
+keyEventDecoder : Decoder KeyEvent
+keyEventDecoder =
+    JD.succeed KeyEvent
+        |> requiredString "key"
+        |> requiredBool "ctrlKey"
+        |> requiredBool "shiftKey"
+        |> requiredBool "altKey"
+        |> requiredBool "metaKey"
+
+
 hotKey : String -> KeyEvent -> Bool
 hotKey name ke =
     ke.key == name && not (ke.ctrl || ke.shift || ke.alt || ke.meta)
@@ -543,16 +553,6 @@ requiredBool name =
 
 requiredString name =
     required name JD.string
-
-
-keyEventDecoder : Decoder KeyEvent
-keyEventDecoder =
-    JD.succeed KeyEvent
-        |> requiredString "key"
-        |> requiredBool "ctrlKey"
-        |> requiredBool "shiftKey"
-        |> requiredBool "altKey"
-        |> requiredBool "metaKey"
 
 
 
