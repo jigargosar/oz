@@ -5,20 +5,20 @@ module OutlineDoc exposing
     , OutlineDoc
     , OutlineNode
     , addNewLine
-    , backward
+    , appendFocusedInPrevious
     , candidateLocationDecoder
     , candidateLocationEncoder
+    , currentId
+    , currentTitle
     , decoder
     , encoder
     , focusId
-    , focusedTitle
-    , forward
     , itemIdDecoder
     , itemIdEncoder
     , moveAfterParent
     , moveToCandidateLocation
-    , ozId
-    , ozItem
+    , next
+    , previous
     , removeIfBlankLeaf
     , restoreFocus
     , restructure
@@ -31,7 +31,6 @@ import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Maybe.Extra
 import Random exposing (Generator)
 
 
@@ -244,7 +243,7 @@ focusId itemId =
 
 restoreFocus : OutlineDoc -> OutlineDoc -> Maybe OutlineDoc
 restoreFocus oldDoc =
-    focusId (ozId oldDoc)
+    focusId (currentId oldDoc)
 
 
 map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
@@ -301,19 +300,19 @@ withRollback func oz =
     func oz |> Maybe.withDefault oz
 
 
-focusedTitle : OutlineDoc -> String
-focusedTitle =
-    ozItem >> .title
+currentTitle : OutlineDoc -> String
+currentTitle =
+    currentItem >> .title
 
 
-ozItem : OutlineDoc -> Item
-ozItem =
+currentItem : OutlineDoc -> Item
+currentItem =
     unwrap >> Zipper.data
 
 
-ozId : OutlineDoc -> ItemId
-ozId =
-    ozItem >> .id
+currentId : OutlineDoc -> ItemId
+currentId =
+    currentItem >> .id
 
 
 unwrap : OutlineDoc -> ForestZipper Item
@@ -341,9 +340,24 @@ moveAfterParent doc =
             Nothing
 
 
+previousId : OutlineDoc -> Maybe ItemId
+previousId =
+    previous >> Maybe.map currentId
+
+
+appendFocusedInPrevious : OutlineDoc -> Maybe OutlineDoc
+appendFocusedInPrevious doc =
+    case previousId doc of
+        Just id ->
+            moveToCandidateLocation (AppendIn id) doc
+
+        Nothing ->
+            Nothing
+
+
 moveToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 moveToCandidateLocation cl doc =
-    moveItemWithIdToCandidateLocationPreservingFocus (ozId doc) cl doc
+    moveItemWithIdToCandidateLocationPreservingFocus (currentId doc) cl doc
 
 
 moveItemWithIdToCandidateLocationPreservingFocus : ItemId -> CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
@@ -423,11 +437,11 @@ restructureFocused render =
     currentTree_ >> Tree.restructure identity render
 
 
-backward : OutlineDoc -> Maybe OutlineDoc
-backward =
+previous : OutlineDoc -> Maybe OutlineDoc
+previous =
     mapMaybe Zipper.backward
 
 
-forward : OutlineDoc -> Maybe OutlineDoc
-forward =
+next : OutlineDoc -> Maybe OutlineDoc
+next =
     mapMaybe Zipper.forward

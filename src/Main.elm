@@ -233,7 +233,7 @@ update message model =
                         "ArrowUp" ->
                             ( { model
                                 | outline =
-                                    Browsing (ignoreNothing OutlineDoc.backward doc)
+                                    Browsing (ignoreNothing OutlineDoc.previous doc)
                               }
                             , Cmd.none
                             )
@@ -241,7 +241,7 @@ update message model =
                         "ArrowDown" ->
                             ( { model
                                 | outline =
-                                    Browsing (ignoreNothing OutlineDoc.forward doc)
+                                    Browsing (ignoreNothing OutlineDoc.next doc)
                               }
                             , Cmd.none
                             )
@@ -257,7 +257,7 @@ update message model =
                         "ArrowRight" ->
                             ( { model
                                 | outline =
-                                    Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
+                                    Browsing (ignoreNothing OutlineDoc.appendFocusedInPrevious doc)
                               }
                             , Cmd.none
                             )
@@ -309,7 +309,7 @@ update message model =
                     Debug.todo "impossible state"
 
                 Browsing doc ->
-                    if ozId doc == iid then
+                    if currentId doc == iid then
                         ( { model | outline = initEdit doc }, Cmd.none )
 
                     else
@@ -437,7 +437,7 @@ cancelEditAndInitBrowsing =
 
 initEdit : OutlineDoc -> Outline
 initEdit doc =
-    Editing doc (OutlineDoc.focusedTitle doc)
+    Editing doc (OutlineDoc.currentTitle doc)
 
 
 onEditTitleChanged : String -> Outline -> Outline
@@ -478,19 +478,9 @@ focusTitleEditor =
             )
 
 
-ozTitle : OutlineDoc -> String
-ozTitle =
-    ozItem >> .title
-
-
-ozItem : OutlineDoc -> Item
-ozItem =
-    OutlineDoc.ozItem
-
-
-ozId : OutlineDoc -> ItemId
-ozId =
-    ozItem >> .id
+currentId : OutlineDoc -> ItemId
+currentId =
+    OutlineDoc.currentId
 
 
 subscriptions : Model -> Sub Msg
@@ -576,7 +566,7 @@ outlineToHtmlList outline =
         Browsing doc ->
             let
                 highlightedId =
-                    ozId doc
+                    currentId doc
             in
             OutlineDoc.restructure
                 (\item -> renderDraggableWithBeacons (item.id == highlightedId) item)
@@ -585,7 +575,7 @@ outlineToHtmlList outline =
         Dragging _ doc ->
             let
                 draggedId =
-                    OutlineDoc.ozId doc
+                    OutlineDoc.currentId doc
 
                 renderForestFns : List (Bool -> HM)
                 renderForestFns =
@@ -609,7 +599,7 @@ outlineToHtmlList outline =
         Editing doc title ->
             let
                 editItemId =
-                    ozId doc
+                    currentId doc
 
                 renderItem : Item -> LHM -> HM
                 renderItem item =
