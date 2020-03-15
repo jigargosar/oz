@@ -532,17 +532,12 @@ type alias KeyEvent =
 
 hk : String -> KeyEvent -> Bool
 hk name ke =
-    ke.key == name && noModifiers ke
+    ke.key == name && not (ke.ctrl || ke.shift || ke.alt || ke.meta)
 
 
 ctrl : String -> KeyEvent -> Bool
 ctrl name ke =
     ke.key == name && ke.ctrl && not (ke.shift || ke.alt || ke.meta)
-
-
-noModifiers : KeyEvent -> Bool
-noModifiers ke =
-    not (ke.ctrl || ke.shift || ke.alt || ke.meta)
 
 
 jdAndMap =
