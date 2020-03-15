@@ -233,13 +233,13 @@ update message model =
                 NoDoc ->
                     ( model, Cmd.none )
 
-                Dragging cursor outlineDoc ->
+                Dragging _ _ ->
                     ( model, Cmd.none )
 
                 Editing doc title ->
                     case ke.key of
                         "Enter" ->
-                            ( { model | outline = Browsing (OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title doc) }
+                            ( { model | outline = Browsing (endEdit title doc) }
                             , Cmd.none
                             )
 
@@ -385,6 +385,11 @@ update message model =
 
                 Editing _ _ ->
                     Debug.todo "impl"
+
+
+endEdit : String -> OutlineDoc -> OutlineDoc
+endEdit title doc =
+    OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title doc
 
 
 initEdit : OutlineDoc -> Outline
