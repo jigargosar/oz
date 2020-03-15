@@ -262,17 +262,26 @@ update message model =
                     Debug.todo "impossible state"
 
                 Browsing doc ->
-                    if currentId doc == iid then
-                        ( { model | outline = initEdit doc }, Cmd.none )
+                    let
+                        intent =
+                            if currentId doc == iid then
+                                EditFocused
 
-                    else
-                        case OutlineDoc.focusId iid doc of
-                            Just focusedDoc ->
-                                ( { model | outline = Browsing focusedDoc }, Cmd.none )
+                            else
+                                FocusId iid
+                    in
+                    updateWithUserIntentWhenBrowsing intent doc model
 
-                            Nothing ->
-                                ( model, Cmd.none )
-
+                --if currentId doc == iid then
+                --    ( { model | outline = initEdit doc }, Cmd.none )
+                --
+                --else
+                --    case OutlineDoc.focusId iid doc of
+                --        Just focusedDoc ->
+                --            ( { model | outline = Browsing focusedDoc }, Cmd.none )
+                --
+                --        Nothing ->
+                --            ( model, Cmd.none )
                 Dragging _ _ ->
                     Debug.todo "impossible state"
 
@@ -357,6 +366,7 @@ update message model =
 
 type UserIntent
     = EditFocused
+    | FocusId ItemId
     | NavPrev
     | NavNext
     | UnIndent
@@ -434,6 +444,14 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
               { newModel | outline = initEdit newDoc }
             , Cmd.none
             )
+
+        FocusId id ->
+            OutlineDoc.focusId id doc
+                |> Maybe.map
+                    (\focusedDoc ->
+                        ( { model | outline = Browsing focusedDoc }, Cmd.none )
+                    )
+                |> Maybe.withDefault ( model, Cmd.none )
 
 
 endEdit : String -> OutlineDoc -> OutlineDoc
