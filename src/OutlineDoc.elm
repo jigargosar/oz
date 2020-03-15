@@ -311,8 +311,10 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
                     -> (Tree Item -> ForestZipper Item -> ForestZipper Item)
                     -> OutlineDoc
                     -> Maybe OutlineDoc
-                insertHelp targetItemId func =
-                    gotoItemId targetItemId >> Maybe.map (map (func node))
+                insertHelp targetItemId func doc =
+                    doc
+                        |> gotoItemId targetItemId
+                        >> Maybe.map (map (func node))
             in
             case atLocation of
                 Before itemId ->
