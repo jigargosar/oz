@@ -272,16 +272,6 @@ update message model =
                     in
                     updateWithUserIntentWhenBrowsing intent doc model
 
-                --if currentId doc == iid then
-                --    ( { model | outline = initEdit doc }, Cmd.none )
-                --
-                --else
-                --    case OutlineDoc.focusId iid doc of
-                --        Just focusedDoc ->
-                --            ( { model | outline = Browsing focusedDoc }, Cmd.none )
-                --
-                --        Nothing ->
-                --            ( model, Cmd.none )
                 Dragging _ _ ->
                     Debug.todo "impossible state"
 
