@@ -4,14 +4,13 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import Forest
-import Forest.Tree as Tree exposing (Forest)
-import Forest.Zipper as Zipper exposing (ForestZipper)
+import Forest.Tree exposing (Forest)
 import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes as A exposing (attribute, class, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import OutlineDoc exposing (Item, ItemId, OutlineDoc, OutlineNode)
+import OutlineDoc exposing (CandidateLocation(..), Item, ItemId, OutlineDoc, OutlineNode)
 import Random exposing (Generator, Seed)
 import Random.Extra
 import Task
@@ -74,17 +73,6 @@ type alias Dnd =
 
 type alias Beacon =
     ( CandidateLocation, Rect )
-
-
-
--- CANDIDATE LOCATION
-
-
-type CandidateLocation
-    = Before ItemId
-    | After ItemId
-    | PrependIn ItemId
-    | AppendIn ItemId
 
 
 
@@ -309,7 +297,7 @@ update message model =
                                     Random.step (OutlineDoc.itemGenerator "") model.seed
                             in
                             ( { model
-                                | outline = OutlineEdit (ozNew newItem oz) newItem.title
+                                | outline = OutlineEdit (OutlineDoc.ozNew newItem oz) newItem.title
                                 , seed = newSeed
                               }
                             , Cmd.none
@@ -329,7 +317,7 @@ update message model =
                             Random.step (OutlineDoc.itemGenerator "") model.seed
                     in
                     ( { model
-                        | outline = OutlineEdit (ozNew newItem oz) newItem.title
+                        | outline = OutlineEdit (OutlineDoc.ozNew newItem oz) newItem.title
                         , seed = newSeed
                       }
                     , Cmd.none
@@ -356,7 +344,7 @@ update message model =
                         ( { model | outline = OutlineEdit oz (ozTitle oz) }, Cmd.none )
 
                     else
-                        case gotoItemId iid oz of
+                        case OutlineDoc.gotoItemId iid oz of
                             Just noz ->
                                 ( { model | outline = Outline noz }, Cmd.none )
 
@@ -369,8 +357,8 @@ update message model =
                 OutlineEdit oz title ->
                     let
                         noz =
-                            ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
-                                |> withRollback (gotoItemId iid)
+                            OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
+                                |> ignoreNothing (OutlineDoc.gotoItemId iid)
                     in
                     ( { model | outline = Outline noz }, Cmd.none )
 
@@ -380,7 +368,7 @@ update message model =
                     Debug.todo "impl"
 
                 Outline oz ->
-                    case gotoItemId dnd.dragItemId oz of
+                    case OutlineDoc.gotoItemId dnd.dragItemId oz of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
                             , getBeacons ()
@@ -395,8 +383,8 @@ update message model =
                 OutlineEdit oz title ->
                     case
                         oz
-                            |> ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title
-                            |> gotoItemId dnd.dragItemId
+                            |> OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title
+                            |> OutlineDoc.gotoItemId dnd.dragItemId
                     of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
@@ -460,8 +448,8 @@ update message model =
                                                )
                                     )
                                 |> Maybe.andThen
-                                    (\cl -> moveItemWithIdToCandidateLocation dnd.dragItemId cl oz)
-                                |> Maybe.andThen (gotoItemId dnd.dragItemId)
+                                    (\cl -> OutlineDoc.moveItemWithIdToCandidateLocation dnd.dragItemId cl oz)
+                                |> Maybe.andThen (OutlineDoc.gotoItemId dnd.dragItemId)
                     in
                     case maybeNoz of
                         Just noz ->
@@ -472,6 +460,11 @@ update message model =
 
                 OutlineEdit _ _ ->
                     Debug.todo "impl"
+
+
+ignoreNothing : (b -> Maybe b) -> b -> b
+ignoreNothing func val =
+    func val |> Maybe.withDefault val
 
 
 focusItemTitleEditorCmd : Cmd Msg
@@ -488,29 +481,6 @@ focusItemTitleEditorCmd =
             )
 
 
-ozSetTitleUnlessBlankOrRemoveIfBlankLeaf : String -> OutlineDoc -> OutlineDoc
-ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz =
-    if isBlank title then
-        if Zipper.isLeaf oz then
-            oz
-                |> withRollback Zipper.remove
-
-        else
-            oz
-
-    else
-        ozSetTitle title oz
-
-
-isBlank : String -> Bool
-isBlank =
-    String.trim >> String.isEmpty
-
-
-withRollback func oz =
-    func oz |> Maybe.withDefault oz
-
-
 ozTitle : OutlineDoc -> String
 ozTitle =
     ozItem >> .title
@@ -518,59 +488,12 @@ ozTitle =
 
 ozItem : OutlineDoc -> Item
 ozItem =
-    Zipper.data
+    OutlineDoc.ozItem
 
 
 ozId : OutlineDoc -> ItemId
 ozId =
     ozItem >> .id
-
-
-ozNew : Item -> ForestZipper Item -> ForestZipper Item
-ozNew item oz =
-    Zipper.prependChildAndFocus (Tree.leaf item) oz
-
-
-ozSetTitle : String -> OutlineDoc -> OutlineDoc
-ozSetTitle title =
-    Zipper.mapData (\item -> { item | title = title })
-
-
-gotoItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
-gotoItemId itemId =
-    Zipper.findFirst (propEq .id itemId)
-
-
-moveItemWithIdToCandidateLocation : ItemId -> CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-moveItemWithIdToCandidateLocation srcItemId candidateLocation =
-    let
-        moveTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-        moveTo atLocation zipper =
-            Zipper.remove zipper
-                |> Maybe.andThen (insertRemovedNodeAtLocation atLocation zipper.center)
-
-        insertRemovedNodeAtLocation : CandidateLocation -> OutlineNode -> OutlineDoc -> Maybe OutlineDoc
-        insertRemovedNodeAtLocation atLocation node =
-            let
-                insertHelp targetItemId func =
-                    gotoItemId targetItemId
-                        >> Maybe.map (func node)
-            in
-            case atLocation of
-                Before itemId ->
-                    insertHelp itemId Zipper.insertLeft
-
-                After itemId ->
-                    insertHelp itemId Zipper.insertAndGoRight
-
-                PrependIn itemId ->
-                    insertHelp itemId Zipper.prependChildAndFocus
-
-                AppendIn itemId ->
-                    insertHelp itemId Zipper.appendChild
-    in
-    gotoItemId srcItemId
-        >> Maybe.andThen (moveTo candidateLocation)
 
 
 subscriptions : Model -> Sub Msg
@@ -659,7 +582,7 @@ outlineToHtmlList outline =
                     ozId oz
 
                 forest =
-                    Zipper.toRootForest oz
+                    OutlineDoc.toForest oz
             in
             Forest.restructure identity
                 (\item -> renderDraggableWithBeacons (item.id == highlightedId) item)
@@ -668,7 +591,7 @@ outlineToHtmlList outline =
         OutlineDnD dnd oz ->
             let
                 forest =
-                    Zipper.toRootForest oz
+                    OutlineDoc.toForest oz
 
                 renderForestFns : List (Bool -> HM)
                 renderForestFns =
@@ -703,7 +626,7 @@ outlineToHtmlList outline =
                         renderDraggableWithBeacons False item
 
                 forest =
-                    Zipper.toRootForest oz
+                    OutlineDoc.toForest oz
             in
             Forest.restructure identity renderItem forest
 
@@ -723,8 +646,8 @@ viewDraggedNode outline =
                     dndDraggedXY dnd
 
                 draggedForest =
-                    gotoItemId dnd.dragItemId oz
-                        |> Maybe.map (Zipper.getTree >> List.singleton)
+                    OutlineDoc.gotoItemId dnd.dragItemId oz
+                        |> Maybe.map (OutlineDoc.currentTree >> List.singleton)
                         |> Maybe.withDefault []
             in
             div
@@ -968,15 +891,6 @@ dragEvents itemId =
 preventDefault : Bool -> Decoder b -> Decoder ( b, Bool )
 preventDefault bool =
     JD.map (\msg -> ( msg, bool ))
-
-
-
--- UTILS
-
-
-propEq : (c -> b) -> b -> c -> Bool
-propEq func val obj =
-    func obj == val
 
 
 

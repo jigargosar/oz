@@ -1,13 +1,23 @@
 module OutlineDoc exposing
-    ( Item
+    ( CandidateLocation(..)
+    , Item
     , ItemId
     , OutlineDoc
     , OutlineNode
+    , currentTree
     , decoder
     , encoder
+    , gotoItemId
     , itemGenerator
     , itemIdDecoder
     , itemIdEncoder
+    , moveItemWithIdToCandidateLocation
+    , ozId
+    , ozItem
+    , ozNew
+    , ozSetTitleUnlessBlankOrRemoveIfBlankLeaf
+    , ozTitle
+    , toForest
     )
 
 import Forest.Tree as Tree exposing (Tree)
@@ -15,6 +25,17 @@ import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Random exposing (Generator)
+
+
+
+-- CANDIDATE LOCATION
+
+
+type CandidateLocation
+    = Before ItemId
+    | After ItemId
+    | PrependIn ItemId
+    | AppendIn ItemId
 
 
 type alias Item =
@@ -69,12 +90,12 @@ type alias OutlineForest =
     List OutlineNode
 
 
-type alias OutlineDoc =
-    ForestZipper Item
+type OutlineDoc
+    = OutlineDoc (ForestZipper Item)
 
 
 encoder : OutlineDoc -> Value
-encoder outlineZipper =
+encoder (OutlineDoc outlineZipper) =
     JE.object
         [ ( "leftReversed", JE.list itemTreeEncoder outlineZipper.leftReversed )
         , ( "center", itemTreeEncoder outlineZipper.center )
@@ -119,6 +140,7 @@ decoder =
         |> required "center" treeDecoder
         |> required "right_" (JD.list treeDecoder)
         |> required "crumbs" (JD.list crumbDecoder)
+        |> JD.map OutlineDoc
 
 
 treeDecoder : Decoder OutlineNode
@@ -141,3 +163,123 @@ crumbDecoder =
         |> required "leftReversed" (JD.list treeDecoder)
         |> required "datum" itemDecoder
         |> required "right_" (JD.list treeDecoder)
+
+
+ozNew : Item -> OutlineDoc -> OutlineDoc
+ozNew item =
+    map (Zipper.prependChildAndFocus (Tree.leaf item))
+
+
+gotoItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
+gotoItemId itemId =
+    mapMaybe (Zipper.findFirst (propEq .id itemId))
+
+
+map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
+map func (OutlineDoc z) =
+    func z |> OutlineDoc
+
+
+mapMaybe : (ForestZipper Item -> Maybe (ForestZipper Item)) -> OutlineDoc -> Maybe OutlineDoc
+mapMaybe func (OutlineDoc z) =
+    func z |> Maybe.map OutlineDoc
+
+
+propEq : (c -> b) -> b -> c -> Bool
+propEq func val obj =
+    func obj == val
+
+
+ozSetTitleUnlessBlankOrRemoveIfBlankLeaf : String -> OutlineDoc -> OutlineDoc
+ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title =
+    map
+        (\oz ->
+            if isBlank title then
+                if Zipper.isLeaf oz then
+                    oz
+                        |> withRollback Zipper.remove
+
+                else
+                    oz
+
+            else
+                Zipper.mapData (\item -> { item | title = title }) oz
+        )
+
+
+isBlank : String -> Bool
+isBlank =
+    String.trim >> String.isEmpty
+
+
+withRollback func oz =
+    func oz |> Maybe.withDefault oz
+
+
+ozTitle : OutlineDoc -> String
+ozTitle =
+    ozItem >> .title
+
+
+ozItem : OutlineDoc -> Item
+ozItem =
+    unwrap >> Zipper.data
+
+
+ozId : OutlineDoc -> ItemId
+ozId =
+    ozItem >> .id
+
+
+unwrap : OutlineDoc -> ForestZipper Item
+unwrap (OutlineDoc z) =
+    z
+
+
+moveItemWithIdToCandidateLocation : ItemId -> CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+moveItemWithIdToCandidateLocation srcItemId candidateLocation =
+    let
+        moveTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+        moveTo atLocation =
+            unwrap
+                >> (\zipper ->
+                        Zipper.remove zipper
+                            |> Maybe.andThen (OutlineDoc >> insertRemovedNodeAtLocation atLocation zipper.center)
+                   )
+
+        insertRemovedNodeAtLocation : CandidateLocation -> OutlineNode -> OutlineDoc -> Maybe OutlineDoc
+        insertRemovedNodeAtLocation atLocation node =
+            let
+                insertHelp :
+                    ItemId
+                    -> (Tree Item -> ForestZipper Item -> ForestZipper Item)
+                    -> OutlineDoc
+                    -> Maybe OutlineDoc
+                insertHelp targetItemId func =
+                    gotoItemId targetItemId >> Maybe.map (map (func node))
+            in
+            case atLocation of
+                Before itemId ->
+                    insertHelp itemId Zipper.insertLeft
+
+                After itemId ->
+                    insertHelp itemId Zipper.insertAndGoRight
+
+                PrependIn itemId ->
+                    insertHelp itemId Zipper.prependChildAndFocus
+
+                AppendIn itemId ->
+                    insertHelp itemId Zipper.appendChild
+    in
+    gotoItemId srcItemId
+        >> Maybe.andThen (moveTo candidateLocation)
+
+
+toForest : OutlineDoc -> Tree.Forest Item
+toForest =
+    unwrap >> Zipper.toRootForest
+
+
+currentTree : OutlineDoc -> Tree Item
+currentTree =
+    unwrap >> Zipper.getTree
