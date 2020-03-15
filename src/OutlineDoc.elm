@@ -6,7 +6,6 @@ module OutlineDoc exposing
     , OutlineNode
     , candidateLocationDecoder
     , candidateLocationEncoder
-    , currentTree
     , decoder
     , encoder
     , gotoItemId
@@ -20,6 +19,7 @@ module OutlineDoc exposing
     , ozSetTitleUnlessBlankOrRemoveIfBlankLeaf
     , ozTitle
     , restructure
+    , restructureFocused
     )
 
 import Forest
@@ -336,8 +336,8 @@ toForest_ =
     unwrap >> Zipper.toRootForest
 
 
-currentTree : OutlineDoc -> Tree Item
-currentTree =
+currentTree_ : OutlineDoc -> Tree Item
+currentTree_ =
     unwrap >> Zipper.getTree
 
 
@@ -360,3 +360,8 @@ currentTree =
 restructure : (Item -> List c -> c) -> OutlineDoc -> List c
 restructure render =
     toForest_ >> Forest.restructure identity render
+
+
+restructureFocused : (Item -> List c -> c) -> OutlineDoc -> c
+restructureFocused render =
+    currentTree_ >> Tree.restructure identity render

@@ -3,7 +3,6 @@ port module Main exposing (main)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events
-import Forest
 import Forest.Tree exposing (Forest)
 import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes as A exposing (attribute, class, draggable, style, value)
@@ -564,18 +563,18 @@ viewDraggedNode outline =
             let
                 xy =
                     dndDraggedXY dnd
-
-                draggedForest =
-                    OutlineDoc.gotoItemId dnd.dragItemId oz
-                        |> Maybe.map (OutlineDoc.currentTree >> List.singleton)
-                        |> Maybe.withDefault []
             in
-            div
-                [ class "fixed no-pe"
-                , style "left" (String.fromFloat xy.x ++ "px")
-                , style "top" (String.fromFloat xy.y ++ "px")
-                ]
-                (Forest.restructure identity renderDraggedItem draggedForest)
+            case OutlineDoc.gotoItemId dnd.dragItemId oz of
+                Nothing ->
+                    text ""
+
+                Just doc ->
+                    div
+                        [ class "fixed no-pe"
+                        , style "left" (String.fromFloat xy.x ++ "px")
+                        , style "top" (String.fromFloat xy.y ++ "px")
+                        ]
+                        [ OutlineDoc.restructureFocused renderDraggedItem doc ]
 
         OutlineEdit _ _ ->
             text ""
