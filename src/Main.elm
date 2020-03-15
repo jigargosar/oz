@@ -405,6 +405,7 @@ endEditAndInitBrowsing title =
     endEdit title >> Browsing
 
 
+endEditAndBrowseId : ItemId -> String -> OutlineDoc -> Outline
 endEditAndBrowseId id title =
     endEdit title >> ignoreNothing (OutlineDoc.focusId id) >> Browsing
 
