@@ -6,7 +6,7 @@ import Forest
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Html exposing (Attribute, Html, div, input, text)
-import Html.Attributes exposing (attribute, class, draggable, style, value)
+import Html.Attributes as A exposing (attribute, class, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -999,7 +999,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                 [ div
                     (class "pa1 bb b--black-10 pointer no-selection" :: [])
                     [ div [ class "flex lh-title" ]
-                        [ input [ class "flex-auto", value title, onInput TitleChanged ] []
+                        [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
                         ]
                     ]
                 ]
