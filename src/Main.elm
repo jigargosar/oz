@@ -367,25 +367,33 @@ type Msg
     | OnKeyDown KeyEvent
 
 
-cacheOZCmd : OZ -> Cmd msg
-cacheOZCmd =
-    outlineZipperEncoder >> saveOZ
+cacheOZOnChangeCmd : OZ -> OZ -> Cmd msg
+cacheOZOnChangeCmd oldOZ newOZ =
+    if oldOZ /= newOZ
+        newOZ |> (outlineZipperEncoder >> saveOZ)
+    else
+        Cmd.none
 
 
-cacheOutlineCmd : Outline -> Cmd msg
-cacheOutlineCmd outline =
+outlineToOZ : Outline -> Maybe OZ
+outlineToOZ outline =
     case outline of
-        EmptyOutline ->
-            Cmd.none
+            EmptyOutline ->
+                Nothing
 
-        Outline oz ->
-            cacheOZCmd oz
+            Outline oz ->
+                Just oz
 
-        OutlineDnD _ oz ->
-            cacheOZCmd oz
+            OutlineDnD _ oz ->
+                Just oz
 
-        OutlineEdit oz _ ->
-            cacheOZCmd oz
+            OutlineEdit oz _ ->
+                Just oz
+
+cacheOutlineOnChangeCmd : Outline -> Outline -> Cmd msg
+cacheOutlineOnChangeCmd oldOutline newOutline =
+    Maybe.map2 (cacheOZOnChangeCmd) (outlineToOZ oldOutline)(outlineToOZ newOutline)
+        |> Maybe.withDefault Cmd.none
 
 
 updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
@@ -404,7 +412,7 @@ updateWrapper =
 
         persistModelOnChange oldModel ( newModel, cmd ) =
             if oldModel.outline /= newModel.outline then
-                ( newModel, Cmd.batch [ cmd, cacheOutlineCmd newModel.outline ] )
+                ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd newModel.outline ] )
 
             else
                 ( newModel, cmd )
@@ -480,12 +488,12 @@ update message model =
 
                 Outline oz ->
                     if ozId oz == iid then
-                        ( { model | outline = OutlineEdit oz (ozTitle oz) }, cacheOZCmd oz )
+                        ( { model | outline = OutlineEdit oz (ozTitle oz) }, cacheOZOnChangeCmd oz )
 
                     else
                         case gotoItemId iid oz of
                             Just noz ->
-                                ( { model | outline = Outline noz }, cacheOZCmd noz )
+                                ( { model | outline = Outline noz }, cacheOZOnChangeCmd noz )
 
                             Nothing ->
                                 ( model, Cmd.none )
@@ -499,7 +507,7 @@ update message model =
                             ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
                                 |> withRollback (gotoItemId iid)
                     in
-                    ( { model | outline = Outline noz }, cacheOZCmd noz )
+                    ( { model | outline = Outline noz }, cacheOZOnChangeCmd noz )
 
         Start dnd ->
             case model.outline of
@@ -510,7 +518,7 @@ update message model =
                     case gotoItemId dnd.dragItemId oz of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
-                            , Cmd.batch [ cacheOZCmd noz, getBeacons () ]
+                            , Cmd.batch [ cacheOZOnChangeCmd noz, getBeacons () ]
                             )
 
                         Nothing ->
@@ -527,7 +535,7 @@ update message model =
                     of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
-                            , Cmd.batch [ cacheOZCmd noz, getBeacons () ]
+                            , Cmd.batch [ cacheOZOnChangeCmd noz, getBeacons () ]
                             )
 
                         Nothing ->
@@ -592,7 +600,7 @@ update message model =
                     in
                     case maybeNoz of
                         Just noz ->
-                            ( { model | outline = OutlineDnD dnd noz }, cacheOZCmd noz )
+                            ( { model | outline = OutlineDnD dnd noz }, cacheOZOnChangeCmd noz )
 
                         Nothing ->
                             ( model, Cmd.none )
