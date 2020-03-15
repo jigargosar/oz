@@ -453,7 +453,15 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
         MoveDown ->
             ( { model
                 | outline =
-                    Browsing (ignoreNothing OutlineDoc.moveAfterNextSibling doc)
+                    Browsing
+                        (doc
+                            |> ignoreNothing
+                                (Maybe.Extra.oneOf
+                                    [ OutlineDoc.moveAfterNextSibling
+                                    , OutlineDoc.prependInNextSiblingOfParent
+                                    ]
+                                )
+                        )
               }
             , Cmd.none
             )
