@@ -4,6 +4,8 @@ module OutlineDoc exposing
     , ItemId
     , OutlineDoc
     , OutlineNode
+    , candidateLocationDecoder
+    , candidateLocationEncoder
     , currentTree
     , decoder
     , encoder
@@ -36,6 +38,59 @@ type CandidateLocation
     | After ItemId
     | PrependIn ItemId
     | AppendIn ItemId
+
+
+candidateLocationEncoder : CandidateLocation -> Value
+candidateLocationEncoder candidateLocation =
+    let
+        encodeHelp : String -> ItemId -> Value
+        encodeHelp tagName itemId =
+            JE.object
+                [ ( "tag", JE.string tagName )
+                , ( "id", itemIdEncoder itemId )
+                ]
+    in
+    case candidateLocation of
+        Before itemId ->
+            encodeHelp "Before" itemId
+
+        After itemId ->
+            encodeHelp "After" itemId
+
+        PrependIn itemId ->
+            encodeHelp "PrependIn" itemId
+
+        AppendIn itemId ->
+            encodeHelp "AppendIn" itemId
+
+
+candidateLocationDecoder : Decoder CandidateLocation
+candidateLocationDecoder =
+    let
+        decodeHelp : (ItemId -> CandidateLocation) -> Decoder CandidateLocation
+        decodeHelp tag =
+            JD.field "id" itemIdDecoder
+                |> JD.map tag
+
+        tagDecoder : String -> Decoder CandidateLocation
+        tagDecoder tag =
+            case tag of
+                "Before" ->
+                    decodeHelp Before
+
+                "After" ->
+                    decodeHelp After
+
+                "PrependIn" ->
+                    decodeHelp PrependIn
+
+                "AppendIn" ->
+                    decodeHelp AppendIn
+
+                _ ->
+                    JD.fail ("unknown tag for CandidateLocation: " ++ tag)
+    in
+    JD.field "tag" JD.string |> JD.andThen tagDecoder
 
 
 type alias Item =

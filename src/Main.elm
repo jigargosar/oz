@@ -12,7 +12,6 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc exposing (CandidateLocation(..), Item, ItemId, OutlineDoc, OutlineNode)
 import Random exposing (Generator, Seed)
-import Random.Extra
 import Task
 
 
@@ -131,61 +130,8 @@ dndClosestCandidateLocation beacons dnd =
 beaconDecoder : Decoder Beacon
 beaconDecoder =
     JD.map2 Tuple.pair
-        (JD.field "id" candidateLocationDecoder)
+        (JD.field "id" OutlineDoc.candidateLocationDecoder)
         rectDecoder
-
-
-candidateLocationEncoder : CandidateLocation -> Value
-candidateLocationEncoder candidateLocation =
-    let
-        encodeHelp : String -> ItemId -> Value
-        encodeHelp tagName itemId =
-            JE.object
-                [ ( "tag", JE.string tagName )
-                , ( "id", OutlineDoc.itemIdEncoder itemId )
-                ]
-    in
-    case candidateLocation of
-        Before itemId ->
-            encodeHelp "Before" itemId
-
-        After itemId ->
-            encodeHelp "After" itemId
-
-        PrependIn itemId ->
-            encodeHelp "PrependIn" itemId
-
-        AppendIn itemId ->
-            encodeHelp "AppendIn" itemId
-
-
-candidateLocationDecoder : Decoder CandidateLocation
-candidateLocationDecoder =
-    let
-        decodeHelp : (ItemId -> CandidateLocation) -> Decoder CandidateLocation
-        decodeHelp tag =
-            JD.field "id" OutlineDoc.itemIdDecoder
-                |> JD.map tag
-
-        tagDecoder : String -> Decoder CandidateLocation
-        tagDecoder tag =
-            case tag of
-                "Before" ->
-                    decodeHelp Before
-
-                "After" ->
-                    decodeHelp After
-
-                "PrependIn" ->
-                    decodeHelp PrependIn
-
-                "AppendIn" ->
-                    decodeHelp AppendIn
-
-                _ ->
-                    JD.fail ("unknown tag for CandidateLocation: " ++ tag)
-    in
-    JD.field "tag" JD.string |> JD.andThen tagDecoder
 
 
 
@@ -800,7 +746,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                 [ div
                     ([ style "height" "0px"
                      , style "width" "0px"
-                     , dataBeacon (candidateLocationEncoder candidateLocation)
+                     , dataBeacon (OutlineDoc.candidateLocationEncoder candidateLocation)
                      ]
                         ++ (if debug then
                                 [ style "height" "10px"
