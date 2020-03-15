@@ -312,8 +312,7 @@ update message model =
                 Editing doc title ->
                     case
                         doc
-                            |> OutlineDoc.setTitleUnlessBlank title
-                            |> OutlineDoc.removeIfBlankLeaf
+                            |> endEdit title
                             |> OutlineDoc.gotoItemId dragItemId
                     of
                         Just noz ->
