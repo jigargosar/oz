@@ -320,17 +320,11 @@ update message model =
 
         Move clientXY ->
             case model.outline of
-                NoDoc ->
-                    Debug.todo "impl"
-
-                Browsing _ ->
-                    Debug.todo "impl"
-
                 Dragging dnd oz ->
                     ( { model | outline = Dragging { dnd | clientXY = clientXY } oz }, getBeacons () )
 
-                Editing _ _ ->
-                    Debug.todo "impl"
+                _ ->
+                    Debug.todo "impossible state"
 
         Stop ->
             case model.outline of
