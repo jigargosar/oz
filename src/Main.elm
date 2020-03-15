@@ -358,59 +358,54 @@ update message model =
 
 enter : KeyEvent -> Bool
 enter =
-    hk "Enter"
+    hotKey "Enter"
 
 
 arrowUp =
-    hk "ArrowUp"
+    hotKey "ArrowUp"
 
 
 arrowDown =
-    hk "ArrowDown"
+    hotKey "ArrowDown"
 
 
 arrowLeft =
-    hk "ArrowLeft"
+    hotKey "ArrowLeft"
 
 
 arrowRight =
-    hk "ArrowRight"
+    hotKey "ArrowRight"
 
 
 onKeyDownWhenBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 onKeyDownWhenBrowsing ke doc model =
-    if ke.ctrl then
-        case ke.key of
-            "Enter" ->
-                ( { model | outline = initEdit doc }, Cmd.none )
+    if enter ke then
+        ( { model | outline = initEdit doc }, Cmd.none )
 
-            "o" ->
-                ( let
-                    ( newDoc, newModel ) =
-                        generate (OutlineDoc.addNewLine "" doc) model
-                  in
-                  { newModel | outline = initEdit newDoc }
-                , Cmd.none
-                )
+    else if hotKey "o" ke then
+        ( let
+            ( newDoc, newModel ) =
+                generate (OutlineDoc.addNewLine "" doc) model
+          in
+          { newModel | outline = initEdit newDoc }
+        , Cmd.none
+        )
 
-            "ArrowUp" ->
-                ( { model
-                    | outline =
-                        Browsing (ignoreNothing OutlineDoc.goBackward doc)
-                  }
-                , Cmd.none
-                )
+    else if arrowUp ke then
+        ( { model
+            | outline =
+                Browsing (ignoreNothing OutlineDoc.goBackward doc)
+          }
+        , Cmd.none
+        )
 
-            "ArrowDown" ->
-                ( { model
-                    | outline =
-                        Browsing (ignoreNothing OutlineDoc.goForward doc)
-                  }
-                , Cmd.none
-                )
-
-            _ ->
-                ( model, Cmd.none )
+    else if arrowDown ke then
+        ( { model
+            | outline =
+                Browsing (ignoreNothing OutlineDoc.goForward doc)
+          }
+        , Cmd.none
+        )
 
     else if ctrl "ArrowLeft" ke then
         ( { model
@@ -549,8 +544,8 @@ type alias KeyEvent =
     }
 
 
-hk : String -> KeyEvent -> Bool
-hk name ke =
+hotKey : String -> KeyEvent -> Bool
+hotKey name ke =
     ke.key == name && not (ke.ctrl || ke.shift || ke.alt || ke.meta)
 
 
