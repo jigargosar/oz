@@ -398,6 +398,17 @@ globalKeyEventToUserIntentWhenBrowsing ke =
 
 updateWithUserIntentWhenBrowsing : UserIntent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 updateWithUserIntentWhenBrowsing keyboardIntent doc model =
+    let
+        maybeSetBrowsingDoc docMF =
+            case docMF doc of
+                Just newDoc ->
+                    ( { model | outline = Browsing newDoc }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+    in
     case keyboardIntent of
         EditFocused ->
             ( { model | outline = initEdit doc }, Cmd.none )
