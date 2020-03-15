@@ -532,22 +532,23 @@ ctrl name ke =
     ke.key == name && ke.ctrl && not (ke.shift || ke.alt || ke.meta)
 
 
-jdAndMap =
-    JD.map2 (|>)
+required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
+required name decoder_ =
+    JD.map2 (|>) (JD.field name decoder_)
+
+
+requiredBool name =
+    required name JD.bool
 
 
 keyEventDecoder : Decoder KeyEvent
 keyEventDecoder =
-    let
-        boolF name =
-            jdAndMap (JD.field name JD.bool)
-    in
     JD.succeed KeyEvent
-        |> jdAndMap (JD.field "key" JD.string)
-        |> boolF "ctrlKey"
-        |> boolF "shiftKey"
-        |> boolF "altKey"
-        |> boolF "metaKey"
+        |> required "key" JD.string
+        |> requiredBool "ctrlKey"
+        |> requiredBool "shiftKey"
+        |> requiredBool "altKey"
+        |> requiredBool "metaKey"
 
 
 
