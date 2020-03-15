@@ -254,6 +254,14 @@ update message model =
                             , Cmd.none
                             )
 
+                        "ArrowRight" ->
+                            ( { model
+                                | outline =
+                                    Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
+                              }
+                            , Cmd.none
+                            )
+
                         _ ->
                             ( model, Cmd.none )
 
