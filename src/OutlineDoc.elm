@@ -372,25 +372,25 @@ moveBeforePreviousSibling doc =
 
 appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSiblingOfParent =
-    moveCurrentToCandidateLocationBy (up >> Maybe.andThen left) AppendIn
+    moveCurrentBy (up >> Maybe.andThen left) AppendIn
 
 
 prependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 prependInNextSiblingOfParent =
-    moveCurrentToCandidateLocationBy (up >> Maybe.andThen right) PrependIn
+    moveCurrentBy (up >> Maybe.andThen right) PrependIn
 
 
 moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
 moveAfterNextSibling =
-    moveCurrentToCandidateLocationBy right After
+    moveCurrentBy right After
 
 
-moveCurrentToCandidateLocationBy :
+moveCurrentBy :
     (OutlineDoc -> Maybe OutlineDoc)
     -> (ItemId -> CandidateLocation)
     -> OutlineDoc
     -> Maybe OutlineDoc
-moveCurrentToCandidateLocationBy navigateFunction candidateLocationFunction doc =
+moveCurrentBy navigateFunction candidateLocationFunction doc =
     case navigateFunction doc |> Maybe.map currentId of
         Just id ->
             moveCurrentToCandidateLocation (candidateLocationFunction id) doc
