@@ -6,7 +6,6 @@ module OutlineDoc exposing
     , OutlineNode
     , addNewLine
     , appendInPreviousSibling
-    , appendInPreviousSiblingOfParent
     , candidateLocationDecoder
     , candidateLocationEncoder
     , currentId
@@ -20,7 +19,7 @@ module OutlineDoc exposing
     , itemIdEncoder
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
-    , moveBeforePreviousSibling
+    , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCurrentToCandidateLocation
     , removeIfBlankLeaf
     , restructure
@@ -331,6 +330,14 @@ moveBeforePreviousSibling =
 appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSiblingOfParent =
     relocateFocused AppendIn (up >> Maybe.andThen left)
+
+
+moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
+moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
+    Maybe.Extra.oneOf
+        [ moveBeforePreviousSibling
+        , appendInPreviousSiblingOfParent
+        ]
 
 
 prependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
