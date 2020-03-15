@@ -16,10 +16,11 @@ module OutlineDoc exposing
     , moveToCandidateLocation
     , ozId
     , ozItem
-    , ozSetTitleUnlessBlankOrRemoveIfBlankLeaf
+    , removeIfBlankLeaf
     , restoreFocus
     , restructure
     , restructureFocused
+    , setTitleUnlessBlank
     )
 
 import Forest
@@ -257,20 +258,33 @@ propEq func val obj =
     func obj == val
 
 
-ozSetTitleUnlessBlankOrRemoveIfBlankLeaf : String -> OutlineDoc -> OutlineDoc
-ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title =
+setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
+setTitleUnlessBlank title =
     map
         (\oz ->
             if isBlank title then
-                if Zipper.isLeaf oz then
-                    oz
-                        |> withRollback Zipper.remove
-
-                else
-                    oz
+                oz
 
             else
                 Zipper.mapData (\item -> { item | title = title }) oz
+        )
+
+
+zTitle : ForestZipper Item -> String
+zTitle =
+    Zipper.data >> .title
+
+
+removeIfBlankLeaf : OutlineDoc -> OutlineDoc
+removeIfBlankLeaf =
+    map
+        (\oz ->
+            if isBlank (zTitle oz) && Zipper.isLeaf oz then
+                oz
+                    |> withRollback Zipper.remove
+
+            else
+                oz
         )
 
 

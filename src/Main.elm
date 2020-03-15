@@ -218,7 +218,7 @@ update message model =
             case model.outline of
                 Browsing doc ->
                     case ke.key of
-                        "Enter" ->
+                        "o" ->
                             ( let
                                 ( newDoc, newModel ) =
                                     generate (OutlineDoc.addNewLine "" doc) model
@@ -240,6 +240,11 @@ update message model =
                     case ke.key of
                         "Enter" ->
                             ( { model | outline = endEditAndInitBrowsing title doc }
+                            , Cmd.none
+                            )
+
+                        "Escape" ->
+                            ( { model | outline = cancelEditAndInitBrowsing doc }
                             , Cmd.none
                             )
 
@@ -286,7 +291,9 @@ update message model =
                 Editing oz title ->
                     let
                         noz =
-                            OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
+                            oz
+                                |> OutlineDoc.setTitleUnlessBlank title
+                                |> OutlineDoc.removeIfBlankLeaf
                                 |> ignoreNothing (OutlineDoc.gotoItemId iid)
                     in
                     ( { model | outline = Browsing noz }, Cmd.none )
@@ -306,7 +313,8 @@ update message model =
                 Editing doc title ->
                     case
                         doc
-                            |> OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title
+                            |> OutlineDoc.setTitleUnlessBlank title
+                            |> OutlineDoc.removeIfBlankLeaf
                             |> OutlineDoc.gotoItemId dragItemId
                     of
                         Just noz ->
@@ -389,12 +397,25 @@ update message model =
 
 endEdit : String -> OutlineDoc -> OutlineDoc
 endEdit title doc =
-    OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title doc
+    doc
+        |> OutlineDoc.setTitleUnlessBlank title
+        |> OutlineDoc.removeIfBlankLeaf
+
+
+cancelEdit : OutlineDoc -> OutlineDoc
+cancelEdit doc =
+    doc
+        |> OutlineDoc.removeIfBlankLeaf
 
 
 endEditAndInitBrowsing : String -> OutlineDoc -> Outline
 endEditAndInitBrowsing title =
     endEdit title >> Browsing
+
+
+cancelEditAndInitBrowsing : OutlineDoc -> Outline
+cancelEditAndInitBrowsing =
+    cancelEdit >> Browsing
 
 
 initEdit : OutlineDoc -> Outline
