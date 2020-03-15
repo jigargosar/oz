@@ -356,30 +356,9 @@ update message model =
                     Debug.todo "impossible state"
 
 
-enter : KeyEvent -> Bool
-enter =
-    hotKey "Enter"
-
-
-arrowUp =
-    hotKey "ArrowUp"
-
-
-arrowDown =
-    hotKey "ArrowDown"
-
-
-arrowLeft =
-    hotKey "ArrowLeft"
-
-
-arrowRight =
-    hotKey "ArrowRight"
-
-
 onKeyDownWhenBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 onKeyDownWhenBrowsing ke doc model =
-    if enter ke then
+    if hotKey "Enter" ke then
         ( { model | outline = initEdit doc }, Cmd.none )
 
     else if hotKey "o" ke then
@@ -391,7 +370,7 @@ onKeyDownWhenBrowsing ke doc model =
         , Cmd.none
         )
 
-    else if arrowUp ke then
+    else if hotKey "ArrowUp" ke then
         ( { model
             | outline =
                 Browsing (ignoreNothing OutlineDoc.goBackward doc)
@@ -399,7 +378,7 @@ onKeyDownWhenBrowsing ke doc model =
         , Cmd.none
         )
 
-    else if arrowDown ke then
+    else if hotKey "ArrowDown" ke then
         ( { model
             | outline =
                 Browsing (ignoreNothing OutlineDoc.goForward doc)
