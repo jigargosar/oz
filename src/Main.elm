@@ -217,59 +217,7 @@ update message model =
         OnKeyDown ke ->
             case model.outline of
                 Browsing doc ->
-                    if ke.ctrl then
-                        case ke.key of
-                            "Enter" ->
-                                ( { model | outline = initEdit doc }, Cmd.none )
-
-                            "o" ->
-                                ( let
-                                    ( newDoc, newModel ) =
-                                        generate (OutlineDoc.addNewLine "" doc) model
-                                  in
-                                  { newModel | outline = initEdit newDoc }
-                                , Cmd.none
-                                )
-
-                            "ArrowUp" ->
-                                ( { model
-                                    | outline =
-                                        Browsing (ignoreNothing OutlineDoc.goBackward doc)
-                                  }
-                                , Cmd.none
-                                )
-
-                            "ArrowDown" ->
-                                ( { model
-                                    | outline =
-                                        Browsing (ignoreNothing OutlineDoc.goForward doc)
-                                  }
-                                , Cmd.none
-                                )
-
-                            _ ->
-                                ( model, Cmd.none )
-
-                    else
-                        case ke.key of
-                            "ArrowLeft" ->
-                                ( { model
-                                    | outline =
-                                        Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
-                                  }
-                                , Cmd.none
-                                )
-
-                            "ArrowRight" ->
-                                ( { model
-                                    | outline =
-                                        Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
-                                  }
-                                , Cmd.none
-                                )
-
-                            _ ->
-                                ( model, Cmd.none )
+                    onKeyDownBrowsing ke doc model
 
                 NoDoc ->
                     ( model, Cmd.none )
@@ -406,6 +354,63 @@ update message model =
 
                 _ ->
                     Debug.todo "impossible state"
+
+
+onKeyDownBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
+onKeyDownBrowsing ke doc model =
+    if ke.ctrl then
+        case ke.key of
+            "Enter" ->
+                ( { model | outline = initEdit doc }, Cmd.none )
+
+            "o" ->
+                ( let
+                    ( newDoc, newModel ) =
+                        generate (OutlineDoc.addNewLine "" doc) model
+                  in
+                  { newModel | outline = initEdit newDoc }
+                , Cmd.none
+                )
+
+            "ArrowUp" ->
+                ( { model
+                    | outline =
+                        Browsing (ignoreNothing OutlineDoc.goBackward doc)
+                  }
+                , Cmd.none
+                )
+
+            "ArrowDown" ->
+                ( { model
+                    | outline =
+                        Browsing (ignoreNothing OutlineDoc.goForward doc)
+                  }
+                , Cmd.none
+                )
+
+            _ ->
+                ( model, Cmd.none )
+
+    else
+        case ke.key of
+            "ArrowLeft" ->
+                ( { model
+                    | outline =
+                        Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
+                  }
+                , Cmd.none
+                )
+
+            "ArrowRight" ->
+                ( { model
+                    | outline =
+                        Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
+                  }
+                , Cmd.none
+                )
+
+            _ ->
+                ( model, Cmd.none )
 
 
 endEdit : String -> OutlineDoc -> OutlineDoc
