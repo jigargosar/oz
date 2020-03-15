@@ -399,6 +399,20 @@ moveAfterNextSibling doc =
             Nothing
 
 
+moveCurrentToCandidateLocationBy :
+    (OutlineDoc -> Maybe OutlineDoc)
+    -> (ItemId -> CandidateLocation)
+    -> OutlineDoc
+    -> Maybe OutlineDoc
+moveCurrentToCandidateLocationBy navigateFunction candidateLocationFunction doc =
+    case navigateFunction doc |> Maybe.map currentId of
+        Just id ->
+            moveCurrentToCandidateLocation (candidateLocationFunction id) doc
+
+        Nothing ->
+            Nothing
+
+
 moveCurrentToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 moveCurrentToCandidateLocation cl doc =
     moveItemWithIdToCandidateLocationPreservingFocus (currentId doc) cl doc
