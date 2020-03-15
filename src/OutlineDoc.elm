@@ -4,7 +4,7 @@ module OutlineDoc exposing
     , ItemId
     , OutlineDoc
     , OutlineNode
-    , addNew
+    , addNewLine
     , candidateLocationDecoder
     , candidateLocationEncoder
     , decoder
@@ -226,8 +226,8 @@ insertNew item =
     map (Zipper.prependChildAndFocus (Tree.leaf item))
 
 
-addNew : String -> OutlineDoc -> Generator OutlineDoc
-addNew title doc =
+addNewLine : String -> OutlineDoc -> Generator OutlineDoc
+addNewLine title doc =
     itemGenerator title
         |> Random.map (\item -> insertNew item doc)
 

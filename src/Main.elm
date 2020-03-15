@@ -221,7 +221,7 @@ update message model =
                         "Enter" ->
                             let
                                 ( newItem, newSeed ) =
-                                    Random.step (OutlineDoc.addNew "" doc) model.seed
+                                    Random.step (OutlineDoc.addNewLine "" doc) model.seed
                             in
                             ( { model
                                 | outline = Editing newItem ""
@@ -241,7 +241,7 @@ update message model =
                 Browsing doc ->
                     let
                         ( newItem, newSeed ) =
-                            Random.step (OutlineDoc.addNew "" doc) model.seed
+                            Random.step (OutlineDoc.addNewLine "" doc) model.seed
                     in
                     ( { model
                         | outline = Editing newItem ""
