@@ -375,7 +375,7 @@ update message model =
                                                )
                                     )
                                 |> Maybe.andThen
-                                    (\cl -> OutlineDoc.moveToCLPF cl oz)
+                                    (\cl -> OutlineDoc.moveToCandidateLocation cl oz)
                     in
                     case maybeNoz of
                         Just noz ->

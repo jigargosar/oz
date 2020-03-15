@@ -12,7 +12,7 @@ module OutlineDoc exposing
     , itemGenerator
     , itemIdDecoder
     , itemIdEncoder
-    , moveToCLPF
+    , moveToCandidateLocation
     , ozId
     , ozItem
     , ozNew
@@ -298,8 +298,8 @@ unwrap (OutlineDoc z) =
     z
 
 
-moveToCLPF : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-moveToCLPF cl doc =
+moveToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+moveToCandidateLocation cl doc =
     moveItemWithIdToCandidateLocationPreservingFocus (ozId doc) cl doc
 
 
