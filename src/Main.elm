@@ -49,7 +49,7 @@ type alias Model =
 
 
 type Outline
-    = StaringAtEmptyOutline
+    = LookingAtBlankDoc
     | Browsing OutlineDoc
     | Dragging Cursor OutlineDoc
     | Editing OutlineDoc String
@@ -93,7 +93,7 @@ init flags =
                     Debug.log "oz" (JD.errorToString err)
                         |> always Nothing
     in
-    ( { outline = Maybe.map Browsing oz |> Maybe.withDefault StaringAtEmptyOutline
+    ( { outline = Maybe.map Browsing oz |> Maybe.withDefault LookingAtBlankDoc
       , seed = Random.initialSeed flags.now
       }
     , Cmd.none
@@ -162,7 +162,7 @@ cacheDocIfChanged oldOZ newOZ =
 outlineToDoc : Outline -> Maybe OutlineDoc
 outlineToDoc outline =
     case outline of
-        StaringAtEmptyOutline ->
+        LookingAtBlankDoc ->
             Nothing
 
         Browsing oz ->
@@ -225,7 +225,7 @@ update message model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                StaringAtEmptyOutline ->
+                LookingAtBlankDoc ->
                     ( model, Cmd.none )
 
                 Dragging _ _ ->
@@ -258,7 +258,7 @@ update message model =
 
         ItemTitleClicked iid ->
             case model.outline of
-                StaringAtEmptyOutline ->
+                LookingAtBlankDoc ->
                     Debug.todo "impossible state"
 
                 Browsing doc ->
@@ -531,7 +531,7 @@ subscriptions : Model -> Sub Msg
 subscriptions m =
     Sub.batch
         [ case m.outline of
-            StaringAtEmptyOutline ->
+            LookingAtBlankDoc ->
                 Sub.none
 
             Browsing _ ->
@@ -651,7 +651,7 @@ viewOutline outline =
 outlineToHtmlList : Outline -> LHM
 outlineToHtmlList outline =
     case outline of
-        StaringAtEmptyOutline ->
+        LookingAtBlankDoc ->
             []
 
         Browsing doc ->
@@ -706,7 +706,7 @@ outlineToHtmlList outline =
 viewDraggedNode : Outline -> Html Msg
 viewDraggedNode outline =
     case outline of
-        StaringAtEmptyOutline ->
+        LookingAtBlankDoc ->
             text ""
 
         Browsing _ ->
