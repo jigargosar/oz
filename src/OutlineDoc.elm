@@ -371,13 +371,8 @@ moveBeforePreviousSibling doc =
 
 
 appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
-appendInPreviousSiblingOfParent doc =
-    case doc |> up |> Maybe.andThen leftId of
-        Just appendTargetId ->
-            moveCurrentToCandidateLocation (AppendIn appendTargetId) doc
-
-        Nothing ->
-            Nothing
+appendInPreviousSiblingOfParent =
+    moveCurrentToCandidateLocationBy (up >> Maybe.andThen left) AppendIn
 
 
 prependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
