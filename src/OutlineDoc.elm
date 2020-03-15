@@ -439,11 +439,6 @@ restructureFocused render =
     currentTree_ >> Tree.restructure identity render
 
 
-goBackward : OutlineDoc -> Maybe OutlineDoc
-goBackward =
-    mapMaybe Zipper.backward
-
-
 left : OutlineDoc -> Maybe OutlineDoc
 left =
     mapMaybe Zipper.left
@@ -457,6 +452,11 @@ right =
 up : OutlineDoc -> Maybe OutlineDoc
 up =
     mapMaybe Zipper.up
+
+
+goBackward : OutlineDoc -> Maybe OutlineDoc
+goBackward =
+    mapMaybe Zipper.backward
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
