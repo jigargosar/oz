@@ -239,7 +239,7 @@ update message model =
                 Editing doc title ->
                     case ke.key of
                         "Enter" ->
-                            ( { model | outline = Browsing (endEdit title doc) }
+                            ( { model | outline = endEditAndInitBrowsing title doc }
                             , Cmd.none
                             )
 
@@ -390,6 +390,11 @@ update message model =
 endEdit : String -> OutlineDoc -> OutlineDoc
 endEdit title doc =
     OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title doc
+
+
+endEditAndInitBrowsing : String -> OutlineDoc -> Outline
+endEditAndInitBrowsing title =
+    endEdit title >> Browsing
 
 
 initEdit : OutlineDoc -> Outline
