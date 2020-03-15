@@ -12,7 +12,7 @@ module OutlineDoc exposing
     , itemGenerator
     , itemIdDecoder
     , itemIdEncoder
-    , moveItemWithIdToCandidateLocation
+    , moveItemWithIdToCandidateLocationPreservingFocus
     , ozId
     , ozItem
     , ozNew
@@ -292,8 +292,8 @@ unwrap (OutlineDoc z) =
     z
 
 
-moveItemWithIdToCandidateLocation : ItemId -> CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-moveItemWithIdToCandidateLocation srcItemId candidateLocation =
+moveItemWithIdToCandidateLocationPreservingFocus : ItemId -> CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
     let
         moveTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
         moveTo atLocation =
@@ -331,6 +331,7 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
     in
     gotoItemId srcItemId
         >> Maybe.andThen (moveTo candidateLocation)
+        >> Maybe.andThen (gotoItemId srcItemId)
 
 
 toForest_ : OutlineDoc -> Tree.Forest Item

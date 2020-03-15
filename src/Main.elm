@@ -376,7 +376,7 @@ update message model =
                                                )
                                     )
                                 |> Maybe.andThen
-                                    (\cl -> OutlineDoc.moveItemWithIdToCandidateLocation dnd.dragItemId cl oz)
+                                    (\cl -> OutlineDoc.moveItemWithIdToCandidateLocationPreservingFocus dnd.dragItemId cl oz)
                                 |> Maybe.andThen (OutlineDoc.gotoItemId dnd.dragItemId)
                     in
                     case maybeNoz of
