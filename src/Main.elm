@@ -372,6 +372,51 @@ cacheOZCmd =
     outlineZipperEncoder >> saveOZ
 
 
+cacheOutlineCmd : Outline -> Cmd msg
+cacheOutlineCmd outline =
+    case outline of
+        EmptyOutline ->
+            Cmd.none
+
+        Outline oz ->
+            cacheOZCmd oz
+
+        OutlineDnD _ oz ->
+            cacheOZCmd oz
+
+        OutlineEdit oz _ ->
+            cacheOZCmd oz
+
+
+updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
+updateWrapper =
+    let
+        focusEditorOnStartEdit oldModel ( newModel, cmd ) =
+            case ( oldModel.outline, newModel.outline ) of
+                ( OutlineEdit _ _, _ ) ->
+                    ( newModel, cmd )
+
+                ( _, OutlineEdit _ _ ) ->
+                    ( newModel, Cmd.batch [ cmd, focusItemTitleEditorCmd ] )
+
+                _ ->
+                    ( newModel, cmd )
+
+        persistModelOnChange oldModel ( newModel, cmd ) =
+            if oldModel.outline /= newModel.outline then
+                ( newModel, Cmd.batch [ cmd, cacheOutlineCmd newModel.outline ] )
+
+            else
+                ( newModel, cmd )
+
+        helper message model =
+            update message model
+                |> focusEditorOnStartEdit model
+                |> persistModelOnChange model
+    in
+    helper
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -394,7 +439,7 @@ update message model =
                                 | outline = OutlineEdit (ozNew newItem oz) newItem.title
                                 , seed = newSeed
                               }
-                            , Cmd.none
+                            , focusItemTitleEditorCmd
                             )
 
                         _ ->
@@ -414,7 +459,7 @@ update message model =
                         | outline = OutlineEdit (ozNew newItem oz) newItem.title
                         , seed = newSeed
                       }
-                    , Cmd.none
+                    , focusItemTitleEditorCmd
                     )
 
                 _ ->
@@ -556,6 +601,7 @@ update message model =
                     Debug.todo "impl"
 
 
+focusItemTitleEditorCmd : Cmd Msg
 focusItemTitleEditorCmd =
     Dom.focus "item-title-editor"
         |> Task.attempt
