@@ -273,14 +273,14 @@ update message model =
                 NoDoc ->
                     Debug.todo "impl"
 
-                Browsing oz ->
-                    if ozId oz == iid then
-                        ( { model | outline = Editing oz (ozTitle oz) }, Cmd.none )
+                Browsing doc ->
+                    if ozId doc == iid then
+                        ( { model | outline = initEdit doc }, Cmd.none )
 
                     else
-                        case OutlineDoc.focusId iid oz of
-                            Just noz ->
-                                ( { model | outline = Browsing noz }, Cmd.none )
+                        case OutlineDoc.focusId iid doc of
+                            Just focusedDoc ->
+                                ( { model | outline = Browsing focusedDoc }, Cmd.none )
 
                             Nothing ->
                                 ( model, Cmd.none )
