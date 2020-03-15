@@ -11,6 +11,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc exposing (CandidateLocation(..), Item, ItemId, OutlineDoc, OutlineNode)
 import Random exposing (Generator, Seed)
+import Set
 import Task
 
 
@@ -505,7 +506,10 @@ subscriptions m =
 
             Editing _ _ ->
                 Sub.none
-        , Browser.Events.onKeyDown (JD.map OnKeyDown keyEventDecoder)
+        , Browser.Events.onKeyDown
+            (keyEventDecoder
+                |> JD.map OnKeyDown
+            )
         ]
 
 
@@ -560,6 +564,18 @@ requiredBool name =
 
 requiredString name =
     required name JD.string
+
+
+failWhen : (a -> Bool) -> Decoder a -> Decoder a
+failWhen pred =
+    JD.andThen
+        (\val ->
+            if pred val then
+                JD.fail "failWhen pred matched"
+
+            else
+                JD.succeed val
+        )
 
 
 
