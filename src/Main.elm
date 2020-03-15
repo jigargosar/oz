@@ -4,7 +4,7 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import Forest
-import Forest.Tree as Tree exposing (Forest, Tree)
+import Forest.Tree as Tree exposing (Forest)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes as A exposing (attribute, class, draggable, style, value)
@@ -115,18 +115,10 @@ init flags =
         ( initialItems, seed1 ) =
             Random.step initialItemGenerator seed0
 
-        outline =
-            initialItems |> List.map (\item -> Tree.leaf item)
-
         oz =
             case JD.decodeValue (JD.nullable OutlineDoc.outlineZipperDecoder) flags.oz of
                 Ok got ->
-                    case got of
-                        Nothing ->
-                            Zipper.fromForest outline
-
-                        Just oz_ ->
-                            Just oz_
+                    got
 
                 Err err ->
                     Debug.log "oz" (JD.errorToString err)
