@@ -516,11 +516,15 @@ type alias KeyEvent =
     }
 
 
+jdAndMap =
+    JD.map2 (|>)
+
+
 keyEventDecoder : Decoder KeyEvent
 keyEventDecoder =
     JD.succeed KeyEvent
-        |> JD.map2 (|>) (JD.field "key" JD.string)
-        |> JD.map2 (|>) (JD.field "ctrlKey" JD.bool)
+        |> jdAndMap (JD.field "key" JD.string)
+        |> jdAndMap (JD.field "ctrlKey" JD.bool)
 
 
 
