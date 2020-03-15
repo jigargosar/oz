@@ -19,9 +19,10 @@ module OutlineDoc exposing
     , ozNew
     , ozSetTitleUnlessBlankOrRemoveIfBlankLeaf
     , ozTitle
-    , toForest
+    , restructure
     )
 
+import Forest
 import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
@@ -330,8 +331,8 @@ moveItemWithIdToCandidateLocation srcItemId candidateLocation =
         >> Maybe.andThen (moveTo candidateLocation)
 
 
-toForest : OutlineDoc -> Tree.Forest Item
-toForest =
+toForest_ : OutlineDoc -> Tree.Forest Item
+toForest_ =
     unwrap >> Zipper.toRootForest
 
 
@@ -354,3 +355,8 @@ currentTree =
                    |> List.map OutlineDoc.itemGenerator
                    |> Random.Extra.combine
 -}
+
+
+restructure : (Item -> List c -> c) -> OutlineDoc -> List c
+restructure render =
+    toForest_ >> Forest.restructure identity render

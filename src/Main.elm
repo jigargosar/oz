@@ -505,26 +505,20 @@ outlineToHtmlList outline =
         EmptyOutline ->
             []
 
-        Outline oz ->
+        Outline doc ->
             let
                 highlightedId =
-                    ozId oz
-
-                forest =
-                    OutlineDoc.toForest oz
+                    ozId doc
             in
-            Forest.restructure identity
+            OutlineDoc.restructure
                 (\item -> renderDraggableWithBeacons (item.id == highlightedId) item)
-                forest
+                doc
 
-        OutlineDnD dnd oz ->
+        OutlineDnD dnd doc ->
             let
-                forest =
-                    OutlineDoc.toForest oz
-
                 renderForestFns : List (Bool -> HM)
                 renderForestFns =
-                    Forest.restructure identity
+                    OutlineDoc.restructure
                         (\item renderChildrenFns ->
                             \shouldRenderWithoutBeacon ->
                                 let
@@ -537,14 +531,14 @@ outlineToHtmlList outline =
                                 else
                                     renderNotDraggableWithBeacons item (children False)
                         )
-                        forest
+                        doc
             in
             List.map (\fn -> fn False) renderForestFns
 
-        OutlineEdit oz title ->
+        OutlineEdit doc title ->
             let
                 editItemId =
-                    ozId oz
+                    ozId doc
 
                 renderItem : Item -> LHM -> HM
                 renderItem item =
@@ -553,11 +547,8 @@ outlineToHtmlList outline =
 
                     else
                         renderDraggableWithBeacons False item
-
-                forest =
-                    OutlineDoc.toForest oz
             in
-            Forest.restructure identity renderItem forest
+            OutlineDoc.restructure renderItem doc
 
 
 viewDraggedNode : Outline -> Html Msg
