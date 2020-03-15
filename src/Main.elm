@@ -48,10 +48,10 @@ type alias Model =
 
 
 type Outline
-    = EmptyOutline
-    | Outline OutlineDoc
-    | OutlineDnD Cursor OutlineDoc
-    | OutlineEdit OutlineDoc String
+    = NoDoc
+    | Browsing OutlineDoc
+    | Dragging Cursor OutlineDoc
+    | Editing OutlineDoc String
 
 
 
@@ -92,7 +92,7 @@ init flags =
                     Debug.log "oz" (JD.errorToString err)
                         |> always Nothing
     in
-    ( { outline = Maybe.map Outline oz |> Maybe.withDefault EmptyOutline
+    ( { outline = Maybe.map Browsing oz |> Maybe.withDefault NoDoc
       , seed = Random.initialSeed flags.now
       }
     , Cmd.none
@@ -161,16 +161,16 @@ cacheOZOnChangeCmd oldOZ newOZ =
 outlineToOZ : Outline -> Maybe OutlineDoc
 outlineToOZ outline =
     case outline of
-        EmptyOutline ->
+        NoDoc ->
             Nothing
 
-        Outline oz ->
+        Browsing oz ->
             Just oz
 
-        OutlineDnD _ oz ->
+        Dragging _ oz ->
             Just oz
 
-        OutlineEdit oz _ ->
+        Editing oz _ ->
             Just oz
 
 
@@ -185,10 +185,10 @@ updateWrapper =
     let
         focusEditorOnStartEdit oldModel ( newModel, cmd ) =
             case ( oldModel.outline, newModel.outline ) of
-                ( OutlineEdit _ _, _ ) ->
+                ( Editing _ _, _ ) ->
                     ( newModel, cmd )
 
-                ( _, OutlineEdit _ _ ) ->
+                ( _, Editing _ _ ) ->
                     ( newModel, Cmd.batch [ cmd, focusItemTitleEditorCmd ] )
 
                 _ ->
@@ -216,7 +216,7 @@ update message model =
 
         OnKeyDown ke ->
             case model.outline of
-                Outline oz ->
+                Browsing oz ->
                     case ke.key of
                         "Enter" ->
                             let
@@ -224,7 +224,7 @@ update message model =
                                     Random.step (OutlineDoc.itemGenerator "") model.seed
                             in
                             ( { model
-                                | outline = OutlineEdit (OutlineDoc.ozNew newItem oz) newItem.title
+                                | outline = Editing (OutlineDoc.ozNew newItem oz) newItem.title
                                 , seed = newSeed
                               }
                             , Cmd.none
@@ -238,13 +238,13 @@ update message model =
 
         New ->
             case model.outline of
-                Outline oz ->
+                Browsing oz ->
                     let
                         ( newItem, newSeed ) =
                             Random.step (OutlineDoc.itemGenerator "") model.seed
                     in
                     ( { model
-                        | outline = OutlineEdit (OutlineDoc.ozNew newItem oz) newItem.title
+                        | outline = Editing (OutlineDoc.ozNew newItem oz) newItem.title
                         , seed = newSeed
                       }
                     , Cmd.none
@@ -255,60 +255,60 @@ update message model =
 
         TitleChanged title ->
             case model.outline of
-                OutlineEdit oz _ ->
-                    ( { model | outline = OutlineEdit oz title }, Cmd.none )
+                Editing oz _ ->
+                    ( { model | outline = Editing oz title }, Cmd.none )
 
                 _ ->
                     Debug.todo "impl"
 
         ItemTitleClicked iid ->
             case model.outline of
-                EmptyOutline ->
+                NoDoc ->
                     Debug.todo "impl"
 
-                Outline oz ->
+                Browsing oz ->
                     if ozId oz == iid then
-                        ( { model | outline = OutlineEdit oz (ozTitle oz) }, Cmd.none )
+                        ( { model | outline = Editing oz (ozTitle oz) }, Cmd.none )
 
                     else
                         case OutlineDoc.gotoItemId iid oz of
                             Just noz ->
-                                ( { model | outline = Outline noz }, Cmd.none )
+                                ( { model | outline = Browsing noz }, Cmd.none )
 
                             Nothing ->
                                 ( model, Cmd.none )
 
-                OutlineDnD _ _ ->
+                Dragging _ _ ->
                     Debug.todo "impl"
 
-                OutlineEdit oz title ->
+                Editing oz title ->
                     let
                         noz =
                             OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
                                 |> ignoreNothing (OutlineDoc.gotoItemId iid)
                     in
-                    ( { model | outline = Outline noz }, Cmd.none )
+                    ( { model | outline = Browsing noz }, Cmd.none )
 
         OnDragStart dragItemId cursor ->
             case model.outline of
-                Outline oz ->
+                Browsing oz ->
                     case OutlineDoc.gotoItemId dragItemId oz of
                         Just noz ->
-                            ( { model | outline = OutlineDnD cursor noz }
+                            ( { model | outline = Dragging cursor noz }
                             , getBeacons ()
                             )
 
                         Nothing ->
                             ( model, Cmd.none )
 
-                OutlineEdit doc title ->
+                Editing doc title ->
                     case
                         doc
                             |> OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title
                             |> OutlineDoc.gotoItemId dragItemId
                     of
                         Just noz ->
-                            ( { model | outline = OutlineDnD cursor noz }
+                            ( { model | outline = Dragging cursor noz }
                             , getBeacons ()
                             )
 
@@ -320,41 +320,41 @@ update message model =
 
         Move clientXY ->
             case model.outline of
-                EmptyOutline ->
+                NoDoc ->
                     Debug.todo "impl"
 
-                Outline _ ->
+                Browsing _ ->
                     Debug.todo "impl"
 
-                OutlineDnD dnd oz ->
-                    ( { model | outline = OutlineDnD { dnd | clientXY = clientXY } oz }, getBeacons () )
+                Dragging dnd oz ->
+                    ( { model | outline = Dragging { dnd | clientXY = clientXY } oz }, getBeacons () )
 
-                OutlineEdit _ _ ->
+                Editing _ _ ->
                     Debug.todo "impl"
 
         Stop ->
             case model.outline of
-                EmptyOutline ->
+                NoDoc ->
                     Debug.todo "impl"
 
-                Outline _ ->
+                Browsing _ ->
                     Debug.todo "impl"
 
-                OutlineDnD _ oz ->
-                    ( { model | outline = Outline oz }, Cmd.none )
+                Dragging _ oz ->
+                    ( { model | outline = Browsing oz }, Cmd.none )
 
-                OutlineEdit _ _ ->
+                Editing _ _ ->
                     Debug.todo "impl"
 
         GotBeacons encodedBeacons ->
             case model.outline of
-                EmptyOutline ->
+                NoDoc ->
                     Debug.todo "impl"
 
-                Outline _ ->
+                Browsing _ ->
                     Debug.todo "impl"
 
-                OutlineDnD dnd oz ->
+                Dragging dnd oz ->
                     let
                         beaconsResult =
                             JD.decodeValue (JD.list beaconDecoder) encodedBeacons
@@ -376,12 +376,12 @@ update message model =
                     in
                     case maybeNoz of
                         Just noz ->
-                            ( { model | outline = OutlineDnD dnd noz }, Cmd.none )
+                            ( { model | outline = Dragging dnd noz }, Cmd.none )
 
                         Nothing ->
                             ( model, Cmd.none )
 
-                OutlineEdit _ _ ->
+                Editing _ _ ->
                     Debug.todo "impl"
 
 
@@ -423,20 +423,20 @@ subscriptions : Model -> Sub Msg
 subscriptions m =
     Sub.batch
         [ case m.outline of
-            EmptyOutline ->
+            NoDoc ->
                 Sub.none
 
-            Outline _ ->
+            Browsing _ ->
                 Sub.none
 
-            OutlineDnD _ _ ->
+            Dragging _ _ ->
                 Sub.batch
                     [ Browser.Events.onMouseMove (JD.map Move clientXYDecoder)
                     , Browser.Events.onMouseUp (JD.succeed Stop)
                     , gotBeacons GotBeacons
                     ]
 
-            OutlineEdit _ _ ->
+            Editing _ _ ->
                 Sub.none
         , Browser.Events.onKeyDown (JD.map OnKeyDown keyEventDecoder)
         ]
@@ -496,10 +496,10 @@ viewOutline outline =
 outlineToHtmlList : Outline -> LHM
 outlineToHtmlList outline =
     case outline of
-        EmptyOutline ->
+        NoDoc ->
             []
 
-        Outline doc ->
+        Browsing doc ->
             let
                 highlightedId =
                     ozId doc
@@ -508,7 +508,7 @@ outlineToHtmlList outline =
                 (\item -> renderDraggableWithBeacons (item.id == highlightedId) item)
                 doc
 
-        OutlineDnD _ doc ->
+        Dragging _ doc ->
             let
                 draggedId =
                     OutlineDoc.ozId doc
@@ -532,7 +532,7 @@ outlineToHtmlList outline =
             in
             List.map (\fn -> fn False) renderForestFns
 
-        OutlineEdit doc title ->
+        Editing doc title ->
             let
                 editItemId =
                     ozId doc
@@ -551,13 +551,13 @@ outlineToHtmlList outline =
 viewDraggedNode : Outline -> Html Msg
 viewDraggedNode outline =
     case outline of
-        EmptyOutline ->
+        NoDoc ->
             text ""
 
-        Outline _ ->
+        Browsing _ ->
             text ""
 
-        OutlineDnD dnd doc ->
+        Dragging dnd doc ->
             let
                 xy =
                     dndDraggedXY dnd
@@ -569,7 +569,7 @@ viewDraggedNode outline =
                 ]
                 [ OutlineDoc.restructureFocused renderDraggedItem doc ]
 
-        OutlineEdit _ _ ->
+        Editing _ _ ->
             text ""
 
 
