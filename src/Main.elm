@@ -246,24 +246,31 @@ update message model =
                             , Cmd.none
                             )
 
-                        "ArrowLeft" ->
-                            ( { model
-                                | outline =
-                                    Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
-                              }
-                            , Cmd.none
-                            )
-
-                        "ArrowRight" ->
-                            ( { model
-                                | outline =
-                                    Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
-                              }
-                            , Cmd.none
-                            )
-
                         _ ->
-                            ( model, Cmd.none )
+                            case ke.ctrl of
+                                True ->
+                                    case ke.key of
+                                        "ArrowLeft" ->
+                                            ( { model
+                                                | outline =
+                                                    Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
+                                              }
+                                            , Cmd.none
+                                            )
+
+                                        "ArrowRight" ->
+                                            ( { model
+                                                | outline =
+                                                    Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
+                                              }
+                                            , Cmd.none
+                                            )
+
+                                        _ ->
+                                            ( model, Cmd.none )
+
+                                False ->
+                                    ( model, Cmd.none )
 
                 NoDoc ->
                     ( model, Cmd.none )
