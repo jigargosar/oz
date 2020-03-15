@@ -380,13 +380,8 @@ appendInPreviousSiblingOfParent doc =
 
 
 prependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
-prependInNextSiblingOfParent doc =
-    case doc |> up |> Maybe.andThen rightId of
-        Just prependTargetId ->
-            moveCurrentToCandidateLocation (PrependIn prependTargetId) doc
-
-        Nothing ->
-            Nothing
+prependInNextSiblingOfParent =
+    moveCurrentToCandidateLocationBy (up >> Maybe.andThen right) PrependIn
 
 
 moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
