@@ -380,6 +380,12 @@ globalKeyEventToUserIntentWhenBrowsing ke =
     else if hotKey "ArrowDown" ke then
         Just NavNext
 
+    else if ctrl "ArrowUp" ke then
+        Just MoveUp
+
+    else if ctrl "ArrowDown" ke then
+        Just MoveDown
+
     else if ctrl "ArrowLeft" ke then
         Just UnIndent
 
