@@ -35,6 +35,7 @@ import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import Maybe.Extra
 import Random exposing (Generator)
 
 
