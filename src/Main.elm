@@ -34,7 +34,7 @@ main =
     Browser.element
         { init = init
         , view = view
-        , update = update
+        , update = updateWrapper
         , subscriptions = subscriptions
         }
 
@@ -439,7 +439,7 @@ update message model =
                                 | outline = OutlineEdit (ozNew newItem oz) newItem.title
                                 , seed = newSeed
                               }
-                            , focusItemTitleEditorCmd
+                            , Cmd.none
                             )
 
                         _ ->
@@ -459,7 +459,7 @@ update message model =
                         | outline = OutlineEdit (ozNew newItem oz) newItem.title
                         , seed = newSeed
                       }
-                    , focusItemTitleEditorCmd
+                    , Cmd.none
                     )
 
                 _ ->
