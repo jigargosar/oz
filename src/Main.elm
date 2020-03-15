@@ -189,7 +189,7 @@ updateWrapper =
                     ( newModel, cmd )
 
                 ( _, Editing _ _ ) ->
-                    ( newModel, Cmd.batch [ cmd, focusItemTitleEditorCmd ] )
+                    ( newModel, Cmd.batch [ cmd, focusTitleEditorCmd ] )
 
                 _ ->
                     ( newModel, cmd )
@@ -447,8 +447,8 @@ ignoreNothing func val =
     func val |> Maybe.withDefault val
 
 
-focusItemTitleEditorCmd : Cmd Msg
-focusItemTitleEditorCmd =
+focusTitleEditorCmd : Cmd Msg
+focusTitleEditorCmd =
     Dom.focus "item-title-editor"
         |> Task.attempt
             (\result ->
