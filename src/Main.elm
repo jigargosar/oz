@@ -361,6 +361,7 @@ type Msg
     | ItemTitleClicked ItemId
     | TitleChanged String
     | New
+    | OnKeyDown KeyEvent
 
 
 cacheOZCmd : OZ -> Cmd msg
@@ -373,6 +374,14 @@ update message model =
     case message of
         NoOp ->
             ( model, Cmd.none )
+
+        OnKeyDown ke ->
+            case model.outline of
+                Outline oz ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         New ->
             case model.outline of
@@ -631,7 +640,22 @@ subscriptions m =
 
             OutlineEdit _ _ ->
                 Sub.none
+        , Browser.Events.onKeyDown (JD.map OnKeyDown keyEventDecoder)
         ]
+
+
+
+-- KEY EVENT
+
+
+type alias KeyEvent =
+    { key : String }
+
+
+keyEventDecoder : Decoder KeyEvent
+keyEventDecoder =
+    JD.succeed KeyEvent
+        |> required "key" JD.string
 
 
 
