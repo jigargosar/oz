@@ -218,7 +218,12 @@ update message model =
         OnKeyDown ke ->
             case model.outline of
                 Browsing doc ->
-                    onKeyDownWhenBrowsing ke doc model
+                    case browsingKeyboardIntent ke of
+                        Just intent ->
+                            onKeyboardIntentWhenBrowsing intent doc model
+
+                        Nothing ->
+                            ( model, Cmd.none )
 
                 NoDoc ->
                     ( model, Cmd.none )
@@ -365,54 +370,76 @@ type KeyboardIntent
     | InsertChild
 
 
-onKeyDownWhenBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
-onKeyDownWhenBrowsing ke doc model =
+browsingKeyboardIntent : KeyEvent -> Maybe KeyboardIntent
+browsingKeyboardIntent ke =
     if hotKey "Enter" ke && not (targetInputOrButton ke) then
-        ( { model | outline = initEdit doc }, Cmd.none )
+        Just EditFocused
 
     else if hotKey "o" ke then
-        ( let
-            ( newDoc, newModel ) =
-                generate (OutlineDoc.addNewLine "" doc) model
-          in
-          { newModel | outline = initEdit newDoc }
-        , Cmd.none
-        )
+        Just InsertChild
 
     else if hotKey "ArrowUp" ke then
-        ( { model
-            | outline =
-                Browsing (ignoreNothing OutlineDoc.goBackward doc)
-          }
-        , Cmd.none
-        )
+        Just GoUp
 
     else if hotKey "ArrowDown" ke then
-        ( { model
-            | outline =
-                Browsing (ignoreNothing OutlineDoc.goForward doc)
-          }
-        , Cmd.none
-        )
+        Just GoDown
 
     else if ctrl "ArrowLeft" ke then
-        ( { model
-            | outline =
-                Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
-          }
-        , Cmd.none
-        )
+        Just UnIndent
 
     else if ctrl "ArrowRight" ke then
-        ( { model
-            | outline =
-                Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
-          }
-        , Cmd.none
-        )
+        Just Indent
 
     else
-        ( model, Cmd.none )
+        Nothing
+
+
+onKeyboardIntentWhenBrowsing : KeyboardIntent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
+onKeyboardIntentWhenBrowsing keyboardIntent doc model =
+    case keyboardIntent of
+        EditFocused ->
+            ( { model | outline = initEdit doc }, Cmd.none )
+
+        GoUp ->
+            ( { model
+                | outline =
+                    Browsing (ignoreNothing OutlineDoc.goBackward doc)
+              }
+            , Cmd.none
+            )
+
+        GoDown ->
+            ( { model
+                | outline =
+                    Browsing (ignoreNothing OutlineDoc.goForward doc)
+              }
+            , Cmd.none
+            )
+
+        UnIndent ->
+            ( { model
+                | outline =
+                    Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
+              }
+            , Cmd.none
+            )
+
+        Indent ->
+            ( { model
+                | outline =
+                    Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
+              }
+            , Cmd.none
+            )
+
+        InsertChild ->
+            ( let
+                ( newDoc, newModel ) =
+                    generate (OutlineDoc.addNewLine "" doc) model
+              in
+              { newModel | outline = initEdit newDoc }
+            , Cmd.none
+            )
 
 
 endEdit : String -> OutlineDoc -> OutlineDoc
