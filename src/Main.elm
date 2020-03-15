@@ -116,7 +116,7 @@ init flags =
             Random.step initialItemGenerator seed0
 
         oz =
-            case JD.decodeValue (JD.nullable OutlineDoc.outlineZipperDecoder) flags.oz of
+            case JD.decodeValue (JD.nullable OutlineDoc.decoder) flags.oz of
                 Ok got ->
                     got
 
@@ -237,7 +237,7 @@ type Msg
 cacheOZOnChangeCmd : OutlineDoc -> OutlineDoc -> Cmd msg
 cacheOZOnChangeCmd oldOZ newOZ =
     if oldOZ /= newOZ then
-        newOZ |> (OutlineDoc.outlineZipperEncoder >> saveOZ)
+        newOZ |> (OutlineDoc.encoder >> saveOZ)
 
     else
         Cmd.none
