@@ -220,10 +220,10 @@ update message model =
                     case ke.key of
                         "Enter" ->
                             ( let
-                                ( newItem, newModel ) =
+                                ( newDoc, newModel ) =
                                     generate (OutlineDoc.addNewLine "" doc) model
                               in
-                              { newModel | outline = Editing newItem "" }
+                              { newModel | outline = Editing newDoc "" }
                             , Cmd.none
                             )
 
@@ -237,10 +237,10 @@ update message model =
             case model.outline of
                 Browsing doc ->
                     ( let
-                        ( newItem, newModel ) =
+                        ( newDoc, newModel ) =
                             generate (OutlineDoc.addNewLine "" doc) model
                       in
-                      { newModel | outline = Editing newItem "" }
+                      { newModel | outline = Editing newDoc "" }
                     , Cmd.none
                     )
 
