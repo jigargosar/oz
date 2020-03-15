@@ -11,6 +11,7 @@ module Forest.Zipper exposing
     , insertAndGoRight
     , insertLeft
     , isLeaf
+    , left
     , mapData
     , prependChildAndFocus
     , remove

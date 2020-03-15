@@ -5,7 +5,7 @@ module OutlineDoc exposing
     , OutlineDoc
     , OutlineNode
     , addNewLine
-    , appendInPrevious
+    , appendInPreviousSibling
     , candidateLocationDecoder
     , candidateLocationEncoder
     , currentId
@@ -340,14 +340,14 @@ moveAfterParent doc =
             Nothing
 
 
-previousId : OutlineDoc -> Maybe ItemId
-previousId =
-    previous >> Maybe.map currentId
+leftId : OutlineDoc -> Maybe ItemId
+leftId =
+    left >> Maybe.map currentId
 
 
-appendInPrevious : OutlineDoc -> Maybe OutlineDoc
-appendInPrevious doc =
-    case previousId doc of
+appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
+appendInPreviousSibling doc =
+    case leftId doc of
         Just id ->
             moveToCandidateLocation (AppendIn id) doc
 
@@ -440,6 +440,11 @@ restructureFocused render =
 previous : OutlineDoc -> Maybe OutlineDoc
 previous =
     mapMaybe Zipper.backward
+
+
+left : OutlineDoc -> Maybe OutlineDoc
+left =
+    mapMaybe Zipper.left
 
 
 next : OutlineDoc -> Maybe OutlineDoc
