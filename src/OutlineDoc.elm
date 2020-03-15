@@ -275,7 +275,7 @@ removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map
         (\oz ->
-            if isBlank (Zipper.data >> .title <| oz) && Zipper.isLeaf oz then
+            if isBlank (oz |> Zipper.data >> .title) && Zipper.isLeaf oz then
                 oz
                     |> withRollback Zipper.remove
 
