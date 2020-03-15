@@ -233,7 +233,7 @@ update message model =
                         "ArrowUp" ->
                             ( { model
                                 | outline =
-                                    Browsing (ignoreNothing OutlineDoc.previous doc)
+                                    Browsing (ignoreNothing OutlineDoc.focusPrevious doc)
                               }
                             , Cmd.none
                             )
@@ -241,7 +241,7 @@ update message model =
                         "ArrowDown" ->
                             ( { model
                                 | outline =
-                                    Browsing (ignoreNothing OutlineDoc.next doc)
+                                    Browsing (ignoreNothing OutlineDoc.focusNext doc)
                               }
                             , Cmd.none
                             )
