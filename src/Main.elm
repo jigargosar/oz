@@ -271,7 +271,7 @@ update message model =
         ItemTitleClicked iid ->
             case model.outline of
                 NoDoc ->
-                    Debug.todo "impl"
+                    Debug.todo "impossible state"
 
                 Browsing doc ->
                     if ozId doc == iid then
@@ -286,7 +286,7 @@ update message model =
                                 ( model, Cmd.none )
 
                 Dragging _ _ ->
-                    Debug.todo "impl"
+                    Debug.todo "impossible state"
 
                 Editing doc title ->
                     ( { model | outline = endEditAndBrowseId iid title doc }, Cmd.none )
