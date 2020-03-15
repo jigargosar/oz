@@ -568,13 +568,13 @@ viewDraggedNode outline =
                 Nothing ->
                     text ""
 
-                Just doc ->
+                Just dndFocusedDoc ->
                     div
                         [ class "fixed no-pe"
                         , style "left" (String.fromFloat xy.x ++ "px")
                         , style "top" (String.fromFloat xy.y ++ "px")
                         ]
-                        [ OutlineDoc.restructureFocused renderDraggedItem doc ]
+                        [ OutlineDoc.restructureFocused renderDraggedItem dndFocusedDoc ]
 
         OutlineEdit _ _ ->
             text ""
