@@ -438,9 +438,9 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             ( { model
                 | outline =
                     Browsing
-                        (doc
-                            |> ignoreNothing
-                                OutlineDoc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
+                        (ignoreNothing
+                            OutlineDoc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
+                            doc
                         )
               }
             , Cmd.none
@@ -450,9 +450,9 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             ( { model
                 | outline =
                     Browsing
-                        (doc
-                            |> ignoreNothing
-                                OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
+                        (ignoreNothing
+                            OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
+                            doc
                         )
               }
             , Cmd.none
