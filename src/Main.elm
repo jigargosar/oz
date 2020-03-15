@@ -305,7 +305,7 @@ update message model =
 
                 Editing doc title ->
                     case
-                        endEditAndStartDragging dragItemId cursor title doc
+                        endEditAndStartDraggingId dragItemId cursor title doc
                     of
                         Just outline ->
                             ( { model | outline = outline }
@@ -408,8 +408,8 @@ endEditAndBrowseId id title =
     endEdit title >> ignoreNothing (OutlineDoc.focusId id) >> Browsing
 
 
-endEditAndStartDragging : ItemId -> Cursor -> String -> OutlineDoc -> Maybe Outline
-endEditAndStartDragging dragId cursor title =
+endEditAndStartDraggingId : ItemId -> Cursor -> String -> OutlineDoc -> Maybe Outline
+endEditAndStartDraggingId dragId cursor title =
     endEdit title >> OutlineDoc.focusId dragId >> Maybe.map (Dragging cursor)
 
 
