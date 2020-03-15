@@ -50,7 +50,7 @@ type alias Model =
 type Outline
     = EmptyOutline
     | Outline OutlineDoc
-    | OutlineDnD Dnd OutlineDoc
+    | OutlineDnD Cursor OutlineDoc
     | OutlineEdit OutlineDoc String
 
 
@@ -58,7 +58,7 @@ type Outline
 -- OUTLINE DRAG AND DROP
 
 
-type alias Dnd =
+type alias Cursor =
     { clientXY : XY
     , offsetXY : XY
     }
@@ -103,12 +103,12 @@ init flags =
 -- DND HELPERS
 
 
-dndDraggedXY : Dnd -> XY
+dndDraggedXY : Cursor -> XY
 dndDraggedXY dnd =
     subtractXY dnd.clientXY dnd.offsetXY
 
 
-dndClosestCandidateLocation : List Beacon -> Dnd -> Maybe CandidateLocation
+dndClosestCandidateLocation : List Beacon -> Cursor -> Maybe CandidateLocation
 dndClosestCandidateLocation beacons dnd =
     let
         draggedXY : XY
@@ -139,7 +139,7 @@ beaconDecoder =
 type Msg
     = NoOp
     | TitleEditorFocusFailed String
-    | Start ItemId Dnd
+    | OnDragStart ItemId Cursor
     | Move XY
     | Stop
     | GotBeacons Value
@@ -289,12 +289,12 @@ update message model =
                     in
                     ( { model | outline = Outline noz }, Cmd.none )
 
-        Start dragItemId dnd ->
+        OnDragStart dragItemId cursor ->
             case model.outline of
                 Outline oz ->
                     case OutlineDoc.gotoItemId dragItemId oz of
                         Just noz ->
-                            ( { model | outline = OutlineDnD dnd noz }
+                            ( { model | outline = OutlineDnD cursor noz }
                             , getBeacons ()
                             )
 
@@ -308,7 +308,7 @@ update message model =
                             |> OutlineDoc.gotoItemId dragItemId
                     of
                         Just noz ->
-                            ( { model | outline = OutlineDnD dnd noz }
+                            ( { model | outline = OutlineDnD cursor noz }
                             , getBeacons ()
                             )
 
@@ -785,7 +785,7 @@ dragEvents : ItemId -> List (Html.Attribute Msg)
 dragEvents itemId =
     [ draggable "true"
     , Event.preventDefaultOn "dragstart"
-        (JD.map2 (\clientXY offsetXY -> Start itemId (Dnd clientXY offsetXY))
+        (JD.map2 (\clientXY offsetXY -> OnDragStart itemId (Cursor clientXY offsetXY))
             clientXYDecoder
             offsetXYDecoder
             |> preventDefault True
