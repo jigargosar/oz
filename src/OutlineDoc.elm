@@ -390,13 +390,8 @@ prependInNextSiblingOfParent doc =
 
 
 moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
-moveAfterNextSibling doc =
-    case rightId doc of
-        Just id ->
-            moveCurrentToCandidateLocation (After id) doc
-
-        Nothing ->
-            Nothing
+moveAfterNextSibling =
+    moveCurrentToCandidateLocationBy right After
 
 
 moveCurrentToCandidateLocationBy :
