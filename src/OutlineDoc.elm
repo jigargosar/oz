@@ -315,40 +315,40 @@ unwrap (OutlineDoc z) =
 
 moveAfterParent : OutlineDoc -> Maybe OutlineDoc
 moveAfterParent =
-    relocateFocused up After
+    relocateFocused After up
 
 
 appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSibling =
-    relocateFocused left AppendIn
+    relocateFocused AppendIn left
 
 
 moveBeforePreviousSibling : OutlineDoc -> Maybe OutlineDoc
 moveBeforePreviousSibling =
-    relocateFocused left Before
+    relocateFocused Before left
 
 
 appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSiblingOfParent =
-    relocateFocused (up >> Maybe.andThen left) AppendIn
+    relocateFocused AppendIn (up >> Maybe.andThen left)
 
 
 prependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 prependInNextSiblingOfParent =
-    relocateFocused (up >> Maybe.andThen right) PrependIn
+    relocateFocused PrependIn (up >> Maybe.andThen right)
 
 
 moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
 moveAfterNextSibling =
-    relocateFocused right After
+    relocateFocused After right
 
 
 relocateFocused :
-    (OutlineDoc -> Maybe OutlineDoc)
-    -> (ItemId -> CandidateLocation)
+    (ItemId -> CandidateLocation)
+    -> (OutlineDoc -> Maybe OutlineDoc)
     -> OutlineDoc
     -> Maybe OutlineDoc
-relocateFocused navigateFunction candidateLocationFunction doc =
+relocateFocused candidateLocationFunction navigateFunction doc =
     case navigateFunction doc |> Maybe.map currentId of
         Just id ->
             moveCurrentToCandidateLocation (candidateLocationFunction id) doc
