@@ -9,8 +9,8 @@ module OutlineDoc exposing
     , candidateLocationEncoder
     , decoder
     , encoder
+    , focusId
     , focusedTitle
-    , gotoItemId
     , itemIdDecoder
     , itemIdEncoder
     , moveToCandidateLocation
@@ -233,14 +233,14 @@ addNewLine title doc =
         |> Random.map (\item -> insertNew item doc)
 
 
-gotoItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
-gotoItemId itemId =
+focusId : ItemId -> OutlineDoc -> Maybe OutlineDoc
+focusId itemId =
     mapMaybe (Zipper.findFirst (propEq .id itemId))
 
 
 restoreFocus : OutlineDoc -> OutlineDoc -> Maybe OutlineDoc
 restoreFocus oldDoc =
-    gotoItemId (ozId oldDoc)
+    focusId (ozId oldDoc)
 
 
 map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
@@ -343,7 +343,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                     -> Maybe OutlineDoc
                 insertHelp targetItemId func doc =
                     doc
-                        |> gotoItemId targetItemId
+                        |> focusId targetItemId
                         >> Maybe.map (map (func node))
             in
             case atLocation of
@@ -360,7 +360,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                     insertHelp itemId Zipper.appendChild
     in
     moveTo candidateLocation
-        >> Maybe.andThen (gotoItemId srcItemId)
+        >> Maybe.andThen (focusId srcItemId)
 
 
 toForest_ : OutlineDoc -> Tree.Forest Item

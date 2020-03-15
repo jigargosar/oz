@@ -278,7 +278,7 @@ update message model =
                         ( { model | outline = Editing oz (ozTitle oz) }, Cmd.none )
 
                     else
-                        case OutlineDoc.gotoItemId iid oz of
+                        case OutlineDoc.focusId iid oz of
                             Just noz ->
                                 ( { model | outline = Browsing noz }, Cmd.none )
 
@@ -289,18 +289,12 @@ update message model =
                     Debug.todo "impl"
 
                 Editing doc title ->
-                    let
-                        noz =
-                            doc
-                                |> endEdit title
-                                |> ignoreNothing (OutlineDoc.gotoItemId iid)
-                    in
-                    ( { model | outline = Browsing noz }, Cmd.none )
+                    ( { model | outline = endEditAndBrowseId iid title doc }, Cmd.none )
 
         OnDragStart dragItemId cursor ->
             case model.outline of
                 Browsing oz ->
-                    case OutlineDoc.gotoItemId dragItemId oz of
+                    case OutlineDoc.focusId dragItemId oz of
                         Just noz ->
                             ( { model | outline = Dragging cursor noz }
                             , getBeacons ()
@@ -313,7 +307,7 @@ update message model =
                     case
                         doc
                             |> endEdit title
-                            |> OutlineDoc.gotoItemId dragItemId
+                            |> OutlineDoc.focusId dragItemId
                     of
                         Just noz ->
                             ( { model | outline = Dragging cursor noz }
@@ -409,6 +403,10 @@ cancelEdit doc =
 endEditAndInitBrowsing : String -> OutlineDoc -> Outline
 endEditAndInitBrowsing title =
     endEdit title >> Browsing
+
+
+endEditAndBrowseId id title =
+    endEdit title >> ignoreNothing (OutlineDoc.focusId id) >> Browsing
 
 
 cancelEditAndInitBrowsing : OutlineDoc -> Outline
