@@ -399,7 +399,7 @@ globalKeyEventToUserIntentWhenBrowsing ke =
 updateWithUserIntentWhenBrowsing : UserIntent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 updateWithUserIntentWhenBrowsing keyboardIntent doc model =
     let
-        maybeSetBrowsingDoc docMF =
+        updateBrowsingDocByMaybeF docMF =
             case docMF doc of
                 Just newDoc ->
                     ( { model | outline = Browsing newDoc }
@@ -410,64 +410,28 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
                     ( model, Cmd.none )
     in
     case keyboardIntent of
-        EditFocused ->
-            ( { model | outline = initEdit doc }, Cmd.none )
-
         NavPrev ->
-            ( { model
-                | outline =
-                    Browsing (ignoreNothing OutlineDoc.goBackward doc)
-              }
-            , Cmd.none
-            )
+            updateBrowsingDocByMaybeF OutlineDoc.goBackward
 
         NavNext ->
-            ( { model
-                | outline =
-                    Browsing (ignoreNothing OutlineDoc.goForward doc)
-              }
-            , Cmd.none
-            )
+            updateBrowsingDocByMaybeF OutlineDoc.goForward
 
         UnIndent ->
-            ( { model
-                | outline =
-                    Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
-              }
-            , Cmd.none
-            )
+            updateBrowsingDocByMaybeF OutlineDoc.moveAfterParent
 
         Indent ->
-            ( { model
-                | outline =
-                    Browsing (ignoreNothing OutlineDoc.appendInPreviousSibling doc)
-              }
-            , Cmd.none
-            )
+            updateBrowsingDocByMaybeF OutlineDoc.appendInPreviousSibling
 
         MoveUp ->
-            ( { model
-                | outline =
-                    Browsing
-                        (ignoreNothing
-                            OutlineDoc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-                            doc
-                        )
-              }
-            , Cmd.none
-            )
+            updateBrowsingDocByMaybeF
+                OutlineDoc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
 
         MoveDown ->
-            ( { model
-                | outline =
-                    Browsing
-                        (ignoreNothing
-                            OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
-                            doc
-                        )
-              }
-            , Cmd.none
-            )
+            updateBrowsingDocByMaybeF
+                OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
+
+        EditFocused ->
+            ( { model | outline = initEdit doc }, Cmd.none )
 
         InsertNewChild ->
             ( let
