@@ -108,8 +108,8 @@ crumbEncoder crumb =
         ]
 
 
-required fieldName decoder =
-    JD.map2 (|>) (JD.field fieldName decoder)
+required fieldName decoder_ =
+    JD.map2 (|>) (JD.field fieldName decoder_)
 
 
 decoder : Decoder OutlineDoc
