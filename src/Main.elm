@@ -1,6 +1,7 @@
 port module Main exposing (main)
 
 import Browser
+import Browser.Dom as Dom
 import Browser.Events
 import Forest
 import Forest.Tree as Tree exposing (Forest, Tree)
@@ -12,6 +13,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Random exposing (Generator, Seed)
 import Random.Extra
+import Task
 
 
 port getBeacons : () -> Cmd msg
@@ -354,6 +356,7 @@ candidateLocationDecoder =
 
 type Msg
     = NoOp
+    | TitleEditorFocusFailed String
     | Start Dnd
     | Move XY
     | Stop
@@ -374,6 +377,9 @@ update message model =
     case message of
         NoOp ->
             ( model, Cmd.none )
+
+        TitleEditorFocusFailed domId ->
+            Debug.todo ("TitleEditorFocusFailed: " ++ domId)
 
         OnKeyDown ke ->
             case model.outline of
@@ -548,6 +554,19 @@ update message model =
 
                 OutlineEdit _ _ ->
                     Debug.todo "impl"
+
+
+focusItemTitleEditorCmd =
+    Dom.focus "item-title-editor"
+        |> Task.attempt
+            (\result ->
+                case result of
+                    Err (Dom.NotFound domId) ->
+                        TitleEditorFocusFailed domId
+
+                    Ok () ->
+                        NoOp
+            )
 
 
 ozSetTitleUnlessBlankOrRemoveIfBlankLeaf : String -> OZ -> OZ
