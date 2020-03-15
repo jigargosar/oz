@@ -4,18 +4,17 @@ module OutlineDoc exposing
     , ItemId
     , OutlineDoc
     , OutlineNode
+    , addNew
     , candidateLocationDecoder
     , candidateLocationEncoder
     , decoder
     , encoder
     , gotoItemId
-    , itemGenerator
     , itemIdDecoder
     , itemIdEncoder
     , moveToCandidateLocation
     , ozId
     , ozItem
-    , ozNew
     , ozSetTitleUnlessBlankOrRemoveIfBlankLeaf
     , ozTitle
     , restoreFocus
@@ -222,9 +221,15 @@ crumbDecoder =
         |> required "right_" (JD.list treeDecoder)
 
 
-ozNew : Item -> OutlineDoc -> OutlineDoc
-ozNew item =
+insertNew : Item -> OutlineDoc -> OutlineDoc
+insertNew item =
     map (Zipper.prependChildAndFocus (Tree.leaf item))
+
+
+addNew : String -> OutlineDoc -> Generator OutlineDoc
+addNew title doc =
+    itemGenerator title
+        |> Random.map (\item -> insertNew item doc)
 
 
 gotoItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc

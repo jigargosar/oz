@@ -216,15 +216,15 @@ update message model =
 
         OnKeyDown ke ->
             case model.outline of
-                Browsing oz ->
+                Browsing doc ->
                     case ke.key of
                         "Enter" ->
                             let
                                 ( newItem, newSeed ) =
-                                    Random.step (OutlineDoc.itemGenerator "") model.seed
+                                    Random.step (OutlineDoc.addNew "" doc) model.seed
                             in
                             ( { model
-                                | outline = Editing (OutlineDoc.ozNew newItem oz) newItem.title
+                                | outline = Editing newItem ""
                                 , seed = newSeed
                               }
                             , Cmd.none
@@ -238,13 +238,13 @@ update message model =
 
         New ->
             case model.outline of
-                Browsing oz ->
+                Browsing doc ->
                     let
                         ( newItem, newSeed ) =
-                            Random.step (OutlineDoc.itemGenerator "") model.seed
+                            Random.step (OutlineDoc.addNew "" doc) model.seed
                     in
                     ( { model
-                        | outline = Editing (OutlineDoc.ozNew newItem oz) newItem.title
+                        | outline = Editing newItem ""
                         , seed = newSeed
                       }
                     , Cmd.none
