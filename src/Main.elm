@@ -336,12 +336,6 @@ update message model =
 
         GotBeacons encodedBeacons ->
             case model.outline of
-                NoDoc ->
-                    Debug.todo "impl"
-
-                Browsing _ ->
-                    Debug.todo "impl"
-
                 Dragging dnd oz ->
                     let
                         beaconsResult =
@@ -369,8 +363,8 @@ update message model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                Editing _ _ ->
-                    Debug.todo "impl"
+                _ ->
+                    Debug.todo "impossible state"
 
 
 endEdit : String -> OutlineDoc -> OutlineDoc
