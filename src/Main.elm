@@ -559,12 +559,12 @@ viewDraggedNode outline =
         Outline _ ->
             text ""
 
-        OutlineDnD dnd oz ->
+        OutlineDnD dnd doc ->
             let
                 xy =
                     dndDraggedXY dnd
             in
-            case OutlineDoc.gotoItemId dnd.dragItemId oz of
+            case OutlineDoc.gotoItemId dnd.dragItemId doc of
                 Nothing ->
                     text ""
 
