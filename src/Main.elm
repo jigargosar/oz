@@ -223,7 +223,7 @@ update message model =
                                 ( newDoc, newModel ) =
                                     generate (OutlineDoc.addNewLine "" doc) model
                               in
-                              { newModel | outline = Editing newDoc "" }
+                              { newModel | outline = initEdit newDoc }
                             , Cmd.none
                             )
 
@@ -240,7 +240,7 @@ update message model =
                         ( newDoc, newModel ) =
                             generate (OutlineDoc.addNewLine "" doc) model
                       in
-                      { newModel | outline = Editing newDoc "" }
+                      { newModel | outline = initEdit newDoc }
                     , Cmd.none
                     )
 
