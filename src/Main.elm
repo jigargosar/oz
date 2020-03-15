@@ -83,26 +83,25 @@ type alias Flags =
     { oz : Value, now : Int }
 
 
+
+{-
+
+   initialItemGenerator : Generator (List Item)
+   initialItemGenerator =
+               [ "Quick Brown Fox Jumped Over The Lazy Dog"
+               , "Take Notes"
+               , "Thou shall not experiment with experiments"
+               , "Watch Movies"
+               , "Run the mill"
+               ]
+                   |> List.map OutlineDoc.itemGenerator
+                   |> Random.Extra.combine
+-}
+
+
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
-        initialItemGenerator : Generator (List Item)
-        initialItemGenerator =
-            [ "Quick Brown Fox Jumped Over The Lazy Dog"
-            , "Take Notes"
-            , "Thou shall not experiment with experiments"
-            , "Watch Movies"
-            , "Run the mill"
-            ]
-                |> List.map OutlineDoc.itemGenerator
-                |> Random.Extra.combine
-
-        seed0 =
-            Random.initialSeed flags.now
-
-        ( initialItems, seed1 ) =
-            Random.step initialItemGenerator seed0
-
         oz =
             case JD.decodeValue (JD.nullable OutlineDoc.decoder) flags.oz of
                 Ok got ->
@@ -113,7 +112,7 @@ init flags =
                         |> always Nothing
     in
     ( { outline = Maybe.map Outline oz |> Maybe.withDefault EmptyOutline
-      , seed = seed1
+      , seed = Random.initialSeed flags.now
       }
     , Cmd.none
     )
