@@ -311,7 +311,7 @@ update message model =
                     case
                         doc
                             |> OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title
-                            |> OutlineDoc.restoreFocus doc
+                            |> OutlineDoc.gotoItemId dragItemId
                     of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
