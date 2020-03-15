@@ -367,7 +367,7 @@ type UserIntent
     | NavNext
     | UnIndent
     | Indent
-    | InsertChild
+    | InsertNewChild
 
 
 browsingKeyboardIntent : KeyEvent -> Maybe UserIntent
@@ -376,7 +376,7 @@ browsingKeyboardIntent ke =
         Just EditFocused
 
     else if hotKey "o" ke then
-        Just InsertChild
+        Just InsertNewChild
 
     else if hotKey "ArrowUp" ke then
         Just NavPrev
@@ -432,7 +432,7 @@ updateWithKeyboardIntentWhenBrowsing keyboardIntent doc model =
             , Cmd.none
             )
 
-        InsertChild ->
+        InsertNewChild ->
             ( let
                 ( newDoc, newModel ) =
                     generate (OutlineDoc.addNewLine "" doc) model
