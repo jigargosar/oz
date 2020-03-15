@@ -381,7 +381,7 @@ update message model =
 
 initEdit : OutlineDoc -> Outline
 initEdit doc =
-    Editing doc (OutlineDoc.currentTitle doc)
+    Editing doc (OutlineDoc.focusedTitle doc)
 
 
 generate : Generator a -> Model -> ( a, Model )
