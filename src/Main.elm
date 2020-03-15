@@ -430,6 +430,9 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             updateBrowsingDocByMaybeF
                 OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
 
+        FocusId id ->
+            updateBrowsingDocByMaybeF (OutlineDoc.focusId id)
+
         EditFocused ->
             ( { model | outline = initEdit doc }, Cmd.none )
 
@@ -441,14 +444,6 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
               { newModel | outline = initEdit newDoc }
             , Cmd.none
             )
-
-        FocusId id ->
-            OutlineDoc.focusId id doc
-                |> Maybe.map
-                    (\focusedDoc ->
-                        ( { model | outline = Browsing focusedDoc }, Cmd.none )
-                    )
-                |> Maybe.withDefault ( model, Cmd.none )
 
 
 endEdit : String -> OutlineDoc -> OutlineDoc
