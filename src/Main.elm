@@ -361,16 +361,16 @@ update message model =
                     Debug.todo "impossible state"
 
 
-type KeyboardIntent
+type UserIntent
     = EditFocused
-    | GoUp
-    | GoDown
+    | NavPrev
+    | NavNext
     | UnIndent
     | Indent
     | InsertChild
 
 
-browsingKeyboardIntent : KeyEvent -> Maybe KeyboardIntent
+browsingKeyboardIntent : KeyEvent -> Maybe UserIntent
 browsingKeyboardIntent ke =
     if hotKey "Enter" ke && not (targetInputOrButton ke) then
         Just EditFocused
@@ -379,10 +379,10 @@ browsingKeyboardIntent ke =
         Just InsertChild
 
     else if hotKey "ArrowUp" ke then
-        Just GoUp
+        Just NavPrev
 
     else if hotKey "ArrowDown" ke then
-        Just GoDown
+        Just NavNext
 
     else if ctrl "ArrowLeft" ke then
         Just UnIndent
@@ -394,13 +394,13 @@ browsingKeyboardIntent ke =
         Nothing
 
 
-updateWithKeyboardIntentWhenBrowsing : KeyboardIntent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
+updateWithKeyboardIntentWhenBrowsing : UserIntent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 updateWithKeyboardIntentWhenBrowsing keyboardIntent doc model =
     case keyboardIntent of
         EditFocused ->
             ( { model | outline = initEdit doc }, Cmd.none )
 
-        GoUp ->
+        NavPrev ->
             ( { model
                 | outline =
                     Browsing (ignoreNothing OutlineDoc.goBackward doc)
@@ -408,7 +408,7 @@ updateWithKeyboardIntentWhenBrowsing keyboardIntent doc model =
             , Cmd.none
             )
 
-        GoDown ->
+        NavNext ->
             ( { model
                 | outline =
                     Browsing (ignoreNothing OutlineDoc.goForward doc)
