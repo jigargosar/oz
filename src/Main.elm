@@ -328,17 +328,11 @@ update message model =
 
         Stop ->
             case model.outline of
-                NoDoc ->
-                    Debug.todo "impl"
-
-                Browsing _ ->
-                    Debug.todo "impl"
-
                 Dragging _ oz ->
                     ( { model | outline = Browsing oz }, Cmd.none )
 
-                Editing _ _ ->
-                    Debug.todo "impl"
+                _ ->
+                    Debug.todo "impossible state"
 
         GotBeacons encodedBeacons ->
             case model.outline of
