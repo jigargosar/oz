@@ -329,16 +329,6 @@ parentId =
     up >> Maybe.map currentId
 
 
-moveAfterParent : OutlineDoc -> Maybe OutlineDoc
-moveAfterParent doc =
-    case parentId doc of
-        Just pid ->
-            moveCurrentToCandidateLocation (After pid) doc
-
-        Nothing ->
-            Nothing
-
-
 leftId : OutlineDoc -> Maybe ItemId
 leftId =
     left >> Maybe.map currentId
@@ -347,6 +337,16 @@ leftId =
 rightId : OutlineDoc -> Maybe ItemId
 rightId =
     right >> Maybe.map currentId
+
+
+moveAfterParent : OutlineDoc -> Maybe OutlineDoc
+moveAfterParent doc =
+    case parentId doc of
+        Just pid ->
+            moveCurrentToCandidateLocation (After pid) doc
+
+        Nothing ->
+            Nothing
 
 
 appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
