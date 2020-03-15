@@ -49,7 +49,7 @@ type alias Model =
 
 
 type Outline
-    = LookingAtBlankDoc
+    = NoDoc
     | Browsing OutlineDoc
     | Dragging Cursor OutlineDoc
     | Editing OutlineDoc String
@@ -93,7 +93,7 @@ init flags =
                     Debug.log "oz" (JD.errorToString err)
                         |> always Nothing
     in
-    ( { outline = Maybe.map Browsing oz |> Maybe.withDefault LookingAtBlankDoc
+    ( { outline = Maybe.map Browsing oz |> Maybe.withDefault NoDoc
       , seed = Random.initialSeed flags.now
       }
     , Cmd.none
@@ -162,7 +162,7 @@ cacheDocIfChanged oldOZ newOZ =
 outlineToDoc : Outline -> Maybe OutlineDoc
 outlineToDoc outline =
     case outline of
-        LookingAtBlankDoc ->
+        NoDoc ->
             Nothing
 
         Browsing oz ->
@@ -225,7 +225,7 @@ update message model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                LookingAtBlankDoc ->
+                NoDoc ->
                     ( model, Cmd.none )
 
                 Dragging _ _ ->
@@ -258,7 +258,7 @@ update message model =
 
         ItemTitleClicked iid ->
             case model.outline of
-                LookingAtBlankDoc ->
+                NoDoc ->
                     Debug.todo "impossible state"
 
                 Browsing doc ->
@@ -531,7 +531,7 @@ subscriptions : Model -> Sub Msg
 subscriptions m =
     Sub.batch
         [ case m.outline of
-            LookingAtBlankDoc ->
+            NoDoc ->
                 Sub.none
 
             Browsing _ ->
@@ -651,7 +651,7 @@ viewOutline outline =
 outlineToHtmlList : Outline -> LHM
 outlineToHtmlList outline =
     case outline of
-        LookingAtBlankDoc ->
+        NoDoc ->
             []
 
         Browsing doc ->
@@ -706,7 +706,7 @@ outlineToHtmlList outline =
 viewDraggedNode : Outline -> Html Msg
 viewDraggedNode outline =
     case outline of
-        LookingAtBlankDoc ->
+        NoDoc ->
             text ""
 
         Browsing _ ->
