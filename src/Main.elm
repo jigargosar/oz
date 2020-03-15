@@ -378,7 +378,21 @@ update message model =
         OnKeyDown ke ->
             case model.outline of
                 Outline oz ->
-                    ( model, Cmd.none )
+                    case ke.key of
+                        "Enter" ->
+                            let
+                                ( newItem, newSeed ) =
+                                    Random.step (itemGenerator "") model.seed
+                            in
+                            ( { model
+                                | outline = OutlineEdit (ozNew newItem oz) newItem.title
+                                , seed = newSeed
+                              }
+                            , Cmd.none
+                            )
+
+                        _ ->
+                            ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
