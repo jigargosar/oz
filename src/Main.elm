@@ -519,6 +519,7 @@ type alias KeyEvent =
     , shift : Bool
     , alt : Bool
     , meta : Bool
+    , targetTagName : String
     }
 
 
@@ -530,6 +531,7 @@ keyEventDecoder =
         |> requiredBool "shiftKey"
         |> requiredBool "altKey"
         |> requiredBool "metaKey"
+        |> requiredAt [ "target", "tagName" ] JD.string
 
 
 hotKey : String -> KeyEvent -> Bool
@@ -545,6 +547,11 @@ ctrl name ke =
 required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
 required name decoder_ =
     JD.map2 (|>) (JD.field name decoder_)
+
+
+requiredAt : List String -> Decoder a -> Decoder (a -> b) -> Decoder b
+requiredAt path decoder_ =
+    JD.map2 (|>) (JD.at path decoder_)
 
 
 requiredBool name =
