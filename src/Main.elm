@@ -358,7 +358,10 @@ update message model =
 
 onKeyDownWhenBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 onKeyDownWhenBrowsing ke doc model =
-    if hotKey "Enter" ke then
+    if List.member ke.targetTagName [ "INPUT", "BUTTON" ] then
+        ( model, Cmd.none )
+
+    else if hotKey "Enter" ke then
         ( { model | outline = initEdit doc }, Cmd.none )
 
     else if hotKey "o" ke then
