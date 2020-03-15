@@ -83,22 +83,6 @@ type alias Flags =
     { oz : Value, now : Int }
 
 
-
-{-
-
-   initialItemGenerator : Generator (List Item)
-   initialItemGenerator =
-               [ "Quick Brown Fox Jumped Over The Lazy Dog"
-               , "Take Notes"
-               , "Thou shall not experiment with experiments"
-               , "Watch Movies"
-               , "Run the mill"
-               ]
-                   |> List.map OutlineDoc.itemGenerator
-                   |> Random.Extra.combine
--}
-
-
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
