@@ -358,10 +358,7 @@ update message model =
 
 onKeyDownWhenBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 onKeyDownWhenBrowsing ke doc model =
-    if List.member ke.targetTagName [ "INPUT", "BUTTON" ] then
-        ( model, Cmd.none )
-
-    else if hotKey "Enter" ke then
+    if hotKey "Enter" ke && not (targetInputOrButton ke) then
         ( { model | outline = initEdit doc }, Cmd.none )
 
     else if hotKey "o" ke then
@@ -549,6 +546,11 @@ hotKey name ke =
 ctrl : String -> KeyEvent -> Bool
 ctrl name ke =
     ke.key == name && ke.ctrl && not (ke.shift || ke.alt || ke.meta)
+
+
+targetInputOrButton : KeyEvent -> Bool
+targetInputOrButton ke =
+    not (List.member ke.targetTagName [ "INPUT", "BUTTON" ])
 
 
 required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
