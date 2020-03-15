@@ -241,7 +241,7 @@ update message model =
                         "ArrowDown" ->
                             ( { model
                                 | outline =
-                                    Browsing (ignoreNothing OutlineDoc.backward doc)
+                                    Browsing (ignoreNothing OutlineDoc.forward doc)
                               }
                             , Cmd.none
                             )
