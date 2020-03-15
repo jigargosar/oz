@@ -1,4 +1,4 @@
-module OutlineZipper exposing (Item, ItemId, OZ, OutlineNode, itemGenerator, itemIdDecoder, itemIdEncoder, outlineZipperDecoder, outlineZipperEncoder)
+module OutlineDoc exposing (Item, ItemId, OutlineDoc, OutlineNode, itemGenerator, itemIdDecoder, itemIdEncoder, outlineZipperDecoder, outlineZipperEncoder)
 
 import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
@@ -59,11 +59,11 @@ type alias OutlineForest =
     List OutlineNode
 
 
-type alias OZ =
+type alias OutlineDoc =
     ForestZipper Item
 
 
-outlineZipperEncoder : OZ -> Value
+outlineZipperEncoder : OutlineDoc -> Value
 outlineZipperEncoder outlineZipper =
     JE.object
         [ ( "leftReversed", JE.list itemTreeEncoder outlineZipper.leftReversed )
@@ -102,7 +102,7 @@ required fieldName decoder =
     JD.map2 (|>) (JD.field fieldName decoder)
 
 
-outlineZipperDecoder : Decoder OZ
+outlineZipperDecoder : Decoder OutlineDoc
 outlineZipperDecoder =
     JD.succeed ForestZipper
         |> required "leftReversed" (JD.list treeDecoder)

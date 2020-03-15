@@ -11,7 +11,7 @@ import Html.Attributes as A exposing (attribute, class, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import OutlineZipper exposing (Item, ItemId, OZ, OutlineNode)
+import OutlineDoc exposing (Item, ItemId, OutlineDoc, OutlineNode)
 import Random exposing (Generator, Seed)
 import Random.Extra
 import Task
@@ -52,9 +52,9 @@ type alias Model =
 
 type Outline
     = EmptyOutline
-    | Outline OZ
-    | OutlineDnD Dnd OZ
-    | OutlineEdit OZ String
+    | Outline OutlineDoc
+    | OutlineDnD Dnd OutlineDoc
+    | OutlineEdit OutlineDoc String
 
 
 
@@ -106,7 +106,7 @@ init flags =
             , "Watch Movies"
             , "Run the mill"
             ]
-                |> List.map OutlineZipper.itemGenerator
+                |> List.map OutlineDoc.itemGenerator
                 |> Random.Extra.combine
 
         seed0 =
@@ -119,7 +119,7 @@ init flags =
             initialItems |> List.map (\item -> Tree.leaf item)
 
         oz =
-            case JD.decodeValue (JD.nullable OutlineZipper.outlineZipperDecoder) flags.oz of
+            case JD.decodeValue (JD.nullable OutlineDoc.outlineZipperDecoder) flags.oz of
                 Ok got ->
                     case got of
                         Nothing ->
@@ -179,7 +179,7 @@ candidateLocationEncoder candidateLocation =
         encodeHelp tagName itemId =
             JE.object
                 [ ( "tag", JE.string tagName )
-                , ( "id", OutlineZipper.itemIdEncoder itemId )
+                , ( "id", OutlineDoc.itemIdEncoder itemId )
                 ]
     in
     case candidateLocation of
@@ -201,7 +201,7 @@ candidateLocationDecoder =
     let
         decodeHelp : (ItemId -> CandidateLocation) -> Decoder CandidateLocation
         decodeHelp tag =
-            JD.field "id" OutlineZipper.itemIdDecoder
+            JD.field "id" OutlineDoc.itemIdDecoder
                 |> JD.map tag
 
         tagDecoder : String -> Decoder CandidateLocation
@@ -242,16 +242,16 @@ type Msg
     | OnKeyDown KeyEvent
 
 
-cacheOZOnChangeCmd : OZ -> OZ -> Cmd msg
+cacheOZOnChangeCmd : OutlineDoc -> OutlineDoc -> Cmd msg
 cacheOZOnChangeCmd oldOZ newOZ =
     if oldOZ /= newOZ then
-        newOZ |> (OutlineZipper.outlineZipperEncoder >> saveOZ)
+        newOZ |> (OutlineDoc.outlineZipperEncoder >> saveOZ)
 
     else
         Cmd.none
 
 
-outlineToOZ : Outline -> Maybe OZ
+outlineToOZ : Outline -> Maybe OutlineDoc
 outlineToOZ outline =
     case outline of
         EmptyOutline ->
@@ -314,7 +314,7 @@ update message model =
                         "Enter" ->
                             let
                                 ( newItem, newSeed ) =
-                                    Random.step (OutlineZipper.itemGenerator "") model.seed
+                                    Random.step (OutlineDoc.itemGenerator "") model.seed
                             in
                             ( { model
                                 | outline = OutlineEdit (ozNew newItem oz) newItem.title
@@ -334,7 +334,7 @@ update message model =
                 Outline oz ->
                     let
                         ( newItem, newSeed ) =
-                            Random.step (OutlineZipper.itemGenerator "") model.seed
+                            Random.step (OutlineDoc.itemGenerator "") model.seed
                     in
                     ( { model
                         | outline = OutlineEdit (ozNew newItem oz) newItem.title
@@ -496,7 +496,7 @@ focusItemTitleEditorCmd =
             )
 
 
-ozSetTitleUnlessBlankOrRemoveIfBlankLeaf : String -> OZ -> OZ
+ozSetTitleUnlessBlankOrRemoveIfBlankLeaf : String -> OutlineDoc -> OutlineDoc
 ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz =
     if isBlank title then
         if Zipper.isLeaf oz then
@@ -519,17 +519,17 @@ withRollback func oz =
     func oz |> Maybe.withDefault oz
 
 
-ozTitle : OZ -> String
+ozTitle : OutlineDoc -> String
 ozTitle =
     ozItem >> .title
 
 
-ozItem : OZ -> Item
+ozItem : OutlineDoc -> Item
 ozItem =
     Zipper.data
 
 
-ozId : OZ -> ItemId
+ozId : OutlineDoc -> ItemId
 ozId =
     ozItem >> .id
 
@@ -539,25 +539,25 @@ ozNew item oz =
     Zipper.prependChildAndFocus (Tree.leaf item) oz
 
 
-ozSetTitle : String -> OZ -> OZ
+ozSetTitle : String -> OutlineDoc -> OutlineDoc
 ozSetTitle title =
     Zipper.mapData (\item -> { item | title = title })
 
 
-gotoItemId : ItemId -> OZ -> Maybe OZ
+gotoItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 gotoItemId itemId =
     Zipper.findFirst (propEq .id itemId)
 
 
-moveItemWithIdToCandidateLocation : ItemId -> CandidateLocation -> OZ -> Maybe OZ
+moveItemWithIdToCandidateLocation : ItemId -> CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 moveItemWithIdToCandidateLocation srcItemId candidateLocation =
     let
-        moveTo : CandidateLocation -> OZ -> Maybe OZ
+        moveTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
         moveTo atLocation zipper =
             Zipper.remove zipper
                 |> Maybe.andThen (insertRemovedNodeAtLocation atLocation zipper.center)
 
-        insertRemovedNodeAtLocation : CandidateLocation -> OutlineNode -> OZ -> Maybe OZ
+        insertRemovedNodeAtLocation : CandidateLocation -> OutlineNode -> OutlineDoc -> Maybe OutlineDoc
         insertRemovedNodeAtLocation atLocation node =
             let
                 insertHelp targetItemId func =
