@@ -362,6 +362,8 @@ type UserIntent
     | UnIndent
     | Indent
     | InsertNewChild
+    | MoveUp
+    | MoveDown
 
 
 globalKeyEventToUserIntentWhenBrowsing : KeyEvent -> Maybe UserIntent
@@ -425,6 +427,12 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
               }
             , Cmd.none
             )
+
+        MoveUp ->
+            ( model, Cmd.none )
+
+        MoveDown ->
+            ( model, Cmd.none )
 
         InsertNewChild ->
             ( let
