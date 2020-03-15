@@ -609,18 +609,6 @@ requiredString name =
     required name JD.string
 
 
-failWhen : (a -> Bool) -> Decoder a -> Decoder a
-failWhen pred =
-    JD.andThen
-        (\val ->
-            if pred val then
-                JD.fail "failWhen pred matched"
-
-            else
-                JD.succeed val
-        )
-
-
 
 -- View
 
