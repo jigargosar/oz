@@ -291,9 +291,6 @@ update message model =
 
         Start dragItemId dnd ->
             case model.outline of
-                EmptyOutline ->
-                    Debug.todo "impl"
-
                 Outline oz ->
                     case OutlineDoc.gotoItemId dragItemId oz of
                         Just noz ->
@@ -303,9 +300,6 @@ update message model =
 
                         Nothing ->
                             ( model, Cmd.none )
-
-                OutlineDnD _ _ ->
-                    Debug.todo "impl"
 
                 OutlineEdit doc title ->
                     case
@@ -320,6 +314,9 @@ update message model =
 
                         Nothing ->
                             ( model, Cmd.none )
+
+                _ ->
+                    Debug.todo "impl"
 
         Move clientXY ->
             case model.outline of
