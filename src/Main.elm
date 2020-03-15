@@ -236,14 +236,11 @@ update message model =
         New ->
             case model.outline of
                 Browsing doc ->
-                    let
-                        ( newItem, newSeed ) =
-                            Random.step (OutlineDoc.addNewLine "" doc) model.seed
-                    in
-                    ( { model
-                        | outline = Editing newItem ""
-                        , seed = newSeed
-                      }
+                    ( let
+                        ( newItem, newModel ) =
+                            generate (OutlineDoc.addNewLine "" doc) model
+                      in
+                      { newModel | outline = Editing newItem "" }
                     , Cmd.none
                     )
 
