@@ -11,7 +11,6 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc exposing (CandidateLocation(..), Item, ItemId, OutlineDoc, OutlineNode)
 import Random exposing (Generator, Seed)
-import Set
 import Task
 
 
