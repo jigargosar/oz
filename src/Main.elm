@@ -288,12 +288,11 @@ update message model =
                 Dragging _ _ ->
                     Debug.todo "impl"
 
-                Editing oz title ->
+                Editing doc title ->
                     let
                         noz =
-                            oz
-                                |> OutlineDoc.setTitleUnlessBlank title
-                                |> OutlineDoc.removeIfBlankLeaf
+                            doc
+                                |> endEdit title
                                 |> ignoreNothing (OutlineDoc.gotoItemId iid)
                     in
                     ( { model | outline = Browsing noz }, Cmd.none )
