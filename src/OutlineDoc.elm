@@ -24,7 +24,6 @@ module OutlineDoc exposing
     , moveCurrentToCandidateLocation
     , prependInNextSiblingOfParent
     , removeIfBlankLeaf
-    , restoreFocus
     , restructure
     , restructureFocused
     , setTitleUnlessBlank
@@ -35,7 +34,6 @@ import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Maybe.Extra
 import Random exposing (Generator)
 
 
@@ -246,11 +244,6 @@ focusId itemId =
     mapMaybe (Zipper.findFirst (propEq .id itemId))
 
 
-restoreFocus : OutlineDoc -> OutlineDoc -> Maybe OutlineDoc
-restoreFocus oldDoc =
-    focusId (currentId oldDoc)
-
-
 map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
 map func (OutlineDoc z) =
     func z |> OutlineDoc
@@ -325,29 +318,9 @@ unwrap (OutlineDoc z) =
     z
 
 
-parentId : OutlineDoc -> Maybe ItemId
-parentId =
-    up >> Maybe.map currentId
-
-
-leftId : OutlineDoc -> Maybe ItemId
-leftId =
-    left >> Maybe.map currentId
-
-
-rightId : OutlineDoc -> Maybe ItemId
-rightId =
-    right >> Maybe.map currentId
-
-
 moveAfterParent : OutlineDoc -> Maybe OutlineDoc
-moveAfterParent doc =
-    case parentId doc of
-        Just pid ->
-            moveCurrentToCandidateLocation (After pid) doc
-
-        Nothing ->
-            Nothing
+moveAfterParent =
+    relocateFocusedBy up After
 
 
 appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
