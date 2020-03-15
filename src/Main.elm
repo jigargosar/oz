@@ -218,7 +218,7 @@ update message model =
         OnKeyDown ke ->
             case model.outline of
                 Browsing doc ->
-                    case browsingKeyboardIntent ke of
+                    case keyEventToUserIntentWhenBrowsing ke of
                         Just intent ->
                             updateWithKeyboardIntentWhenBrowsing intent doc model
 
@@ -370,8 +370,8 @@ type UserIntent
     | InsertNewChild
 
 
-browsingKeyboardIntent : KeyEvent -> Maybe UserIntent
-browsingKeyboardIntent ke =
+keyEventToUserIntentWhenBrowsing : KeyEvent -> Maybe UserIntent
+keyEventToUserIntentWhenBrowsing ke =
     if hotKey "Enter" ke && not (targetInputOrButton ke) then
         Just EditFocused
 
