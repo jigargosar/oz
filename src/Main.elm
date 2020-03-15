@@ -413,11 +413,7 @@ updateWrapper =
                     ( newModel, cmd )
 
         persistModelOnChange oldModel ( newModel, cmd ) =
-            if oldModel.outline /= newModel.outline then
-                ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd newModel.outline ] )
-
-            else
-                ( newModel, cmd )
+            ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd oldModel.outline newModel.outline ] )
 
         helper message model =
             update message model
@@ -490,12 +486,12 @@ update message model =
 
                 Outline oz ->
                     if ozId oz == iid then
-                        ( { model | outline = OutlineEdit oz (ozTitle oz) }, cacheOZOnChangeCmd oz )
+                        ( { model | outline = OutlineEdit oz (ozTitle oz) }, Cmd.none )
 
                     else
                         case gotoItemId iid oz of
                             Just noz ->
-                                ( { model | outline = Outline noz }, cacheOZOnChangeCmd noz )
+                                ( { model | outline = Outline noz }, Cmd.none )
 
                             Nothing ->
                                 ( model, Cmd.none )
@@ -509,7 +505,7 @@ update message model =
                             ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title oz
                                 |> withRollback (gotoItemId iid)
                     in
-                    ( { model | outline = Outline noz }, cacheOZOnChangeCmd noz )
+                    ( { model | outline = Outline noz }, Cmd.none )
 
         Start dnd ->
             case model.outline of
@@ -520,7 +516,7 @@ update message model =
                     case gotoItemId dnd.dragItemId oz of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
-                            , Cmd.batch [ cacheOZOnChangeCmd noz, getBeacons () ]
+                            , getBeacons ()
                             )
 
                         Nothing ->
@@ -537,7 +533,7 @@ update message model =
                     of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
-                            , Cmd.batch [ cacheOZOnChangeCmd noz, getBeacons () ]
+                            , getBeacons ()
                             )
 
                         Nothing ->
@@ -602,7 +598,7 @@ update message model =
                     in
                     case maybeNoz of
                         Just noz ->
-                            ( { model | outline = OutlineDnD dnd noz }, cacheOZOnChangeCmd noz )
+                            ( { model | outline = OutlineDnD dnd noz }, Cmd.none )
 
                         Nothing ->
                             ( model, Cmd.none )
