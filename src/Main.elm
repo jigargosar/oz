@@ -220,7 +220,7 @@ update message model =
                 Browsing doc ->
                     case browsingKeyboardIntent ke of
                         Just intent ->
-                            onKeyboardIntentWhenBrowsing intent doc model
+                            updateWithKeyboardIntentWhenBrowsing intent doc model
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -394,8 +394,8 @@ browsingKeyboardIntent ke =
         Nothing
 
 
-onKeyboardIntentWhenBrowsing : KeyboardIntent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
-onKeyboardIntentWhenBrowsing keyboardIntent doc model =
+updateWithKeyboardIntentWhenBrowsing : KeyboardIntent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
+updateWithKeyboardIntentWhenBrowsing keyboardIntent doc model =
     case keyboardIntent of
         EditFocused ->
             ( { model | outline = initEdit doc }, Cmd.none )
