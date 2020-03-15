@@ -356,6 +356,15 @@ update message model =
                     Debug.todo "impossible state"
 
 
+type KeyboardIntent
+    = EditFocused
+    | GoUp
+    | GoDown
+    | UnIndent
+    | Indent
+    | InsertChild
+
+
 onKeyDownWhenBrowsing : KeyEvent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
 onKeyDownWhenBrowsing ke doc model =
     if hotKey "Enter" ke && not (targetInputOrButton ke) then
