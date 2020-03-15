@@ -13,8 +13,8 @@ module OutlineDoc exposing
     , decoder
     , encoder
     , focusId
-    , focusNext
-    , focusPrevious
+    , goBackward
+    , goForward
     , itemIdDecoder
     , itemIdEncoder
     , moveAfterParent
@@ -437,8 +437,8 @@ restructureFocused render =
     currentTree_ >> Tree.restructure identity render
 
 
-focusPrevious : OutlineDoc -> Maybe OutlineDoc
-focusPrevious =
+goBackward : OutlineDoc -> Maybe OutlineDoc
+goBackward =
     mapMaybe Zipper.backward
 
 
@@ -447,6 +447,6 @@ left =
     mapMaybe Zipper.left
 
 
-focusNext : OutlineDoc -> Maybe OutlineDoc
-focusNext =
+goForward : OutlineDoc -> Maybe OutlineDoc
+goForward =
     mapMaybe Zipper.forward
