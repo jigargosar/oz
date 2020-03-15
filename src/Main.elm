@@ -11,6 +11,7 @@ import Html.Attributes as A exposing (attribute, class, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import OutlineZipper exposing (Item, ItemId, OZ, OutlineNode)
 import Random exposing (Generator, Seed)
 import Random.Extra
 import Task
@@ -54,94 +55,6 @@ type Outline
     | Outline OZ
     | OutlineDnD Dnd OZ
     | OutlineEdit OZ String
-
-
-type alias Item =
-    { id : ItemId
-    , title : String
-    }
-
-
-type alias OutlineNode =
-    Tree Item
-
-
-type alias OutlineForest =
-    List OutlineNode
-
-
-type alias OZ =
-    ForestZipper Item
-
-
-outlineZipperEncoder : OZ -> Value
-outlineZipperEncoder outlineZipper =
-    JE.object
-        [ ( "leftReversed", JE.list itemTreeEncoder outlineZipper.leftReversed )
-        , ( "center", itemTreeEncoder outlineZipper.center )
-        , ( "right_", JE.list itemTreeEncoder outlineZipper.right_ )
-        , ( "crumbs", JE.list crumbEncoder outlineZipper.crumbs )
-        ]
-
-
-itemTreeEncoder : Tree Item -> Value
-itemTreeEncoder tree =
-    JE.object
-        [ ( "item", itemEncoder (Tree.data tree) )
-        , ( "children", JE.list itemTreeEncoder (Tree.children tree) )
-        ]
-
-
-itemEncoder : Item -> Value
-itemEncoder item =
-    JE.object
-        [ ( "id", itemIdEncoder item.id )
-        , ( "title", JE.string item.title )
-        ]
-
-
-crumbEncoder : Zipper.Crumb Item -> Value
-crumbEncoder crumb =
-    JE.object
-        [ ( "leftReversed", JE.list itemTreeEncoder crumb.leftReversed )
-        , ( "datum", itemEncoder crumb.datum )
-        , ( "right_", JE.list itemTreeEncoder crumb.right_ )
-        ]
-
-
-required fieldName decoder =
-    JD.map2 (|>) (JD.field fieldName decoder)
-
-
-outlineZipperDecoder : Decoder OZ
-outlineZipperDecoder =
-    JD.succeed ForestZipper
-        |> required "leftReversed" (JD.list treeDecoder)
-        |> required "center" treeDecoder
-        |> required "right_" (JD.list treeDecoder)
-        |> required "crumbs" (JD.list crumbDecoder)
-
-
-treeDecoder : Decoder OutlineNode
-treeDecoder =
-    JD.succeed Tree.tree
-        |> required "item" itemDecoder
-        |> required "children" (JD.list (JD.lazy (\_ -> treeDecoder)))
-
-
-itemDecoder : Decoder Item
-itemDecoder =
-    JD.succeed Item
-        |> required "id" itemIdDecoder
-        |> required "title" JD.string
-
-
-crumbDecoder : Decoder (Zipper.Crumb Item)
-crumbDecoder =
-    JD.succeed Zipper.Crumb
-        |> required "leftReversed" (JD.list treeDecoder)
-        |> required "datum" itemDecoder
-        |> required "right_" (JD.list treeDecoder)
 
 
 
@@ -193,7 +106,7 @@ init flags =
             , "Watch Movies"
             , "Run the mill"
             ]
-                |> List.map itemGenerator
+                |> List.map OutlineZipper.itemGenerator
                 |> Random.Extra.combine
 
         seed0 =
@@ -206,7 +119,7 @@ init flags =
             initialItems |> List.map (\item -> Tree.leaf item)
 
         oz =
-            case JD.decodeValue (JD.nullable outlineZipperDecoder) flags.oz of
+            case JD.decodeValue (JD.nullable OutlineZipper.outlineZipperDecoder) flags.oz of
                 Ok got ->
                     case got of
                         Nothing ->
@@ -224,44 +137,6 @@ init flags =
       }
     , Cmd.none
     )
-
-
-
--- ITEM HELPERS
-
-
-type ItemId
-    = ItemId String
-
-
-itemGenerator : String -> Generator Item
-itemGenerator title =
-    itemIdGen
-        |> Random.map (\id -> { id = id, title = title })
-
-
-itemIdGen : Generator ItemId
-itemIdGen =
-    Random.int 10000 Random.maxInt
-        |> Random.map (String.fromInt >> (++) "item-id-" >> ItemId)
-
-
-itemIdEncoder : ItemId -> Value
-itemIdEncoder (ItemId string) =
-    JE.string string
-
-
-itemIdDecoder : Decoder ItemId
-itemIdDecoder =
-    JD.string
-        |> JD.andThen
-            (\idStr ->
-                if String.startsWith "item-id-" idStr then
-                    JD.succeed (ItemId idStr)
-
-                else
-                    JD.fail ("invalid item id prefix: " ++ idStr)
-            )
 
 
 
@@ -304,7 +179,7 @@ candidateLocationEncoder candidateLocation =
         encodeHelp tagName itemId =
             JE.object
                 [ ( "tag", JE.string tagName )
-                , ( "id", itemIdEncoder itemId )
+                , ( "id", OutlineZipper.itemIdEncoder itemId )
                 ]
     in
     case candidateLocation of
@@ -326,7 +201,7 @@ candidateLocationDecoder =
     let
         decodeHelp : (ItemId -> CandidateLocation) -> Decoder CandidateLocation
         decodeHelp tag =
-            JD.field "id" itemIdDecoder
+            JD.field "id" OutlineZipper.itemIdDecoder
                 |> JD.map tag
 
         tagDecoder : String -> Decoder CandidateLocation
@@ -370,7 +245,7 @@ type Msg
 cacheOZOnChangeCmd : OZ -> OZ -> Cmd msg
 cacheOZOnChangeCmd oldOZ newOZ =
     if oldOZ /= newOZ then
-        newOZ |> (outlineZipperEncoder >> saveOZ)
+        newOZ |> (OutlineZipper.outlineZipperEncoder >> saveOZ)
 
     else
         Cmd.none
@@ -439,7 +314,7 @@ update message model =
                         "Enter" ->
                             let
                                 ( newItem, newSeed ) =
-                                    Random.step (itemGenerator "") model.seed
+                                    Random.step (OutlineZipper.itemGenerator "") model.seed
                             in
                             ( { model
                                 | outline = OutlineEdit (ozNew newItem oz) newItem.title
@@ -459,7 +334,7 @@ update message model =
                 Outline oz ->
                     let
                         ( newItem, newSeed ) =
-                            Random.step (itemGenerator "") model.seed
+                            Random.step (OutlineZipper.itemGenerator "") model.seed
                     in
                     ( { model
                         | outline = OutlineEdit (ozNew newItem oz) newItem.title
@@ -740,7 +615,7 @@ type alias KeyEvent =
 keyEventDecoder : Decoder KeyEvent
 keyEventDecoder =
     JD.succeed KeyEvent
-        |> required "key" JD.string
+        |> JD.map2 (|>) (JD.field "key" JD.string)
 
 
 
