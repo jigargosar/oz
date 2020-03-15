@@ -524,6 +524,9 @@ subscriptions m =
 type alias KeyEvent =
     { key : String
     , ctrl : Bool
+    , shift : Bool
+    , alt : Bool
+    , meta : Bool
     }
 
 
@@ -533,9 +536,16 @@ jdAndMap =
 
 keyEventDecoder : Decoder KeyEvent
 keyEventDecoder =
+    let
+        boolF name =
+            jdAndMap (JD.field name JD.bool)
+    in
     JD.succeed KeyEvent
         |> jdAndMap (JD.field "key" JD.string)
-        |> jdAndMap (JD.field "ctrlKey" JD.bool)
+        |> boolF "ctrlKey"
+        |> boolF "shiftKey"
+        |> boolF "altKey"
+        |> boolF "metaKey"
 
 
 
