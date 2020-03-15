@@ -429,10 +429,20 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             )
 
         MoveUp ->
-            ( model, Cmd.none )
+            ( { model
+                | outline =
+                    Browsing (ignoreNothing OutlineDoc.moveBeforePreviousSibling doc)
+              }
+            , Cmd.none
+            )
 
         MoveDown ->
-            ( model, Cmd.none )
+            ( { model
+                | outline =
+                    Browsing (ignoreNothing OutlineDoc.moveAfterNextSibling doc)
+              }
+            , Cmd.none
+            )
 
         InsertNewChild ->
             ( let

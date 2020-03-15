@@ -15,6 +15,7 @@ module Forest.Zipper exposing
     , mapData
     , prependChildAndFocus
     , remove
+    , right
     , toRootForest
     , up
     )

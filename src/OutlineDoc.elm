@@ -17,7 +17,9 @@ module OutlineDoc exposing
     , goForward
     , itemIdDecoder
     , itemIdEncoder
+    , moveAfterNextSibling
     , moveAfterParent
+    , moveBeforePreviousSibling
     , moveToCandidateLocation
     , removeIfBlankLeaf
     , restoreFocus
@@ -345,11 +347,36 @@ leftId =
     left >> Maybe.map currentId
 
 
+rightId : OutlineDoc -> Maybe ItemId
+rightId =
+    right >> Maybe.map currentId
+
+
 appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSibling doc =
     case leftId doc of
         Just id ->
             moveToCandidateLocation (AppendIn id) doc
+
+        Nothing ->
+            Nothing
+
+
+moveBeforePreviousSibling : OutlineDoc -> Maybe OutlineDoc
+moveBeforePreviousSibling doc =
+    case leftId doc of
+        Just id ->
+            moveToCandidateLocation (Before id) doc
+
+        Nothing ->
+            Nothing
+
+
+moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
+moveAfterNextSibling doc =
+    case rightId doc of
+        Just id ->
+            moveToCandidateLocation (After id) doc
 
         Nothing ->
             Nothing
@@ -445,6 +472,11 @@ goBackward =
 left : OutlineDoc -> Maybe OutlineDoc
 left =
     mapMaybe Zipper.left
+
+
+right : OutlineDoc -> Maybe OutlineDoc
+right =
+    mapMaybe Zipper.right
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
