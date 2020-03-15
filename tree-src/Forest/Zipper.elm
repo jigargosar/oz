@@ -2,8 +2,10 @@ module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
     , appendChild
+    , backward
     , data
     , findFirst
+    , forward
     , fromForest
     , getTree
     , insertAndGoRight
@@ -260,6 +262,35 @@ findFromCurrent pred acc =
 findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
 findFirst pred acc =
     firstRoot acc |> findFromCurrent pred
+
+
+backward : ForestZipper a -> Maybe (ForestZipper a)
+backward =
+    firstOf [ left >> Maybe.map lastDescendant, up ]
+
+
+forward : ForestZipper a -> Maybe (ForestZipper a)
+forward =
+    firstOf [ down, right, nextSiblingOfClosestAncestor ]
+
+
+lastChild : ForestZipper a -> Maybe (ForestZipper a)
+lastChild =
+    down >> Maybe.map (applyWhileJust right)
+
+
+lastDescendant : ForestZipper a -> ForestZipper a
+lastDescendant zipper =
+    case lastChild zipper of
+        Nothing ->
+            zipper
+
+        Just child ->
+            lastDescendant child
+
+
+firstOf =
+    Maybe.Extra.oneOf
 
 
 

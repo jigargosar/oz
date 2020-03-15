@@ -230,6 +230,22 @@ update message model =
                             , Cmd.none
                             )
 
+                        "ArrowUp" ->
+                            ( { model
+                                | outline =
+                                    Browsing (ignoreNothing OutlineDoc.backward doc)
+                              }
+                            , Cmd.none
+                            )
+
+                        "ArrowDown" ->
+                            ( { model
+                                | outline =
+                                    Browsing (ignoreNothing OutlineDoc.backward doc)
+                              }
+                            , Cmd.none
+                            )
+
                         _ ->
                             ( model, Cmd.none )
 

@@ -5,12 +5,14 @@ module OutlineDoc exposing
     , OutlineDoc
     , OutlineNode
     , addNewLine
+    , backward
     , candidateLocationDecoder
     , candidateLocationEncoder
     , decoder
     , encoder
     , focusId
     , focusedTitle
+    , forward
     , itemIdDecoder
     , itemIdEncoder
     , moveToCandidateLocation
@@ -28,6 +30,7 @@ import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import Maybe.Extra
 import Random exposing (Generator)
 
 
@@ -397,3 +400,13 @@ restructure render =
 restructureFocused : (Item -> List c -> c) -> OutlineDoc -> c
 restructureFocused render =
     currentTree_ >> Tree.restructure identity render
+
+
+backward : OutlineDoc -> Maybe OutlineDoc
+backward =
+    mapMaybe Zipper.backward
+
+
+forward : OutlineDoc -> Maybe OutlineDoc
+forward =
+    mapMaybe Zipper.forward
