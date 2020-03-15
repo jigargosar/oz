@@ -226,19 +226,18 @@ update message model =
                     ( model, Cmd.none )
 
                 Editing doc title ->
-                    case ke.key of
-                        "Enter" ->
-                            ( { model | outline = endEditAndInitBrowsing title doc }
-                            , Cmd.none
-                            )
+                    if hotKey "Enter" ke then
+                        ( { model | outline = endEditAndInitBrowsing title doc }
+                        , Cmd.none
+                        )
 
-                        "Escape" ->
-                            ( { model | outline = cancelEditAndInitBrowsing doc }
-                            , Cmd.none
-                            )
+                    else if hotKey "Escape" ke then
+                        ( { model | outline = cancelEditAndInitBrowsing doc }
+                        , Cmd.none
+                        )
 
-                        _ ->
-                            ( model, Cmd.none )
+                    else
+                        ( model, Cmd.none )
 
         New ->
             case model.outline of
