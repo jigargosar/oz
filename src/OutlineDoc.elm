@@ -361,13 +361,8 @@ appendInPreviousSibling doc =
 
 
 moveBeforePreviousSibling : OutlineDoc -> Maybe OutlineDoc
-moveBeforePreviousSibling doc =
-    case leftId doc of
-        Just id ->
-            moveCurrentToCandidateLocation (Before id) doc
-
-        Nothing ->
-            Nothing
+moveBeforePreviousSibling =
+    relocateFocused left Before
 
 
 appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
