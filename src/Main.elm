@@ -219,14 +219,11 @@ update message model =
                 Browsing doc ->
                     case ke.key of
                         "Enter" ->
-                            let
-                                ( newItem, newSeed ) =
-                                    Random.step (OutlineDoc.addNewLine "" doc) model.seed
-                            in
-                            ( { model
-                                | outline = Editing newItem ""
-                                , seed = newSeed
-                              }
+                            ( let
+                                ( newItem, newModel ) =
+                                    generate (OutlineDoc.addNewLine "" doc) model
+                              in
+                              { newModel | outline = Editing newItem "" }
                             , Cmd.none
                             )
 
@@ -383,6 +380,15 @@ update message model =
 
                 Editing _ _ ->
                     Debug.todo "impl"
+
+
+generate : Generator a -> Model -> ( a, Model )
+generate generator model =
+    let
+        ( a, seed ) =
+            Random.step generator model.seed
+    in
+    ( a, { model | seed = seed } )
 
 
 ignoreNothing : (b -> Maybe b) -> b -> b
