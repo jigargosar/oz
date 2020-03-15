@@ -218,6 +218,9 @@ update message model =
             case model.outline of
                 Browsing doc ->
                     case ke.key of
+                        "Enter" ->
+                            ( { model | outline = initEdit doc }, Cmd.none )
+
                         "o" ->
                             ( let
                                 ( newDoc, newModel ) =
