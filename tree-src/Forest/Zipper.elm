@@ -15,6 +15,7 @@ module Forest.Zipper exposing
     , prependChildAndFocus
     , remove
     , toRootForest
+    , up
     )
 
 import Forest.Tree as Tree exposing (Forest, Tree)

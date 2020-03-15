@@ -249,7 +249,7 @@ update message model =
                         "ArrowLeft" ->
                             ( { model
                                 | outline =
-                                    Browsing (ignoreNothing OutlineDoc.unIndent doc)
+                                    Browsing (ignoreNothing OutlineDoc.moveAfterParent doc)
                               }
                             , Cmd.none
                             )

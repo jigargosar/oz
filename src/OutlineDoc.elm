@@ -15,6 +15,7 @@ module OutlineDoc exposing
     , forward
     , itemIdDecoder
     , itemIdEncoder
+    , moveAfterParent
     , moveToCandidateLocation
     , ozId
     , ozItem
@@ -23,7 +24,6 @@ module OutlineDoc exposing
     , restructure
     , restructureFocused
     , setTitleUnlessBlank
-    , unIndent
     )
 
 import Forest
@@ -321,6 +321,26 @@ unwrap (OutlineDoc z) =
     z
 
 
+zParentId : ForestZipper Item -> Maybe ItemId
+zParentId =
+    Zipper.up >> Maybe.map (Zipper.data >> .id)
+
+
+parentId : OutlineDoc -> Maybe ItemId
+parentId =
+    unwrap >> zParentId
+
+
+moveAfterParent : OutlineDoc -> Maybe OutlineDoc
+moveAfterParent doc =
+    case parentId doc of
+        Just pid ->
+            moveToCandidateLocation (After pid) doc
+
+        Nothing ->
+            Nothing
+
+
 moveToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 moveToCandidateLocation cl doc =
     moveItemWithIdToCandidateLocationPreservingFocus (ozId doc) cl doc
@@ -411,8 +431,3 @@ backward =
 forward : OutlineDoc -> Maybe OutlineDoc
 forward =
     mapMaybe Zipper.forward
-
-
-unIndent : OutlineDoc -> Maybe OutlineDoc
-unIndent outlineDoc =
-    Nothing
