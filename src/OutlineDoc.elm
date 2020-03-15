@@ -340,8 +340,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                 AppendIn itemId ->
                     insertHelp itemId Zipper.appendChild
     in
-    gotoItemId srcItemId
-        >> Maybe.andThen (moveTo candidateLocation)
+    moveTo candidateLocation
         >> Maybe.andThen (gotoItemId srcItemId)
 
 
