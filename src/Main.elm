@@ -59,8 +59,7 @@ type Outline
 
 
 type alias Dnd =
-    { dragItemId : ItemId
-    , clientXY : XY
+    { clientXY : XY
     , offsetXY : XY
     }
 
@@ -140,7 +139,7 @@ beaconDecoder =
 type Msg
     = NoOp
     | TitleEditorFocusFailed String
-    | Start Dnd
+    | Start ItemId Dnd
     | Move XY
     | Stop
     | GotBeacons Value
@@ -290,13 +289,13 @@ update message model =
                     in
                     ( { model | outline = Outline noz }, Cmd.none )
 
-        Start dnd ->
+        Start dragItemId dnd ->
             case model.outline of
                 EmptyOutline ->
                     Debug.todo "impl"
 
                 Outline oz ->
-                    case OutlineDoc.gotoItemId dnd.dragItemId oz of
+                    case OutlineDoc.gotoItemId dragItemId oz of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
                             , getBeacons ()
@@ -308,11 +307,11 @@ update message model =
                 OutlineDnD _ _ ->
                     Debug.todo "impl"
 
-                OutlineEdit oz title ->
+                OutlineEdit doc title ->
                     case
-                        oz
+                        doc
                             |> OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title
-                            |> OutlineDoc.gotoItemId dnd.dragItemId
+                            |> OutlineDoc.restoreFocus doc
                     of
                         Just noz ->
                             ( { model | outline = OutlineDnD dnd noz }
@@ -376,8 +375,7 @@ update message model =
                                                )
                                     )
                                 |> Maybe.andThen
-                                    (\cl -> OutlineDoc.moveItemWithIdToCandidateLocationPreservingFocus dnd.dragItemId cl oz)
-                                |> Maybe.andThen (OutlineDoc.gotoItemId dnd.dragItemId)
+                                    (\cl -> OutlineDoc.moveToCLPF cl oz)
                     in
                     case maybeNoz of
                         Just noz ->
@@ -513,8 +511,11 @@ outlineToHtmlList outline =
                 (\item -> renderDraggableWithBeacons (item.id == highlightedId) item)
                 doc
 
-        OutlineDnD dnd doc ->
+        OutlineDnD _ doc ->
             let
+                draggedId =
+                    OutlineDoc.ozId doc
+
                 renderForestFns : List (Bool -> HM)
                 renderForestFns =
                     OutlineDoc.restructure
@@ -524,7 +525,7 @@ outlineToHtmlList outline =
                                     children bool =
                                         List.map (\f -> f bool) renderChildrenFns
                                 in
-                                if shouldRenderWithoutBeacon || item.id == dnd.dragItemId then
+                                if shouldRenderWithoutBeacon || item.id == draggedId then
                                     renderWithoutBeacons item (children True)
 
                                 else
@@ -564,17 +565,12 @@ viewDraggedNode outline =
                 xy =
                     dndDraggedXY dnd
             in
-            case OutlineDoc.gotoItemId dnd.dragItemId doc of
-                Nothing ->
-                    text ""
-
-                Just dndFocusedDoc ->
-                    div
-                        [ class "fixed no-pe"
-                        , style "left" (String.fromFloat xy.x ++ "px")
-                        , style "top" (String.fromFloat xy.y ++ "px")
-                        ]
-                        [ OutlineDoc.restructureFocused renderDraggedItem dndFocusedDoc ]
+            div
+                [ class "fixed no-pe"
+                , style "left" (String.fromFloat xy.x ++ "px")
+                , style "top" (String.fromFloat xy.y ++ "px")
+                ]
+                [ OutlineDoc.restructureFocused renderDraggedItem doc ]
 
         OutlineEdit _ _ ->
             text ""
@@ -799,7 +795,7 @@ dragEvents : ItemId -> List (Html.Attribute Msg)
 dragEvents itemId =
     [ draggable "true"
     , Event.preventDefaultOn "dragstart"
-        (JD.map2 (\clientXY offsetXY -> Start (Dnd itemId clientXY offsetXY))
+        (JD.map2 (\clientXY offsetXY -> Start itemId (Dnd clientXY offsetXY))
             clientXYDecoder
             offsetXYDecoder
             |> preventDefault True

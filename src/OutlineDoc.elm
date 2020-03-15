@@ -12,12 +12,13 @@ module OutlineDoc exposing
     , itemGenerator
     , itemIdDecoder
     , itemIdEncoder
-    , moveItemWithIdToCandidateLocationPreservingFocus
+    , moveToCLPF
     , ozId
     , ozItem
     , ozNew
     , ozSetTitleUnlessBlankOrRemoveIfBlankLeaf
     , ozTitle
+    , restoreFocus
     , restructure
     , restructureFocused
     )
@@ -231,6 +232,11 @@ gotoItemId itemId =
     mapMaybe (Zipper.findFirst (propEq .id itemId))
 
 
+restoreFocus : OutlineDoc -> OutlineDoc -> Maybe OutlineDoc
+restoreFocus oldDoc =
+    gotoItemId (ozId oldDoc)
+
+
 map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
 map func (OutlineDoc z) =
     func z |> OutlineDoc
@@ -290,6 +296,11 @@ ozId =
 unwrap : OutlineDoc -> ForestZipper Item
 unwrap (OutlineDoc z) =
     z
+
+
+moveToCLPF : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+moveToCLPF cl doc =
+    moveItemWithIdToCandidateLocationPreservingFocus (ozId doc) cl doc
 
 
 moveItemWithIdToCandidateLocationPreservingFocus : ItemId -> CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
