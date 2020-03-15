@@ -257,7 +257,7 @@ update message model =
                         "ArrowRight" ->
                             ( { model
                                 | outline =
-                                    Browsing (ignoreNothing OutlineDoc.appendFocusedInPrevious doc)
+                                    Browsing (ignoreNothing OutlineDoc.appendInPrevious doc)
                               }
                             , Cmd.none
                             )

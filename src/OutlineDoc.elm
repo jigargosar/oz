@@ -5,7 +5,7 @@ module OutlineDoc exposing
     , OutlineDoc
     , OutlineNode
     , addNewLine
-    , appendFocusedInPrevious
+    , appendInPrevious
     , candidateLocationDecoder
     , candidateLocationEncoder
     , currentId
@@ -345,8 +345,8 @@ previousId =
     previous >> Maybe.map currentId
 
 
-appendFocusedInPrevious : OutlineDoc -> Maybe OutlineDoc
-appendFocusedInPrevious doc =
+appendInPrevious : OutlineDoc -> Maybe OutlineDoc
+appendInPrevious doc =
     case previousId doc of
         Just id ->
             moveToCandidateLocation (AppendIn id) doc
