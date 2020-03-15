@@ -784,13 +784,6 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
             text ""
 
 
-
---viewFlatLine : FlatLine -> Html Msg
---viewFlatLine =
---    viewFlatLineWithConfig True
---
-
-
 dragEvents : ItemId -> List (Html.Attribute Msg)
 dragEvents itemId =
     [ draggable "true"
