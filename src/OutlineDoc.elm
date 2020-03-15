@@ -23,6 +23,7 @@ module OutlineDoc exposing
     , restructure
     , restructureFocused
     , setTitleUnlessBlank
+    , unIndent
     )
 
 import Forest
@@ -410,3 +411,8 @@ backward =
 forward : OutlineDoc -> Maybe OutlineDoc
 forward =
     mapMaybe Zipper.forward
+
+
+unIndent : OutlineDoc -> Maybe OutlineDoc
+unIndent outlineDoc =
+    Nothing

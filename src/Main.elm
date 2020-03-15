@@ -246,6 +246,14 @@ update message model =
                             , Cmd.none
                             )
 
+                        "ArrowLeft" ->
+                            ( { model
+                                | outline =
+                                    Browsing (ignoreNothing OutlineDoc.unIndent doc)
+                              }
+                            , Cmd.none
+                            )
+
                         _ ->
                             ( model, Cmd.none )
 
