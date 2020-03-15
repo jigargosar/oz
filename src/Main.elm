@@ -530,6 +530,21 @@ type alias KeyEvent =
     }
 
 
+hk : String -> KeyEvent -> Bool
+hk name ke =
+    ke.key == name && noModifiers ke
+
+
+ctrl : String -> KeyEvent -> Bool
+ctrl name ke =
+    ke.key == name && ke.ctrl && not (ke.shift || ke.alt || ke.meta)
+
+
+noModifiers : KeyEvent -> Bool
+noModifiers ke =
+    not (ke.ctrl || ke.shift || ke.alt || ke.meta)
+
+
 jdAndMap =
     JD.map2 (|>)
 
