@@ -511,13 +511,16 @@ subscriptions m =
 
 
 type alias KeyEvent =
-    { key : String }
+    { key : String
+    , ctrl : Bool
+    }
 
 
 keyEventDecoder : Decoder KeyEvent
 keyEventDecoder =
     JD.succeed KeyEvent
         |> JD.map2 (|>) (JD.field "key" JD.string)
+        |> JD.map2 (|>) (JD.field "ctrlKey" JD.bool)
 
 
 
