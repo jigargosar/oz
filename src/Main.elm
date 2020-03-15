@@ -230,8 +230,21 @@ update message model =
                         _ ->
                             ( model, Cmd.none )
 
-                _ ->
+                NoDoc ->
                     ( model, Cmd.none )
+
+                Dragging cursor outlineDoc ->
+                    ( model, Cmd.none )
+
+                Editing doc title ->
+                    case ke.key of
+                        "Enter" ->
+                            ( { model | outline = Browsing (OutlineDoc.ozSetTitleUnlessBlankOrRemoveIfBlankLeaf title doc) }
+                            , Cmd.none
+                            )
+
+                        _ ->
+                            ( model, Cmd.none )
 
         New ->
             case model.outline of
