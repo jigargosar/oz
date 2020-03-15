@@ -271,16 +271,11 @@ setTitleUnlessBlank title =
         )
 
 
-zTitle : ForestZipper Item -> String
-zTitle =
-    Zipper.data >> .title
-
-
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map
         (\oz ->
-            if isBlank (zTitle oz) && Zipper.isLeaf oz then
+            if isBlank (Zipper.data >> .title <| oz) && Zipper.isLeaf oz then
                 oz
                     |> withRollback Zipper.remove
 
