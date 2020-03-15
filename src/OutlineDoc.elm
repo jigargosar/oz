@@ -21,7 +21,7 @@ module OutlineDoc exposing
     , moveAfterNextSibling
     , moveAfterParent
     , moveBeforePreviousSibling
-    , moveToCandidateLocation
+    , moveCurrentToCandidateLocation
     , prependInNextSiblingOfParent
     , removeIfBlankLeaf
     , restoreFocus
@@ -333,7 +333,7 @@ moveAfterParent : OutlineDoc -> Maybe OutlineDoc
 moveAfterParent doc =
     case parentId doc of
         Just pid ->
-            moveToCandidateLocation (After pid) doc
+            moveCurrentToCandidateLocation (After pid) doc
 
         Nothing ->
             Nothing
@@ -353,7 +353,7 @@ appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSibling doc =
     case leftId doc of
         Just id ->
-            moveToCandidateLocation (AppendIn id) doc
+            moveCurrentToCandidateLocation (AppendIn id) doc
 
         Nothing ->
             Nothing
@@ -363,7 +363,7 @@ moveBeforePreviousSibling : OutlineDoc -> Maybe OutlineDoc
 moveBeforePreviousSibling doc =
     case leftId doc of
         Just id ->
-            moveToCandidateLocation (Before id) doc
+            moveCurrentToCandidateLocation (Before id) doc
 
         Nothing ->
             Nothing
@@ -373,7 +373,7 @@ appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSiblingOfParent doc =
     case doc |> up |> Maybe.andThen leftId of
         Just appendTargetId ->
-            moveToCandidateLocation (AppendIn appendTargetId) doc
+            moveCurrentToCandidateLocation (AppendIn appendTargetId) doc
 
         Nothing ->
             Nothing
@@ -383,7 +383,7 @@ prependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 prependInNextSiblingOfParent doc =
     case doc |> up |> Maybe.andThen rightId of
         Just prependTargetId ->
-            moveToCandidateLocation (PrependIn prependTargetId) doc
+            moveCurrentToCandidateLocation (PrependIn prependTargetId) doc
 
         Nothing ->
             Nothing
@@ -393,14 +393,14 @@ moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
 moveAfterNextSibling doc =
     case rightId doc of
         Just id ->
-            moveToCandidateLocation (After id) doc
+            moveCurrentToCandidateLocation (After id) doc
 
         Nothing ->
             Nothing
 
 
-moveToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-moveToCandidateLocation cl doc =
+moveCurrentToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+moveCurrentToCandidateLocation cl doc =
     moveItemWithIdToCandidateLocationPreservingFocus (currentId doc) cl doc
 
 
