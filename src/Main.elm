@@ -248,12 +248,7 @@ update message model =
                     Debug.todo "impl"
 
         TitleChanged title ->
-            case model.outline of
-                Editing oz _ ->
-                    ( { model | outline = Editing oz title }, Cmd.none )
-
-                _ ->
-                    Debug.todo "impl"
+            ( { model | outline = onEditTitleChanged title model.outline }, Cmd.none )
 
         ItemTitleClicked iid ->
             case model.outline of
@@ -382,6 +377,16 @@ update message model =
 initEdit : OutlineDoc -> Outline
 initEdit doc =
     Editing doc (OutlineDoc.focusedTitle doc)
+
+
+onEditTitleChanged : String -> Outline -> Outline
+onEditTitleChanged title outline =
+    case outline of
+        Editing doc _ ->
+            Editing doc title
+
+        _ ->
+            Debug.todo "Impossible state"
 
 
 generate : Generator a -> Model -> ( a, Model )
