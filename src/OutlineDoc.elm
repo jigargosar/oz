@@ -7,6 +7,7 @@ module OutlineDoc exposing
     , addNewLine
     , candidateLocationDecoder
     , candidateLocationEncoder
+    , currentTitle
     , decoder
     , encoder
     , gotoItemId
@@ -16,7 +17,6 @@ module OutlineDoc exposing
     , ozId
     , ozItem
     , ozSetTitleUnlessBlankOrRemoveIfBlankLeaf
-    , ozTitle
     , restoreFocus
     , restructure
     , restructureFocused
@@ -283,8 +283,8 @@ withRollback func oz =
     func oz |> Maybe.withDefault oz
 
 
-ozTitle : OutlineDoc -> String
-ozTitle =
+currentTitle : OutlineDoc -> String
+currentTitle =
     ozItem >> .title
 
 

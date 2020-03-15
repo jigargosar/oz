@@ -379,6 +379,11 @@ update message model =
                     Debug.todo "impl"
 
 
+initEdit : OutlineDoc -> Outline
+initEdit doc =
+    Editing doc (OutlineDoc.currentTitle doc)
+
+
 generate : Generator a -> Model -> ( a, Model )
 generate generator model =
     let
