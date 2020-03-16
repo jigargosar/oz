@@ -39,7 +39,7 @@ module Doc exposing (..)
     Impossible State:
     * Node having multiple parents.
 
-    Model allows for following impossible states.
+    Representable Invalid states.
     * Orphan Nodes:
         * Nodes with missing parent. i.e. id exists, but not the node.
         * Cyclic parentId's: nodes with no path to root node.
@@ -59,6 +59,41 @@ module Doc exposing (..)
 
     Tree/Forest/Zipper
 
-    - How do we model multi-selection?
+    Representable Invalid states.
+    * Id duplicated across different parts of tree
+
+    Impl
+    * Zoom can be managed by having a doc, and zoomDoc, where operations are performed on zoomDoc.
+        * And in case of home, parent doc can be Nothing, representing that we cannot zoom out further.
+
+    * visibility: nodeId's matching search criteria will be visible.
+        * doc and pass extra info on current collapse state (no children, expanded , collapsed, tempCollapsed)
+        * tempCollapsed state will have to be maintained separately, to be reset on query change,
+        and on explicit user interaction. and perhaps we will have to update the model too.
+
+    * focused node will always be visible. irrespective of search and collapse state.
+    * isFocused will have to be passed by doc, instead of querying it. during restructure;
+    * same with every other item field.
+
+    * with some restructuring of code, it should be possible to handle all cases except multi-selection
+
+    - model multi-selection?
+    * perhaps, we can use different model, or patch it with either set of Id's or different zipper impl,
+    with multi selections.
+    * Adding above features will be complex enough, we can tackle multi-selection later.
+
+    Ok
+
+    With ForestZipper
+    how do we implement, collapsible state.
+    * strict route might be complex.
+    Let's try
 
 -}
+type Tree a b
+    = Tree a (Children a b)
+    | Leaf a
+
+
+type Children a b
+    = Children b (Tree a b) (List (Tree a b))
