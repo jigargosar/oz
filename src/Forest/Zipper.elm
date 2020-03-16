@@ -98,25 +98,25 @@ encoder aEncoder zipper =
         ]
 
 
-aTreeDecoder : Decoder a -> Decoder (Tree a)
-aTreeDecoder aDecoder =
-    JD.succeed Tree.tree
-        |> required "item" aDecoder
-        |> required "children" (JD.list (JD.lazy (\_ -> aTreeDecoder aDecoder)))
-
-
 required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
 required fieldName decoder_ =
     JD.map2 (|>) (JD.field fieldName decoder_)
+
+
+treeDecoder : Decoder a -> Decoder (Tree a)
+treeDecoder dataDecoder =
+    JD.succeed Tree.tree
+        |> required "item" dataDecoder
+        |> required "children" (JD.list (JD.lazy (\_ -> treeDecoder dataDecoder)))
 
 
 decoder : Decoder a -> Decoder (ForestZipper a)
 decoder dataDecoder =
     let
         td =
-            aTreeDecoder dataDecoder
+            treeDecoder dataDecoder
 
-        zCrumbDecoder =
+        cd =
             JD.succeed Crumb
                 |> required "leftReversed" (JD.list td)
                 |> required "datum" dataDecoder
@@ -126,7 +126,7 @@ decoder dataDecoder =
         |> required "leftReversed" (JD.list td)
         |> required "center" td
         |> required "right_" (JD.list td)
-        |> required "crumbs" (JD.list zCrumbDecoder)
+        |> required "crumbs" (JD.list cd)
 
 
 
