@@ -247,27 +247,6 @@ nextSiblingOfClosestAncestor acc =
             Nothing
 
 
-findFromCurrent : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
-findFromCurrent pred acc =
-    case Tree.data acc.center of
-        a ->
-            if pred a then
-                Just acc
-
-            else
-                case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] acc of
-                    Just nextAcc ->
-                        findFromCurrent pred nextAcc
-
-                    Nothing ->
-                        Nothing
-
-
-findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
-findFirst pred acc =
-    firstRoot acc |> findFromCurrent pred
-
-
 backward : ForestZipper a -> Maybe (ForestZipper a)
 backward =
     firstOf [ left >> Maybe.map lastDescendant, up ]
@@ -291,6 +270,31 @@ lastDescendant zipper =
 
         Just child ->
             lastDescendant child
+
+
+
+-- FIND
+
+
+findFromCurrent : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
+findFromCurrent pred acc =
+    case Tree.data acc.center of
+        a ->
+            if pred a then
+                Just acc
+
+            else
+                case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] acc of
+                    Just nextAcc ->
+                        findFromCurrent pred nextAcc
+
+                    Nothing ->
+                        Nothing
+
+
+findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
+findFirst pred acc =
+    firstRoot acc |> findFromCurrent pred
 
 
 firstOf =
