@@ -2,8 +2,25 @@ module Doc exposing (..)
 
 {-|
 
+    FEATURES
+
+  - not empty, at least one node, even if text is empty
+  - expand/collapse: collapsed node not considered when navigating and rendering
+      - But we do need to differentiate nodes having collapsed children.
+  - zoom in on a node
+  - search: i.e. filter nodes matching certain criteria. including collapsed nodes.
+      - We will need to distinguish collapsed nodes which are temporarily expanded.
+  - single selection mode by default.
+  - and multi-selection mode for bulk edit.
+
+-}
+
+
+{-|
+
     Possible Models
 
+    MainDoc
     {   dict: Dict Id Node
         selectedNode: Id
         selections: List Id
@@ -42,18 +59,5 @@ module Doc exposing (..)
     Tree/Forest/Zipper
 
     - How do we model multi-selection?
-
--}
-
--- FEATURES
-{-
-   * not empty, at least one node, even if text is empty
-   * expand/collapse: collapsed node not considered when navigating and rendering
-       * But we do need to differentiate nodes having collapsed children.
-   * zoom in on a node
-   * search: i.e. filter nodes matching certain criteria. including collapsed nodes.
-       * We will need to distinguish collapsed nodes which are temporarily expanded.
-   * single selection mode by default.
-   * and multi-selection mode for bulk edit.
 
 -}
