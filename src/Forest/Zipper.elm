@@ -21,7 +21,7 @@ import Maybe.Extra
 
 
 
--- FOREST ZIPPER
+-- FOREST ZIPPER MODEL
 
 
 type alias ForestZipper a =
