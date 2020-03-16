@@ -13,7 +13,6 @@ module Forest.Zipper exposing
     , left
     , mapData
     , mapTree
-    , prependChild
     , remove
     , right
     , toForest
@@ -335,11 +334,6 @@ insertLeft tree acc =
 insertRight : Tree a -> ForestZipper a -> ForestZipper a
 insertRight tree acc =
     { acc | right_ = tree :: acc.right_ }
-
-
-prependChild : Tree a -> ForestZipper a -> ForestZipper a
-prependChild child acc =
-    { acc | center = Tree.mapChildren ((::) child) acc.center }
 
 
 appendChild : Tree a -> ForestZipper a -> ForestZipper a
