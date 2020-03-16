@@ -243,8 +243,12 @@ prependNewChild =
     mapRandom
         (\z ->
             emptyLeafGenerator
-                |> Random.map (\child -> ignoreNothing (Zipper.prependChild child >> Zipper.down) z)
+                |> Random.map (\child -> ignoreNothing (zPrependChild child >> Zipper.down) z)
         )
+
+
+zPrependChild =
+    Zipper.prependChild
 
 
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
@@ -442,7 +446,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                     insertHelp itemId Zipper.insertRight
 
                 PrependIn itemId ->
-                    insertHelp itemId Zipper.prependChild
+                    insertHelp itemId zPrependChild
 
                 AppendIn itemId ->
                     insertHelp itemId Zipper.appendChild
