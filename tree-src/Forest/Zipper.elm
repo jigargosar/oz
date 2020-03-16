@@ -126,9 +126,14 @@ up acc =
                 }
 
 
+treeTuple : Tree a -> ( a, Forest a )
+treeTuple tree =
+    ( Tree.data tree, Tree.children tree )
+
+
 down : ForestZipper a -> Maybe (ForestZipper a)
 down acc =
-    case Tree.toTuple acc.center of
+    case treeTuple acc.center of
         ( _, [] ) ->
             Nothing
 
@@ -347,7 +352,7 @@ insertAndGoRight =
 
 prependChildAndFocus : Tree a -> ForestZipper a -> ForestZipper a
 prependChildAndFocus child acc =
-    case Tree.toTuple acc.center of
+    case treeTuple acc.center of
         ( a, children ) ->
             { acc
                 | center = child
@@ -361,7 +366,7 @@ prependChildAndFocus child acc =
 
 appendChild : Tree a -> ForestZipper a -> ForestZipper a
 appendChild child acc =
-    case Tree.toTuple acc.center of
+    case treeTuple acc.center of
         ( a, children ) ->
             { acc | center = Tree.tree a (children ++ [ child ]) }
 
