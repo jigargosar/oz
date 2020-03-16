@@ -20,24 +20,21 @@ module Doc exposing (..)
 
     Possible Models
 
-    MainDoc
-    {   dict: Dict Id Node
-        selectedNode: Id
-        selections: List Id
-    }
+    type alias MainDoc =
+        {   dict: Dict Id Node
+            selectedNode: Id
+            selections: List Id
+        }
 
     ZoomIn
-    {   dict: Dict Id Node
-        selectedNode: Id
-        selections: List Id
-    }
+        {   dict: Dict Id Node
+            selectedNode: Id
+            selections: List Id
+        }
 
-
-
-    with node's pointing to their maybe parentId.
-    root nodes will have Nothing as their parentId
-
-
+    type alias Node = { id: Id,
+        title: String
+        }
 
     Impossible State:
     * Node having multiple parents.
