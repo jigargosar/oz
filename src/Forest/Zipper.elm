@@ -297,15 +297,15 @@ findFirst pred acc =
     firstRoot acc |> findFromCurrent pred
 
 
-find : (ForestZipper a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
-find pred navFunc zipper =
+find : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
+find pred maybeNavFunc zipper =
     if pred zipper then
         Just zipper
 
     else
-        case navFunc zipper of
+        case maybeNavFunc zipper of
             Just nextAcc ->
-                find pred navFunc nextAcc
+                find pred maybeNavFunc nextAcc
 
             Nothing ->
                 Nothing
