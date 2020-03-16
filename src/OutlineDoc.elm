@@ -228,15 +228,15 @@ crumbDecoder =
         |> required "right_" (JD.list treeDecoder)
 
 
-insertNew : Item -> OutlineDoc -> OutlineDoc
-insertNew item =
+prependNewItem_ : Item -> OutlineDoc -> OutlineDoc
+prependNewItem_ item =
     map (Zipper.prependChildAndFocus (Tree.leaf item))
 
 
 addNewLine : String -> OutlineDoc -> Generator OutlineDoc
 addNewLine title doc =
     itemGenerator title
-        |> Random.map (\item -> insertNew item doc)
+        |> Random.map (\item -> prependNewItem_ item doc)
 
 
 focusId : ItemId -> OutlineDoc -> Maybe OutlineDoc
