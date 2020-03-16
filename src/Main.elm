@@ -361,6 +361,7 @@ type UserIntent
     | UnIndent
     | Indent
     | InsertNewChild
+    | AddNew
     | MoveUp
     | MoveDown
 
@@ -443,6 +444,26 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
               { newModel | outline = initEdit newDoc }
             , Cmd.none
             )
+
+        AddNew ->
+            case OutlineDoc.hasVisibleChildren doc of
+                True ->
+                    ( let
+                        ( newDoc, newModel ) =
+                            generate (OutlineDoc.addNewLine "" doc) model
+                      in
+                      { newModel | outline = initEdit newDoc }
+                    , Cmd.none
+                    )
+
+                False ->
+                    ( let
+                        ( newDoc, newModel ) =
+                            generate (OutlineDoc.addNewLine "" doc) model
+                      in
+                      { newModel | outline = initEdit newDoc }
+                    , Cmd.none
+                    )
 
 
 endEdit : String -> OutlineDoc -> OutlineDoc

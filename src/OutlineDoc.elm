@@ -15,6 +15,7 @@ module OutlineDoc exposing
     , focusId
     , goBackward
     , goForward
+    , hasVisibleChildren
     , itemIdDecoder
     , itemIdEncoder
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
@@ -477,3 +478,8 @@ goBackward =
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
     mapMaybe Zipper.forward
+
+
+hasVisibleChildren : OutlineDoc -> Bool
+hasVisibleChildren =
+    unwrap >> Zipper.getTree >> Tree.children >> (not << List.isEmpty)
