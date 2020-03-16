@@ -464,40 +464,24 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
         >> Maybe.andThen (focusId srcItemId)
 
 
-toForest_ : OutlineDoc -> Forest Item
-toForest_ =
+toForest : OutlineDoc -> Forest Item
+toForest =
     unwrap >> Zipper.firstRoot >> Zipper.forest
 
 
-currentTree_ : OutlineDoc -> Tree Item
-currentTree_ =
+currentTree : OutlineDoc -> Tree Item
+currentTree =
     unwrap >> Zipper.tree
-
-
-
-{-
-
-   initialItemGenerator : Generator (List Item)
-   initialItemGenerator =
-               [ "Quick Brown Fox Jumped Over The Lazy Dog"
-               , "Take Notes"
-               , "Thou shall not experiment with experiments"
-               , "Watch Movies"
-               , "Run the mill"
-               ]
-                   |> List.map OutlineDoc.itemGenerator
-                   |> Random.Extra.combine
--}
 
 
 restructure : (Item -> List c -> c) -> OutlineDoc -> List c
 restructure render =
-    toForest_ >> List.map (Tree.restructure identity render)
+    toForest >> List.map (Tree.restructure identity render)
 
 
 restructureFocused : (Item -> List c -> c) -> OutlineDoc -> c
 restructureFocused render =
-    currentTree_ >> Tree.restructure identity render
+    currentTree >> Tree.restructure identity render
 
 
 left : OutlineDoc -> Maybe OutlineDoc
@@ -557,3 +541,19 @@ zAppendChild child =
 zIsLeaf : ForestZipper a -> Bool
 zIsLeaf =
     Zipper.tree >> Tree.children >> List.isEmpty
+
+
+
+{-
+
+   initialItemGenerator : Generator (List Item)
+   initialItemGenerator =
+               [ "Quick Brown Fox Jumped Over The Lazy Dog"
+               , "Take Notes"
+               , "Thou shall not experiment with experiments"
+               , "Watch Movies"
+               , "Run the mill"
+               ]
+                   |> List.map OutlineDoc.itemGenerator
+                   |> Random.Extra.combine
+-}
