@@ -203,14 +203,6 @@ zDecoder aDecoder =
         |> required "crumbs" (JD.list zCrumbDecoder)
 
 
-itemTreeEncoder : Tree Item -> Value
-itemTreeEncoder tree =
-    JE.object
-        [ ( "item", itemEncoder (Tree.data tree) )
-        , ( "children", JE.list itemTreeEncoder (Tree.children tree) )
-        ]
-
-
 itemEncoder : Item -> Value
 itemEncoder item =
     JE.object
