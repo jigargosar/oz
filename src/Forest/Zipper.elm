@@ -4,6 +4,7 @@ module Forest.Zipper exposing
     , backward
     , down
     , firstRoot
+    , forest
     , forward
     , insertLeft
     , insertRight
@@ -57,12 +58,12 @@ type alias Crumb a =
 
 toForest : ForestZipper a -> Forest a
 toForest =
-    let
-        forest : ForestZipper a -> Forest a
-        forest fz =
-            List.reverse fz.leftReversed ++ fz.center :: fz.right_
-    in
     firstRoot >> forest
+
+
+forest : ForestZipper a -> Forest a
+forest fz =
+    List.reverse fz.leftReversed ++ fz.center :: fz.right_
 
 
 mapTree : (Tree a -> Tree a) -> ForestZipper a -> ForestZipper a
