@@ -439,7 +439,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
         InsertNewChild ->
             ( let
                 ( newDoc, newModel ) =
-                    generate (OutlineDoc.addNewLine "" doc) model
+                    generate (OutlineDoc.prependNewChild doc) model
               in
               { newModel | outline = initEdit newDoc }
             , Cmd.none
@@ -450,7 +450,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
                 True ->
                     ( let
                         ( newDoc, newModel ) =
-                            generate (OutlineDoc.addNewLine "" doc) model
+                            generate (OutlineDoc.prependNewChild doc) model
                       in
                       { newModel | outline = initEdit newDoc }
                     , Cmd.none
@@ -459,7 +459,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
                 False ->
                     ( let
                         ( newDoc, newModel ) =
-                            generate (OutlineDoc.addNewLine "" doc) model
+                            generate (OutlineDoc.prependNewChild doc) model
                       in
                       { newModel | outline = initEdit newDoc }
                     , Cmd.none

@@ -4,7 +4,6 @@ module OutlineDoc exposing
     , ItemId
     , OutlineDoc
     , OutlineNode
-    , addNewLine
     , appendInPreviousSibling
     , candidateLocationDecoder
     , candidateLocationEncoder
@@ -22,6 +21,7 @@ module OutlineDoc exposing
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCurrentToCandidateLocation
+    , prependNewChild
     , removeIfBlankLeaf
     , restructure
     , restructureFocused
@@ -228,11 +228,11 @@ crumbDecoder =
         |> required "right_" (JD.list treeDecoder)
 
 
-addNewLine : String -> OutlineDoc -> Generator OutlineDoc
-addNewLine title =
+prependNewChild : OutlineDoc -> Generator OutlineDoc
+prependNewChild =
     mapRandom
         (\z ->
-            itemGenerator title
+            itemGenerator ""
                 |> Random.map (\item -> Zipper.prependChildAndFocus (Tree.leaf item) z)
         )
 
