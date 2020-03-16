@@ -6,7 +6,6 @@ module Forest.Zipper exposing
     , data
     , findFirst
     , forward
-    , fromForest
     , getTree
     , insertAndGoRight
     , insertLeft
@@ -49,16 +48,6 @@ type alias Crumb a =
 fromTree : Tree a -> ForestZipper a
 fromTree tree =
     { leftReversed = [], center = tree, right_ = [], crumbs = [] }
-
-
-fromForest : Forest a -> Maybe (ForestZipper a)
-fromForest forest =
-    case forest of
-        [] ->
-            Nothing
-
-        first :: rest ->
-            Just { leftReversed = [], center = first, right_ = rest, crumbs = [] }
 
 
 toRootForest : ForestZipper a -> Forest a
