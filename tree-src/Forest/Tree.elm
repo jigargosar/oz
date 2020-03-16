@@ -5,7 +5,6 @@ module Forest.Tree exposing
     , data
     , mapData
     , restructure
-    , toTuple
     , tree
     )
 
@@ -38,11 +37,6 @@ data =
 children : Tree a -> Forest a
 children =
     Tree.children
-
-
-toTuple : Tree a -> ( a, Forest a )
-toTuple t =
-    ( data t, children t )
 
 
 restructure : (a -> b) -> (b -> List c -> c) -> Tree a -> c
