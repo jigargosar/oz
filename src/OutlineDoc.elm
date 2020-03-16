@@ -29,7 +29,7 @@ module OutlineDoc exposing
     , setTitleUnlessBlank
     )
 
-import Forest.Tree as Tree exposing (Tree)
+import Forest.Tree as Tree exposing (Forest, Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -464,9 +464,9 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
         >> Maybe.andThen (focusId srcItemId)
 
 
-toForest_ : OutlineDoc -> Tree.Forest Item
+toForest_ : OutlineDoc -> Forest Item
 toForest_ =
-    unwrap >> Zipper.toForest
+    unwrap >> Zipper.firstRoot >> Zipper.forest
 
 
 currentTree_ : OutlineDoc -> Tree Item

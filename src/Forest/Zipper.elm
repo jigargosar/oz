@@ -12,7 +12,6 @@ module Forest.Zipper exposing
     , mapTree
     , remove
     , right
-    , toForest
     , tree
     , up
     )
@@ -54,11 +53,6 @@ type alias Crumb a =
 --
 --        first :: rest ->
 --            Just { leftReversed = [], center = first, right_ = rest, crumbs = [] }
-
-
-toForest : ForestZipper a -> Forest a
-toForest =
-    firstRoot >> forest
 
 
 forest : ForestZipper a -> Forest a
