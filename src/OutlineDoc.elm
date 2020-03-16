@@ -158,6 +158,30 @@ encoder (OutlineDoc outlineZipper) =
         ]
 
 
+zEncoder : (a -> Value) -> ForestZipper a -> Value
+zEncoder aEncoder zipper =
+    let
+        treeEncoder tre =
+            JE.object
+                [ ( "item", aEncoder (Tree.data tre) )
+                , ( "children", JE.list treeEncoder (Tree.children tre) )
+                ]
+
+        zCrumbEncoder crumb =
+            JE.object
+                [ ( "leftReversed", JE.list treeEncoder crumb.leftReversed )
+                , ( "datum", aEncoder crumb.datum )
+                , ( "right_", JE.list treeEncoder crumb.right_ )
+                ]
+    in
+    JE.object
+        [ ( "leftReversed", JE.list treeEncoder zipper.leftReversed )
+        , ( "center", treeEncoder zipper.center )
+        , ( "right_", JE.list treeEncoder zipper.right_ )
+        , ( "crumbs", JE.list zCrumbEncoder zipper.crumbs )
+        ]
+
+
 itemTreeEncoder : Tree Item -> Value
 itemTreeEncoder tree =
     JE.object
