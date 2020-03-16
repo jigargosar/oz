@@ -10,7 +10,6 @@ module Forest.Zipper exposing
     , insertLeft
     , insertRight
     , left
-    , mapData
     , mapTree
     , remove
     , right
@@ -70,11 +69,6 @@ toForest =
 mapTree : (Tree a -> Tree a) -> ForestZipper a -> ForestZipper a
 mapTree func fz =
     { fz | center = func fz.center }
-
-
-mapData : (a -> a) -> ForestZipper a -> ForestZipper a
-mapData func =
-    mapTree (Tree.mapData func)
 
 
 getTree : ForestZipper a -> Tree a

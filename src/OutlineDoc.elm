@@ -302,8 +302,13 @@ setTitleUnlessBlank title =
                 oz
 
             else
-                Zipper.mapData (\item -> { item | title = title }) oz
+                zMapData (\item -> { item | title = title }) oz
         )
+
+
+zMapData : (a -> a) -> ForestZipper a -> ForestZipper a
+zMapData func =
+    Zipper.mapTree (Tree.mapData func)
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
