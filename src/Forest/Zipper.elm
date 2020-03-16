@@ -2,7 +2,6 @@ module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
     , backward
-    , data
     , down
     , findFirst
     , forward
@@ -74,11 +73,6 @@ mapTree func fz =
 getTree : ForestZipper a -> Tree a
 getTree fz =
     fz.center
-
-
-data : ForestZipper a -> a
-data =
-    getTree >> Tree.data
 
 
 
