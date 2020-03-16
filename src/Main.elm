@@ -446,24 +446,22 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             )
 
         AddNew ->
-            case OutlineDoc.hasVisibleChildren doc of
-                True ->
-                    ( let
-                        ( newDoc, newModel ) =
-                            generate (OutlineDoc.prependNewChild doc) model
-                      in
-                      { newModel | outline = initEdit newDoc }
-                    , Cmd.none
-                    )
+            let
+                newFn =
+                    case OutlineDoc.hasVisibleChildren doc of
+                        True ->
+                            OutlineDoc.prependNewChild
 
-                False ->
-                    ( let
-                        ( newDoc, newModel ) =
-                            generate (OutlineDoc.prependNewChild doc) model
-                      in
-                      { newModel | outline = initEdit newDoc }
-                    , Cmd.none
-                    )
+                        False ->
+                            OutlineDoc.insertNewAfter
+            in
+            ( let
+                ( newDoc, newModel ) =
+                    generate (newFn doc) model
+              in
+              { newModel | outline = initEdit newDoc }
+            , Cmd.none
+            )
 
 
 endEdit : String -> OutlineDoc -> OutlineDoc
