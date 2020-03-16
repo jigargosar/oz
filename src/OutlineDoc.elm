@@ -179,12 +179,12 @@ itemDecoder =
 
 emptyLeafGenerator : Generator (Tree Item)
 emptyLeafGenerator =
+    let
+        itemToTree : Item -> Tree Item
+        itemToTree item =
+            Tree.tree item []
+    in
     itemGenerator "" |> Random.map itemToTree
-
-
-itemToTree : Item -> Tree Item
-itemToTree item =
-    Tree.tree item []
 
 
 prependNewChild : OutlineDoc -> Generator OutlineDoc
