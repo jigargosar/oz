@@ -196,7 +196,12 @@ root =
 
 firstRoot : ForestZipper a -> ForestZipper a
 firstRoot =
-    root >> applyWhileJust left
+    root >> firstSibling
+
+
+firstSibling : ForestZipper a -> ForestZipper a
+firstSibling =
+    applyWhileJust left
 
 
 nextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
