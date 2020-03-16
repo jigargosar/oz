@@ -177,6 +177,32 @@ zEncoder aEncoder zipper =
         ]
 
 
+aTreeDecoder : Decoder a -> Decoder (Tree a)
+aTreeDecoder aDecoder =
+    JD.succeed Tree.tree
+        |> required "item" aDecoder
+        |> required "children" (JD.list (JD.lazy (\_ -> aTreeDecoder aDecoder)))
+
+
+zDecoder : Decoder a -> Decoder (ForestZipper a)
+zDecoder aDecoder =
+    let
+        td =
+            aTreeDecoder aDecoder
+
+        zCrumbDecoder =
+            JD.succeed Zipper.Crumb
+                |> required "leftReversed" (JD.list td)
+                |> required "datum" aDecoder
+                |> required "right_" (JD.list td)
+    in
+    JD.succeed ForestZipper
+        |> required "leftReversed" (JD.list td)
+        |> required "center" td
+        |> required "right_" (JD.list td)
+        |> required "crumbs" (JD.list zCrumbDecoder)
+
+
 itemTreeEncoder : Tree Item -> Value
 itemTreeEncoder tree =
     JE.object
@@ -193,34 +219,13 @@ itemEncoder item =
         ]
 
 
-crumbEncoder : Zipper.Crumb Item -> Value
-crumbEncoder crumb =
-    JE.object
-        [ ( "leftReversed", JE.list itemTreeEncoder crumb.leftReversed )
-        , ( "datum", itemEncoder crumb.datum )
-        , ( "right_", JE.list itemTreeEncoder crumb.right_ )
-        ]
-
-
 required fieldName decoder_ =
     JD.map2 (|>) (JD.field fieldName decoder_)
 
 
 decoder : Decoder OutlineDoc
 decoder =
-    JD.succeed ForestZipper
-        |> required "leftReversed" (JD.list treeDecoder)
-        |> required "center" treeDecoder
-        |> required "right_" (JD.list treeDecoder)
-        |> required "crumbs" (JD.list crumbDecoder)
-        |> JD.map OutlineDoc
-
-
-treeDecoder : Decoder (Tree Item)
-treeDecoder =
-    JD.succeed Tree.tree
-        |> required "item" itemDecoder
-        |> required "children" (JD.list (JD.lazy (\_ -> treeDecoder)))
+    zDecoder itemDecoder |> JD.map OutlineDoc
 
 
 itemDecoder : Decoder Item
@@ -228,14 +233,6 @@ itemDecoder =
     JD.succeed Item
         |> required "id" itemIdDecoder
         |> required "title" JD.string
-
-
-crumbDecoder : Decoder (Zipper.Crumb Item)
-crumbDecoder =
-    JD.succeed Zipper.Crumb
-        |> required "leftReversed" (JD.list treeDecoder)
-        |> required "datum" itemDecoder
-        |> required "right_" (JD.list treeDecoder)
 
 
 emptyLeafGenerator : Generator (Tree Item)
