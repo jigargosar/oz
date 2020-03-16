@@ -297,6 +297,21 @@ findFirst pred acc =
     firstRoot acc |> findFromCurrent pred
 
 
+find pred navFunc zipper =
+    case Tree.data zipper.center of
+        a ->
+            if pred a then
+                Just zipper
+
+            else
+                case navFunc zipper of
+                    Just nextAcc ->
+                        findFromCurrent pred nextAcc
+
+                    Nothing ->
+                        Nothing
+
+
 
 -- VISIT
 --
