@@ -340,14 +340,7 @@ prependChild : Tree a -> ForestZipper a -> ForestZipper a
 prependChild child acc =
     case treeTuple acc.center of
         ( a, children ) ->
-            { acc
-                | center = child
-                , leftReversed = []
-                , right_ = children
-                , crumbs =
-                    { leftReversed = acc.leftReversed, datum = a, right_ = acc.right_ }
-                        :: acc.crumbs
-            }
+            { acc | center = Tree.tree a (child :: children) }
 
 
 appendChild : Tree a -> ForestZipper a -> ForestZipper a
