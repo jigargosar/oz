@@ -315,7 +315,7 @@ removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map
         (\oz ->
-            if isBlank (oz |> Zipper.data >> .title) && isLeaf_ oz then
+            if isBlank (oz |> zData >> .title) && isLeaf_ oz then
                 oz
                     |> withRollback Zipper.remove
 
@@ -345,7 +345,12 @@ currentTitle =
 
 currentItem : OutlineDoc -> Item
 currentItem =
-    unwrap >> Zipper.data
+    unwrap >> zData
+
+
+zData : ForestZipper a -> a
+zData =
+    Zipper.getTree >> Tree.data
 
 
 currentId : OutlineDoc -> ItemId
