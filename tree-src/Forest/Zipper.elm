@@ -12,6 +12,7 @@ module Forest.Zipper exposing
     , insertRight
     , left
     , mapData
+    , mapTree
     , prependChild
     , remove
     , right

@@ -247,8 +247,8 @@ prependNewChild =
         )
 
 
-zPrependChild =
-    Zipper.prependChild
+zPrependChild child =
+    Zipper.mapTree (Tree.mapChildren ((::) child))
 
 
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
