@@ -105,14 +105,9 @@ up acc =
                 }
 
 
-treeTuple : Tree a -> ( a, Forest a )
-treeTuple tre =
-    ( Tree.data tre, Tree.children tre )
-
-
 down : ForestZipper a -> Maybe (ForestZipper a)
 down acc =
-    case treeTuple acc.center of
+    case ( Tree.data acc.center, Tree.children acc.center ) of
         ( _, [] ) ->
             Nothing
 
