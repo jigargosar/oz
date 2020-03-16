@@ -2,7 +2,9 @@ module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
     , backward
+    , decoder
     , down
+    , encoder
     , firstRoot
     , forest
     , forward
@@ -17,6 +19,8 @@ module Forest.Zipper exposing
     )
 
 import Forest.Tree as Tree exposing (Forest, Tree)
+import Json.Decode as JD exposing (Decoder)
+import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 
 
@@ -68,6 +72,61 @@ mapTree func fz =
 tree : ForestZipper a -> Tree a
 tree fz =
     fz.center
+
+
+encoder : (a -> Value) -> ForestZipper a -> Value
+encoder aEncoder zipper =
+    let
+        treeEncoder tre =
+            JE.object
+                [ ( "item", aEncoder (Tree.data tre) )
+                , ( "children", JE.list treeEncoder (Tree.children tre) )
+                ]
+
+        zCrumbEncoder crumb =
+            JE.object
+                [ ( "leftReversed", JE.list treeEncoder crumb.leftReversed )
+                , ( "datum", aEncoder crumb.datum )
+                , ( "right_", JE.list treeEncoder crumb.right_ )
+                ]
+    in
+    JE.object
+        [ ( "leftReversed", JE.list treeEncoder zipper.leftReversed )
+        , ( "center", treeEncoder zipper.center )
+        , ( "right_", JE.list treeEncoder zipper.right_ )
+        , ( "crumbs", JE.list zCrumbEncoder zipper.crumbs )
+        ]
+
+
+aTreeDecoder : Decoder a -> Decoder (Tree a)
+aTreeDecoder aDecoder =
+    JD.succeed Tree.tree
+        |> required "item" aDecoder
+        |> required "children" (JD.list (JD.lazy (\_ -> aTreeDecoder aDecoder)))
+
+
+required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
+required fieldName decoder_ =
+    JD.map2 (|>) (JD.field fieldName decoder_)
+
+
+decoder : Decoder a -> Decoder (ForestZipper a)
+decoder dataDecoder =
+    let
+        td =
+            aTreeDecoder dataDecoder
+
+        zCrumbDecoder =
+            JD.succeed Crumb
+                |> required "leftReversed" (JD.list td)
+                |> required "datum" dataDecoder
+                |> required "right_" (JD.list td)
+    in
+    JD.succeed ForestZipper
+        |> required "leftReversed" (JD.list td)
+        |> required "center" td
+        |> required "right_" (JD.list td)
+        |> required "crumbs" (JD.list zCrumbDecoder)
 
 
 

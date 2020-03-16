@@ -150,57 +150,7 @@ type OutlineDoc
 
 encoder : OutlineDoc -> Value
 encoder (OutlineDoc zipper) =
-    zEncoder itemEncoder zipper
-
-
-zEncoder : (a -> Value) -> ForestZipper a -> Value
-zEncoder aEncoder zipper =
-    let
-        treeEncoder tre =
-            JE.object
-                [ ( "item", aEncoder (Tree.data tre) )
-                , ( "children", JE.list treeEncoder (Tree.children tre) )
-                ]
-
-        zCrumbEncoder crumb =
-            JE.object
-                [ ( "leftReversed", JE.list treeEncoder crumb.leftReversed )
-                , ( "datum", aEncoder crumb.datum )
-                , ( "right_", JE.list treeEncoder crumb.right_ )
-                ]
-    in
-    JE.object
-        [ ( "leftReversed", JE.list treeEncoder zipper.leftReversed )
-        , ( "center", treeEncoder zipper.center )
-        , ( "right_", JE.list treeEncoder zipper.right_ )
-        , ( "crumbs", JE.list zCrumbEncoder zipper.crumbs )
-        ]
-
-
-aTreeDecoder : Decoder a -> Decoder (Tree a)
-aTreeDecoder aDecoder =
-    JD.succeed Tree.tree
-        |> required "item" aDecoder
-        |> required "children" (JD.list (JD.lazy (\_ -> aTreeDecoder aDecoder)))
-
-
-zDecoder : Decoder a -> Decoder (ForestZipper a)
-zDecoder aDecoder =
-    let
-        td =
-            aTreeDecoder aDecoder
-
-        zCrumbDecoder =
-            JD.succeed Zipper.Crumb
-                |> required "leftReversed" (JD.list td)
-                |> required "datum" aDecoder
-                |> required "right_" (JD.list td)
-    in
-    JD.succeed ForestZipper
-        |> required "leftReversed" (JD.list td)
-        |> required "center" td
-        |> required "right_" (JD.list td)
-        |> required "crumbs" (JD.list zCrumbDecoder)
+    Zipper.encoder itemEncoder zipper
 
 
 itemEncoder : Item -> Value
@@ -217,7 +167,7 @@ required fieldName decoder_ =
 
 decoder : Decoder OutlineDoc
 decoder =
-    zDecoder itemDecoder |> JD.map OutlineDoc
+    Zipper.decoder itemDecoder |> JD.map OutlineDoc
 
 
 itemDecoder : Decoder Item
