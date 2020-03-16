@@ -41,10 +41,6 @@ type alias Crumb a =
     }
 
 
-
---noinspection ElmUnusedSymbol
-
-
 fromTree : Tree a -> ForestZipper a
 fromTree tree =
     { leftReversed = [], center = tree, right_ = [], crumbs = [] }
