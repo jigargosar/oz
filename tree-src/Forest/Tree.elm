@@ -3,7 +3,6 @@ module Forest.Tree exposing
     , Tree
     , children
     , data
-    , leaf
     , mapData
     , restructure
     , toTuple
@@ -19,11 +18,6 @@ type alias Tree a =
 
 type alias Forest a =
     List (Tree a)
-
-
-leaf : a -> Tree a
-leaf a =
-    tree a []
 
 
 tree : a -> List (Tree a) -> Tree a

@@ -384,7 +384,7 @@ remove fz =
                     Just
                         { fz
                             | leftReversed = leftReversed
-                            , center = Tree.leaf datum
+                            , center = leaf datum
                             , right_ = right_
                             , crumbs = rest
                         }
@@ -396,3 +396,8 @@ remove fz =
         -- has left siblings; go left
         ( first :: rest, _ ) ->
             Just { fz | leftReversed = rest, center = first }
+
+
+leaf : a -> Tree a
+leaf a =
+    Tree.tree a []
