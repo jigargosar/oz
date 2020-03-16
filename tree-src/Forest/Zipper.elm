@@ -338,16 +338,12 @@ insertRight tree acc =
 
 prependChild : Tree a -> ForestZipper a -> ForestZipper a
 prependChild child acc =
-    case treeTuple acc.center of
-        ( a, children ) ->
-            { acc | center = Tree.tree a (child :: children) }
+    { acc | center = Tree.mapChildren ((::) child) acc.center }
 
 
 appendChild : Tree a -> ForestZipper a -> ForestZipper a
 appendChild child acc =
-    case treeTuple acc.center of
-        ( a, children ) ->
-            { acc | center = Tree.tree a (children ++ [ child ]) }
+    { acc | center = Tree.mapChildren (\children -> children ++ [ child ]) acc.center }
 
 
 

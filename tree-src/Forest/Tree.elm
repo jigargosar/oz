@@ -3,6 +3,7 @@ module Forest.Tree exposing
     , Tree
     , children
     , data
+    , mapChildren
     , mapData
     , restructure
     , tree
@@ -27,6 +28,11 @@ tree =
 mapData : (a -> a) -> Tree a -> Tree a
 mapData =
     Tree.mapLabel
+
+
+mapChildren : (Forest a -> Forest a) -> Tree a -> Tree a
+mapChildren =
+    Tree.mapChildren
 
 
 data : Tree a -> a
