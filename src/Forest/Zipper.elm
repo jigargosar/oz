@@ -277,19 +277,8 @@ nextSiblingOfClosestAncestor acc =
 
 
 findFromCurrent : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
-findFromCurrent pred acc =
-    case Tree.data acc.center of
-        a ->
-            if pred a then
-                Just acc
-
-            else
-                case Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ] acc of
-                    Just nextAcc ->
-                        findFromCurrent pred nextAcc
-
-                    Nothing ->
-                        Nothing
+findFromCurrent pred =
+    find (tree >> Tree.data >> pred) (Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ])
 
 
 findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
