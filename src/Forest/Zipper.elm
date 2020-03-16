@@ -234,12 +234,12 @@ firstRoot =
 
 backward : ForestZipper a -> Maybe (ForestZipper a)
 backward =
-    firstOf [ left >> Maybe.map lastDescendant, up ]
+    Maybe.Extra.oneOf [ left >> Maybe.map lastDescendant, up ]
 
 
 forward : ForestZipper a -> Maybe (ForestZipper a)
 forward =
-    firstOf [ down, right, nextSiblingOfClosestAncestor ]
+    Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ]
 
 
 lastChild : ForestZipper a -> Maybe (ForestZipper a)
@@ -295,10 +295,6 @@ findFromCurrent pred acc =
 findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
 findFirst pred acc =
     firstRoot acc |> findFromCurrent pred
-
-
-firstOf =
-    Maybe.Extra.oneOf
 
 
 
