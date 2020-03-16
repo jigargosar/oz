@@ -15,6 +15,7 @@ module OutlineDoc exposing
     , goBackward
     , goForward
     , hasVisibleChildren
+    , insertNewAfter
     , itemIdDecoder
     , itemIdEncoder
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
