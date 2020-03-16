@@ -189,19 +189,18 @@ applyWhileJust func a =
             a
 
 
-root : ForestZipper a -> ForestZipper a
-root =
-    applyWhileJust up
-
-
 firstRoot : ForestZipper a -> ForestZipper a
 firstRoot =
+    let
+        root : ForestZipper a -> ForestZipper a
+        root =
+            applyWhileJust up
+
+        firstSibling : ForestZipper a -> ForestZipper a
+        firstSibling =
+            applyWhileJust left
+    in
     root >> firstSibling
-
-
-firstSibling : ForestZipper a -> ForestZipper a
-firstSibling =
-    applyWhileJust left
 
 
 nextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
