@@ -251,6 +251,10 @@ zPrependChild child =
     Zipper.mapTree (Tree.mapChildren ((::) child))
 
 
+zAppendChild child =
+    Zipper.mapTree (Tree.mapChildren (\children -> children ++ [ child ]))
+
+
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
 insertNewAfter =
     mapRandom
@@ -449,7 +453,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                     insertHelp itemId zPrependChild
 
                 AppendIn itemId ->
-                    insertHelp itemId Zipper.appendChild
+                    insertHelp itemId zAppendChild
     in
     moveTo candidateLocation
         >> Maybe.andThen (focusId srcItemId)

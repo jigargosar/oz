@@ -1,7 +1,6 @@
 module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
-    , appendChild
     , backward
     , data
     , down
@@ -334,11 +333,6 @@ insertLeft tree acc =
 insertRight : Tree a -> ForestZipper a -> ForestZipper a
 insertRight tree acc =
     { acc | right_ = tree :: acc.right_ }
-
-
-appendChild : Tree a -> ForestZipper a -> ForestZipper a
-appendChild child acc =
-    { acc | center = Tree.mapChildren (\children -> children ++ [ child ]) acc.center }
 
 
 
