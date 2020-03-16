@@ -9,7 +9,7 @@ import Html.Attributes as A exposing (attribute, class, draggable, style, tabind
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import OutlineDoc exposing (CandidateLocation(..), Item, ItemId, OutlineDoc, OutlineNode)
+import OutlineDoc exposing (CandidateLocation(..), Item, ItemId, OutlineDoc)
 import Random exposing (Generator, Seed)
 import Task
 

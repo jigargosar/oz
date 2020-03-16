@@ -3,7 +3,6 @@ module OutlineDoc exposing
     , Item
     , ItemId
     , OutlineDoc
-    , OutlineNode
     , appendInPreviousSibling
     , candidateLocationDecoder
     , candidateLocationEncoder
@@ -145,14 +144,6 @@ itemIdDecoder =
             )
 
 
-type alias OutlineNode =
-    Tree Item
-
-
-type alias OutlineForest =
-    List OutlineNode
-
-
 type OutlineDoc
     = OutlineDoc (ForestZipper Item)
 
@@ -206,7 +197,7 @@ decoder =
         |> JD.map OutlineDoc
 
 
-treeDecoder : Decoder OutlineNode
+treeDecoder : Decoder (Tree Item)
 treeDecoder =
     JD.succeed Tree.tree
         |> required "item" itemDecoder
@@ -434,7 +425,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                             |> Maybe.andThen (OutlineDoc >> insertRemovedNodeAtLocation atLocation zipper.center)
                    )
 
-        insertRemovedNodeAtLocation : CandidateLocation -> OutlineNode -> OutlineDoc -> Maybe OutlineDoc
+        insertRemovedNodeAtLocation : CandidateLocation -> Tree Item -> OutlineDoc -> Maybe OutlineDoc
         insertRemovedNodeAtLocation atLocation node =
             let
                 insertHelp :
