@@ -233,17 +233,27 @@ prependNewChild : OutlineDoc -> Generator OutlineDoc
 prependNewChild =
     mapRandom
         (\z ->
-            itemGenerator ""
-                |> Random.map (\item -> Zipper.prependChildAndFocus (Tree.leaf item) z)
+            emptyLeafGenerator
+                |> Random.map (\child -> Zipper.prependChildAndFocus child z)
         )
+
+
+emptyLeafGenerator : Generator (Tree Item)
+emptyLeafGenerator =
+    itemGenerator "" |> Random.map itemToTree
+
+
+itemToTree : Item -> Tree Item
+itemToTree item =
+    Tree.tree item []
 
 
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
 insertNewAfter =
     mapRandom
         (\z ->
-            itemGenerator ""
-                |> Random.map (\item -> Zipper.insertAndGoRight (Tree.leaf item) z)
+            emptyLeafGenerator
+                |> Random.map (\child -> Zipper.insertAndGoRight child z)
         )
 
 
