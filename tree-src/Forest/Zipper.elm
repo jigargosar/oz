@@ -377,6 +377,11 @@ appendChild child acc =
 
 remove : ForestZipper a -> Maybe (ForestZipper a)
 remove fz =
+    let
+        leaf : a -> Tree a
+        leaf a =
+            Tree.tree a []
+    in
     case ( fz.leftReversed, fz.right_ ) of
         -- center is the only child; go up
         ( [], [] ) ->
@@ -401,8 +406,3 @@ remove fz =
         -- has left siblings; go left
         ( first :: rest, _ ) ->
             Just { fz | leftReversed = rest, center = first }
-
-
-leaf : a -> Tree a
-leaf a =
-    Tree.tree a []
