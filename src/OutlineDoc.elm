@@ -237,6 +237,15 @@ prependNewChild =
         )
 
 
+insertNewAfter : OutlineDoc -> Generator OutlineDoc
+insertNewAfter =
+    mapRandom
+        (\z ->
+            itemGenerator ""
+                |> Random.map (\item -> Zipper.insertAndGoRight (Tree.leaf item) z)
+        )
+
+
 focusId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 focusId itemId =
     mapMaybe (Zipper.findFirst (propEq .id itemId))
