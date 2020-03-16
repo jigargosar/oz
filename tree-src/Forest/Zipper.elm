@@ -59,12 +59,12 @@ type alias Crumb a =
 
 toForest : ForestZipper a -> Forest a
 toForest =
-    firstRoot >> getForest
-
-
-getForest : ForestZipper a -> Forest a
-getForest fz =
-    List.reverse fz.leftReversed ++ fz.center :: fz.right_
+    let
+        forest : ForestZipper a -> Forest a
+        forest fz =
+            List.reverse fz.leftReversed ++ fz.center :: fz.right_
+    in
+    firstRoot >> forest
 
 
 withRollback : (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> ForestZipper a
