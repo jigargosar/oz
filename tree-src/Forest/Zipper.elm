@@ -7,8 +7,8 @@ module Forest.Zipper exposing
     , findFirst
     , forward
     , getTree
-    , insertAndGoRight
     , insertLeft
+    , insertRight
     , left
     , mapData
     , prependChildAndFocus
@@ -333,21 +333,6 @@ insertLeft tree acc =
 insertRight : Tree a -> ForestZipper a -> ForestZipper a
 insertRight tree acc =
     { acc | right_ = tree :: acc.right_ }
-
-
-insertAndGoRight : Tree a -> ForestZipper a -> ForestZipper a
-insertAndGoRight =
-    let
-        insertHelp : Tree a -> ForestZipper a -> Maybe (ForestZipper a)
-        insertHelp tree =
-            insertRight tree >> right
-    in
-    withRollback << insertHelp
-
-
-withRollback : (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> ForestZipper a
-withRollback func oz =
-    func oz |> Maybe.withDefault oz
 
 
 prependChildAndFocus : Tree a -> ForestZipper a -> ForestZipper a

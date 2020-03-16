@@ -252,8 +252,12 @@ insertNewAfter =
     mapRandom
         (\z ->
             emptyLeafGenerator
-                |> Random.map (\child -> Zipper.insertAndGoRight child z)
+                |> Random.map (\child -> ignoreNothing (Zipper.insertRight child >> Zipper.right) z)
         )
+
+
+ignoreNothing func val =
+    func val |> Maybe.withDefault val
 
 
 focusId : ItemId -> OutlineDoc -> Maybe OutlineDoc
@@ -434,7 +438,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                     insertHelp itemId Zipper.insertLeft
 
                 After itemId ->
-                    insertHelp itemId Zipper.insertAndGoRight
+                    insertHelp itemId Zipper.insertRight
 
                 PrependIn itemId ->
                     insertHelp itemId Zipper.prependChildAndFocus
