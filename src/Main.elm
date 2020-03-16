@@ -635,11 +635,6 @@ type alias LHM =
     List HM
 
 
-type alias OCtx =
-    { renderWithoutBeacons : Bool
-    }
-
-
 viewOutline : Outline -> HM
 viewOutline outline =
     div []
