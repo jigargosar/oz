@@ -4,6 +4,7 @@ module Forest.Zipper exposing
     , appendChild
     , backward
     , data
+    , down
     , findFirst
     , forward
     , getTree
@@ -11,7 +12,7 @@ module Forest.Zipper exposing
     , insertRight
     , left
     , mapData
-    , prependChildAndFocus
+    , prependChild
     , remove
     , right
     , toForest
@@ -335,8 +336,8 @@ insertRight tree acc =
     { acc | right_ = tree :: acc.right_ }
 
 
-prependChildAndFocus : Tree a -> ForestZipper a -> ForestZipper a
-prependChildAndFocus child acc =
+prependChild : Tree a -> ForestZipper a -> ForestZipper a
+prependChild child acc =
     case treeTuple acc.center of
         ( a, children ) ->
             { acc

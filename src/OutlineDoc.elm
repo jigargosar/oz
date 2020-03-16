@@ -228,15 +228,6 @@ crumbDecoder =
         |> required "right_" (JD.list treeDecoder)
 
 
-prependNewChild : OutlineDoc -> Generator OutlineDoc
-prependNewChild =
-    mapRandom
-        (\z ->
-            emptyLeafGenerator
-                |> Random.map (\child -> Zipper.prependChildAndFocus child z)
-        )
-
-
 emptyLeafGenerator : Generator (Tree Item)
 emptyLeafGenerator =
     itemGenerator "" |> Random.map itemToTree
@@ -245,6 +236,15 @@ emptyLeafGenerator =
 itemToTree : Item -> Tree Item
 itemToTree item =
     Tree.tree item []
+
+
+prependNewChild : OutlineDoc -> Generator OutlineDoc
+prependNewChild =
+    mapRandom
+        (\z ->
+            emptyLeafGenerator
+                |> Random.map (\child -> ignoreNothing (Zipper.prependChild child >> Zipper.down) z)
+        )
 
 
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
@@ -442,7 +442,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                     insertHelp itemId Zipper.insertRight
 
                 PrependIn itemId ->
-                    insertHelp itemId Zipper.prependChildAndFocus
+                    insertHelp itemId Zipper.prependChild
 
                 AppendIn itemId ->
                     insertHelp itemId Zipper.appendChild
