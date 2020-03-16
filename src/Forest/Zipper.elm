@@ -252,6 +252,57 @@ firstOf =
 
 
 
+-- INSERTION
+
+
+insertLeft : Tree a -> ForestZipper a -> ForestZipper a
+insertLeft tree acc =
+    { acc | leftReversed = tree :: acc.leftReversed }
+
+
+insertRight : Tree a -> ForestZipper a -> ForestZipper a
+insertRight tree acc =
+    { acc | right_ = tree :: acc.right_ }
+
+
+
+-- DELETION
+
+
+remove : ForestZipper a -> Maybe (ForestZipper a)
+remove fz =
+    let
+        leaf : a -> Tree a
+        leaf a =
+            Tree.tree a []
+    in
+    case ( fz.leftReversed, fz.right_ ) of
+        -- center is the only child; go up
+        ( [], [] ) ->
+            case fz.crumbs of
+                -- center is the only tree in entire forest; cannot remove
+                [] ->
+                    Nothing
+
+                { leftReversed, datum, right_ } :: rest ->
+                    Just
+                        { fz
+                            | leftReversed = leftReversed
+                            , center = leaf datum
+                            , right_ = right_
+                            , crumbs = rest
+                        }
+
+        -- has right siblings; go right
+        ( _, first :: rest ) ->
+            Just { fz | center = first, right_ = rest }
+
+        -- has left siblings; go left
+        ( first :: rest, _ ) ->
+            Just { fz | leftReversed = rest, center = first }
+
+
+
 -- VISIT
 --
 --
@@ -310,51 +361,3 @@ firstOf =
 --    | Exit
 --    | Exited
 --    | Up
--- INSERTION
-
-
-insertLeft : Tree a -> ForestZipper a -> ForestZipper a
-insertLeft tree acc =
-    { acc | leftReversed = tree :: acc.leftReversed }
-
-
-insertRight : Tree a -> ForestZipper a -> ForestZipper a
-insertRight tree acc =
-    { acc | right_ = tree :: acc.right_ }
-
-
-
--- DELETION
-
-
-remove : ForestZipper a -> Maybe (ForestZipper a)
-remove fz =
-    let
-        leaf : a -> Tree a
-        leaf a =
-            Tree.tree a []
-    in
-    case ( fz.leftReversed, fz.right_ ) of
-        -- center is the only child; go up
-        ( [], [] ) ->
-            case fz.crumbs of
-                -- center is the only tree in entire forest; cannot remove
-                [] ->
-                    Nothing
-
-                { leftReversed, datum, right_ } :: rest ->
-                    Just
-                        { fz
-                            | leftReversed = leftReversed
-                            , center = leaf datum
-                            , right_ = right_
-                            , crumbs = rest
-                        }
-
-        -- has right siblings; go right
-        ( _, first :: rest ) ->
-            Just { fz | center = first, right_ = rest }
-
-        -- has left siblings; go left
-        ( first :: rest, _ ) ->
-            Just { fz | leftReversed = rest, center = first }
