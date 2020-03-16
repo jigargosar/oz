@@ -278,7 +278,7 @@ nextSiblingOfClosestAncestor acc =
 
 findFromCurrent : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
 findFromCurrent pred =
-    find (tree >> Tree.data >> pred) (Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ])
+    find (tree >> Tree.data >> pred) forward
 
 
 findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
