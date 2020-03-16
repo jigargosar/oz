@@ -113,9 +113,11 @@ treeDecoder dataDecoder =
 decoder : Decoder a -> Decoder (ForestZipper a)
 decoder dataDecoder =
     let
+        td : Decoder (Tree a)
         td =
             treeDecoder dataDecoder
 
+        cd : Decoder (Crumb a)
         cd =
             JD.succeed Crumb
                 |> required "leftReversed" (JD.list td)
