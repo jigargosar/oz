@@ -276,14 +276,9 @@ nextSiblingOfClosestAncestor acc =
 -- FIND
 
 
-findFromCurrent : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
-findFromCurrent pred =
-    find (tree >> Tree.data >> pred) forward
-
-
 findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
-findFirst pred acc =
-    firstRoot acc |> findFromCurrent pred
+findFirst pred =
+    firstRoot >> find (tree >> Tree.data >> pred) forward
 
 
 find : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
