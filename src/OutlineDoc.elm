@@ -149,13 +149,8 @@ type OutlineDoc
 
 
 encoder : OutlineDoc -> Value
-encoder (OutlineDoc outlineZipper) =
-    JE.object
-        [ ( "leftReversed", JE.list itemTreeEncoder outlineZipper.leftReversed )
-        , ( "center", itemTreeEncoder outlineZipper.center )
-        , ( "right_", JE.list itemTreeEncoder outlineZipper.right_ )
-        , ( "crumbs", JE.list crumbEncoder outlineZipper.crumbs )
-        ]
+encoder (OutlineDoc zipper) =
+    zEncoder itemEncoder zipper
 
 
 zEncoder : (a -> Value) -> ForestZipper a -> Value
