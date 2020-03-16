@@ -196,6 +196,18 @@ prependNewChild =
         )
 
 
+insertNewAt :
+    (Tree Item -> ForestZipper Item -> Maybe (ForestZipper Item))
+    -> OutlineDoc
+    -> Generator OutlineDoc
+insertNewAt func =
+    mapRandom
+        (\z ->
+            emptyLeafGenerator
+                |> Random.map (\child -> ignoreNothing (func child) z)
+        )
+
+
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
 insertNewAfter =
     mapRandom
