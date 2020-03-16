@@ -100,14 +100,14 @@ candidateLocationDecoder =
     JD.field "tag" JD.string |> JD.andThen tagDecoder
 
 
+
+-- ITEM
+
+
 type alias Item =
     { id : ItemId
     , title : String
     }
-
-
-
--- ITEM HELPERS
 
 
 type ItemId
@@ -144,6 +144,10 @@ itemIdDecoder =
             )
 
 
+
+-- MODEL
+
+
 type OutlineDoc
     = OutlineDoc (ForestZipper Item)
 
@@ -161,10 +165,6 @@ itemEncoder item =
         ]
 
 
-required fieldName decoder_ =
-    JD.map2 (|>) (JD.field fieldName decoder_)
-
-
 decoder : Decoder OutlineDoc
 decoder =
     Zipper.decoder itemDecoder |> JD.map OutlineDoc
@@ -175,6 +175,11 @@ itemDecoder =
     JD.succeed Item
         |> required "id" itemIdDecoder
         |> required "title" JD.string
+
+
+required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
+required fieldName decoder_ =
+    JD.map2 (|>) (JD.field fieldName decoder_)
 
 
 emptyLeafGenerator : Generator (Tree Item)
@@ -189,22 +194,19 @@ emptyLeafGenerator =
 
 prependNewChild : OutlineDoc -> Generator OutlineDoc
 prependNewChild =
-    mapRandom
-        (\z ->
-            emptyLeafGenerator
-                |> Random.map (\child -> ignoreNothing (zPrependChild child >> Zipper.down) z)
-        )
+    insertNewHelp zPrependChild Zipper.down
 
 
-insertNewAt :
-    (Tree Item -> ForestZipper Item -> Maybe (ForestZipper Item))
+insertNewHelp :
+    (Tree Item -> ForestZipper Item -> b)
+    -> (b -> Maybe (ForestZipper Item))
     -> OutlineDoc
     -> Generator OutlineDoc
-insertNewAt func =
+insertNewHelp func func2 =
     mapRandom
         (\z ->
             emptyLeafGenerator
-                |> Random.map (\child -> ignoreNothing (func child) z)
+                |> Random.map (\child -> ignoreNothing (func child >> func2) z)
         )
 
 
