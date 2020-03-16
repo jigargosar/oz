@@ -297,8 +297,9 @@ findFirst pred acc =
     firstRoot acc |> findFromCurrent pred
 
 
+find : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
 find pred navFunc zipper =
-    case Tree.data zipper.center of
+    case Tree.data (tree zipper) of
         a ->
             if pred a then
                 Just zipper
@@ -306,7 +307,7 @@ find pred navFunc zipper =
             else
                 case navFunc zipper of
                     Just nextAcc ->
-                        findFromCurrent pred nextAcc
+                        find pred navFunc nextAcc
 
                     Nothing ->
                         Nothing
