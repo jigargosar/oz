@@ -228,15 +228,13 @@ crumbDecoder =
         |> required "right_" (JD.list treeDecoder)
 
 
-prependNewItem_ : Item -> OutlineDoc -> OutlineDoc
-prependNewItem_ item =
-    map (Zipper.prependChildAndFocus (Tree.leaf item))
-
-
 addNewLine : String -> OutlineDoc -> Generator OutlineDoc
-addNewLine title doc =
-    itemGenerator title
-        |> Random.map (\item -> prependNewItem_ item doc)
+addNewLine title =
+    mapRandom
+        (\z ->
+            itemGenerator title
+                |> Random.map (\item -> Zipper.prependChildAndFocus (Tree.leaf item) z)
+        )
 
 
 focusId : ItemId -> OutlineDoc -> Maybe OutlineDoc
@@ -252,6 +250,11 @@ map func (OutlineDoc z) =
 mapMaybe : (ForestZipper Item -> Maybe (ForestZipper Item)) -> OutlineDoc -> Maybe OutlineDoc
 mapMaybe func (OutlineDoc z) =
     func z |> Maybe.map OutlineDoc
+
+
+mapRandom : (ForestZipper Item -> Generator (ForestZipper Item)) -> OutlineDoc -> Generator OutlineDoc
+mapRandom func (OutlineDoc z) =
+    func z |> Random.map OutlineDoc
 
 
 propEq : (c -> b) -> b -> c -> Bool
