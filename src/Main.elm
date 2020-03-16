@@ -247,7 +247,7 @@ update message model =
         New ->
             case model.outline of
                 Browsing doc ->
-                    updateWithUserIntentWhenBrowsing InsertNewChild doc model
+                    updateWithUserIntentWhenBrowsing AddNew doc model
 
                 _ ->
                     Debug.todo "impl"
@@ -360,7 +360,7 @@ type UserIntent
     | NavNext
     | UnIndent
     | Indent
-    | InsertNewChild
+    | AddNew
     | MoveUp
     | MoveDown
 
@@ -371,7 +371,7 @@ globalKeyEventToUserIntentWhenBrowsing ke =
         Just EditFocused
 
     else if hotKey "o" ke then
-        Just InsertNewChild
+        Just AddNew
 
     else if hotKey "ArrowUp" ke then
         Just NavPrev
@@ -435,7 +435,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
         EditFocused ->
             ( { model | outline = initEdit doc }, Cmd.none )
 
-        InsertNewChild ->
+        AddNew ->
             ( let
                 ( newDoc, newModel ) =
                     generate (OutlineDoc.addNewLine "" doc) model
