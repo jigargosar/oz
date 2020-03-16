@@ -598,7 +598,7 @@ ctrl name ke =
 
 targetInputOrButton : KeyEvent -> Bool
 targetInputOrButton ke =
-    not (List.member ke.targetTagName [ "INPUT", "BUTTON" ])
+    List.member ke.targetTagName [ "INPUT", "BUTTON" ]
 
 
 required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
