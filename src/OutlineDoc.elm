@@ -247,14 +247,6 @@ prependNewChild =
         )
 
 
-zPrependChild child =
-    Zipper.mapTree (Tree.mapChildren ((::) child))
-
-
-zAppendChild child =
-    Zipper.mapTree (Tree.mapChildren (\children -> children ++ [ child ]))
-
-
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
 insertNewAfter =
     mapRandom
@@ -306,11 +298,6 @@ setTitleUnlessBlank title =
         )
 
 
-zMapData : (a -> a) -> ForestZipper a -> ForestZipper a
-zMapData func =
-    Zipper.mapTree (Tree.mapData func)
-
-
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map
@@ -322,11 +309,6 @@ removeIfBlankLeaf =
             else
                 oz
         )
-
-
-zIsLeaf : ForestZipper a -> Bool
-zIsLeaf =
-    Zipper.getTree >> Tree.children >> List.isEmpty
 
 
 isBlank : String -> Bool
@@ -346,11 +328,6 @@ currentTitle =
 currentItem : OutlineDoc -> Item
 currentItem =
     unwrap >> zData
-
-
-zData : ForestZipper a -> a
-zData =
-    Zipper.getTree >> Tree.data
 
 
 currentId : OutlineDoc -> ItemId
@@ -533,3 +510,32 @@ goForward =
 hasVisibleChildren : OutlineDoc -> Bool
 hasVisibleChildren =
     unwrap >> Zipper.getTree >> Tree.children >> (not << List.isEmpty)
+
+
+
+-- ForestZipper Extra
+
+
+zMapData : (a -> a) -> ForestZipper a -> ForestZipper a
+zMapData func =
+    Zipper.mapTree (Tree.mapData func)
+
+
+zData : ForestZipper a -> a
+zData =
+    Zipper.getTree >> Tree.data
+
+
+zPrependChild : Tree a -> ForestZipper a -> ForestZipper a
+zPrependChild child =
+    Zipper.mapTree (Tree.mapChildren ((::) child))
+
+
+zAppendChild : Tree a -> ForestZipper a -> ForestZipper a
+zAppendChild child =
+    Zipper.mapTree (Tree.mapChildren (\children -> children ++ [ child ]))
+
+
+zIsLeaf : ForestZipper a -> Bool
+zIsLeaf =
+    Zipper.getTree >> Tree.children >> List.isEmpty
