@@ -448,7 +448,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
 
 toForest_ : OutlineDoc -> Tree.Forest Item
 toForest_ =
-    unwrap >> Zipper.toRootForest
+    unwrap >> Zipper.toForest
 
 
 currentTree_ : OutlineDoc -> Tree Item

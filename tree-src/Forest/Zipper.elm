@@ -14,7 +14,7 @@ module Forest.Zipper exposing
     , prependChildAndFocus
     , remove
     , right
-    , toRootForest
+    , toForest
     , up
     )
 
@@ -57,8 +57,8 @@ type alias Crumb a =
 --            Just { leftReversed = [], center = first, right_ = rest, crumbs = [] }
 
 
-toRootForest : ForestZipper a -> Forest a
-toRootForest =
+toForest : ForestZipper a -> Forest a
+toForest =
     firstRoot >> getForest
 
 
