@@ -232,21 +232,6 @@ firstRoot =
     root >> firstSibling
 
 
-nextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
-nextSiblingOfClosestAncestor acc =
-    case up acc of
-        Just parentAcc ->
-            case right parentAcc of
-                Just ns ->
-                    Just ns
-
-                Nothing ->
-                    nextSiblingOfClosestAncestor parentAcc
-
-        Nothing ->
-            Nothing
-
-
 backward : ForestZipper a -> Maybe (ForestZipper a)
 backward =
     firstOf [ left >> Maybe.map lastDescendant, up ]
@@ -270,6 +255,21 @@ lastDescendant zipper =
 
         Just child ->
             lastDescendant child
+
+
+nextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
+nextSiblingOfClosestAncestor acc =
+    case up acc of
+        Just parentAcc ->
+            case right parentAcc of
+                Just ns ->
+                    Just ns
+
+                Nothing ->
+                    nextSiblingOfClosestAncestor parentAcc
+
+        Nothing ->
+            Nothing
 
 
 
