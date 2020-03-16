@@ -29,7 +29,6 @@ module OutlineDoc exposing
     , setTitleUnlessBlank
     )
 
-import Forest
 import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import Json.Decode as JD exposing (Decoder)
@@ -475,7 +474,7 @@ currentTree_ =
 
 restructure : (Item -> List c -> c) -> OutlineDoc -> List c
 restructure render =
-    toForest_ >> Forest.restructure identity render
+    toForest_ >> List.map (Tree.restructure identity render)
 
 
 restructureFocused : (Item -> List c -> c) -> OutlineDoc -> c
