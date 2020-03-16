@@ -288,13 +288,18 @@ removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map
         (\oz ->
-            if isBlank (oz |> Zipper.data >> .title) && Zipper.isLeaf oz then
+            if isBlank (oz |> Zipper.data >> .title) && isLeaf_ oz then
                 oz
                     |> withRollback Zipper.remove
 
             else
                 oz
         )
+
+
+isLeaf_ : ForestZipper a -> Bool
+isLeaf_ =
+    Zipper.getTree >> Tree.children >> List.isEmpty
 
 
 isBlank : String -> Bool

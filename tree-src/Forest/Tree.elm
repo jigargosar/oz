@@ -3,7 +3,6 @@ module Forest.Tree exposing
     , Tree
     , children
     , data
-    , isLeaf
     , leaf
     , mapData
     , restructure
@@ -25,11 +24,6 @@ type alias Forest a =
 leaf : a -> Tree a
 leaf a =
     tree a []
-
-
-isLeaf : Tree a -> Bool
-isLeaf =
-    children >> List.isEmpty
 
 
 tree : a -> List (Tree a) -> Tree a

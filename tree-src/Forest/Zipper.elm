@@ -10,7 +10,6 @@ module Forest.Zipper exposing
     , getTree
     , insertAndGoRight
     , insertLeft
-    , isLeaf
     , left
     , mapData
     , prependChildAndFocus
@@ -47,8 +46,8 @@ type alias Crumb a =
 --noinspection ElmUnusedSymbol
 
 
-fromSingletonForest : Tree a -> ForestZipper a
-fromSingletonForest tree =
+fromTree : Tree a -> ForestZipper a
+fromTree tree =
     { leftReversed = [], center = tree, right_ = [], crumbs = [] }
 
 
@@ -95,38 +94,6 @@ getTree fz =
 data : ForestZipper a -> a
 data =
     getTree >> Tree.data
-
-
-isLeaf : ForestZipper a -> Bool
-isLeaf =
-    getTree >> Tree.isLeaf
-
-
-
---noinspection ElmUnusedSymbol
-
-
-getLevel : ForestZipper a -> Int
-getLevel fz =
-    List.length fz.crumbs
-
-
-
---noinspection ElmUnusedSymbol
-
-
-isFirst : ForestZipper a -> Bool
-isFirst fz =
-    List.isEmpty fz.leftReversed
-
-
-
---noinspection ElmUnusedSymbol
-
-
-isLast : ForestZipper a -> Bool
-isLast fz =
-    List.isEmpty fz.right_
 
 
 
