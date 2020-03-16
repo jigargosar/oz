@@ -53,6 +53,10 @@ module Doc exposing (..)
         * And we can break the cycle by, replacing re-occurrence of ancestorId with Nothing for display purposes.
         * And explicitly, list orphans and cycles. during development.
 
+    * selections can be assumed to only be valid if nodes are visible.
+
+    * node visibility will have to be computed. based on query & collapse state.
+
     Tree/Forest/Zipper
 
     - How do we model multi-selection?
