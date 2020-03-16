@@ -67,11 +67,6 @@ toForest =
     firstRoot >> forest
 
 
-withRollback : (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> ForestZipper a
-withRollback func oz =
-    func oz |> Maybe.withDefault oz
-
-
 mapTree : (Tree a -> Tree a) -> ForestZipper a -> ForestZipper a
 mapTree func fz =
     { fz | center = func fz.center }
@@ -348,6 +343,11 @@ insertAndGoRight =
             insertRight tree >> right
     in
     withRollback << insertHelp
+
+
+withRollback : (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> ForestZipper a
+withRollback func oz =
+    func oz |> Maybe.withDefault oz
 
 
 prependChildAndFocus : Tree a -> ForestZipper a -> ForestZipper a
