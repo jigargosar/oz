@@ -5,7 +5,6 @@ module Forest.Zipper exposing
     , down
     , findFirst
     , forward
-    , getTree
     , insertLeft
     , insertRight
     , left
@@ -13,6 +12,7 @@ module Forest.Zipper exposing
     , remove
     , right
     , toForest
+    , tree
     , up
     )
 
@@ -70,8 +70,8 @@ mapTree func fz =
     { fz | center = func fz.center }
 
 
-getTree : ForestZipper a -> Tree a
-getTree fz =
+tree : ForestZipper a -> Tree a
+tree fz =
     fz.center
 
 
@@ -106,8 +106,8 @@ up acc =
 
 
 treeTuple : Tree a -> ( a, Forest a )
-treeTuple tree =
-    ( Tree.data tree, Tree.children tree )
+treeTuple tre =
+    ( Tree.data tre, Tree.children tre )
 
 
 down : ForestZipper a -> Maybe (ForestZipper a)
@@ -256,13 +256,13 @@ firstOf =
 
 
 insertLeft : Tree a -> ForestZipper a -> ForestZipper a
-insertLeft tree acc =
-    { acc | leftReversed = tree :: acc.leftReversed }
+insertLeft node acc =
+    { acc | leftReversed = node :: acc.leftReversed }
 
 
 insertRight : Tree a -> ForestZipper a -> ForestZipper a
-insertRight tree acc =
-    { acc | right_ = tree :: acc.right_ }
+insertRight node acc =
+    { acc | right_ = node :: acc.right_ }
 
 
 

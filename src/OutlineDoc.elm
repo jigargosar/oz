@@ -453,7 +453,7 @@ toForest_ =
 
 currentTree_ : OutlineDoc -> Tree Item
 currentTree_ =
-    unwrap >> Zipper.getTree
+    unwrap >> Zipper.tree
 
 
 
@@ -509,7 +509,7 @@ goForward =
 
 hasVisibleChildren : OutlineDoc -> Bool
 hasVisibleChildren =
-    unwrap >> Zipper.getTree >> Tree.children >> (not << List.isEmpty)
+    unwrap >> Zipper.tree >> Tree.children >> (not << List.isEmpty)
 
 
 
@@ -523,7 +523,7 @@ zMapData func =
 
 zData : ForestZipper a -> a
 zData =
-    Zipper.getTree >> Tree.data
+    Zipper.tree >> Tree.data
 
 
 zPrependChild : Tree a -> ForestZipper a -> ForestZipper a
@@ -538,4 +538,4 @@ zAppendChild child =
 
 zIsLeaf : ForestZipper a -> Bool
 zIsLeaf =
-    Zipper.getTree >> Tree.children >> List.isEmpty
+    Zipper.tree >> Tree.children >> List.isEmpty
