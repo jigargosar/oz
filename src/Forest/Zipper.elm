@@ -3,7 +3,7 @@ module Forest.Zipper exposing
     , ForestZipper
     , backward
     , down
-    , findFirst
+    , firstRoot
     , forward
     , insertLeft
     , insertRight
@@ -274,28 +274,6 @@ nextSiblingOfClosestAncestor acc =
 
 
 -- FIND
-
-
-findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
-findFirst pred =
-    firstRoot >> find (tree >> Tree.data >> pred) forward
-
-
-find : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
-find pred maybeNavFunc zipper =
-    if pred zipper then
-        Just zipper
-
-    else
-        case maybeNavFunc zipper of
-            Just nextAcc ->
-                find pred maybeNavFunc nextAcc
-
-            Nothing ->
-                Nothing
-
-
-
 -- VISIT
 --
 --

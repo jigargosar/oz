@@ -263,7 +263,25 @@ ignoreNothing func val =
 
 focusId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 focusId itemId =
-    mapMaybe (Zipper.findFirst (propEq .id itemId))
+    let
+        findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
+        findFirst pred =
+            Zipper.firstRoot >> find (Zipper.tree >> Tree.data >> pred) Zipper.forward
+
+        find : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
+        find pred maybeNavFunc zipper =
+            if pred zipper then
+                Just zipper
+
+            else
+                case maybeNavFunc zipper of
+                    Just nextAcc ->
+                        find pred maybeNavFunc nextAcc
+
+                    Nothing ->
+                        Nothing
+    in
+    mapMaybe (findFirst (propEq .id itemId))
 
 
 map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
