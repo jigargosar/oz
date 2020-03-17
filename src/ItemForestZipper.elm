@@ -261,11 +261,6 @@ gotoId itemId =
             (Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfClosestAncestor ])
 
 
-gotoLastChild : FIZ -> Maybe FIZ
-gotoLastChild =
-    goDown >> Maybe.map (applyWhileJust goRight)
-
-
 goUp : FIZ -> Maybe FIZ
 goUp =
     Zipper.up
@@ -323,6 +318,11 @@ gotoLastDescendant zipper =
 
         Just child ->
             gotoLastDescendant child
+
+
+gotoLastChild : FIZ -> Maybe FIZ
+gotoLastChild =
+    goDown >> Maybe.map (applyWhileJust goRight)
 
 
 idEq : ItemId -> Item -> Bool
