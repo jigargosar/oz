@@ -14,8 +14,6 @@ module OutlineDoc exposing
     , goForward
     , hasVisibleChildren
     , insertNewAfter
-    , itemIdDecoder
-    , itemIdEncoder
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
@@ -30,6 +28,7 @@ module OutlineDoc exposing
 
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
+import ItemForestZipper
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
@@ -54,7 +53,7 @@ candidateLocationEncoder candidateLocation =
         encodeHelp tagName itemId =
             JE.object
                 [ ( "tag", JE.string tagName )
-                , ( "id", itemIdEncoder itemId )
+                , ( "id", ItemForestZipper.itemIdEncoder itemId )
                 ]
     in
     case candidateLocation of
@@ -76,7 +75,7 @@ candidateLocationDecoder =
     let
         decodeHelp : (ItemId -> CandidateLocation) -> Decoder CandidateLocation
         decodeHelp tag =
-            JD.field "id" itemIdDecoder
+            JD.field "id" ItemForestZipper.itemIdDecoder
                 |> JD.map tag
 
         tagDecoder : String -> Decoder CandidateLocation
@@ -105,58 +104,11 @@ candidateLocationDecoder =
 
 
 type alias Item =
-    { id : ItemId
-    , title : String
-    }
+    ItemForestZipper.Item
 
 
-itemEncoder : Item -> Value
-itemEncoder item =
-    JE.object
-        [ ( "id", itemIdEncoder item.id )
-        , ( "title", JE.string item.title )
-        ]
-
-
-itemDecoder : Decoder Item
-itemDecoder =
-    JD.succeed Item
-        |> required "id" itemIdDecoder
-        |> required "title" JD.string
-
-
-type ItemId
-    = ItemId String
-
-
-itemGenerator : String -> Generator Item
-itemGenerator title =
-    itemIdGenerator
-        |> Random.map (\id -> { id = id, title = title })
-
-
-itemIdGenerator : Generator ItemId
-itemIdGenerator =
-    Random.int 10000 Random.maxInt
-        |> Random.map (String.fromInt >> (++) "item-id-" >> ItemId)
-
-
-itemIdEncoder : ItemId -> Value
-itemIdEncoder (ItemId string) =
-    JE.string string
-
-
-itemIdDecoder : Decoder ItemId
-itemIdDecoder =
-    JD.string
-        |> JD.andThen
-            (\idStr ->
-                if String.startsWith "item-id-" idStr then
-                    JD.succeed (ItemId idStr)
-
-                else
-                    JD.fail ("invalid item id prefix: " ++ idStr)
-            )
+type alias ItemId =
+    ItemForestZipper.ItemId
 
 
 
@@ -169,27 +121,12 @@ type OutlineDoc
 
 encoder : OutlineDoc -> Value
 encoder (OutlineDoc zipper) =
-    Zipper.encoder itemEncoder zipper
+    ItemForestZipper.encoder zipper
 
 
 decoder : Decoder OutlineDoc
 decoder =
-    Zipper.decoder itemDecoder |> JD.map OutlineDoc
-
-
-required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
-required fieldName decoder_ =
-    JD.map2 (|>) (JD.field fieldName decoder_)
-
-
-emptyLeafGenerator : Generator (Tree Item)
-emptyLeafGenerator =
-    let
-        itemToTree : Item -> Tree Item
-        itemToTree item =
-            Tree.tree item []
-    in
-    itemGenerator "" |> Random.map itemToTree
+    ItemForestZipper.decoder |> JD.map OutlineDoc
 
 
 
@@ -198,36 +135,21 @@ emptyLeafGenerator =
 
 prependNewChild : OutlineDoc -> Generator OutlineDoc
 prependNewChild =
-    insertNewHelp zPrependChild Zipper.down
+    insertNewHelp ItemForestZipper.newChild
 
 
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
 insertNewAfter =
-    insertNewHelp Zipper.insertRight Zipper.right
+    insertNewHelp ItemForestZipper.newSibling
 
 
-insertNewHelp :
-    (Tree Item -> ForestZipper Item -> b)
-    -> (b -> Maybe (ForestZipper Item))
-    -> OutlineDoc
-    -> Generator OutlineDoc
-insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
-    let
-        insertNewAndChangeFocus newNode =
-            (insertFunc newNode >> moveFocusFunc) z |> Maybe.withDefault z
-    in
-    emptyLeafGenerator
-        |> Random.map (insertNewAndChangeFocus >> OutlineDoc)
+insertNewHelp insertFunc (OutlineDoc z) =
+    insertFunc z |> Random.map OutlineDoc
 
 
 moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 moveFocusToItemId itemId =
-    mapMaybe (Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward)
-
-
-idEq : ItemId -> Item -> Bool
-idEq =
-    propEq .id
+    mapMaybe (ItemForestZipper.gotoId itemId)
 
 
 map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
@@ -240,21 +162,14 @@ mapMaybe func (OutlineDoc z) =
     func z |> Maybe.map OutlineDoc
 
 
-propEq : (c -> b) -> b -> c -> Bool
-propEq func val obj =
-    func obj == val
-
-
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
     map
-        (\oz ->
-            if isBlank title then
-                oz
+        (ItemForestZipper.setTitle title |> ignoreNothing)
 
-            else
-                zMapData (\item -> { item | title = title }) oz
-        )
+
+ignoreNothing f v =
+    f v |> Maybe.withDefault v
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
@@ -499,11 +414,6 @@ hasVisibleChildren =
 -- ForestZipper Extra
 
 
-zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
-zFindByData pred =
-    findWithIterator (zData >> pred)
-
-
 findWithIterator : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
 findWithIterator pred iterator zipper =
     if pred zipper then
@@ -520,11 +430,6 @@ findWithIterator pred iterator zipper =
 
 zGoForward =
     Maybe.Extra.oneOf [ Zipper.down, Zipper.right, zNextSiblingOfClosestAncestor ]
-
-
-zMapData : (a -> a) -> ForestZipper a -> ForestZipper a
-zMapData func =
-    Zipper.mapTree (Tree.mapData func)
 
 
 zData : ForestZipper a -> a

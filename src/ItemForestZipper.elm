@@ -17,6 +17,7 @@ module ItemForestZipper exposing
     , relocateBy
     , restructure
     , restructureNodeAtCursor
+    , setTitle
     )
 
 import Forest.Tree as Tree exposing (Forest, Tree)
@@ -102,7 +103,7 @@ itemIdDecoder =
 
 
 type alias FIZ =
-    FIZ
+    ForestZipper Item
 
 
 encoder : FIZ -> Value
@@ -161,6 +162,36 @@ insertNewHelp insertFunc z =
     in
     emptyLeafGenerator
         |> Random.map insertNewAndChangeFocus
+
+
+
+-- UPDATE NODE
+
+
+setTitle : String -> FIZ -> Maybe FIZ
+setTitle rawTitle fiz =
+    case nonBlank rawTitle of
+        Just title ->
+            Just (zMapData (setTitleUnsafe title) fiz)
+
+        Nothing ->
+            Nothing
+
+
+setTitleUnsafe title model =
+    { model | title = title }
+
+
+nonBlank : String -> Maybe String
+nonBlank =
+    String.trim
+        >> (\trimmedString ->
+                if trimmedString == "" then
+                    Nothing
+
+                else
+                    Just trimmedString
+           )
 
 
 
@@ -246,27 +277,12 @@ down =
 
 lastDescendant : FIZ -> FIZ
 lastDescendant zipper =
-    case lastChild zipper of
+    case zLastChild zipper of
         Nothing ->
             zipper
 
         Just child ->
             lastDescendant child
-
-
-lastChild : FIZ -> Maybe FIZ
-lastChild =
-    down >> Maybe.map (applyWhileJust right)
-
-
-applyWhileJust : (a -> Maybe a) -> a -> a
-applyWhileJust func a =
-    case func a of
-        Just a2 ->
-            applyWhileJust func a2
-
-        Nothing ->
-            a
 
 
 
@@ -307,6 +323,21 @@ zNextSiblingOfClosestAncestor acc =
             Nothing
 
 
+zLastChild : ForestZipper a -> Maybe (ForestZipper a)
+zLastChild =
+    Zipper.down >> Maybe.map (applyWhileJust Zipper.right)
+
+
+applyWhileJust : (a -> Maybe a) -> a -> a
+applyWhileJust func a =
+    case func a of
+        Just a2 ->
+            applyWhileJust func a2
+
+        Nothing ->
+            a
+
+
 zInsertTreeAtAndFocusIt : Location -> Tree a -> ForestZipper a -> ForestZipper a
 zInsertTreeAtAndFocusIt location =
     let
@@ -326,7 +357,7 @@ zInsertTreeAtAndFocusIt location =
             helper zPrependChild Zipper.down
 
         AppendChild ->
-            helper zAppendChild lastChild
+            helper zAppendChild zLastChild
 
 
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
