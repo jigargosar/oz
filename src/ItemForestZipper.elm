@@ -318,8 +318,8 @@ insertRemovedNodeAtLocation atLocation targetId node =
             insertHelp zAppendChild
 
 
-insertAndFocusUnsafe : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
-insertAndFocusUnsafe candidateLocation =
+insertItemAndFocusUnsafeSkipDuplicateChecking : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
+insertItemAndFocusUnsafeSkipDuplicateChecking candidateLocation =
     case candidateLocation of
         Before ->
             zInsertAndFocusHelp Zipper.insertLeft Zipper.left
