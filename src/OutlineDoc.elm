@@ -222,7 +222,7 @@ insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
 
 moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 moveFocusToItemId itemId =
-    mapMaybe (findFirst (propEq .id itemId) (\z -> goForward (OutlineDoc z) |> Maybe.map unwrap))
+    mapMaybe (findFirst (propEq .id itemId) zGoForward)
 
 
 findFirst pred navFunc =
