@@ -421,24 +421,18 @@ applyWhileJust func a =
 
 zInsertAndGoto : Location -> Tree a -> ForestZipper a -> ForestZipper a
 zInsertAndGoto location =
-    let
-        helper insertFunc focusFunc node zipper =
-            insertFunc node zipper
-                |> focusFunc
-                |> Maybe.withDefault zipper
-    in
     case location of
         Before ->
-            helper Zipper.insertLeft Zipper.left
+            Zipper.insertLeftGo
 
         After ->
-            helper Zipper.insertRight Zipper.right
+            Zipper.insertRightGo
 
         PrependChild ->
-            helper Zipper.prependChild Zipper.down
+            Zipper.prependChildGo
 
         AppendChild ->
-            helper Zipper.appendChild Zipper.lastChild
+            Zipper.appendChildGo
 
 
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
