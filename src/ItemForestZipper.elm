@@ -16,7 +16,7 @@ module ItemForestZipper exposing
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    , moveFocusToItemId
+    , moveCursorToItemId
     , prependNewChild
     , removeIfBlankLeaf
     , restructure
@@ -163,8 +163,8 @@ insertNewHelp insertFunc moveFocusFunc z =
         |> Random.map insertNewAndChangeFocus
 
 
-moveFocusToItemId : ItemId -> FIZ -> Maybe FIZ
-moveFocusToItemId itemId =
+moveCursorToItemId : ItemId -> FIZ -> Maybe FIZ
+moveCursorToItemId itemId =
     Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
 
 
@@ -289,7 +289,7 @@ moveTo atLocation targetId =
         >> (\zipper ->
                 Zipper.remove zipper
                     |> Maybe.andThen
-                        (moveFocusToItemId targetId
+                        (moveCursorToItemId targetId
                             >> Maybe.map (zInsertTreeAtAndFocusIt atLocation zipper.center)
                         )
            )
