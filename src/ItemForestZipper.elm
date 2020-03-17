@@ -261,9 +261,9 @@ gotoId itemId =
             (Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfClosestAncestor ])
 
 
-gotoLastChild : ForestZipper a -> Maybe (ForestZipper a)
+gotoLastChild : FIZ -> Maybe FIZ
 gotoLastChild =
-    Zipper.down >> Maybe.map (applyWhileJust Zipper.right)
+    goDown >> Maybe.map (applyWhileJust goRight)
 
 
 goUp : FIZ -> Maybe FIZ
@@ -323,10 +323,6 @@ gotoLastDescendant zipper =
 
         Just child ->
             gotoLastDescendant child
-
-
-
--- NAVIGATION HELPERS
 
 
 idEq : ItemId -> Item -> Bool
@@ -391,7 +387,7 @@ zInsertTreeAtAndFocusIt location =
             helper zPrependChild Zipper.down
 
         AppendChild ->
-            helper zAppendChild gotoLastChild
+            helper zAppendChild (Zipper.down >> Maybe.map (applyWhileJust Zipper.right))
 
 
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
