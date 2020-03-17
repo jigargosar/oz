@@ -172,22 +172,22 @@ relocateBy :
     -> (FIZ -> Maybe FIZ)
     -> FIZ
     -> Maybe FIZ
-relocateBy location navigateFunction doc =
-    case navigateFunction doc |> Maybe.map getId of
+relocateBy relativeLocation gotoFunction doc =
+    case gotoFunction doc |> Maybe.map getId of
         Just targetId ->
-            relocate location targetId doc
+            relocate relativeLocation targetId doc
 
         Nothing ->
             Nothing
 
 
 relocate : Location -> ItemId -> FIZ -> Maybe FIZ
-relocate location targetId =
+relocate relativeLocation targetId =
     \zipper ->
         Zipper.remove zipper
             |> Maybe.andThen
                 (gotoId targetId
-                    >> Maybe.map (zInsertTreeAtAndFocusIt location (Zipper.tree zipper))
+                    >> Maybe.map (zInsertTreeAtAndFocusIt relativeLocation (Zipper.tree zipper))
                 )
 
 
