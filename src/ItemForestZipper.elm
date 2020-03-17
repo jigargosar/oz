@@ -135,6 +135,11 @@ getId =
     zData >> .id
 
 
+hasVisibleChildren : FIZ -> Bool
+hasVisibleChildren =
+    Zipper.tree >> Tree.children >> (not << List.isEmpty)
+
+
 
 -- NEW INSERTIONS
 
@@ -277,11 +282,6 @@ toForest =
 restructureNodeAtCursor : (Item -> List c -> c) -> FIZ -> c
 restructureNodeAtCursor render =
     Zipper.tree >> Tree.restructure identity render
-
-
-hasVisibleChildren : FIZ -> Bool
-hasVisibleChildren =
-    Zipper.tree >> Tree.children >> (not << List.isEmpty)
 
 
 
