@@ -294,32 +294,12 @@ moveTo atLocation targetId =
 
 insertRemovedNodeAtLocation : CandidateLocation -> ItemId -> Tree Item -> FIZ -> Maybe FIZ
 insertRemovedNodeAtLocation atLocation targetId node =
-    let
-        insertHelp :
-            (Tree Item -> FIZ -> FIZ)
-            -> FIZ
-            -> Maybe FIZ
-        insertHelp func doc =
-            doc
-                |> moveFocusToItemId targetId
-                >> Maybe.map (func node)
-    in
-    case atLocation of
-        Before ->
-            insertHelp Zipper.insertLeft
-
-        After ->
-            insertHelp Zipper.insertRight
-
-        PrependIn ->
-            insertHelp zPrependChild
-
-        AppendIn ->
-            insertHelp zAppendChild
+    moveFocusToItemId targetId
+        >> Maybe.map (zInsertAtEnsureFocus atLocation node)
 
 
-insertAtCandidateLocationAndFocus__Unsafe__SkipsUniqueCheck : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
-insertAtCandidateLocationAndFocus__Unsafe__SkipsUniqueCheck candidateLocation =
+zInsertAtEnsureFocus : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
+zInsertAtEnsureFocus candidateLocation =
     let
         helper insertFunc focusFunc node zipper =
             insertFunc node zipper
