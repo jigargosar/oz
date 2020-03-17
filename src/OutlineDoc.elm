@@ -222,26 +222,28 @@ insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
 
 moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 moveFocusToItemId itemId =
-    mapMaybe (Zipper.firstRoot >> find (treeIdEq itemId) zGoForward)
+    mapMaybe (Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward)
 
 
-treeDataPropEq a b =
-    Zipper.tree >> Tree.data >> propEq a b
+idEq : ItemId -> Item -> Bool
+idEq =
+    propEq .id
 
 
-treeIdEq iid =
-    treeDataPropEq .id iid
+zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
+zFindByData pred =
+    findWithIterator (zData >> pred)
 
 
-find : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
-find pred maybeNavFunc zipper =
+findWithIterator : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
+findWithIterator pred iterator zipper =
     if pred zipper then
         Just zipper
 
     else
-        case maybeNavFunc zipper of
+        case iterator zipper of
             Just nextAcc ->
-                find pred maybeNavFunc nextAcc
+                findWithIterator pred iterator nextAcc
 
             Nothing ->
                 Nothing
@@ -284,6 +286,14 @@ removeIfBlankLeaf =
             else
                 zipper
         )
+
+
+zRemoveIf pred zipper =
+    if isBlank (zipper |> zData >> .title) && zIsLeaf zipper then
+        Zipper.remove zipper |> Maybe.withDefault zipper
+
+    else
+        zipper
 
 
 isBlank : String -> Bool
