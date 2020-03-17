@@ -191,34 +191,34 @@ currentId =
     unwrap >> FIZ.getId
 
 
-relocateFocusedBy : FIZ.Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-relocateFocusedBy a b =
+relocateBy : FIZ.Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+relocateBy a b =
     mapMaybe (FIZ.relocateBy a b)
 
 
 moveAfterParent : OutlineDoc -> Maybe OutlineDoc
 moveAfterParent =
-    relocateFocusedBy FIZ.After FIZ.goUp
+    relocateBy FIZ.After FIZ.goUp
 
 
 appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSibling =
-    relocateFocusedBy FIZ.AppendChild FIZ.goLeft
+    relocateBy FIZ.AppendChild FIZ.goLeft
 
 
 moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
     Maybe.Extra.oneOf
-        [ relocateFocusedBy FIZ.Before FIZ.goLeft
-        , relocateFocusedBy FIZ.AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
+        [ relocateBy FIZ.Before FIZ.goLeft
+        , relocateBy FIZ.AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
         ]
 
 
 moveAfterNextSiblingOrPrependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 moveAfterNextSiblingOrPrependInNextSiblingOfParent =
     Maybe.Extra.oneOf
-        [ relocateFocusedBy FIZ.After FIZ.goRight
-        , relocateFocusedBy FIZ.PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
+        [ relocateBy FIZ.After FIZ.goRight
+        , relocateBy FIZ.PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
         ]
 
 
