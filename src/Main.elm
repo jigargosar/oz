@@ -929,6 +929,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                 ]
 
 
+viewAddNewButton : Bool -> Html Msg
 viewAddNewButton invisible =
     button
         ([ class "ph2 pv0 self-start lh-title bn bg-inherit color-inherit"
