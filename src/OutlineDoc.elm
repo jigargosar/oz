@@ -116,12 +116,12 @@ type ItemId
 
 itemGenerator : String -> Generator Item
 itemGenerator title =
-    itemIdGen
+    itemIdGenerator
         |> Random.map (\id -> { id = id, title = title })
 
 
-itemIdGen : Generator ItemId
-itemIdGen =
+itemIdGenerator : Generator ItemId
+itemIdGenerator =
     Random.int 10000 Random.maxInt
         |> Random.map (String.fromInt >> (++) "item-id-" >> ItemId)
 
