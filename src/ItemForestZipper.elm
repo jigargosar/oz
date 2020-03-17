@@ -130,6 +130,11 @@ emptyLeafGenerator =
     itemGenerator "" |> Random.map itemToTree
 
 
+getId : FIZ -> ItemId
+getId =
+    zData >> .id
+
+
 
 -- NEW INSERTIONS
 
@@ -154,27 +159,7 @@ insertNewHelp insertFunc z =
 
 
 
--- NAVIGATION
-
-
-gotoId : ItemId -> FIZ -> Maybe FIZ
-gotoId itemId =
-    Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
-
-
-idEq : ItemId -> Item -> Bool
-idEq =
-    propEq .id
-
-
-propEq : (c -> b) -> b -> c -> Bool
-propEq func val obj =
-    func obj == val
-
-
-getId : FIZ -> ItemId
-getId =
-    zData >> .id
+-- MOVE NODE AT CURSOR
 
 
 relocateBy :
@@ -201,19 +186,23 @@ relocate location targetId =
                 )
 
 
-restructure : (Item -> List c -> c) -> FIZ -> List c
-restructure render =
-    toForest >> List.map (Tree.restructure identity render)
+
+-- NAVIGATION
 
 
-toForest : FIZ -> Forest Item
-toForest =
-    Zipper.firstRoot >> Zipper.forest
+gotoId : ItemId -> FIZ -> Maybe FIZ
+gotoId itemId =
+    Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
 
 
-restructureTreeAtCursor : (Item -> List c -> c) -> FIZ -> c
-restructureTreeAtCursor render =
-    Zipper.tree >> Tree.restructure identity render
+idEq : ItemId -> Item -> Bool
+idEq =
+    propEq .id
+
+
+propEq : (c -> b) -> b -> c -> Bool
+propEq func val obj =
+    func obj == val
 
 
 left : FIZ -> Maybe FIZ
@@ -269,6 +258,25 @@ applyWhileJust func a =
 goForward : FIZ -> Maybe FIZ
 goForward =
     zGoForward
+
+
+
+-- VIEW HELPERS
+
+
+restructure : (Item -> List c -> c) -> FIZ -> List c
+restructure render =
+    toForest >> List.map (Tree.restructure identity render)
+
+
+toForest : FIZ -> Forest Item
+toForest =
+    Zipper.firstRoot >> Zipper.forest
+
+
+restructureTreeAtCursor : (Item -> List c -> c) -> FIZ -> c
+restructureTreeAtCursor render =
+    Zipper.tree >> Tree.restructure identity render
 
 
 hasVisibleChildren : FIZ -> Bool
