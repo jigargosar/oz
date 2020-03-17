@@ -90,10 +90,13 @@ module Doc exposing (..)
     Let's try
 
 -}
-type Tree a b
-    = Tree a (Children a b)
-    | Leaf a
+type Node
+    = Node Item (List Node)
 
 
-type Children a b
-    = Children b (Tree a b) (List (Tree a b))
+type Item
+    = Item ItemId String Bool
+
+
+type ItemId
+    = ItemId String
