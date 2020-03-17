@@ -200,6 +200,20 @@ gotoId itemId =
     Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
 
 
+goForward : FIZ -> Maybe FIZ
+goForward =
+    zGoForward
+
+
+goBackward : FIZ -> Maybe FIZ
+goBackward =
+    Maybe.Extra.oneOf [ left >> Maybe.map lastDescendant, up ]
+
+
+
+-- NAVIGATION HELPERS
+
+
 idEq : ItemId -> Item -> Bool
 idEq =
     propEq .id
@@ -230,11 +244,6 @@ down =
     Zipper.down
 
 
-goBackward : FIZ -> Maybe FIZ
-goBackward =
-    Maybe.Extra.oneOf [ left >> Maybe.map lastDescendant, up ]
-
-
 lastDescendant : FIZ -> FIZ
 lastDescendant zipper =
     case lastChild zipper of
@@ -258,11 +267,6 @@ applyWhileJust func a =
 
         Nothing ->
             a
-
-
-goForward : FIZ -> Maybe FIZ
-goForward =
-    zGoForward
 
 
 
