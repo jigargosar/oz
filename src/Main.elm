@@ -807,27 +807,27 @@ viewBeacon candidateLocation =
 
 viewDraggableItem : Bool -> Item -> Html Msg
 viewDraggableItem isHighlighted item =
-    viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = isHighlighted, isDraggable = True })
+    viewFlatLineWithConfig False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True })
 
 
 viewNotDraggableItem : Item -> Html Msg
 viewNotDraggableItem item =
-    viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = False, isDraggable = False })
+    viewFlatLineWithConfig False (ItemLine item { isHighlighted = False, isDraggable = False })
 
 
 viewFadedDraggedItem : Item -> Html Msg
 viewFadedDraggedItem item =
-    viewFlatLineWithConfig True (ItemLine 0 item { isHighlighted = False, isDraggable = False })
+    viewFlatLineWithConfig True (ItemLine item { isHighlighted = False, isDraggable = False })
 
 
 viewDraggedItem : Item -> Html Msg
 viewDraggedItem item =
-    viewFlatLineWithConfig False (ItemLine 0 item { isHighlighted = False, isDraggable = False })
+    viewFlatLineWithConfig False (ItemLine item { isHighlighted = False, isDraggable = False })
 
 
 viewEditItem : String -> Html Msg
 viewEditItem title =
-    viewFlatLineWithConfig False (EditLine 0 title)
+    viewFlatLineWithConfig False (EditLine title)
 
 
 
@@ -852,8 +852,8 @@ type alias TransformForestConfig a ctx tree =
 
 
 type FlatLine
-    = ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
-    | EditLine Int String
+    = ItemLine Item { isHighlighted : Bool, isDraggable : Bool }
+    | EditLine String
 
 
 debug =
@@ -864,10 +864,6 @@ debug =
 dataBeacon : Value -> Attribute msg
 dataBeacon value =
     attribute "data-beacon" (JE.encode 0 value)
-
-
-levelContainer level =
-    div [ style "margin-left" (String.fromInt (level * 32) ++ "px") ]
 
 
 itemDisplayTitle : Item -> String
@@ -897,53 +893,49 @@ classIf bool classValue =
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
 viewFlatLineWithConfig fadeNotDraggable flatLine =
     case flatLine of
-        ItemLine level item { isHighlighted, isDraggable } ->
-            levelContainer level
-                [ div
-                    (class "pa1 bb b--black-30 pointer no-selection flex"
-                        :: classIf (not isDraggable && fadeNotDraggable) "o-50"
-                        :: (if isDraggable then
-                                dragEvents item.id
+        ItemLine item { isHighlighted, isDraggable } ->
+            div
+                (class "pa1 bb b--black-30 pointer no-selection flex"
+                    :: classIf (not isDraggable && fadeNotDraggable) "o-50"
+                    :: (if isDraggable then
+                            dragEvents item.id
+
+                        else
+                            []
+                       )
+                )
+                [ div [ class "mr2 self-start dim pointer" ]
+                    (if item.collapsed then
+                        [ text ">" ]
+
+                     else
+                        [ text "v" ]
+                    )
+                , div
+                    [ class "flex-auto lh-title "
+                    , classIf isHighlighted "bg-blue white"
+                    , onClick (ItemTitleClicked item.id)
+                    ]
+                    [ text (itemDisplayTitle item) ]
+                , button
+                    ([ class "ph2 pv0 lh-title bn bg-inherit color-inherit"
+                     , onClick New
+                     ]
+                        ++ (if isDraggable && isHighlighted then
+                                []
 
                             else
-                                []
+                                [ class "pe-none o-0", disabled True ]
                            )
                     )
-                    [ div [ class "mr2 self-start dim pointer" ]
-                        (if item.collapsed then
-                            [ text ">" ]
-
-                         else
-                            [ text "v" ]
-                        )
-                    , div
-                        [ class "flex-auto lh-title "
-                        , classIf isHighlighted "bg-blue white"
-                        , onClick (ItemTitleClicked item.id)
-                        ]
-                        [ text (itemDisplayTitle item) ]
-                    , button
-                        ([ class "ph2 pv0 lh-title bn bg-inherit color-inherit"
-                         , onClick New
-                         ]
-                            ++ (if isDraggable && isHighlighted then
-                                    []
-
-                                else
-                                    [ class "pe-none o-0", disabled True ]
-                               )
-                        )
-                        [ text "+" ]
-                    ]
+                    [ text "+" ]
                 ]
 
-        EditLine level title ->
-            levelContainer level
-                [ div
-                    (class "pa1 bb b--black-10 pointer no-selection" :: [])
-                    [ div [ class "flex lh-title" ]
-                        [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
-                        ]
+        EditLine title ->
+            div
+                (class "pa1 bb b--black-10 pointer no-selection" :: [])
+                [ div [ class "flex lh-title" ]
+                    [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
                     ]
                 ]
 
