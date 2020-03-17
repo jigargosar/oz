@@ -10,14 +10,14 @@ module ItemForestZipper exposing
     , goBackward
     , goForward
     , hasVisibleChildren
-    , insertNewAfter
     , itemIdDecoder
     , itemIdEncoder
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCursorToItemId
-    , prependNewChild
+    , newChild
+    , newSibling
     , removeIfBlankLeaf
     , restructure
     , restructureFocused
@@ -39,8 +39,8 @@ import Random exposing (Generator)
 type Location
     = Before
     | After
-    | PrependIn
-    | AppendIn
+    | PrependChild
+    | AppendChild
 
 
 
@@ -139,25 +139,20 @@ emptyLeafGenerator =
 -- NEW INSERTIONS
 
 
-prependNewChild : FIZ -> Generator FIZ
-prependNewChild =
-    insertNewHelp zPrependChild Zipper.down
+newChild : FIZ -> Generator FIZ
+newChild =
+    insertNewHelp (zInsertTreeAtAndFocusIt PrependChild)
 
 
-insertNewAfter : FIZ -> Generator FIZ
-insertNewAfter =
-    insertNewHelp Zipper.insertRight Zipper.right
+newSibling : FIZ -> Generator FIZ
+newSibling =
+    insertNewHelp (zInsertTreeAtAndFocusIt After)
 
 
-insertNewHelp :
-    (Tree Item -> FIZ -> b)
-    -> (b -> Maybe FIZ)
-    -> FIZ
-    -> Generator FIZ
-insertNewHelp insertFunc moveCursorFunc z =
+insertNewHelp insertFunc z =
     let
         insertNewAndChangeFocus newNode =
-            (insertFunc newNode >> moveCursorFunc) z |> Maybe.withDefault z
+            insertFunc newNode z
     in
     emptyLeafGenerator
         |> Random.map insertNewAndChangeFocus
@@ -230,7 +225,7 @@ moveAfterParent =
 
 appendInPreviousSibling : FIZ -> Maybe FIZ
 appendInPreviousSibling =
-    relocateBy AppendIn left
+    relocateBy AppendChild left
 
 
 moveBeforePreviousSibling : FIZ -> Maybe FIZ
@@ -240,7 +235,7 @@ moveBeforePreviousSibling =
 
 appendInPreviousSiblingOfParent : FIZ -> Maybe FIZ
 appendInPreviousSiblingOfParent =
-    relocateBy AppendIn (up >> Maybe.andThen left)
+    relocateBy AppendChild (up >> Maybe.andThen left)
 
 
 moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : FIZ -> Maybe FIZ
@@ -253,7 +248,7 @@ moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
 
 prependInNextSiblingOfParent : FIZ -> Maybe FIZ
 prependInNextSiblingOfParent =
-    relocateBy PrependIn (up >> Maybe.andThen right)
+    relocateBy PrependChild (up >> Maybe.andThen right)
 
 
 moveAfterNextSibling : FIZ -> Maybe FIZ
@@ -290,7 +285,7 @@ relocate atLocation targetId =
                 Zipper.remove zipper
                     |> Maybe.andThen
                         (moveCursorToItemId targetId
-                            >> Maybe.map (zInsertTreeAtAndFocusIt atLocation zipper.center)
+                            >> Maybe.map (zInsertTreeAtAndFocusIt atLocation (Zipper.tree zipper))
                         )
            )
 
@@ -409,10 +404,10 @@ zInsertTreeAtAndFocusIt location =
         After ->
             helper Zipper.insertRight Zipper.right
 
-        PrependIn ->
+        PrependChild ->
             helper zPrependChild Zipper.down
 
-        AppendIn ->
+        AppendChild ->
             helper zAppendChild lastChild
 
 
