@@ -3,6 +3,7 @@ module OutlineDoc exposing
     , Item
     , ItemId
     , OutlineDoc
+    , addNew
     , appendInPreviousSibling
     , candidateLocationDecoder
     , candidateLocationEncoder
@@ -15,13 +16,11 @@ module OutlineDoc exposing
     , goBackward
     , goForward
     , hasVisibleChildren
-    , insertNewAfter
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCurrentToCandidateLocation
     , moveFocusToItemId
-    , prependNewChild
     , removeIfBlankLeaf
     , restructure
     , restructureFocused
@@ -148,18 +147,9 @@ unwrap (OutlineDoc z) =
 -- NEW INSERTIONS
 
 
-prependNewChild : OutlineDoc -> Generator OutlineDoc
-prependNewChild =
-    insertNewHelp FIZ.newChild
-
-
-insertNewAfter : OutlineDoc -> Generator OutlineDoc
-insertNewAfter =
-    insertNewHelp FIZ.newSibling
-
-
-insertNewHelp insertFunc (OutlineDoc z) =
-    insertFunc z |> Random.map OutlineDoc
+addNew : OutlineDoc -> Generator OutlineDoc
+addNew =
+    unwrap >> FIZ.addNew >> Random.map OutlineDoc
 
 
 moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc

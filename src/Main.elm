@@ -5,7 +5,7 @@ import Browser.Dom as Dom
 import Browser.Events
 import Forest.Tree exposing (Forest)
 import Html exposing (Attribute, Html, button, div, input, text)
-import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, tabindex, value)
+import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -450,18 +450,9 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             ( { model | outline = initEdit doc }, Cmd.none )
 
         AddNew ->
-            let
-                newFn =
-                    case OutlineDoc.hasVisibleChildren doc of
-                        True ->
-                            OutlineDoc.prependNewChild
-
-                        False ->
-                            OutlineDoc.insertNewAfter
-            in
             ( let
                 ( newDoc, newModel ) =
-                    generate (newFn doc) model
+                    generate (OutlineDoc.addNew doc) model
               in
               { newModel | outline = initEdit newDoc }
             , Cmd.none

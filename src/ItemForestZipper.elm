@@ -3,6 +3,7 @@ module ItemForestZipper exposing
     , Item
     , ItemId
     , Location(..)
+    , addNew
     , collapse
     , decoder
     , deleteEmpty
@@ -20,8 +21,6 @@ module ItemForestZipper exposing
     , hasVisibleChildren
     , itemIdDecoder
     , itemIdEncoder
-    , newChild
-    , newSibling
     , relocate
     , relocateBy
     , restructure
@@ -162,23 +161,18 @@ hasVisibleChildren fiz =
 -- NEW INSERTIONS
 
 
-newChild : FIZ -> Generator FIZ
-newChild =
-    insertNewHelp (zInsertAndGoto PrependChild)
-
-
-newSibling : FIZ -> Generator FIZ
-newSibling =
-    insertNewHelp (zInsertAndGoto After)
-
-
-insertNewHelp insertFunc z =
+addNew : FIZ -> Generator FIZ
+addNew fiz =
     let
-        insertNewAndChangeFocus newNode =
-            insertFunc newNode z
+        insertNewHelper node =
+            if hasVisibleChildren fiz then
+                Zipper.prependChildGo node fiz
+
+            else
+                Zipper.insertRightGo node fiz
     in
     emptyLeafGenerator
-        |> Random.map insertNewAndChangeFocus
+        |> Random.map insertNewHelper
 
 
 
