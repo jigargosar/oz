@@ -154,10 +154,10 @@ insertNewHelp :
     -> (b -> Maybe FIZ)
     -> FIZ
     -> Generator FIZ
-insertNewHelp insertFunc moveFocusFunc z =
+insertNewHelp insertFunc moveCursorFunc z =
     let
         insertNewAndChangeFocus newNode =
-            (insertFunc newNode >> moveFocusFunc) z |> Maybe.withDefault z
+            (insertFunc newNode >> moveCursorFunc) z |> Maybe.withDefault z
     in
     emptyLeafGenerator
         |> Random.map insertNewAndChangeFocus
