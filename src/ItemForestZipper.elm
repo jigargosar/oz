@@ -2,7 +2,6 @@ module ItemForestZipper exposing
     ( FIZ
     , Item
     , ItemId
-    , appendInPreviousSibling
     , decoder
     , encoder
     , getId
@@ -12,11 +11,10 @@ module ItemForestZipper exposing
     , hasVisibleChildren
     , itemIdDecoder
     , itemIdEncoder
-    , moveAfterNextSiblingOrPrependInNextSiblingOfParent
-    , moveAfterParent
-    , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , newChild
     , newSibling
+    , relocate
+    , relocateBy
     , restructure
     , restructureFocused
     )
@@ -155,6 +153,10 @@ insertNewHelp insertFunc z =
         |> Random.map insertNewAndChangeFocus
 
 
+
+-- NAVIGATION
+
+
 gotoId : ItemId -> FIZ -> Maybe FIZ
 gotoId itemId =
     Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
@@ -175,52 +177,6 @@ getId =
     zData >> .id
 
 
-moveAfterParent : FIZ -> Maybe FIZ
-moveAfterParent =
-    relocateBy After up
-
-
-appendInPreviousSibling : FIZ -> Maybe FIZ
-appendInPreviousSibling =
-    relocateBy AppendChild left
-
-
-moveBeforePreviousSibling : FIZ -> Maybe FIZ
-moveBeforePreviousSibling =
-    relocateBy Before left
-
-
-appendInPreviousSiblingOfParent : FIZ -> Maybe FIZ
-appendInPreviousSiblingOfParent =
-    relocateBy AppendChild (up >> Maybe.andThen left)
-
-
-moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : FIZ -> Maybe FIZ
-moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
-    Maybe.Extra.oneOf
-        [ moveBeforePreviousSibling
-        , appendInPreviousSiblingOfParent
-        ]
-
-
-prependInNextSiblingOfParent : FIZ -> Maybe FIZ
-prependInNextSiblingOfParent =
-    relocateBy PrependChild (up >> Maybe.andThen right)
-
-
-moveAfterNextSibling : FIZ -> Maybe FIZ
-moveAfterNextSibling =
-    relocateBy After right
-
-
-moveAfterNextSiblingOrPrependInNextSiblingOfParent : FIZ -> Maybe FIZ
-moveAfterNextSiblingOrPrependInNextSiblingOfParent =
-    Maybe.Extra.oneOf
-        [ moveAfterNextSibling
-        , prependInNextSiblingOfParent
-        ]
-
-
 relocateBy :
     Location
     -> (FIZ -> Maybe FIZ)
@@ -236,25 +192,23 @@ relocateBy location navigateFunction doc =
 
 
 relocate : Location -> ItemId -> FIZ -> Maybe FIZ
-relocate atLocation targetId =
-    unwrap
-        >> (\zipper ->
-                Zipper.remove zipper
-                    |> Maybe.andThen
-                        (gotoId targetId
-                            >> Maybe.map (zInsertTreeAtAndFocusIt atLocation (Zipper.tree zipper))
-                        )
-           )
+relocate location targetId =
+    \zipper ->
+        Zipper.remove zipper
+            |> Maybe.andThen
+                (gotoId targetId
+                    >> Maybe.map (zInsertTreeAtAndFocusIt location (Zipper.tree zipper))
+                )
 
 
 toForest : FIZ -> Forest Item
 toForest =
-    unwrap >> Zipper.firstRoot >> Zipper.forest
+    Zipper.firstRoot >> Zipper.forest
 
 
 currentTree : FIZ -> Tree Item
 currentTree =
-    unwrap >> Zipper.tree
+    Zipper.tree
 
 
 restructure : (Item -> List c -> c) -> FIZ -> List c
@@ -339,7 +293,7 @@ zNextSiblingOfClosestAncestor acc =
 
 hasVisibleChildren : FIZ -> Bool
 hasVisibleChildren =
-    unwrap >> Zipper.tree >> Tree.children >> (not << List.isEmpty)
+    Zipper.tree >> Tree.children >> (not << List.isEmpty)
 
 
 
