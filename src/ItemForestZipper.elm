@@ -318,27 +318,20 @@ insertRemovedNodeAtLocation atLocation targetId node =
             insertHelp zAppendChild
 
 
-insertAndFocus candidateLocation node zipper =
+insertAndFocusUnsafe : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
+insertAndFocusUnsafe candidateLocation =
     case candidateLocation of
         Before ->
-            Zipper.insertLeft node zipper
-                |> Zipper.left
-                |> Maybe.withDefault zipper
+            zInsertAndFocusHelp Zipper.insertLeft Zipper.left
 
         After ->
-            Zipper.insertRight node zipper
-                |> Zipper.right
-                |> Maybe.withDefault zipper
+            zInsertAndFocusHelp Zipper.insertRight Zipper.right
 
         PrependIn ->
-            zPrependChild node zipper
-                |> Zipper.down
-                |> Maybe.withDefault zipper
+            zInsertAndFocusHelp zPrependChild Zipper.down
 
         AppendIn ->
-            zAppendChild node zipper
-                |> lastChild
-                |> Maybe.withDefault zipper
+            zInsertAndFocusHelp zAppendChild lastChild
 
 
 zInsertAndFocusHelp insertFunc focusFunc node zipper =
