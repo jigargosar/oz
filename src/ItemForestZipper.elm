@@ -3,25 +3,22 @@ module ItemForestZipper exposing
     , Item
     , ItemId
     , appendInPreviousSibling
-    , currentId
-    , currentTitle
     , decoder
     , encoder
+    , getId
     , goBackward
     , goForward
+    , gotoId
     , hasVisibleChildren
     , itemIdDecoder
     , itemIdEncoder
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    , moveCursor
     , newChild
     , newSibling
-    , removeIfBlankLeaf
     , restructure
     , restructureFocused
-    , setTitleUnlessBlank
     )
 
 import Forest.Tree as Tree exposing (Forest, Tree)
@@ -158,8 +155,8 @@ insertNewHelp insertFunc z =
         |> Random.map insertNewAndChangeFocus
 
 
-moveCursor : ItemId -> FIZ -> Maybe FIZ
-moveCursor itemId =
+gotoId : ItemId -> FIZ -> Maybe FIZ
+gotoId itemId =
     Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
 
 
@@ -173,49 +170,9 @@ propEq func val obj =
     func obj == val
 
 
-setTitleUnlessBlank : String -> FIZ -> FIZ
-setTitleUnlessBlank title =
-    \oz ->
-        if isBlank title then
-            oz
-
-        else
-            zMapData (\item -> { item | title = title }) oz
-
-
-removeIfBlankLeaf : FIZ -> FIZ
-removeIfBlankLeaf =
-    \zipper ->
-        if isBlank (zipper |> zData >> .title) && zIsLeaf zipper then
-            Zipper.remove zipper |> Maybe.withDefault zipper
-
-        else
-            zipper
-
-
-isBlank : String -> Bool
-isBlank =
-    String.trim >> String.isEmpty
-
-
-currentTitle : FIZ -> String
-currentTitle =
-    currentItem >> .title
-
-
-currentItem : FIZ -> Item
-currentItem =
-    unwrap >> zData
-
-
-currentId : FIZ -> ItemId
-currentId =
-    currentItem >> .id
-
-
-unwrap : FIZ -> FIZ
-unwrap z =
-    z
+getId : FIZ -> ItemId
+getId =
+    zData >> .id
 
 
 moveAfterParent : FIZ -> Maybe FIZ
@@ -270,7 +227,7 @@ relocateBy :
     -> FIZ
     -> Maybe FIZ
 relocateBy location navigateFunction doc =
-    case navigateFunction doc |> Maybe.map currentId of
+    case navigateFunction doc |> Maybe.map getId of
         Just targetId ->
             relocate location targetId doc
 
@@ -284,7 +241,7 @@ relocate atLocation targetId =
         >> (\zipper ->
                 Zipper.remove zipper
                     |> Maybe.andThen
-                        (moveCursor targetId
+                        (gotoId targetId
                             >> Maybe.map (zInsertTreeAtAndFocusIt atLocation (Zipper.tree zipper))
                         )
            )
