@@ -127,6 +127,21 @@ decoder =
     FIZ.decoder |> JD.map OutlineDoc
 
 
+map : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
+map func (OutlineDoc z) =
+    func z |> OutlineDoc
+
+
+mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+mapMaybe func (OutlineDoc z) =
+    func z |> Maybe.map OutlineDoc
+
+
+unwrap : OutlineDoc -> FIZ
+unwrap (OutlineDoc z) =
+    z
+
+
 
 -- NEW INSERTIONS
 
@@ -148,16 +163,6 @@ insertNewHelp insertFunc (OutlineDoc z) =
 moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 moveFocusToItemId itemId =
     mapMaybe (FIZ.gotoId itemId)
-
-
-map : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
-map func (OutlineDoc z) =
-    func z |> OutlineDoc
-
-
-mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-mapMaybe func (OutlineDoc z) =
-    func z |> Maybe.map OutlineDoc
 
 
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
@@ -186,11 +191,6 @@ currentId =
     unwrap >> FIZ.getId
 
 
-unwrap : OutlineDoc -> FIZ
-unwrap (OutlineDoc z) =
-    z
-
-
 relocateFocusedBy : FIZ.Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
 relocateFocusedBy a b =
     mapMaybe (FIZ.relocateBy a b)
@@ -206,54 +206,20 @@ appendInPreviousSibling =
     relocateFocusedBy FIZ.AppendChild FIZ.goLeft
 
 
-moveBeforePreviousSibling : OutlineDoc -> Maybe OutlineDoc
-moveBeforePreviousSibling =
-    relocateFocusedBy FIZ.Before FIZ.goLeft
-
-
-appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
-appendInPreviousSiblingOfParent =
-    relocateFocusedBy FIZ.AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
-
-
 moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
     Maybe.Extra.oneOf
-        [ moveBeforePreviousSibling
-        , appendInPreviousSiblingOfParent
+        [ relocateFocusedBy FIZ.Before FIZ.goLeft
+        , relocateFocusedBy FIZ.AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
         ]
-
-
-prependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
-prependInNextSiblingOfParent =
-    relocateFocusedBy FIZ.PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
-
-
-moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
-moveAfterNextSibling =
-    relocateFocusedBy FIZ.After FIZ.goRight
 
 
 moveAfterNextSiblingOrPrependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 moveAfterNextSiblingOrPrependInNextSiblingOfParent =
     Maybe.Extra.oneOf
-        [ moveAfterNextSibling
-        , prependInNextSiblingOfParent
+        [ relocateFocusedBy FIZ.After FIZ.goRight
+        , relocateFocusedBy FIZ.PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
         ]
-
-
-relocateFocused :
-    (ItemId -> CandidateLocation)
-    -> (OutlineDoc -> Maybe OutlineDoc)
-    -> OutlineDoc
-    -> Maybe OutlineDoc
-relocateFocused candidateLocationFunction navigateFunction doc =
-    case navigateFunction doc |> Maybe.map currentId of
-        Just id ->
-            moveCurrentToCandidateLocation (candidateLocationFunction id) doc
-
-        Nothing ->
-            Nothing
 
 
 moveCurrentToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
