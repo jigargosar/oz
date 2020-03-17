@@ -341,6 +341,12 @@ insertAndFocus candidateLocation node zipper =
                 |> Maybe.withDefault zipper
 
 
+zInsertAndFocusHelp insertFunc focusFunc node zipper =
+    insertFunc node zipper
+        |> focusFunc
+        |> Maybe.withDefault zipper
+
+
 toForest : FIZ -> Forest Item
 toForest =
     unwrap >> Zipper.firstRoot >> Zipper.forest
