@@ -110,6 +110,21 @@ type alias Item =
     }
 
 
+itemEncoder : Item -> Value
+itemEncoder item =
+    JE.object
+        [ ( "id", itemIdEncoder item.id )
+        , ( "title", JE.string item.title )
+        ]
+
+
+itemDecoder : Decoder Item
+itemDecoder =
+    JD.succeed Item
+        |> required "id" itemIdDecoder
+        |> required "title" JD.string
+
+
 type ItemId
     = ItemId String
 
@@ -157,24 +172,9 @@ encoder (OutlineDoc zipper) =
     Zipper.encoder itemEncoder zipper
 
 
-itemEncoder : Item -> Value
-itemEncoder item =
-    JE.object
-        [ ( "id", itemIdEncoder item.id )
-        , ( "title", JE.string item.title )
-        ]
-
-
 decoder : Decoder OutlineDoc
 decoder =
     Zipper.decoder itemDecoder |> JD.map OutlineDoc
-
-
-itemDecoder : Decoder Item
-itemDecoder =
-    JD.succeed Item
-        |> required "id" itemIdDecoder
-        |> required "title" JD.string
 
 
 required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
