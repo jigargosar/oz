@@ -369,7 +369,7 @@ propEq func val obj =
 
 restructure : (Item -> List c -> c) -> FIZ -> List c
 restructure render =
-    toForest >> List.map (Tree.restructure identity render)
+    toForest >> List.map (restructureHelp render)
 
 
 toForest : FIZ -> Forest Item
@@ -379,7 +379,21 @@ toForest =
 
 restructureNodeAtCursor : (Item -> List c -> c) -> FIZ -> c
 restructureNodeAtCursor render =
-    Zipper.tree >> Tree.restructure identity render
+    Zipper.tree >> restructureHelp render
+
+
+restructureHelp : (Item -> List c -> c) -> Tree Item -> c
+restructureHelp render =
+    Tree.restructure identity
+        (\item children ->
+            render item
+                (if item.collapsed then
+                    []
+
+                 else
+                    children
+                )
+        )
 
 
 
