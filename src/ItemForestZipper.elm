@@ -172,8 +172,8 @@ relocateBy :
     -> (FIZ -> Maybe FIZ)
     -> FIZ
     -> Maybe FIZ
-relocateBy relativeLocation gotoFunction doc =
-    case gotoFunction doc |> Maybe.map getId of
+relocateBy relativeLocation findTargetFunc doc =
+    case findTargetFunc doc |> Maybe.map getId of
         Just targetId ->
             relocate relativeLocation targetId doc
 
