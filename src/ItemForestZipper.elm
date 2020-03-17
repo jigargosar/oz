@@ -16,7 +16,7 @@ module ItemForestZipper exposing
     , relocate
     , relocateBy
     , restructure
-    , restructureTreeAtCursor
+    , restructureNodeAtCursor
     )
 
 import Forest.Tree as Tree exposing (Forest, Tree)
@@ -274,8 +274,8 @@ toForest =
     Zipper.firstRoot >> Zipper.forest
 
 
-restructureTreeAtCursor : (Item -> List c -> c) -> FIZ -> c
-restructureTreeAtCursor render =
+restructureNodeAtCursor : (Item -> List c -> c) -> FIZ -> c
+restructureNodeAtCursor render =
     Zipper.tree >> Tree.restructure identity render
 
 
