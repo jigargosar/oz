@@ -5,7 +5,7 @@ import Browser.Dom as Dom
 import Browser.Events
 import Forest.Tree exposing (Forest)
 import Html exposing (Attribute, Html, button, div, input, text)
-import Html.Attributes as A exposing (attribute, class, draggable, style, tabindex, value)
+import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, tabindex, value)
 import Html.Events as Event exposing (onClick, onInput)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -928,11 +928,16 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                         ]
                         [ text (itemDisplayTitle item) ]
                     , button
-                        [ class "ph2 pv0 lh-title bn bg-inherit color-inherit"
-                        , classIf (not (isDraggable && isHighlighted)) "pe-none o-0"
-                        , tabindex 0
-                        , onClick New
-                        ]
+                        ([ class "ph2 pv0 lh-title bn bg-inherit color-inherit"
+                         , onClick New
+                         ]
+                            ++ (if isDraggable && isHighlighted then
+                                    []
+
+                                else
+                                    [ class "pe-none o-0", disabled True ]
+                               )
+                        )
                         [ text "+" ]
                     ]
                 ]
