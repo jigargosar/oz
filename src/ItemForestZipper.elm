@@ -253,7 +253,7 @@ relocate relativeLocation targetId =
 
 gotoId : ItemId -> FIZ -> Maybe FIZ
 gotoId itemId =
-    Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
+    Zipper.firstRoot >> zFindByData (idEq itemId) goForward
 
 
 gotoLastChild : ForestZipper a -> Maybe (ForestZipper a)
@@ -334,16 +334,6 @@ propEq func val obj =
     func obj == val
 
 
-lastDescendant : FIZ -> FIZ
-lastDescendant zipper =
-    case gotoLastChild zipper of
-        Nothing ->
-            zipper
-
-        Just child ->
-            lastDescendant child
-
-
 
 -- VIEW HELPERS
 
@@ -365,26 +355,6 @@ restructureNodeAtCursor render =
 
 
 -- ForestZipper Extra
-
-
-zNextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
-zNextSiblingOfClosestAncestor acc =
-    case Zipper.up acc of
-        Just parentAcc ->
-            case Zipper.right parentAcc of
-                Just ns ->
-                    Just ns
-
-                Nothing ->
-                    zNextSiblingOfClosestAncestor parentAcc
-
-        Nothing ->
-            Nothing
-
-
-zLastChild : ForestZipper a -> Maybe (ForestZipper a)
-zLastChild =
-    Zipper.down >> Maybe.map (applyWhileJust Zipper.right)
 
 
 applyWhileJust : (a -> Maybe a) -> a -> a
@@ -436,10 +406,6 @@ findWithIterator pred iterator zipper =
 
             Nothing ->
                 Nothing
-
-
-zGoForward =
-    Maybe.Extra.oneOf [ Zipper.down, Zipper.right, zNextSiblingOfClosestAncestor ]
 
 
 zMapData : (a -> a) -> ForestZipper a -> ForestZipper a
