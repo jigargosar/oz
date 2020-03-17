@@ -213,11 +213,11 @@ insertNewHelp :
     -> Generator OutlineDoc
 insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
     let
-        insertChildAndFocus child =
-            ignoreNothing (insertFunc child >> moveFocusFunc) z
+        insertNewAndChangeFocus newNode =
+            ignoreNothing (insertFunc newNode >> moveFocusFunc) z
     in
     emptyLeafGenerator
-        |> Random.map (insertChildAndFocus >> OutlineDoc)
+        |> Random.map (insertNewAndChangeFocus >> OutlineDoc)
 
 
 ignoreNothing : (b -> Maybe b) -> b -> b
