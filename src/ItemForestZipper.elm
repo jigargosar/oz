@@ -225,22 +225,22 @@ unwrap z =
 
 moveAfterParent : FIZ -> Maybe FIZ
 moveAfterParent =
-    relocateFocused After up
+    relocateNodeAtCursorTo After up
 
 
 appendInPreviousSibling : FIZ -> Maybe FIZ
 appendInPreviousSibling =
-    relocateFocused AppendIn left
+    relocateNodeAtCursorTo AppendIn left
 
 
 moveBeforePreviousSibling : FIZ -> Maybe FIZ
 moveBeforePreviousSibling =
-    relocateFocused Before left
+    relocateNodeAtCursorTo Before left
 
 
 appendInPreviousSiblingOfParent : FIZ -> Maybe FIZ
 appendInPreviousSiblingOfParent =
-    relocateFocused AppendIn (up >> Maybe.andThen left)
+    relocateNodeAtCursorTo AppendIn (up >> Maybe.andThen left)
 
 
 moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : FIZ -> Maybe FIZ
@@ -253,12 +253,12 @@ moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
 
 prependInNextSiblingOfParent : FIZ -> Maybe FIZ
 prependInNextSiblingOfParent =
-    relocateFocused PrependIn (up >> Maybe.andThen right)
+    relocateNodeAtCursorTo PrependIn (up >> Maybe.andThen right)
 
 
 moveAfterNextSibling : FIZ -> Maybe FIZ
 moveAfterNextSibling =
-    relocateFocused After right
+    relocateNodeAtCursorTo After right
 
 
 moveAfterNextSiblingOrPrependInNextSiblingOfParent : FIZ -> Maybe FIZ
@@ -269,12 +269,12 @@ moveAfterNextSiblingOrPrependInNextSiblingOfParent =
         ]
 
 
-relocateFocused :
+relocateNodeAtCursorTo :
     CandidateLocation
     -> (FIZ -> Maybe FIZ)
     -> FIZ
     -> Maybe FIZ
-relocateFocused candidateLocation navigateFunction doc =
+relocateNodeAtCursorTo candidateLocation navigateFunction doc =
     case navigateFunction doc |> Maybe.map currentId of
         Just id ->
             moveTo candidateLocation id doc
