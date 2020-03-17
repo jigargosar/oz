@@ -201,14 +201,14 @@ relocate location targetId =
                 )
 
 
-toForest : FIZ -> Forest Item
-toForest =
-    Zipper.firstRoot >> Zipper.forest
-
-
 restructure : (Item -> List c -> c) -> FIZ -> List c
 restructure render =
     toForest >> List.map (Tree.restructure identity render)
+
+
+toForest : FIZ -> Forest Item
+toForest =
+    Zipper.firstRoot >> Zipper.forest
 
 
 restructureTreeAtCursor : (Item -> List c -> c) -> FIZ -> c
@@ -271,6 +271,15 @@ goForward =
     zGoForward
 
 
+hasVisibleChildren : FIZ -> Bool
+hasVisibleChildren =
+    Zipper.tree >> Tree.children >> (not << List.isEmpty)
+
+
+
+-- ForestZipper Extra
+
+
 zNextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
 zNextSiblingOfClosestAncestor acc =
     case Zipper.up acc of
@@ -284,15 +293,6 @@ zNextSiblingOfClosestAncestor acc =
 
         Nothing ->
             Nothing
-
-
-hasVisibleChildren : FIZ -> Bool
-hasVisibleChildren =
-    Zipper.tree >> Tree.children >> (not << List.isEmpty)
-
-
-
--- ForestZipper Extra
 
 
 zInsertTreeAtAndFocusIt : Location -> Tree a -> ForestZipper a -> ForestZipper a
