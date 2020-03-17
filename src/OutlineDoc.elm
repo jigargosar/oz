@@ -192,9 +192,18 @@ emptyLeafGenerator =
     itemGenerator "" |> Random.map itemToTree
 
 
+
+-- NEW INSERTIONS
+
+
 prependNewChild : OutlineDoc -> Generator OutlineDoc
 prependNewChild =
     insertNewHelp zPrependChild Zipper.down
+
+
+insertNewAfter : OutlineDoc -> Generator OutlineDoc
+insertNewAfter =
+    insertNewHelp Zipper.insertRight Zipper.right
 
 
 insertNewHelp :
@@ -207,15 +216,6 @@ insertNewHelp func func2 =
         (\z ->
             emptyLeafGenerator
                 |> Random.map (\child -> ignoreNothing (func child >> func2) z)
-        )
-
-
-insertNewAfter : OutlineDoc -> Generator OutlineDoc
-insertNewAfter =
-    mapRandom
-        (\z ->
-            emptyLeafGenerator
-                |> Random.map (\child -> ignoreNothing (Zipper.insertRight child >> Zipper.right) z)
         )
 
 
