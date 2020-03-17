@@ -777,14 +777,6 @@ renderWithBeacons renderItemFunc item childrenHtml =
         ]
 
 
-renderEdit : String -> LHM -> HM
-renderEdit title lhm =
-    div [ class "" ]
-        [ viewEditItem title
-        , div [ class "pl4" ] lhm
-        ]
-
-
 viewBeacon : CandidateLocation -> Html Msg
 viewBeacon candidateLocation =
     div
@@ -803,6 +795,14 @@ viewBeacon candidateLocation =
                )
         )
         [ text " " ]
+
+
+renderEdit : String -> LHM -> HM
+renderEdit title lhm =
+    div [ class "" ]
+        [ viewEditItem title
+        , div [ class "pl4" ] lhm
+        ]
 
 
 viewDraggableItem : Bool -> Item -> Html Msg
