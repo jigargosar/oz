@@ -904,13 +904,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                             []
                        )
                 )
-                [ div [ class "mr2 self-start dim pointer" ]
-                    (if item.collapsed then
-                        [ text ">" ]
-
-                     else
-                        [ text "v" ]
-                    )
+                [ viewChildStateIndicator item.collapsed
                 , div
                     [ class "flex-auto lh-title "
                     , classIf isHighlighted "bg-blue white"
@@ -927,6 +921,17 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                     [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
                     ]
                 ]
+
+
+viewChildStateIndicator : Bool -> Html Msg
+viewChildStateIndicator collapseState =
+    div [ class "mr2 self-start dim pointer" ]
+        (if collapseState then
+            [ text ">" ]
+
+         else
+            [ text "v" ]
+        )
 
 
 viewAddNewButton : Bool -> Html Msg
