@@ -104,11 +104,11 @@ itemIdDecoder =
 
 
 
--- DOC MODEL
+-- MODEL
 
 
 type alias FIZ =
-    ForestZipper Item
+    FIZ
 
 
 encoder : FIZ -> Value
@@ -151,8 +151,8 @@ insertNewAfter =
 
 
 insertNewHelp :
-    (Tree Item -> ForestZipper Item -> b)
-    -> (b -> Maybe (ForestZipper Item))
+    (Tree Item -> FIZ -> b)
+    -> (b -> Maybe FIZ)
     -> FIZ
     -> Generator FIZ
 insertNewHelp insertFunc moveFocusFunc z =
@@ -166,22 +166,12 @@ insertNewHelp insertFunc moveFocusFunc z =
 
 moveFocusToItemId : ItemId -> FIZ -> Maybe FIZ
 moveFocusToItemId itemId =
-    mapMaybe (Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward)
+    Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
 
 
 idEq : ItemId -> Item -> Bool
 idEq =
     propEq .id
-
-
-map : (ForestZipper Item -> ForestZipper Item) -> FIZ -> FIZ
-map func z =
-    func z
-
-
-mapMaybe : (ForestZipper Item -> Maybe (ForestZipper Item)) -> FIZ -> Maybe FIZ
-mapMaybe func z =
-    func z
 
 
 propEq : (c -> b) -> b -> c -> Bool
@@ -191,26 +181,22 @@ propEq func val obj =
 
 setTitleUnlessBlank : String -> FIZ -> FIZ
 setTitleUnlessBlank title =
-    map
-        (\oz ->
-            if isBlank title then
-                oz
+    \oz ->
+        if isBlank title then
+            oz
 
-            else
-                zMapData (\item -> { item | title = title }) oz
-        )
+        else
+            zMapData (\item -> { item | title = title }) oz
 
 
 removeIfBlankLeaf : FIZ -> FIZ
 removeIfBlankLeaf =
-    map
-        (\zipper ->
-            if isBlank (zipper |> zData >> .title) && zIsLeaf zipper then
-                Zipper.remove zipper |> Maybe.withDefault zipper
+    \zipper ->
+        if isBlank (zipper |> zData >> .title) && zIsLeaf zipper then
+            Zipper.remove zipper |> Maybe.withDefault zipper
 
-            else
-                zipper
-        )
+        else
+            zipper
 
 
 isBlank : String -> Bool
@@ -233,7 +219,7 @@ currentId =
     currentItem >> .id
 
 
-unwrap : FIZ -> ForestZipper Item
+unwrap : FIZ -> FIZ
 unwrap z =
     z
 
@@ -319,13 +305,13 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
             let
                 insertHelp :
                     ItemId
-                    -> (Tree Item -> ForestZipper Item -> ForestZipper Item)
+                    -> (Tree Item -> FIZ -> FIZ)
                     -> FIZ
                     -> Maybe FIZ
                 insertHelp targetItemId func doc =
                     doc
                         |> moveFocusToItemId targetItemId
-                        >> Maybe.map (map (func node))
+                        >> Maybe.map (func node)
             in
             case atLocation of
                 Before itemId ->
@@ -366,22 +352,22 @@ restructureFocused render =
 
 left : FIZ -> Maybe FIZ
 left =
-    mapMaybe Zipper.left
+    Zipper.left
 
 
 right : FIZ -> Maybe FIZ
 right =
-    mapMaybe Zipper.right
+    Zipper.right
 
 
 up : FIZ -> Maybe FIZ
 up =
-    mapMaybe Zipper.up
+    Zipper.up
 
 
 down : FIZ -> Maybe FIZ
 down =
-    mapMaybe Zipper.down
+    Zipper.down
 
 
 goBackward : FIZ -> Maybe FIZ
@@ -416,7 +402,7 @@ applyWhileJust func a =
 
 goForward : FIZ -> Maybe FIZ
 goForward =
-    mapMaybe zGoForward
+    zGoForward
 
 
 zNextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
