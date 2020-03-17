@@ -10,7 +10,6 @@ module OutlineDoc exposing
     , currentTitle
     , decoder
     , encoder
-    , focusId
     , goBackward
     , goForward
     , hasVisibleChildren
@@ -21,6 +20,7 @@ module OutlineDoc exposing
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCurrentToCandidateLocation
+    , moveFocusToItemId
     , prependNewChild
     , removeIfBlankLeaf
     , restructure
@@ -220,8 +220,8 @@ insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
         |> Random.map (insertNewAndChangeFocus >> OutlineDoc)
 
 
-focusId : ItemId -> OutlineDoc -> Maybe OutlineDoc
-focusId itemId =
+moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
+moveFocusToItemId itemId =
     let
         findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
         findFirst pred =
@@ -251,11 +251,6 @@ map func (OutlineDoc z) =
 mapMaybe : (ForestZipper Item -> Maybe (ForestZipper Item)) -> OutlineDoc -> Maybe OutlineDoc
 mapMaybe func (OutlineDoc z) =
     func z |> Maybe.map OutlineDoc
-
-
-mapRandom : (ForestZipper Item -> Generator (ForestZipper Item)) -> OutlineDoc -> Generator OutlineDoc
-mapRandom func (OutlineDoc z) =
-    func z |> Random.map OutlineDoc
 
 
 propEq : (c -> b) -> b -> c -> Bool
@@ -403,7 +398,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                     -> Maybe OutlineDoc
                 insertHelp targetItemId func doc =
                     doc
-                        |> focusId targetItemId
+                        |> moveFocusToItemId targetItemId
                         >> Maybe.map (map (func node))
             in
             case atLocation of
@@ -420,7 +415,7 @@ moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
                     insertHelp itemId zAppendChild
     in
     moveTo candidateLocation
-        >> Maybe.andThen (focusId srcItemId)
+        >> Maybe.andThen (moveFocusToItemId srcItemId)
 
 
 toForest : OutlineDoc -> Forest Item

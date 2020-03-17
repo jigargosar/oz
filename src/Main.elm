@@ -280,7 +280,7 @@ update message model =
         OnDragStart dragItemId cursor ->
             case model.outline of
                 Browsing oz ->
-                    case OutlineDoc.focusId dragItemId oz of
+                    case OutlineDoc.moveFocusToItemId dragItemId oz of
                         Just noz ->
                             ( { model | outline = Dragging cursor noz }
                             , getBeacons ()
@@ -430,7 +430,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
                 OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
 
         FocusId id ->
-            updateBrowsingDocByMaybeF (OutlineDoc.focusId id)
+            updateBrowsingDocByMaybeF (OutlineDoc.moveFocusToItemId id)
 
         EditFocused ->
             ( { model | outline = initEdit doc }, Cmd.none )
@@ -474,12 +474,12 @@ endEditAndInitBrowsing title =
 
 endEditAndBrowseId : ItemId -> String -> OutlineDoc -> Outline
 endEditAndBrowseId id title =
-    endEdit title >> ignoreNothing (OutlineDoc.focusId id) >> Browsing
+    endEdit title >> ignoreNothing (OutlineDoc.moveFocusToItemId id) >> Browsing
 
 
 endEditAndStartDraggingId : ItemId -> Cursor -> String -> OutlineDoc -> Maybe Outline
 endEditAndStartDraggingId dragId cursor title =
-    endEdit title >> OutlineDoc.focusId dragId >> Maybe.map (Dragging cursor)
+    endEdit title >> OutlineDoc.moveFocusToItemId dragId >> Maybe.map (Dragging cursor)
 
 
 cancelEditAndInitBrowsing : OutlineDoc -> Outline
