@@ -1,5 +1,8 @@
 module Doc exposing (..)
 
+import Random exposing (Generator)
+
+
 {-|
 
     FEATURES
@@ -100,3 +103,40 @@ type Item
 
 type ItemId
     = ItemId String
+
+
+type Doc
+    = Doc (List Node) Node (List Node) (List Crumb)
+
+
+type Crumb
+    = Crumb (List Node) Item (List Node)
+
+
+new : Generator Doc
+new =
+    Debug.todo "impl"
+
+
+type InsertLocation
+    = BeforeParent
+    | BeforePreviousSibling
+    | AfterNextSibling
+    | AppendInPreviousSiblingOfParent
+    | LastChildOfParent
+    | PreviousSiblingOfParent
+
+
+
+{-
+
+   relocate AfterLastChild (of (PreviousSibling (of Parent) ) )
+   relocate AfterNextSibling (of (PreviousSibling (of Parent) ) )
+
+   relocate After Parent
+   relocate Before Parent
+   relocate AfterLastChild {- of -} (PreviousSiblingOfParent)
+
+
+   insertNew InsertLastChild
+-}
