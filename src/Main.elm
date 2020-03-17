@@ -263,7 +263,7 @@ update message model =
                 Browsing doc ->
                     let
                         intent =
-                            if currentId doc == iid then
+                            if OutlineDoc.currentId doc == iid then
                                 EditFocused
 
                             else
@@ -535,11 +535,6 @@ focusTitleEditor =
             )
 
 
-currentId : OutlineDoc -> ItemId
-currentId =
-    OutlineDoc.currentId
-
-
 subscriptions : Model -> Sub Msg
 subscriptions m =
     Sub.batch
@@ -665,7 +660,7 @@ outlineToHtmlList outline =
         Browsing doc ->
             let
                 highlightedId =
-                    currentId doc
+                    OutlineDoc.currentId doc
             in
             OutlineDoc.restructure
                 (\item -> renderDraggableWithBeacons (item.id == highlightedId) item)
@@ -698,7 +693,7 @@ outlineToHtmlList outline =
         Editing doc title ->
             let
                 editItemId =
-                    currentId doc
+                    OutlineDoc.currentId doc
 
                 renderItem : Item -> LHM -> HM
                 renderItem item =

@@ -12,13 +12,11 @@ module ItemForestZipper exposing
     , getId
     , getTitle
     , goBackward
-    , goDown
     , goForward
     , goLeft
     , goRight
     , goUp
     , gotoId
-    , hasVisibleChildren
     , itemIdDecoder
     , itemIdEncoder
     , relocate

@@ -15,7 +15,6 @@ module OutlineDoc exposing
     , expand
     , goBackward
     , goForward
-    , hasVisibleChildren
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
@@ -260,11 +259,6 @@ goBackward =
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
     mapMaybe FIZ.goForward
-
-
-hasVisibleChildren : OutlineDoc -> Bool
-hasVisibleChildren =
-    unwrap >> FIZ.hasVisibleChildren
 
 
 
