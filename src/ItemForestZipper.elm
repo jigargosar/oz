@@ -318,8 +318,8 @@ insertRemovedNodeAtLocation atLocation targetId node =
             insertHelp zAppendChild
 
 
-insertAndFocus__Unsafe__SkipsUniqueCheck : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
-insertAndFocus__Unsafe__SkipsUniqueCheck candidateLocation =
+insertAtCandidateLocationAndFocus__Unsafe__SkipsUniqueCheck : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
+insertAtCandidateLocationAndFocus__Unsafe__SkipsUniqueCheck candidateLocation =
     let
         helper insertFunc focusFunc node zipper =
             insertFunc node zipper
