@@ -263,7 +263,7 @@ goForward =
 
 goBackward : FIZ -> Maybe FIZ
 goBackward =
-    Maybe.Extra.oneOf [ left >> Maybe.map lastDescendant, up ]
+    Maybe.Extra.oneOf [ goUp >> Maybe.map lastDescendant, goUp ]
 
 
 goUp : FIZ -> Maybe FIZ
@@ -286,6 +286,14 @@ goRight =
     Zipper.right
 
 
+type Go
+    = Up
+    | Down
+    | Left
+    | Right
+    | ToId ItemId
+
+
 
 -- NAVIGATION HELPERS
 
@@ -298,26 +306,6 @@ idEq =
 propEq : (c -> b) -> b -> c -> Bool
 propEq func val obj =
     func obj == val
-
-
-left : FIZ -> Maybe FIZ
-left =
-    Zipper.left
-
-
-right : FIZ -> Maybe FIZ
-right =
-    Zipper.right
-
-
-up : FIZ -> Maybe FIZ
-up =
-    Zipper.up
-
-
-down : FIZ -> Maybe FIZ
-down =
-    Zipper.down
 
 
 lastDescendant : FIZ -> FIZ
