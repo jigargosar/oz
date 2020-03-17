@@ -164,12 +164,12 @@ hasVisibleChildren fiz =
 
 newChild : FIZ -> Generator FIZ
 newChild =
-    insertNewHelp (zInsertTreeAtAndGo PrependChild)
+    insertNewHelp (zInsertAndGo PrependChild)
 
 
 newSibling : FIZ -> Generator FIZ
 newSibling =
-    insertNewHelp (zInsertTreeAtAndGo After)
+    insertNewHelp (zInsertAndGo After)
 
 
 insertNewHelp insertFunc z =
@@ -271,7 +271,7 @@ relocate relativeLocation targetId zipper =
             Zipper.tree zipper
 
         insertHelp =
-            zInsertTreeAtAndGo relativeLocation removedNode
+            zInsertAndGo relativeLocation removedNode
                 >> expandAncestors
     in
     Zipper.remove zipper
@@ -419,8 +419,8 @@ applyWhileJust func a =
             a
 
 
-zInsertTreeAtAndGo : Location -> Tree a -> ForestZipper a -> ForestZipper a
-zInsertTreeAtAndGo location =
+zInsertAndGo : Location -> Tree a -> ForestZipper a -> ForestZipper a
+zInsertAndGo location =
     let
         helper insertFunc focusFunc node zipper =
             insertFunc node zipper
