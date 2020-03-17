@@ -222,11 +222,15 @@ insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
 
 moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 moveFocusToItemId itemId =
-    mapMaybe (findFirst (propEq .id itemId) zGoForward)
+    mapMaybe (Zipper.firstRoot >> find (treeIdEq itemId) zGoForward)
 
 
-findFirst pred navFunc =
-    Zipper.firstRoot >> find (Zipper.tree >> Tree.data >> pred) navFunc
+treeDataPropEq a b =
+    Zipper.tree >> Tree.data >> propEq a b
+
+
+treeIdEq iid =
+    treeDataPropEq .id iid
 
 
 find : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
