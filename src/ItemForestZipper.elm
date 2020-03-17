@@ -318,6 +318,29 @@ insertRemovedNodeAtLocation atLocation targetId node =
             insertHelp zAppendChild
 
 
+insertAndFocus candidateLocation node zipper =
+    case candidateLocation of
+        Before ->
+            Zipper.insertLeft node zipper
+                |> Zipper.left
+                |> Maybe.withDefault zipper
+
+        After ->
+            Zipper.insertRight node zipper
+                |> Zipper.right
+                |> Maybe.withDefault zipper
+
+        PrependIn ->
+            zPrependChild node zipper
+                |> Zipper.down
+                |> Maybe.withDefault zipper
+
+        AppendIn ->
+            zAppendChild node zipper
+                |> lastChild
+                |> Maybe.withDefault zipper
+
+
 toForest : FIZ -> Forest Item
 toForest =
     unwrap >> Zipper.firstRoot >> Zipper.forest
