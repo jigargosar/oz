@@ -36,7 +36,7 @@ import Random exposing (Generator)
 -- CANDIDATE LOCATION
 
 
-type CandidateLocation
+type Location
     = Before
     | After
     | PrependIn
@@ -225,22 +225,22 @@ unwrap z =
 
 moveAfterParent : FIZ -> Maybe FIZ
 moveAfterParent =
-    relocateNodeAtCursorTo After up
+    relocateBy After up
 
 
 appendInPreviousSibling : FIZ -> Maybe FIZ
 appendInPreviousSibling =
-    relocateNodeAtCursorTo AppendIn left
+    relocateBy AppendIn left
 
 
 moveBeforePreviousSibling : FIZ -> Maybe FIZ
 moveBeforePreviousSibling =
-    relocateNodeAtCursorTo Before left
+    relocateBy Before left
 
 
 appendInPreviousSiblingOfParent : FIZ -> Maybe FIZ
 appendInPreviousSiblingOfParent =
-    relocateNodeAtCursorTo AppendIn (up >> Maybe.andThen left)
+    relocateBy AppendIn (up >> Maybe.andThen left)
 
 
 moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : FIZ -> Maybe FIZ
@@ -253,12 +253,12 @@ moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
 
 prependInNextSiblingOfParent : FIZ -> Maybe FIZ
 prependInNextSiblingOfParent =
-    relocateNodeAtCursorTo PrependIn (up >> Maybe.andThen right)
+    relocateBy PrependIn (up >> Maybe.andThen right)
 
 
 moveAfterNextSibling : FIZ -> Maybe FIZ
 moveAfterNextSibling =
-    relocateNodeAtCursorTo After right
+    relocateBy After right
 
 
 moveAfterNextSiblingOrPrependInNextSiblingOfParent : FIZ -> Maybe FIZ
@@ -269,22 +269,22 @@ moveAfterNextSiblingOrPrependInNextSiblingOfParent =
         ]
 
 
-relocateNodeAtCursorTo :
-    CandidateLocation
+relocateBy :
+    Location
     -> (FIZ -> Maybe FIZ)
     -> FIZ
     -> Maybe FIZ
-relocateNodeAtCursorTo candidateLocation navigateFunction doc =
+relocateBy location navigateFunction doc =
     case navigateFunction doc |> Maybe.map currentId of
-        Just id ->
-            moveTo candidateLocation id doc
+        Just targetId ->
+            relocate location targetId doc
 
         Nothing ->
             Nothing
 
 
-moveTo : CandidateLocation -> ItemId -> FIZ -> Maybe FIZ
-moveTo atLocation targetId =
+relocate : Location -> ItemId -> FIZ -> Maybe FIZ
+relocate atLocation targetId =
     unwrap
         >> (\zipper ->
                 Zipper.remove zipper
@@ -293,28 +293,6 @@ moveTo atLocation targetId =
                             >> Maybe.map (zInsertTreeAtAndFocusIt atLocation zipper.center)
                         )
            )
-
-
-zInsertTreeAtAndFocusIt : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
-zInsertTreeAtAndFocusIt candidateLocation =
-    let
-        helper insertFunc focusFunc node zipper =
-            insertFunc node zipper
-                |> focusFunc
-                |> Maybe.withDefault zipper
-    in
-    case candidateLocation of
-        Before ->
-            helper Zipper.insertLeft Zipper.left
-
-        After ->
-            helper Zipper.insertRight Zipper.right
-
-        PrependIn ->
-            helper zPrependChild Zipper.down
-
-        AppendIn ->
-            helper zAppendChild lastChild
 
 
 toForest : FIZ -> Forest Item
@@ -414,6 +392,28 @@ hasVisibleChildren =
 
 
 -- ForestZipper Extra
+
+
+zInsertTreeAtAndFocusIt : Location -> Tree a -> ForestZipper a -> ForestZipper a
+zInsertTreeAtAndFocusIt location =
+    let
+        helper insertFunc focusFunc node zipper =
+            insertFunc node zipper
+                |> focusFunc
+                |> Maybe.withDefault zipper
+    in
+    case location of
+        Before ->
+            helper Zipper.insertLeft Zipper.left
+
+        After ->
+            helper Zipper.insertRight Zipper.right
+
+        PrependIn ->
+            helper zPrependChild Zipper.down
+
+        AppendIn ->
+            helper zAppendChild lastChild
 
 
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
