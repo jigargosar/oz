@@ -922,7 +922,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
 
         EditLine title ->
             div
-                (class "pa1 bb b--black-10 pointer no-selection" :: [])
+                [ class "pa1 bb b--black-10 pointer no-selection" ]
                 [ div [ class "flex lh-title" ]
                     [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
                     ]
