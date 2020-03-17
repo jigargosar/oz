@@ -16,7 +16,6 @@ module ItemForestZipper exposing
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    , moveCurrentToCandidateLocation
     , moveFocusToItemId
     , prependNewChild
     , removeIfBlankLeaf
@@ -38,10 +37,10 @@ import Random exposing (Generator)
 
 
 type CandidateLocation
-    = Before ItemId
-    | After ItemId
-    | PrependIn ItemId
-    | AppendIn ItemId
+    = Before
+    | After
+    | PrependIn
+    | AppendIn
 
 
 
@@ -271,63 +270,52 @@ moveAfterNextSiblingOrPrependInNextSiblingOfParent =
 
 
 relocateFocused :
-    (ItemId -> CandidateLocation)
+    CandidateLocation
     -> (FIZ -> Maybe FIZ)
     -> FIZ
     -> Maybe FIZ
-relocateFocused candidateLocationFunction navigateFunction doc =
+relocateFocused candidateLocation navigateFunction doc =
     case navigateFunction doc |> Maybe.map currentId of
         Just id ->
-            moveCurrentToCandidateLocation (candidateLocationFunction id) doc
+            moveTo candidateLocation id doc
 
         Nothing ->
             Nothing
 
 
-moveCurrentToCandidateLocation : CandidateLocation -> FIZ -> Maybe FIZ
-moveCurrentToCandidateLocation cl doc =
-    moveItemWithIdToCandidateLocationPreservingFocus (currentId doc) cl doc
+moveTo : CandidateLocation -> ItemId -> FIZ -> Maybe FIZ
+moveTo atLocation targetId =
+    unwrap
+        >> (\zipper ->
+                Zipper.remove zipper
+                    |> Maybe.andThen (insertRemovedNodeAtLocation atLocation targetId zipper.center)
+           )
 
 
-moveItemWithIdToCandidateLocationPreservingFocus : ItemId -> CandidateLocation -> FIZ -> Maybe FIZ
-moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
+insertRemovedNodeAtLocation : CandidateLocation -> ItemId -> Tree Item -> FIZ -> Maybe FIZ
+insertRemovedNodeAtLocation atLocation targetId node =
     let
-        moveTo : CandidateLocation -> FIZ -> Maybe FIZ
-        moveTo atLocation =
-            unwrap
-                >> (\zipper ->
-                        Zipper.remove zipper
-                            |> Maybe.andThen (insertRemovedNodeAtLocation atLocation zipper.center)
-                   )
-
-        insertRemovedNodeAtLocation : CandidateLocation -> Tree Item -> FIZ -> Maybe FIZ
-        insertRemovedNodeAtLocation atLocation node =
-            let
-                insertHelp :
-                    ItemId
-                    -> (Tree Item -> FIZ -> FIZ)
-                    -> FIZ
-                    -> Maybe FIZ
-                insertHelp targetItemId func doc =
-                    doc
-                        |> moveFocusToItemId targetItemId
-                        >> Maybe.map (func node)
-            in
-            case atLocation of
-                Before itemId ->
-                    insertHelp itemId Zipper.insertLeft
-
-                After itemId ->
-                    insertHelp itemId Zipper.insertRight
-
-                PrependIn itemId ->
-                    insertHelp itemId zPrependChild
-
-                AppendIn itemId ->
-                    insertHelp itemId zAppendChild
+        insertHelp :
+            (Tree Item -> FIZ -> FIZ)
+            -> FIZ
+            -> Maybe FIZ
+        insertHelp func doc =
+            doc
+                |> moveFocusToItemId targetId
+                >> Maybe.map (func node)
     in
-    moveTo candidateLocation
-        >> Maybe.andThen (moveFocusToItemId srcItemId)
+    case atLocation of
+        Before ->
+            insertHelp Zipper.insertLeft
+
+        After ->
+            insertHelp Zipper.insertRight
+
+        PrependIn ->
+            insertHelp zPrependChild
+
+        AppendIn ->
+            insertHelp zAppendChild
 
 
 toForest : FIZ -> Forest Item
