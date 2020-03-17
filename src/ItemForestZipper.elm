@@ -253,7 +253,9 @@ relocate relativeLocation targetId =
 
 gotoId : ItemId -> FIZ -> Maybe FIZ
 gotoId itemId =
-    Zipper.firstRoot >> zFindByData (idEq itemId) goForward
+    Zipper.firstRoot
+        >> zFindByData (idEq itemId)
+            (Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfClosestAncestor ])
 
 
 gotoLastChild : ForestZipper a -> Maybe (ForestZipper a)
