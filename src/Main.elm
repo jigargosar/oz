@@ -827,7 +827,12 @@ viewDraggedItem item =
 
 viewEditItem : String -> Html Msg
 viewEditItem title =
-    viewFlatLineWithConfig False (EditLine title)
+    div
+        [ class "pa1 bb b--black-10 pointer no-selection" ]
+        [ div [ class "flex lh-title" ]
+            [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
+            ]
+        ]
 
 
 
@@ -853,7 +858,6 @@ type alias TransformForestConfig a ctx tree =
 
 type FlatLine
     = ItemLine Item { isHighlighted : Bool, isDraggable : Bool }
-    | EditLine String
 
 
 debug =
@@ -912,14 +916,6 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                     ]
                     [ text (itemDisplayTitle item) ]
                 , viewAddNewButton (not (isDraggable && isHighlighted))
-                ]
-
-        EditLine title ->
-            div
-                [ class "pa1 bb b--black-10 pointer no-selection" ]
-                [ div [ class "flex lh-title" ]
-                    [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
-                    ]
                 ]
 
 
