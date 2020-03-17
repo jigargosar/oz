@@ -1,6 +1,10 @@
-module Doc exposing (..)
+module Doc exposing (foo)
 
 import Random exposing (Generator)
+
+
+foo =
+    1
 
 
 {-|

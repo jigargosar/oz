@@ -1,7 +1,6 @@
 module ItemForestZipper exposing
     ( FIZ
     , Item
-    , ItemId
     , Location(..)
     , addNew
     , collapse
@@ -17,8 +16,6 @@ module ItemForestZipper exposing
     , goRight
     , goUp
     , gotoId
-    , itemIdDecoder
-    , itemIdEncoder
     , relocate
     , relocateBy
     , restructure
@@ -28,6 +25,7 @@ module ItemForestZipper exposing
 
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
+import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
@@ -56,10 +54,16 @@ type alias Item =
     }
 
 
+itemGenerator : String -> Generator Item
+itemGenerator title =
+    ItemId.itemIdGenerator
+        |> Random.map (\id -> { id = id, title = title, collapsed = False })
+
+
 itemEncoder : Item -> Value
 itemEncoder item =
     JE.object
-        [ ( "id", itemIdEncoder item.id )
+        [ ( "id", ItemId.itemIdEncoder item.id )
         , ( "title", JE.string item.title )
         , ( "collapsed", JE.bool item.collapsed )
         ]
@@ -68,43 +72,9 @@ itemEncoder item =
 itemDecoder : Decoder Item
 itemDecoder =
     JD.succeed Item
-        |> required "id" itemIdDecoder
+        |> required "id" ItemId.itemIdDecoder
         |> required "title" JD.string
         |> JD.map2 (|>) (JD.oneOf [ JD.field "collapsed" JD.bool, JD.succeed False ])
-
-
-type ItemId
-    = ItemId String
-
-
-itemGenerator : String -> Generator Item
-itemGenerator title =
-    itemIdGenerator
-        |> Random.map (\id -> { id = id, title = title, collapsed = False })
-
-
-itemIdGenerator : Generator ItemId
-itemIdGenerator =
-    Random.int 10000 Random.maxInt
-        |> Random.map (String.fromInt >> (++) "item-id-" >> ItemId)
-
-
-itemIdEncoder : ItemId -> Value
-itemIdEncoder (ItemId string) =
-    JE.string string
-
-
-itemIdDecoder : Decoder ItemId
-itemIdDecoder =
-    JD.string
-        |> JD.andThen
-            (\idStr ->
-                if String.startsWith "item-id-" idStr then
-                    JD.succeed (ItemId idStr)
-
-                else
-                    JD.fail ("invalid item id prefix: " ++ idStr)
-            )
 
 
 

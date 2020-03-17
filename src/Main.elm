@@ -7,9 +7,10 @@ import Forest.Tree exposing (Forest)
 import Html exposing (Attribute, Html, button, div, input, text)
 import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
+import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import OutlineDoc exposing (CandidateLocation(..), Item, ItemId, OutlineDoc)
+import OutlineDoc exposing (CandidateLocation(..), Item, OutlineDoc)
 import Random exposing (Generator, Seed)
 import Task
 

@@ -1,7 +1,6 @@
 module OutlineDoc exposing
     ( CandidateLocation(..)
     , Item
-    , ItemId
     , OutlineDoc
     , addNew
     , appendInPreviousSibling
@@ -27,6 +26,7 @@ module OutlineDoc exposing
     )
 
 import ItemForestZipper as FIZ exposing (FIZ)
+import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
@@ -51,7 +51,7 @@ candidateLocationEncoder candidateLocation =
         encodeHelp tagName itemId =
             JE.object
                 [ ( "tag", JE.string tagName )
-                , ( "id", FIZ.itemIdEncoder itemId )
+                , ( "id", ItemId.itemIdEncoder itemId )
                 ]
     in
     case candidateLocation of
@@ -73,7 +73,7 @@ candidateLocationDecoder =
     let
         decodeHelp : (ItemId -> CandidateLocation) -> Decoder CandidateLocation
         decodeHelp tag =
-            JD.field "id" FIZ.itemIdDecoder
+            JD.field "id" ItemId.itemIdDecoder
                 |> JD.map tag
 
         tagDecoder : String -> Decoder CandidateLocation
@@ -103,10 +103,6 @@ candidateLocationDecoder =
 
 type alias Item =
     FIZ.Item
-
-
-type alias ItemId =
-    FIZ.ItemId
 
 
 
