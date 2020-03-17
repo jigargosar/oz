@@ -1,17 +1,21 @@
 module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
+    , appendChild
+    , data
     , decoder
     , down
     , encoder
     , firstRoot
     , forest
-    , forward
     , insertLeft
     , insertRight
+    , isLeaf
     , left
     , mapAncestorData
+    , mapData
     , mapTree
+    , prependChild
     , remove
     , right
     , tree
@@ -21,7 +25,6 @@ module Forest.Zipper exposing
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Maybe.Extra
 
 
 
@@ -298,26 +301,6 @@ firstRoot =
     root >> firstSibling
 
 
-forward : ForestZipper a -> Maybe (ForestZipper a)
-forward =
-    Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ]
-
-
-lastChild : ForestZipper a -> Maybe (ForestZipper a)
-lastChild =
-    down >> Maybe.map (applyWhileJust right)
-
-
-lastDescendant : ForestZipper a -> ForestZipper a
-lastDescendant zipper =
-    case lastChild zipper of
-        Nothing ->
-            zipper
-
-        Just child ->
-            lastDescendant child
-
-
 nextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
 nextSiblingOfClosestAncestor acc =
     case up acc of
@@ -331,6 +314,35 @@ nextSiblingOfClosestAncestor acc =
 
         Nothing ->
             Nothing
+
+
+
+-- EXTRA HELPER FUNCTIONS
+
+
+mapData : (a -> a) -> ForestZipper a -> ForestZipper a
+mapData func =
+    mapTree (Tree.mapData func)
+
+
+data : ForestZipper a -> a
+data =
+    tree >> Tree.data
+
+
+prependChild : Tree a -> ForestZipper a -> ForestZipper a
+prependChild child =
+    mapTree (Tree.mapChildren ((::) child))
+
+
+appendChild : Tree a -> ForestZipper a -> ForestZipper a
+appendChild child =
+    mapTree (Tree.mapChildren (\children -> children ++ [ child ]))
+
+
+isLeaf : ForestZipper a -> Bool
+isLeaf =
+    tree >> Tree.children >> List.isEmpty
 
 
 

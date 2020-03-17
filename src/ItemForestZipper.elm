@@ -145,17 +145,17 @@ emptyLeafGenerator =
 
 getId : FIZ -> ItemId
 getId =
-    zData >> .id
+    Zipper.data >> .id
 
 
 getTitle : FIZ -> String
 getTitle =
-    zData >> .title
+    Zipper.data >> .title
 
 
 hasVisibleChildren : FIZ -> Bool
 hasVisibleChildren fiz =
-    not (zIsLeaf fiz || (zData fiz |> .collapsed))
+    not (Zipper.isLeaf fiz || (Zipper.data fiz |> .collapsed))
 
 
 
@@ -189,7 +189,7 @@ setTitle : String -> FIZ -> Maybe FIZ
 setTitle rawTitle fiz =
     case nonBlank rawTitle of
         Just title ->
-            Just (zMapData (setTitleUnsafe title) fiz)
+            Just (Zipper.mapData (setTitleUnsafe title) fiz)
 
         Nothing ->
             Nothing
@@ -213,20 +213,20 @@ nonBlank =
 
 expand : FIZ -> Maybe FIZ
 expand fiz =
-    if zIsLeaf fiz then
+    if Zipper.isLeaf fiz then
         Nothing
 
     else
-        Just (zMapData (setCollapsedUnsafe False) fiz)
+        Just (Zipper.mapData (setCollapsedUnsafe False) fiz)
 
 
 collapse : FIZ -> Maybe FIZ
 collapse fiz =
-    if zIsLeaf fiz then
+    if Zipper.isLeaf fiz then
         Nothing
 
     else
-        Just (zMapData (setCollapsedUnsafe True) fiz)
+        Just (Zipper.mapData (setCollapsedUnsafe True) fiz)
 
 
 setCollapsedUnsafe collapsed model =
@@ -239,7 +239,7 @@ setCollapsedUnsafe collapsed model =
 
 deleteEmpty : FIZ -> Maybe FIZ
 deleteEmpty fiz =
-    if nonBlank (getTitle fiz) == Nothing && zIsLeaf fiz then
+    if nonBlank (getTitle fiz) == Nothing && Zipper.isLeaf fiz then
         Zipper.remove fiz
 
     else
@@ -435,15 +435,15 @@ zInsertAndGoto location =
             helper Zipper.insertRight Zipper.right
 
         PrependChild ->
-            helper zPrependChild Zipper.down
+            helper Zipper.prependChild Zipper.down
 
         AppendChild ->
-            helper zAppendChild (Zipper.down >> Maybe.map (applyWhileJust Zipper.right))
+            helper Zipper.appendChild (Zipper.down >> Maybe.map (applyWhileJust Zipper.right))
 
 
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
 zFindByData pred =
-    findWithIterator (zData >> pred)
+    findWithIterator (Zipper.data >> pred)
 
 
 findWithIterator : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
@@ -458,31 +458,6 @@ findWithIterator pred iterator zipper =
 
             Nothing ->
                 Nothing
-
-
-zMapData : (a -> a) -> ForestZipper a -> ForestZipper a
-zMapData func =
-    Zipper.mapTree (Tree.mapData func)
-
-
-zData : ForestZipper a -> a
-zData =
-    Zipper.tree >> Tree.data
-
-
-zPrependChild : Tree a -> ForestZipper a -> ForestZipper a
-zPrependChild child =
-    Zipper.mapTree (Tree.mapChildren ((::) child))
-
-
-zAppendChild : Tree a -> ForestZipper a -> ForestZipper a
-zAppendChild child =
-    Zipper.mapTree (Tree.mapChildren (\children -> children ++ [ child ]))
-
-
-zIsLeaf : ForestZipper a -> Bool
-zIsLeaf =
-    Zipper.tree >> Tree.children >> List.isEmpty
 
 
 
