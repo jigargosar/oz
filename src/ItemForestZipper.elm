@@ -320,24 +320,24 @@ insertRemovedNodeAtLocation atLocation targetId node =
 
 insertItemAndFocusUnsafeSkipDuplicateChecking : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
 insertItemAndFocusUnsafeSkipDuplicateChecking candidateLocation =
+    let
+        helper insertFunc focusFunc node zipper =
+            insertFunc node zipper
+                |> focusFunc
+                |> Maybe.withDefault zipper
+    in
     case candidateLocation of
         Before ->
-            zInsertAndFocusHelp Zipper.insertLeft Zipper.left
+            helper Zipper.insertLeft Zipper.left
 
         After ->
-            zInsertAndFocusHelp Zipper.insertRight Zipper.right
+            helper Zipper.insertRight Zipper.right
 
         PrependIn ->
-            zInsertAndFocusHelp zPrependChild Zipper.down
+            helper zPrependChild Zipper.down
 
         AppendIn ->
-            zInsertAndFocusHelp zAppendChild lastChild
-
-
-zInsertAndFocusHelp insertFunc focusFunc node zipper =
-    insertFunc node zipper
-        |> focusFunc
-        |> Maybe.withDefault zipper
+            helper zAppendChild lastChild
 
 
 toForest : FIZ -> Forest Item
