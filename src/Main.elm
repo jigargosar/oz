@@ -760,20 +760,16 @@ renderDraggableWithBeacons isHighlighted =
 
 renderWithBeacons : (Item -> Html Msg) -> Item -> List (Html Msg) -> Html Msg
 renderWithBeacons renderItemFunc item childrenHtml =
-    let
-        viewBeaconHelp func =
-            viewBeacon (func item.id)
-    in
-    div [ class "" ]
-        [ viewBeaconHelp OutlineDoc.before
+    div []
+        [ viewBeacon (OutlineDoc.before item.id)
         , renderItemFunc item
         , div [ class "pl4" ]
-            (viewBeaconHelp
-                OutlineDoc.prependIn
+            (viewBeacon
+                (OutlineDoc.prependIn item.id)
                 :: childrenHtml
-                ++ [ viewBeaconHelp OutlineDoc.appendIn ]
+                ++ [ viewBeacon (OutlineDoc.appendIn item.id) ]
             )
-        , viewBeaconHelp OutlineDoc.after
+        , viewBeacon (OutlineDoc.after item.id)
         ]
 
 
