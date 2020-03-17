@@ -10,6 +10,7 @@ module Forest.Zipper exposing
     , insertLeft
     , insertRight
     , left
+    , mapAncestorData
     , mapTree
     , remove
     , right
@@ -71,6 +72,16 @@ mapTree func fz =
 tree : ForestZipper a -> Tree a
 tree fz =
     fz.center
+
+
+mapCrumbData : (a -> a) -> Crumb a -> Crumb a
+mapCrumbData func crumb =
+    { crumb | datum = func crumb.datum }
+
+
+mapAncestorData : (a -> a) -> ForestZipper a -> ForestZipper a
+mapAncestorData func fz =
+    { fz | crumbs = List.map (mapCrumbData func) fz.crumbs }
 
 
 encoder : (a -> Value) -> ForestZipper a -> Value

@@ -265,13 +265,22 @@ relocateBy relativeLocation findTargetFunc doc =
 
 
 relocate : Location -> ItemId -> FIZ -> Maybe FIZ
-relocate relativeLocation targetId =
-    \zipper ->
-        Zipper.remove zipper
-            |> Maybe.andThen
-                (gotoId targetId
-                    >> Maybe.map (zInsertTreeAtAndFocusIt relativeLocation (Zipper.tree zipper))
-                )
+relocate relativeLocation targetId zipper =
+    let
+        removedNode =
+            Zipper.tree zipper
+
+        insertHelp =
+            zInsertTreeAtAndFocusIt relativeLocation removedNode
+                >> expandAncestors
+    in
+    Zipper.remove zipper
+        |> Maybe.andThen (gotoId targetId >> Maybe.map insertHelp)
+
+
+expandAncestors : FIZ -> FIZ
+expandAncestors =
+    Zipper.mapAncestorData (setCollapsedUnsafe False)
 
 
 
