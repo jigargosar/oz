@@ -312,7 +312,7 @@ gotoNextSiblingOfClosestAncestor fiz =
 
 goBackward : FIZ -> Maybe FIZ
 goBackward =
-    Maybe.Extra.oneOf [ goUp >> Maybe.map gotoLastDescendant, goUp ]
+    Maybe.Extra.oneOf [ goLeft >> Maybe.map gotoLastDescendant, goUp ]
 
 
 gotoLastDescendant : FIZ -> FIZ
