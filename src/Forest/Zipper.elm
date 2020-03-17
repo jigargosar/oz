@@ -1,7 +1,6 @@
 module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
-    , backward
     , decoder
     , down
     , encoder
@@ -286,11 +285,6 @@ firstRoot =
             applyWhileJust left
     in
     root >> firstSibling
-
-
-backward : ForestZipper a -> Maybe (ForestZipper a)
-backward =
-    Maybe.Extra.oneOf [ left >> Maybe.map lastDescendant, up ]
 
 
 forward : ForestZipper a -> Maybe (ForestZipper a)

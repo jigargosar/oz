@@ -453,14 +453,58 @@ up =
     mapMaybe Zipper.up
 
 
+down : OutlineDoc -> Maybe OutlineDoc
+down =
+    mapMaybe Zipper.down
+
+
 goBackward : OutlineDoc -> Maybe OutlineDoc
 goBackward =
-    mapMaybe Zipper.backward
+    Maybe.Extra.oneOf [ left >> Maybe.map lastDescendant, up ]
+
+
+lastDescendant : OutlineDoc -> OutlineDoc
+lastDescendant zipper =
+    case lastChild zipper of
+        Nothing ->
+            zipper
+
+        Just child ->
+            lastDescendant child
+
+
+lastChild : OutlineDoc -> Maybe OutlineDoc
+lastChild =
+    down >> Maybe.map (applyWhileJust right)
+
+
+applyWhileJust : (a -> Maybe a) -> a -> a
+applyWhileJust func a =
+    case func a of
+        Just a2 ->
+            applyWhileJust func a2
+
+        Nothing ->
+            a
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    mapMaybe Zipper.forward
+    Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ]
+
+
+nextSiblingOfClosestAncestor acc =
+    case up acc of
+        Just parentAcc ->
+            case right parentAcc of
+                Just ns ->
+                    Just ns
+
+                Nothing ->
+                    nextSiblingOfClosestAncestor parentAcc
+
+        Nothing ->
+            Nothing
 
 
 hasVisibleChildren : OutlineDoc -> Bool
