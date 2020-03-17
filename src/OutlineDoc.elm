@@ -26,9 +26,7 @@ module OutlineDoc exposing
     , setTitleUnlessBlank
     )
 
-import Forest.Tree as Tree exposing (Forest, Tree)
-import Forest.Zipper as Zipper exposing (ForestZipper)
-import ItemForestZipper
+import ItemForestZipper as FIZ exposing (FIZ)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
@@ -53,7 +51,7 @@ candidateLocationEncoder candidateLocation =
         encodeHelp tagName itemId =
             JE.object
                 [ ( "tag", JE.string tagName )
-                , ( "id", ItemForestZipper.itemIdEncoder itemId )
+                , ( "id", FIZ.itemIdEncoder itemId )
                 ]
     in
     case candidateLocation of
@@ -75,7 +73,7 @@ candidateLocationDecoder =
     let
         decodeHelp : (ItemId -> CandidateLocation) -> Decoder CandidateLocation
         decodeHelp tag =
-            JD.field "id" ItemForestZipper.itemIdDecoder
+            JD.field "id" FIZ.itemIdDecoder
                 |> JD.map tag
 
         tagDecoder : String -> Decoder CandidateLocation
@@ -104,11 +102,11 @@ candidateLocationDecoder =
 
 
 type alias Item =
-    ItemForestZipper.Item
+    FIZ.Item
 
 
 type alias ItemId =
-    ItemForestZipper.ItemId
+    FIZ.ItemId
 
 
 
@@ -116,17 +114,17 @@ type alias ItemId =
 
 
 type OutlineDoc
-    = OutlineDoc (ForestZipper Item)
+    = OutlineDoc FIZ
 
 
 encoder : OutlineDoc -> Value
 encoder (OutlineDoc zipper) =
-    ItemForestZipper.encoder zipper
+    FIZ.encoder zipper
 
 
 decoder : Decoder OutlineDoc
 decoder =
-    ItemForestZipper.decoder |> JD.map OutlineDoc
+    FIZ.decoder |> JD.map OutlineDoc
 
 
 
@@ -135,12 +133,12 @@ decoder =
 
 prependNewChild : OutlineDoc -> Generator OutlineDoc
 prependNewChild =
-    insertNewHelp ItemForestZipper.newChild
+    insertNewHelp FIZ.newChild
 
 
 insertNewAfter : OutlineDoc -> Generator OutlineDoc
 insertNewAfter =
-    insertNewHelp ItemForestZipper.newSibling
+    insertNewHelp FIZ.newSibling
 
 
 insertNewHelp insertFunc (OutlineDoc z) =
@@ -149,15 +147,15 @@ insertNewHelp insertFunc (OutlineDoc z) =
 
 moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 moveFocusToItemId itemId =
-    mapMaybe (ItemForestZipper.gotoId itemId)
+    mapMaybe (FIZ.gotoId itemId)
 
 
-map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
+map : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
 map func (OutlineDoc z) =
     func z |> OutlineDoc
 
 
-mapMaybe : (ForestZipper Item -> Maybe (ForestZipper Item)) -> OutlineDoc -> Maybe OutlineDoc
+mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
 mapMaybe func (OutlineDoc z) =
     func z |> Maybe.map OutlineDoc
 
@@ -165,7 +163,7 @@ mapMaybe func (OutlineDoc z) =
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
     map
-        (ItemForestZipper.setTitle title |> ignoreNothing)
+        (FIZ.setTitle title |> ignoreNothing)
 
 
 ignoreNothing f v =
@@ -175,58 +173,47 @@ ignoreNothing f v =
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map
-        (\zipper ->
-            if isBlank (zipper |> zData >> .title) && zIsLeaf zipper then
-                Zipper.remove zipper |> Maybe.withDefault zipper
-
-            else
-                zipper
-        )
-
-
-isBlank : String -> Bool
-isBlank =
-    String.trim >> String.isEmpty
+        (FIZ.deleteEmpty |> ignoreNothing)
 
 
 currentTitle : OutlineDoc -> String
 currentTitle =
-    currentItem >> .title
-
-
-currentItem : OutlineDoc -> Item
-currentItem =
-    unwrap >> zData
+    unwrap >> FIZ.getTitle
 
 
 currentId : OutlineDoc -> ItemId
 currentId =
-    currentItem >> .id
+    unwrap >> FIZ.getId
 
 
-unwrap : OutlineDoc -> ForestZipper Item
+unwrap : OutlineDoc -> FIZ
 unwrap (OutlineDoc z) =
     z
 
 
+relocateFocusedBy : FIZ.Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+relocateFocusedBy a b =
+    mapMaybe (FIZ.relocateBy a b)
+
+
 moveAfterParent : OutlineDoc -> Maybe OutlineDoc
 moveAfterParent =
-    relocateFocused After up
+    relocateFocusedBy FIZ.After FIZ.goUp
 
 
 appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSibling =
-    relocateFocused AppendIn left
+    relocateFocusedBy FIZ.AppendChild FIZ.goLeft
 
 
 moveBeforePreviousSibling : OutlineDoc -> Maybe OutlineDoc
 moveBeforePreviousSibling =
-    relocateFocused Before left
+    relocateFocusedBy FIZ.Before FIZ.goLeft
 
 
 appendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 appendInPreviousSiblingOfParent =
-    relocateFocused AppendIn (up >> Maybe.andThen left)
+    relocateFocusedBy FIZ.AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
 
 
 moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
@@ -239,12 +226,12 @@ moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
 
 prependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
 prependInNextSiblingOfParent =
-    relocateFocused PrependIn (up >> Maybe.andThen right)
+    relocateFocusedBy FIZ.PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
 
 
 moveAfterNextSibling : OutlineDoc -> Maybe OutlineDoc
 moveAfterNextSibling =
-    relocateFocused After right
+    relocateFocusedBy FIZ.After FIZ.goRight
 
 
 moveAfterNextSiblingOrPrependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
@@ -270,189 +257,50 @@ relocateFocused candidateLocationFunction navigateFunction doc =
 
 
 moveCurrentToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-moveCurrentToCandidateLocation cl doc =
-    moveItemWithIdToCandidateLocationPreservingFocus (currentId doc) cl doc
+moveCurrentToCandidateLocation cl =
+    mapMaybe
+        (case cl of
+            Before itemId ->
+                FIZ.relocate FIZ.Before itemId
 
+            After itemId ->
+                FIZ.relocate FIZ.After itemId
 
-moveItemWithIdToCandidateLocationPreservingFocus : ItemId -> CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-moveItemWithIdToCandidateLocationPreservingFocus srcItemId candidateLocation =
-    let
-        moveTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-        moveTo atLocation =
-            unwrap
-                >> (\zipper ->
-                        Zipper.remove zipper
-                            |> Maybe.andThen (OutlineDoc >> insertRemovedNodeAtLocation atLocation zipper.center)
-                   )
+            PrependIn itemId ->
+                FIZ.relocate FIZ.PrependChild itemId
 
-        insertRemovedNodeAtLocation : CandidateLocation -> Tree Item -> OutlineDoc -> Maybe OutlineDoc
-        insertRemovedNodeAtLocation atLocation node =
-            let
-                insertHelp :
-                    ItemId
-                    -> (Tree Item -> ForestZipper Item -> ForestZipper Item)
-                    -> OutlineDoc
-                    -> Maybe OutlineDoc
-                insertHelp targetItemId func doc =
-                    doc
-                        |> moveFocusToItemId targetItemId
-                        >> Maybe.map (map (func node))
-            in
-            case atLocation of
-                Before itemId ->
-                    insertHelp itemId Zipper.insertLeft
-
-                After itemId ->
-                    insertHelp itemId Zipper.insertRight
-
-                PrependIn itemId ->
-                    insertHelp itemId zPrependChild
-
-                AppendIn itemId ->
-                    insertHelp itemId zAppendChild
-    in
-    moveTo candidateLocation
-        >> Maybe.andThen (moveFocusToItemId srcItemId)
-
-
-toForest : OutlineDoc -> Forest Item
-toForest =
-    unwrap >> Zipper.firstRoot >> Zipper.forest
-
-
-currentTree : OutlineDoc -> Tree Item
-currentTree =
-    unwrap >> Zipper.tree
+            AppendIn itemId ->
+                FIZ.relocate FIZ.AppendChild itemId
+        )
 
 
 restructure : (Item -> List c -> c) -> OutlineDoc -> List c
 restructure render =
-    toForest >> List.map (Tree.restructure identity render)
+    unwrap >> FIZ.restructure render
 
 
 restructureFocused : (Item -> List c -> c) -> OutlineDoc -> c
 restructureFocused render =
-    currentTree >> Tree.restructure identity render
-
-
-left : OutlineDoc -> Maybe OutlineDoc
-left =
-    mapMaybe Zipper.left
-
-
-right : OutlineDoc -> Maybe OutlineDoc
-right =
-    mapMaybe Zipper.right
-
-
-up : OutlineDoc -> Maybe OutlineDoc
-up =
-    mapMaybe Zipper.up
-
-
-down : OutlineDoc -> Maybe OutlineDoc
-down =
-    mapMaybe Zipper.down
+    unwrap >> FIZ.restructureNodeAtCursor render
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
 goBackward =
-    Maybe.Extra.oneOf [ left >> Maybe.map lastDescendant, up ]
-
-
-lastDescendant : OutlineDoc -> OutlineDoc
-lastDescendant zipper =
-    case lastChild zipper of
-        Nothing ->
-            zipper
-
-        Just child ->
-            lastDescendant child
-
-
-lastChild : OutlineDoc -> Maybe OutlineDoc
-lastChild =
-    down >> Maybe.map (applyWhileJust right)
-
-
-applyWhileJust : (a -> Maybe a) -> a -> a
-applyWhileJust func a =
-    case func a of
-        Just a2 ->
-            applyWhileJust func a2
-
-        Nothing ->
-            a
+    mapMaybe FIZ.goBackward
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    mapMaybe zGoForward
-
-
-zNextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
-zNextSiblingOfClosestAncestor acc =
-    case Zipper.up acc of
-        Just parentAcc ->
-            case Zipper.right parentAcc of
-                Just ns ->
-                    Just ns
-
-                Nothing ->
-                    zNextSiblingOfClosestAncestor parentAcc
-
-        Nothing ->
-            Nothing
+    mapMaybe FIZ.goForward
 
 
 hasVisibleChildren : OutlineDoc -> Bool
 hasVisibleChildren =
-    unwrap >> Zipper.tree >> Tree.children >> (not << List.isEmpty)
+    unwrap >> FIZ.hasVisibleChildren
 
 
 
 -- ForestZipper Extra
-
-
-findWithIterator : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
-findWithIterator pred iterator zipper =
-    if pred zipper then
-        Just zipper
-
-    else
-        case iterator zipper of
-            Just nextAcc ->
-                findWithIterator pred iterator nextAcc
-
-            Nothing ->
-                Nothing
-
-
-zGoForward =
-    Maybe.Extra.oneOf [ Zipper.down, Zipper.right, zNextSiblingOfClosestAncestor ]
-
-
-zData : ForestZipper a -> a
-zData =
-    Zipper.tree >> Tree.data
-
-
-zPrependChild : Tree a -> ForestZipper a -> ForestZipper a
-zPrependChild child =
-    Zipper.mapTree (Tree.mapChildren ((::) child))
-
-
-zAppendChild : Tree a -> ForestZipper a -> ForestZipper a
-zAppendChild child =
-    Zipper.mapTree (Tree.mapChildren (\children -> children ++ [ child ]))
-
-
-zIsLeaf : ForestZipper a -> Bool
-zIsLeaf =
-    Zipper.tree >> Tree.children >> List.isEmpty
-
-
-
 {-
 
    initialItemGenerator : Generator (List Item)

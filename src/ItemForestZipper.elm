@@ -2,11 +2,18 @@ module ItemForestZipper exposing
     ( FIZ
     , Item
     , ItemId
+    , Location(..)
     , decoder
+    , deleteEmpty
     , encoder
     , getId
+    , getTitle
     , goBackward
+    , goDown
     , goForward
+    , goLeft
+    , goRight
+    , goUp
     , gotoId
     , hasVisibleChildren
     , itemIdDecoder
@@ -136,6 +143,11 @@ getId =
     zData >> .id
 
 
+getTitle : FIZ -> String
+getTitle =
+    zData >> .title
+
+
 hasVisibleChildren : FIZ -> Bool
 hasVisibleChildren =
     Zipper.tree >> Tree.children >> (not << List.isEmpty)
@@ -178,8 +190,8 @@ setTitle rawTitle fiz =
             Nothing
 
 
-setTitleUnsafe title model =
-    { model | title = title }
+setTitleUnsafe title_ model =
+    { model | title = title_ }
 
 
 nonBlank : String -> Maybe String
@@ -192,6 +204,19 @@ nonBlank =
                 else
                     Just trimmedString
            )
+
+
+
+-- DELETE NODE
+
+
+deleteEmpty : FIZ -> Maybe FIZ
+deleteEmpty fiz =
+    if nonBlank (getTitle fiz) == Nothing && zIsLeaf fiz then
+        Zipper.remove fiz
+
+    else
+        Nothing
 
 
 
@@ -239,6 +264,26 @@ goForward =
 goBackward : FIZ -> Maybe FIZ
 goBackward =
     Maybe.Extra.oneOf [ left >> Maybe.map lastDescendant, up ]
+
+
+goUp : FIZ -> Maybe FIZ
+goUp =
+    Zipper.up
+
+
+goDown : FIZ -> Maybe FIZ
+goDown =
+    Zipper.down
+
+
+goLeft : FIZ -> Maybe FIZ
+goLeft =
+    Zipper.left
+
+
+goRight : FIZ -> Maybe FIZ
+goRight =
+    Zipper.right
 
 
 
