@@ -3,9 +3,11 @@ module ItemForestZipper exposing
     , Item
     , ItemId
     , Location(..)
+    , collapse
     , decoder
     , deleteEmpty
     , encoder
+    , expand
     , getId
     , getTitle
     , goBackward
@@ -207,6 +209,28 @@ nonBlank =
                 else
                     Just trimmedString
            )
+
+
+expand : FIZ -> Maybe FIZ
+expand fiz =
+    if zIsLeaf fiz then
+        Nothing
+
+    else
+        Just (zMapData (setCollapsedUnsafe False) fiz)
+
+
+collapse : FIZ -> Maybe FIZ
+collapse fiz =
+    if zIsLeaf fiz then
+        Nothing
+
+    else
+        Just (zMapData (setCollapsedUnsafe True) fiz)
+
+
+setCollapsedUnsafe collapsed model =
+    { model | collapsed = collapsed }
 
 
 
