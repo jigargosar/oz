@@ -154,8 +154,8 @@ getTitle =
 
 
 hasVisibleChildren : FIZ -> Bool
-hasVisibleChildren =
-    Zipper.tree >> Tree.children >> (not << List.isEmpty)
+hasVisibleChildren fiz =
+    not (zIsLeaf fiz || (zData fiz |> .collapsed))
 
 
 
@@ -291,8 +291,12 @@ goUp =
 
 
 goDown : FIZ -> Maybe FIZ
-goDown =
-    Zipper.down
+goDown fiz =
+    if hasVisibleChildren fiz then
+        Zipper.down fiz
+
+    else
+        Nothing
 
 
 goLeft : FIZ -> Maybe FIZ
