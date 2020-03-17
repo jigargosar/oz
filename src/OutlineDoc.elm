@@ -230,25 +230,6 @@ idEq =
     propEq .id
 
 
-zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
-zFindByData pred =
-    findWithIterator (zData >> pred)
-
-
-findWithIterator : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
-findWithIterator pred iterator zipper =
-    if pred zipper then
-        Just zipper
-
-    else
-        case iterator zipper of
-            Just nextAcc ->
-                findWithIterator pred iterator nextAcc
-
-            Nothing ->
-                Nothing
-
-
 map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
 map func (OutlineDoc z) =
     func z |> OutlineDoc
@@ -288,21 +269,9 @@ removeIfBlankLeaf =
         )
 
 
-zRemoveIf pred zipper =
-    if isBlank (zipper |> zData >> .title) && zIsLeaf zipper then
-        Zipper.remove zipper |> Maybe.withDefault zipper
-
-    else
-        zipper
-
-
 isBlank : String -> Bool
 isBlank =
     String.trim >> String.isEmpty
-
-
-withRollback func oz =
-    func oz |> Maybe.withDefault oz
 
 
 currentTitle : OutlineDoc -> String
@@ -506,10 +475,6 @@ goForward =
     mapMaybe zGoForward
 
 
-zGoForward =
-    Maybe.Extra.oneOf [ Zipper.down, Zipper.right, zNextSiblingOfClosestAncestor ]
-
-
 zNextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
 zNextSiblingOfClosestAncestor acc =
     case Zipper.up acc of
@@ -532,6 +497,29 @@ hasVisibleChildren =
 
 
 -- ForestZipper Extra
+
+
+zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
+zFindByData pred =
+    findWithIterator (zData >> pred)
+
+
+findWithIterator : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
+findWithIterator pred iterator zipper =
+    if pred zipper then
+        Just zipper
+
+    else
+        case iterator zipper of
+            Just nextAcc ->
+                findWithIterator pred iterator nextAcc
+
+            Nothing ->
+                Nothing
+
+
+zGoForward =
+    Maybe.Extra.oneOf [ Zipper.down, Zipper.right, zNextSiblingOfClosestAncestor ]
 
 
 zMapData : (a -> a) -> ForestZipper a -> ForestZipper a
