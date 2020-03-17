@@ -248,7 +248,7 @@ relocate relativeLocation targetId =
 
 
 
--- NAVIGATION
+-- CORE NAVIGATION
 
 
 gotoId : ItemId -> FIZ -> Maybe FIZ
@@ -256,14 +256,9 @@ gotoId itemId =
     Zipper.firstRoot >> zFindByData (idEq itemId) zGoForward
 
 
-goForward : FIZ -> Maybe FIZ
-goForward =
-    zGoForward
-
-
-goBackward : FIZ -> Maybe FIZ
-goBackward =
-    Maybe.Extra.oneOf [ goUp >> Maybe.map lastDescendant, goUp ]
+gotoLastChild : ForestZipper a -> Maybe (ForestZipper a)
+gotoLastChild =
+    Zipper.down >> Maybe.map (applyWhileJust Zipper.right)
 
 
 goUp : FIZ -> Maybe FIZ
@@ -286,12 +281,43 @@ goRight =
     Zipper.right
 
 
-type Go
-    = Up
-    | Down
-    | Left
-    | Right
-    | ToId ItemId
+
+-- NAVIGATION HELPERS
+
+
+goForward : FIZ -> Maybe FIZ
+goForward =
+    Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfClosestAncestor ]
+
+
+gotoNextSiblingOfClosestAncestor : FIZ -> Maybe (ForestZipper Item)
+gotoNextSiblingOfClosestAncestor fiz =
+    case goUp fiz of
+        Just parentFIZ ->
+            case goRight parentFIZ of
+                Just ns ->
+                    Just ns
+
+                Nothing ->
+                    gotoNextSiblingOfClosestAncestor parentFIZ
+
+        Nothing ->
+            Nothing
+
+
+goBackward : FIZ -> Maybe FIZ
+goBackward =
+    Maybe.Extra.oneOf [ goUp >> Maybe.map gotoLastDescendant, goUp ]
+
+
+gotoLastDescendant : FIZ -> FIZ
+gotoLastDescendant zipper =
+    case gotoLastChild zipper of
+        Nothing ->
+            zipper
+
+        Just child ->
+            gotoLastDescendant child
 
 
 
@@ -310,7 +336,7 @@ propEq func val obj =
 
 lastDescendant : FIZ -> FIZ
 lastDescendant zipper =
-    case zLastChild zipper of
+    case gotoLastChild zipper of
         Nothing ->
             zipper
 
@@ -390,7 +416,7 @@ zInsertTreeAtAndFocusIt location =
             helper zPrependChild Zipper.down
 
         AppendChild ->
-            helper zAppendChild zLastChild
+            helper zAppendChild gotoLastChild
 
 
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
