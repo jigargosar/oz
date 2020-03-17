@@ -211,12 +211,13 @@ insertNewHelp :
     -> (b -> Maybe (ForestZipper Item))
     -> OutlineDoc
     -> Generator OutlineDoc
-insertNewHelp insertFunc moveFocusFunc =
-    mapRandom
-        (\z ->
-            emptyLeafGenerator
-                |> Random.map (\child -> ignoreNothing (insertFunc child >> moveFocusFunc) z)
-        )
+insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
+    let
+        insertChildAndFocus child =
+            ignoreNothing (insertFunc child >> moveFocusFunc) z
+    in
+    emptyLeafGenerator
+        |> Random.map (insertChildAndFocus >> OutlineDoc)
 
 
 ignoreNothing : (b -> Maybe b) -> b -> b
