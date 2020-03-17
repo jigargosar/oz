@@ -222,25 +222,25 @@ insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
 
 moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 moveFocusToItemId itemId =
-    let
-        findFirst : (Item -> Bool) -> ForestZipper Item -> Maybe (ForestZipper Item)
-        findFirst pred =
-            Zipper.firstRoot >> find (Zipper.tree >> Tree.data >> pred) (\z -> goForward (OutlineDoc z) |> Maybe.map unwrap)
+    mapMaybe (findFirst (propEq .id itemId) (\z -> goForward (OutlineDoc z) |> Maybe.map unwrap))
 
-        find : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
-        find pred maybeNavFunc zipper =
-            if pred zipper then
-                Just zipper
 
-            else
-                case maybeNavFunc zipper of
-                    Just nextAcc ->
-                        find pred maybeNavFunc nextAcc
+findFirst pred navFunc =
+    Zipper.firstRoot >> find (Zipper.tree >> Tree.data >> pred) navFunc
 
-                    Nothing ->
-                        Nothing
-    in
-    mapMaybe (findFirst (propEq .id itemId))
+
+find : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
+find pred maybeNavFunc zipper =
+    if pred zipper then
+        Just zipper
+
+    else
+        case maybeNavFunc zipper of
+            Just nextAcc ->
+                find pred maybeNavFunc nextAcc
+
+            Nothing ->
+                Nothing
 
 
 map : (ForestZipper Item -> ForestZipper Item) -> OutlineDoc -> OutlineDoc
@@ -490,18 +490,23 @@ applyWhileJust func a =
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    Maybe.Extra.oneOf [ down, right, nextSiblingOfClosestAncestor ]
+    mapMaybe zGoForward
 
 
-nextSiblingOfClosestAncestor acc =
-    case up acc of
+zGoForward =
+    Maybe.Extra.oneOf [ Zipper.down, Zipper.right, zNextSiblingOfClosestAncestor ]
+
+
+zNextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
+zNextSiblingOfClosestAncestor acc =
+    case Zipper.up acc of
         Just parentAcc ->
-            case right parentAcc of
+            case Zipper.right parentAcc of
                 Just ns ->
                     Just ns
 
                 Nothing ->
-                    nextSiblingOfClosestAncestor parentAcc
+                    zNextSiblingOfClosestAncestor parentAcc
 
         Nothing ->
             Nothing
