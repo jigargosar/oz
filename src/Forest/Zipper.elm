@@ -2,6 +2,7 @@ module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
     , appendChild
+    , appendChildGo
     , data
     , decoder
     , down
@@ -9,7 +10,9 @@ module Forest.Zipper exposing
     , firstRoot
     , forest
     , insertLeft
+    , insertLeftGo
     , insertRight
+    , insertRightGo
     , isLeaf
     , lastChild
     , left
@@ -17,6 +20,7 @@ module Forest.Zipper exposing
     , mapData
     , mapTree
     , prependChild
+    , prependChildGo
     , remove
     , right
     , tree
@@ -334,6 +338,38 @@ isLeaf =
 lastChild : ForestZipper a -> Maybe (ForestZipper a)
 lastChild =
     down >> Maybe.map (applyWhileJust right)
+
+
+insertRightGo : Tree a -> ForestZipper a -> ForestZipper a
+insertRightGo =
+    insertAndGo insertRight right
+
+
+insertLeftGo : Tree a -> ForestZipper a -> ForestZipper a
+insertLeftGo =
+    insertAndGo insertLeft left
+
+
+appendChildGo : Tree a -> ForestZipper a -> ForestZipper a
+appendChildGo =
+    insertAndGo appendChild lastChild
+
+
+prependChildGo : Tree a -> ForestZipper a -> ForestZipper a
+prependChildGo =
+    insertAndGo prependChild down
+
+
+insertAndGo :
+    (Tree a -> ForestZipper a -> ForestZipper a)
+    -> (ForestZipper a -> Maybe (ForestZipper a))
+    -> Tree a
+    -> ForestZipper a
+    -> ForestZipper a
+insertAndGo insertFunc focusFunc node zipper =
+    insertFunc node zipper
+        |> focusFunc
+        |> Maybe.withDefault zipper
 
 
 
