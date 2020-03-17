@@ -1,9 +1,12 @@
 module OutlineDoc exposing
-    ( CandidateLocation(..)
+    ( CandidateLocation
     , Item
     , OutlineDoc
     , addNew
+    , after
+    , appendIn
     , appendInPreviousSibling
+    , before
     , candidateLocationDecoder
     , candidateLocationEncoder
     , collapse
@@ -19,6 +22,7 @@ module OutlineDoc exposing
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCurrentToCandidateLocation
     , moveFocusToItemId
+    , prependIn
     , removeIfBlankLeaf
     , restructure
     , restructureFocused
@@ -95,6 +99,22 @@ candidateLocationDecoder =
                     JD.fail ("unknown tag for CandidateLocation: " ++ tag)
     in
     JD.field "tag" JD.string |> JD.andThen tagDecoder
+
+
+before =
+    Before
+
+
+after =
+    After
+
+
+prependIn =
+    PrependIn
+
+
+appendIn =
+    AppendIn
 
 
 

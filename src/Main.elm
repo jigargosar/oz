@@ -749,30 +749,31 @@ renderDraggedItem item childrenHtml =
 
 
 renderNotDraggableWithBeacons : Item -> LHM -> HM
-renderNotDraggableWithBeacons item childrenHtml =
-    let
-        viewBeaconHelp func =
-            viewBeacon (func item.id)
-    in
-    div [ class "" ]
-        [ viewBeaconHelp Before
-        , viewNotDraggableItem item
-        , div [ class "pl4" ] (viewBeaconHelp PrependIn :: childrenHtml ++ [ viewBeaconHelp AppendIn ])
-        , viewBeaconHelp After
-        ]
+renderNotDraggableWithBeacons =
+    renderWithBeacons viewNotDraggableItem
 
 
 renderDraggableWithBeacons : Bool -> Item -> LHM -> HM
-renderDraggableWithBeacons isHighlighted item childrenHtml =
+renderDraggableWithBeacons isHighlighted =
+    renderWithBeacons (viewDraggableItem isHighlighted)
+
+
+renderWithBeacons : (Item -> Html Msg) -> Item -> List (Html Msg) -> Html Msg
+renderWithBeacons renderItemFunc item childrenHtml =
     let
         viewBeaconHelp func =
             viewBeacon (func item.id)
     in
     div [ class "" ]
-        [ viewBeaconHelp Before
-        , viewDraggableItem isHighlighted item
-        , div [ class "pl4" ] (viewBeaconHelp PrependIn :: childrenHtml ++ [ viewBeaconHelp AppendIn ])
-        , viewBeaconHelp After
+        [ viewBeaconHelp OutlineDoc.before
+        , renderItemFunc item
+        , div [ class "pl4" ]
+            (viewBeaconHelp
+                OutlineDoc.prependIn
+                :: childrenHtml
+                ++ [ viewBeaconHelp OutlineDoc.appendIn ]
+            )
+        , viewBeaconHelp OutlineDoc.after
         ]
 
 
