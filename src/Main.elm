@@ -915,7 +915,14 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                                 []
                            )
                     )
-                    [ div [ class "flex-auto lh-title", onClick (ItemTitleClicked item.id) ]
+                    [ div [ class "mr2 self-start dim pointer" ]
+                        (if item.collapsed then
+                            [ text ">" ]
+
+                         else
+                            [ text "v" ]
+                        )
+                    , div [ class "flex-auto lh-title", onClick (ItemTitleClicked item.id) ]
                         [ text (itemDisplayTitle item) ]
                     , if isDraggable && isHighlighted then
                         button [ class "ph2 pv0 lh-title bn bg-inherit color-inherit", tabindex 0, onClick New ] [ text "+" ]
