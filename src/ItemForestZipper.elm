@@ -438,7 +438,7 @@ zInsertAndGoto location =
             helper Zipper.prependChild Zipper.down
 
         AppendChild ->
-            helper Zipper.appendChild (Zipper.down >> Maybe.map (applyWhileJust Zipper.right))
+            helper Zipper.appendChild Zipper.lastChild
 
 
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)

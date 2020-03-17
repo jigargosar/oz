@@ -11,6 +11,7 @@ module Forest.Zipper exposing
     , insertLeft
     , insertRight
     , isLeaf
+    , lastChild
     , left
     , mapAncestorData
     , mapData
@@ -301,21 +302,6 @@ firstRoot =
     root >> firstSibling
 
 
-nextSiblingOfClosestAncestor : ForestZipper a -> Maybe (ForestZipper a)
-nextSiblingOfClosestAncestor acc =
-    case up acc of
-        Just parentAcc ->
-            case right parentAcc of
-                Just ns ->
-                    Just ns
-
-                Nothing ->
-                    nextSiblingOfClosestAncestor parentAcc
-
-        Nothing ->
-            Nothing
-
-
 
 -- EXTRA HELPER FUNCTIONS
 
@@ -343,6 +329,11 @@ appendChild child =
 isLeaf : ForestZipper a -> Bool
 isLeaf =
     tree >> Tree.children >> List.isEmpty
+
+
+lastChild : ForestZipper a -> Maybe (ForestZipper a)
+lastChild =
+    down >> Maybe.map (applyWhileJust right)
 
 
 
