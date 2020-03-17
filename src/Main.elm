@@ -906,7 +906,6 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
             levelContainer level
                 [ div
                     (class "pa1 bb b--black-30 pointer no-selection flex"
-                        :: classIf isHighlighted "bg-blue white"
                         :: classIf (not isDraggable && fadeNotDraggable) "o-50"
                         :: (if isDraggable then
                                 dragEvents item.id
@@ -922,13 +921,19 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                          else
                             [ text "v" ]
                         )
-                    , div [ class "flex-auto lh-title", onClick (ItemTitleClicked item.id) ]
+                    , div
+                        [ class "flex-auto lh-title "
+                        , classIf isHighlighted "bg-blue white"
+                        , onClick (ItemTitleClicked item.id)
+                        ]
                         [ text (itemDisplayTitle item) ]
-                    , if isDraggable && isHighlighted then
-                        button [ class "ph2 pv0 lh-title bn bg-inherit color-inherit", tabindex 0, onClick New ] [ text "+" ]
-
-                      else
-                        text ""
+                    , button
+                        [ class "ph2 pv0 lh-title bn bg-inherit color-inherit"
+                        , classIf (not (isDraggable && isHighlighted)) "pe-none o-0"
+                        , tabindex 0
+                        , onClick New
+                        ]
+                        [ text "+" ]
                     ]
                 ]
 
