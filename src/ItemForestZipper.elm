@@ -288,18 +288,15 @@ moveTo atLocation targetId =
     unwrap
         >> (\zipper ->
                 Zipper.remove zipper
-                    |> Maybe.andThen (insertRemovedNodeAtLocation atLocation targetId zipper.center)
+                    |> Maybe.andThen
+                        (moveFocusToItemId targetId
+                            >> Maybe.map (zInsertTreeAtAndFocusIt atLocation zipper.center)
+                        )
            )
 
 
-insertRemovedNodeAtLocation : CandidateLocation -> ItemId -> Tree Item -> FIZ -> Maybe FIZ
-insertRemovedNodeAtLocation atLocation targetId node =
-    moveFocusToItemId targetId
-        >> Maybe.map (zInsertAtEnsureFocus atLocation node)
-
-
-zInsertAtEnsureFocus : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
-zInsertAtEnsureFocus candidateLocation =
+zInsertTreeAtAndFocusIt : CandidateLocation -> Tree a -> ForestZipper a -> ForestZipper a
+zInsertTreeAtAndFocusIt candidateLocation =
     let
         helper insertFunc focusFunc node zipper =
             insertFunc node zipper
