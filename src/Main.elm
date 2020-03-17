@@ -917,18 +917,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                     , onClick (ItemTitleClicked item.id)
                     ]
                     [ text (itemDisplayTitle item) ]
-                , button
-                    ([ class "ph2 pv0 self-start lh-title bn bg-inherit color-inherit"
-                     , onClick New
-                     ]
-                        ++ (if isDraggable && isHighlighted then
-                                []
-
-                            else
-                                [ class "pe-none o-0", disabled True ]
-                           )
-                    )
-                    [ text "+" ]
+                , viewAddNewButton (not (isDraggable && isHighlighted))
                 ]
 
         EditLine title ->
@@ -938,6 +927,21 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                     [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
                     ]
                 ]
+
+
+viewAddNewButton invisible =
+    button
+        ([ class "ph2 pv0 self-start lh-title bn bg-inherit color-inherit"
+         , onClick New
+         ]
+            ++ (if invisible then
+                    [ class "pe-none o-0", disabled True ]
+
+                else
+                    []
+               )
+        )
+        [ text "+" ]
 
 
 dragEvents : ItemId -> List (Html.Attribute Msg)
