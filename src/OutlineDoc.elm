@@ -214,15 +214,10 @@ insertNewHelp :
 insertNewHelp insertFunc moveFocusFunc (OutlineDoc z) =
     let
         insertNewAndChangeFocus newNode =
-            ignoreNothing (insertFunc newNode >> moveFocusFunc) z
+            (insertFunc newNode >> moveFocusFunc) z |> Maybe.withDefault z
     in
     emptyLeafGenerator
         |> Random.map (insertNewAndChangeFocus >> OutlineDoc)
-
-
-ignoreNothing : (b -> Maybe b) -> b -> b
-ignoreNothing func val =
-    func val |> Maybe.withDefault val
 
 
 focusId : ItemId -> OutlineDoc -> Maybe OutlineDoc
