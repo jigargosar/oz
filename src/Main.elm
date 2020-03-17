@@ -918,7 +918,7 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                     ]
                     [ text (itemDisplayTitle item) ]
                 , button
-                    ([ class "ph2 pv0 lh-title bn bg-inherit color-inherit"
+                    ([ class "ph2 pv0 self-start lh-title bn bg-inherit color-inherit"
                      , onClick New
                      ]
                         ++ (if isDraggable && isHighlighted then
