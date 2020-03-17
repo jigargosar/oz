@@ -699,7 +699,7 @@ outlineToHtmlList outline =
                 renderItem : Item -> LHM -> HM
                 renderItem item =
                     if item.id == editItemId then
-                        renderEditItem title
+                        renderEdit title
 
                     else
                         renderDraggableWithBeacons False item
@@ -726,7 +726,7 @@ viewDraggedNode outline =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                [ OutlineDoc.restructureFocused renderDraggedItem doc ]
+                [ OutlineDoc.restructureFocused renderDragged doc ]
 
         Editing _ _ ->
             text ""
@@ -740,8 +740,8 @@ renderWithoutBeacons item childrenHtml =
         ]
 
 
-renderDraggedItem : Item -> LHM -> HM
-renderDraggedItem item childrenHtml =
+renderDragged : Item -> LHM -> HM
+renderDragged item childrenHtml =
     div [ class "" ]
         [ viewDraggedItem item
         , div [ class "pl4" ] childrenHtml
@@ -777,8 +777,8 @@ renderWithBeacons renderItemFunc item childrenHtml =
         ]
 
 
-renderEditItem : String -> LHM -> HM
-renderEditItem title lhm =
+renderEdit : String -> LHM -> HM
+renderEdit title lhm =
     div [ class "" ]
         [ viewEditItem title
         , div [ class "pl4" ] lhm
@@ -787,7 +787,22 @@ renderEditItem title lhm =
 
 viewBeacon : CandidateLocation -> Html Msg
 viewBeacon candidateLocation =
-    viewFlatLineWithConfig False (BeaconLine 0 candidateLocation)
+    div
+        ([ style "height" "0px"
+         , style "width" "0px"
+         , dataBeacon (OutlineDoc.candidateLocationEncoder candidateLocation)
+         ]
+            ++ (if debug then
+                    [ style "height" "10px"
+                    , style "width" "10px"
+                    , class "bg-red"
+                    ]
+
+                else
+                    []
+               )
+        )
+        [ text " " ]
 
 
 viewDraggableItem : Bool -> Item -> Html Msg
@@ -837,10 +852,8 @@ type alias TransformForestConfig a ctx tree =
 
 
 type FlatLine
-    = BeaconLine Int CandidateLocation
-    | ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
+    = ItemLine Int Item { isHighlighted : Bool, isDraggable : Bool }
     | EditLine Int String
-    | NoLine
 
 
 debug =
@@ -884,26 +897,6 @@ classIf bool classValue =
 viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
 viewFlatLineWithConfig fadeNotDraggable flatLine =
     case flatLine of
-        BeaconLine level candidateLocation ->
-            levelContainer level
-                [ div
-                    ([ style "height" "0px"
-                     , style "width" "0px"
-                     , dataBeacon (OutlineDoc.candidateLocationEncoder candidateLocation)
-                     ]
-                        ++ (if debug then
-                                [ style "height" "10px"
-                                , style "width" "10px"
-                                , class "bg-red"
-                                ]
-
-                            else
-                                []
-                           )
-                    )
-                    [ text " " ]
-                ]
-
         ItemLine level item { isHighlighted, isDraggable } ->
             levelContainer level
                 [ div
@@ -953,9 +946,6 @@ viewFlatLineWithConfig fadeNotDraggable flatLine =
                         ]
                     ]
                 ]
-
-        NoLine ->
-            text ""
 
 
 dragEvents : ItemId -> List (Html.Attribute Msg)
