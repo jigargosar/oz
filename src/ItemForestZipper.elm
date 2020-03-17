@@ -53,6 +53,7 @@ type Location
 type alias Item =
     { id : ItemId
     , title : String
+    , collapsed : Bool
     }
 
 
@@ -61,6 +62,7 @@ itemEncoder item =
     JE.object
         [ ( "id", itemIdEncoder item.id )
         , ( "title", JE.string item.title )
+        , ( "collapsed", JE.bool item.collapsed )
         ]
 
 
@@ -69,6 +71,7 @@ itemDecoder =
     JD.succeed Item
         |> required "id" itemIdDecoder
         |> required "title" JD.string
+        |> JD.map2 (|>) (JD.oneOf [ JD.field "collapsed" JD.bool, JD.succeed False ])
 
 
 type ItemId
@@ -78,7 +81,7 @@ type ItemId
 itemGenerator : String -> Generator Item
 itemGenerator title =
     itemIdGenerator
-        |> Random.map (\id -> { id = id, title = title })
+        |> Random.map (\id -> { id = id, title = title, collapsed = False })
 
 
 itemIdGenerator : Generator ItemId
