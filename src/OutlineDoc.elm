@@ -6,10 +6,12 @@ module OutlineDoc exposing
     , appendInPreviousSibling
     , candidateLocationDecoder
     , candidateLocationEncoder
+    , collapse
     , currentId
     , currentTitle
     , decoder
     , encoder
+    , expand
     , goBackward
     , goForward
     , hasVisibleChildren
@@ -173,6 +175,16 @@ setTitleUnlessBlank title =
 
 ignoreNothing f v =
     f v |> Maybe.withDefault v
+
+
+expand : OutlineDoc -> Maybe OutlineDoc
+expand =
+    mapMaybe FIZ.expand
+
+
+collapse : OutlineDoc -> Maybe OutlineDoc
+collapse =
+    mapMaybe FIZ.collapse
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc

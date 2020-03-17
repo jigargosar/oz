@@ -363,6 +363,8 @@ type UserIntent
     | AddNew
     | MoveUp
     | MoveDown
+    | Collapse
+    | Expand
 
 
 globalKeyEventToUserIntentWhenBrowsing : KeyEvent -> Maybe UserIntent
@@ -378,6 +380,12 @@ globalKeyEventToUserIntentWhenBrowsing ke =
 
     else if hotKey "ArrowDown" ke then
         Just NavNext
+
+    else if hotKey "ArrowLeft" ke then
+        Just Collapse
+
+    else if hotKey "ArrowRight" ke then
+        Just Expand
 
     else if ctrl "ArrowUp" ke then
         Just MoveUp
@@ -409,6 +417,12 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
                     ( model, Cmd.none )
     in
     case keyboardIntent of
+        Collapse ->
+            updateBrowsingDocByMaybeF OutlineDoc.collapse
+
+        Expand ->
+            updateBrowsingDocByMaybeF OutlineDoc.expand
+
         NavPrev ->
             updateBrowsingDocByMaybeF OutlineDoc.goBackward
 
