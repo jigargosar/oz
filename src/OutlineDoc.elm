@@ -277,13 +277,12 @@ setTitleUnlessBlank title =
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map
-        (\oz ->
-            if isBlank (oz |> zData >> .title) && zIsLeaf oz then
-                oz
-                    |> withRollback Zipper.remove
+        (\zipper ->
+            if isBlank (zipper |> zData >> .title) && zIsLeaf zipper then
+                Zipper.remove zipper |> Maybe.withDefault zipper
 
             else
-                oz
+                zipper
         )
 
 
