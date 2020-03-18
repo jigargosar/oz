@@ -707,7 +707,7 @@ outlineToHtmlList outline =
                                         List.map (\f -> f bool) renderChildrenFns
                                 in
                                 if shouldRenderWithoutBeacon || item.id == draggedId then
-                                    renderWithoutBeacons item (children True)
+                                    renderFadedDraggedWithoutBeacons item (children True)
 
                                 else
                                     renderNotDraggableWithBeacons item (children False)
@@ -732,11 +732,34 @@ outlineToHtmlList outline =
             OutlineDoc.restructure renderItem doc
 
 
-renderWithoutBeacons : Item -> LHM -> HM
-renderWithoutBeacons item childrenHtml =
+renderEdit : String -> LHM -> HM
+renderEdit title lhm =
+    div [ class "" ]
+        [ viewEditItem title
+        , div [ class "pl4" ] lhm
+        ]
+
+
+renderFadedDraggedWithoutBeacons : Item -> LHM -> HM
+renderFadedDraggedWithoutBeacons item childrenHtml =
     div [ class "" ]
         [ viewFadedDraggedItem item
         , div [ class "pl4" ] childrenHtml
+        ]
+
+
+renderWithBeacons : (Item -> Html Msg) -> Item -> List (Html Msg) -> Html Msg
+renderWithBeacons renderItemFunc item childrenHtml =
+    div []
+        [ viewBeacon (OutlineDoc.before item.id)
+        , renderItemFunc item
+        , div [ class "pl4" ]
+            (viewBeacon
+                (OutlineDoc.prependIn item.id)
+                :: childrenHtml
+                ++ [ viewBeacon (OutlineDoc.appendIn item.id) ]
+            )
+        , viewBeacon (OutlineDoc.after item.id)
         ]
 
 
@@ -758,21 +781,6 @@ renderDraggableWithBeacons isHighlighted =
     renderWithBeacons (viewDraggableItem isHighlighted)
 
 
-renderWithBeacons : (Item -> Html Msg) -> Item -> List (Html Msg) -> Html Msg
-renderWithBeacons renderItemFunc item childrenHtml =
-    div []
-        [ viewBeacon (OutlineDoc.before item.id)
-        , renderItemFunc item
-        , div [ class "pl4" ]
-            (viewBeacon
-                (OutlineDoc.prependIn item.id)
-                :: childrenHtml
-                ++ [ viewBeacon (OutlineDoc.appendIn item.id) ]
-            )
-        , viewBeacon (OutlineDoc.after item.id)
-        ]
-
-
 viewBeacon : CandidateLocation -> Html Msg
 viewBeacon candidateLocation =
     div
@@ -791,14 +799,6 @@ viewBeacon candidateLocation =
                )
         )
         [ text " " ]
-
-
-renderEdit : String -> LHM -> HM
-renderEdit title lhm =
-    div [ class "" ]
-        [ viewEditItem title
-        , div [ class "pl4" ] lhm
-        ]
 
 
 viewDraggableItem : Bool -> Item -> Html Msg
