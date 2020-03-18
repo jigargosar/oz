@@ -432,3 +432,54 @@ insertAndGo insertFunc focusFunc node zipper =
 --    | Exit
 --    | Exited
 --    | Up
+
+
+type alias ReAcc a b =
+    { leftReversed : List b, crumbs : List (List b), fiz : ForestZipper a }
+
+
+restructure : (ForestZipper a -> List b -> b) -> ForestZipper a -> List b
+restructure render zipper =
+    restructureHelp render GoDown { leftReversed = [], crumbs = [], fiz = zipper }
+
+
+restructureHelp : (ForestZipper a -> List b -> b) -> RestructureMsg -> ReAcc a b -> List b
+restructureHelp render msg acc =
+    case msg of
+        GoDown ->
+            case down acc.fiz of
+                Just fiz ->
+                    restructureHelp render
+                        GoDown
+                        { acc | leftReversed = [], crumbs = acc.leftReversed :: acc.crumbs, fiz = fiz }
+
+                Nothing ->
+                    restructureHelp render GoRight { acc | leftReversed = render acc.fiz [] :: acc.leftReversed }
+
+        GoRight ->
+            case right acc.fiz of
+                Just fiz ->
+                    restructureHelp render GoRight { acc | leftReversed = render fiz [] :: acc.leftReversed, fiz = fiz }
+
+                Nothing ->
+                    restructureHelp render GoUp acc
+
+        GoUp ->
+            case ( up acc.fiz, acc.crumbs ) of
+                ( Just fiz, first :: rest ) ->
+                    restructureHelp render
+                        GoRight
+                        { acc
+                            | leftReversed = render fiz (List.reverse acc.leftReversed) :: first
+                            , crumbs = rest
+                            , fiz = fiz
+                        }
+
+                _ ->
+                    List.reverse acc.leftReversed
+
+
+type RestructureMsg
+    = GoDown
+    | GoRight
+    | GoUp
