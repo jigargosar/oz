@@ -819,22 +819,22 @@ viewBeacon candidateLocation =
 
 viewDraggableItem : Bool -> Item -> Html Msg
 viewDraggableItem isHighlighted item =
-    viewFlatLineWithConfig False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True })
+    viewFlatLine False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True })
 
 
 viewNotDraggableItem : Item -> Html Msg
 viewNotDraggableItem item =
-    viewFlatLineWithConfig False (ItemLine item { isHighlighted = False, isDraggable = False })
+    viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False })
 
 
 viewFadedDraggedItem : Item -> Html Msg
 viewFadedDraggedItem item =
-    viewFlatLineWithConfig True (ItemLine item { isHighlighted = False, isDraggable = False })
+    viewFlatLine True (ItemLine item { isHighlighted = False, isDraggable = False })
 
 
 viewDraggedItem : Item -> Html Msg
 viewDraggedItem item =
-    viewFlatLineWithConfig False (ItemLine item { isHighlighted = False, isDraggable = False })
+    viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False })
 
 
 viewEditItem : String -> Html Msg
@@ -880,8 +880,8 @@ classIf bool classValue =
         class ""
 
 
-viewFlatLineWithConfig : Bool -> FlatLine -> Html Msg
-viewFlatLineWithConfig fadeNotDraggable flatLine =
+viewFlatLine : Bool -> FlatLine -> Html Msg
+viewFlatLine fadeNotDraggable flatLine =
     case flatLine of
         ItemLine item { isHighlighted, isDraggable } ->
             div
