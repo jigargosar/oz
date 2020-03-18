@@ -214,15 +214,22 @@ update message model =
             ( onKeyDown ke model, Cmd.none )
 
         AddNewClicked ->
-            case model.outline of
-                Outline Browsing doc ->
-                    updateWithUserIntentWhenBrowsing AddNew doc model
+            case model.state of
+                Browsing ->
+                    ( updateWithUserIntentWhenBrowsing AddNew model, Cmd.none )
 
                 _ ->
                     Debug.todo "impl"
 
         TitleChanged title ->
-            ( { model | outline = onEditTitleChanged title model.outline }, Cmd.none )
+            ( case model.state of
+                Editing (Edit isAdding _) ->
+                    { model | state = Editing (Edit isAdding title) }
+
+                _ ->
+                    Debug.todo "Impossible state"
+            , Cmd.none
+            )
 
         ItemTitleClicked iid ->
             case model.outline of
@@ -319,6 +326,7 @@ update message model =
                     Debug.todo "impossible state"
 
 
+onKeyDown : KeyEvent -> Model -> Model
 onKeyDown ke model =
     case model.state of
         Browsing ->
@@ -499,16 +507,6 @@ endEditAndStartDraggingId dragId cursor edit =
 cancelEditAndInitBrowsing : OutlineDoc -> Outline
 cancelEditAndInitBrowsing =
     cancelEdit >> Outline Browsing
-
-
-onEditTitleChanged : String -> Outline -> Outline
-onEditTitleChanged title outline =
-    case outline of
-        Outline (Editing (Edit isAdding _)) doc ->
-            Outline (Editing (Edit isAdding title)) doc
-
-        _ ->
-            Debug.todo "Impossible state"
 
 
 generate : Generator a -> Model -> ( a, Model )
