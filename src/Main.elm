@@ -763,22 +763,21 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
 
 
 viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
-viewNodeWithBeacons itemView =
-    renderWithBeacons_ (viewItem itemView)
+viewNodeWithBeacons itemView item =
+    wrapWithBeacons (viewItem itemView item) item.id
 
 
-renderWithBeacons_ : (Item -> HM) -> Item -> LHM -> HM
-renderWithBeacons_ renderItemFunc item childrenHtml =
+wrapWithBeacons : HM -> ItemId -> LHM -> HM
+wrapWithBeacons itemHtml itemId childrenHtml =
     div []
-        [ viewBeacon (OutlineDoc.before item.id)
-        , renderItemFunc item
+        [ viewBeacon (OutlineDoc.before itemId)
+        , itemHtml
         , div [ class "pl4" ]
-            (viewBeacon
-                (OutlineDoc.prependIn item.id)
+            (viewBeacon (OutlineDoc.prependIn itemId)
                 :: childrenHtml
-                ++ [ viewBeacon (OutlineDoc.appendIn item.id) ]
+                ++ [ viewBeacon (OutlineDoc.appendIn itemId) ]
             )
-        , viewBeacon (OutlineDoc.after item.id)
+        , viewBeacon (OutlineDoc.after itemId)
         ]
 
 
