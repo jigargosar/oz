@@ -647,7 +647,7 @@ type alias LHM =
     List (Html.Html Msg)
 
 
-viewOutline : State -> OutlineDoc -> Model -> HM
+viewOutline : State -> OutlineDoc -> HM
 viewOutline state doc =
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
