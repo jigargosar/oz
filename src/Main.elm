@@ -536,6 +536,20 @@ focusTitleEditor =
             )
 
 
+focusItemAtCursor : Cmd Msg
+focusItemAtCursor =
+    Dom.focus "item-title-at-cursor"
+        |> Task.attempt
+            (\result ->
+                case result of
+                    Err (Dom.NotFound domId) ->
+                        TitleEditorFocusFailed domId
+
+                    Ok () ->
+                        NoOp
+            )
+
+
 subscriptions : Model -> Sub Msg
 subscriptions m =
     Sub.batch
@@ -903,6 +917,7 @@ viewItem itemView item cs =
             [ class "flex-auto lh-title "
             , classIf isHighlighted "bg-blue white"
             , attrIf isHighlighted tabindex 0
+            , attrIf isHighlighted A.id "item-title-at-cursor"
             , onClick (ItemTitleClicked item.id)
             ]
             [ text (itemDisplayTitle item) ]
