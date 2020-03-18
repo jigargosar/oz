@@ -179,7 +179,7 @@ focusElOnDocCursorChange old new =
         Cmd.none
 
 
-maybeUpdateDoc maybeFunc model =
+maybeMapDoc maybeFunc model =
     case maybeFunc model.doc of
         Just doc ->
             { model | doc = doc }
@@ -190,7 +190,7 @@ maybeUpdateDoc maybeFunc model =
 
 maybeUpdateEditingDoc maybeDocFunc model =
     if isEditing model then
-        maybeUpdateDoc maybeDocFunc model
+        maybeMapDoc maybeDocFunc model
 
     else
         model
@@ -398,39 +398,39 @@ updateWithUserIntentWhenBrowsing : UserIntent -> Model -> Model
 updateWithUserIntentWhenBrowsing keyboardIntent =
     case keyboardIntent of
         Collapse ->
-            maybeUpdateDoc Doc.collapse
+            maybeMapDoc Doc.collapse
 
         CollapseOrNavParent ->
-            maybeUpdateDoc Doc.collapseOrNavParent
+            maybeMapDoc Doc.collapseOrNavParent
 
         ExpandOrAlternate ->
-            maybeUpdateDoc Doc.expandOrGoForward
+            maybeMapDoc Doc.expandOrGoForward
 
         Expand ->
-            maybeUpdateDoc Doc.expand
+            maybeMapDoc Doc.expand
 
         NavPrev ->
-            maybeUpdateDoc Doc.goBackward
+            maybeMapDoc Doc.goBackward
 
         NavNext ->
-            maybeUpdateDoc Doc.goForward
+            maybeMapDoc Doc.goForward
 
         UnIndent ->
-            maybeUpdateDoc Doc.unIndent
+            maybeMapDoc Doc.unIndent
 
         Indent ->
-            maybeUpdateDoc Doc.indent
+            maybeMapDoc Doc.indent
 
         MoveUp ->
-            maybeUpdateDoc
+            maybeMapDoc
                 Doc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
 
         MoveDown ->
-            maybeUpdateDoc
+            maybeMapDoc
                 Doc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
 
         FocusId id ->
-            maybeUpdateDoc (Doc.moveCursorToItemId id)
+            maybeMapDoc (Doc.moveCursorToItemId id)
 
         EditFocused ->
             initEditState
