@@ -92,18 +92,27 @@ decodeMaybeDoc encodedNullableDoc =
                 |> always Debug.todo "handle doc decode error"
 
 
+initModelWithDocAndSeed : OutlineDoc -> Seed -> Model
+initModelWithDocAndSeed doc seed =
+    { outline = Browsing doc
+    , seed = seed
+    }
+
+
 init : Flags -> ( Model, Cmd Msg )
 init flags =
+    let
+        initialSeed =
+            Random.initialSeed flags.now
+    in
     ( case decodeMaybeDoc flags.oz of
         Just doc ->
-            { outline = Browsing doc
-            , seed = Random.initialSeed flags.now
-            }
+            initModelWithDocAndSeed doc initialSeed
 
         Nothing ->
             let
                 ( doc, seed ) =
-                    Random.step OutlineDoc.new (Random.initialSeed flags.now)
+                    Random.step OutlineDoc.new initialSeed
             in
             { outline = Browsing doc
             , seed = seed
