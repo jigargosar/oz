@@ -374,31 +374,7 @@ restructureCursorWithContext : (( Item, List Item, CollapseState ) -> List b -> 
 restructureCursorWithContext render =
     Zipper.tree
         >> Zipper.fromTree
-        >> Zipper.restructure
-            (\fiz children ->
-                let
-                    item =
-                        Zipper.data fiz
-                in
-                render
-                    ( item
-                    , Zipper.ancestors fiz
-                    , if List.isEmpty children then
-                        CollapseState.NoChildren
-
-                      else if item.collapsed then
-                        CollapseState.Collapsed
-
-                      else
-                        CollapseState.Expanded
-                    )
-                    (if item.collapsed then
-                        []
-
-                     else
-                        children
-                    )
-            )
+        >> restructureWithContext render
 
 
 restructure : (Item -> List c -> c) -> FIZ -> List c
