@@ -713,24 +713,20 @@ viewDraggingDoc doc =
         draggedId =
             OutlineDoc.currentId doc
 
-        renderForestFns : List (Bool -> HM)
-        renderForestFns =
-            OutlineDoc.restructure
-                (\item renderChildrenFns ->
-                    \shouldRenderWithoutBeacon ->
-                        let
-                            children bool =
-                                List.map (\f -> f bool) renderChildrenFns
-                        in
-                        if shouldRenderWithoutBeacon || item.id == draggedId then
-                            viewNodeWithoutBeacons (viewItem FadedItem) item (children True)
-
-                        else
-                            viewNodeWithBeacons NotDraggableItem item (children False)
-                )
-                doc
+        isDragged : ( Item, List Item ) -> Bool
+        isDragged ( item, items ) =
+            List.map .id (item :: items)
+                |> List.any ((==) draggedId)
     in
-    List.map (\fn -> fn False) renderForestFns
+    OutlineDoc.restructureWithContext
+        (\( item, ancestors ) ->
+            if isDragged ( item, ancestors ) then
+                viewNodeWithoutBeacons (viewItem FadedItem) item
+
+            else
+                viewNodeWithBeacons NotDraggableItem item
+        )
+        doc
 
 
 viewEditingDoc : String -> OutlineDoc -> LHM
