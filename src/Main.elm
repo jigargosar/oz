@@ -842,27 +842,6 @@ viewEditItem title =
         ]
 
 
-
--- FOREST TRANSFORM
-
-
-type alias ForestTransformZipper a ctx tree =
-    { leftReversed : List tree
-    , context : ctx
-    , crumbs : List { leftReversed : List tree, center : ( a, ctx ), right : Forest a }
-    }
-
-
-type alias TransformForestConfig a ctx tree =
-    { transform : a -> ctx -> List tree -> tree
-    , childContext : a -> ctx -> ctx
-    }
-
-
-
--- FlatLines View
-
-
 type FlatLine
     = ItemLine Item { isHighlighted : Bool, isDraggable : Bool }
 
