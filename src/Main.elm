@@ -689,19 +689,7 @@ outlineToHtmlList outline =
             viewDraggingDoc doc
 
         Editing doc title ->
-            let
-                editItemId =
-                    OutlineDoc.currentId doc
-
-                renderItem : Item -> LHM -> HM
-                renderItem item =
-                    if item.id == editItemId then
-                        renderEdit title
-
-                    else
-                        renderWithBeacons (viewItem (DraggableItem False)) item
-            in
-            OutlineDoc.restructure renderItem doc
+            viewEditingDoc title doc
 
 
 
@@ -747,6 +735,23 @@ viewDraggingDoc doc =
                 doc
     in
     List.map (\fn -> fn False) renderForestFns
+
+
+viewEditingDoc : String -> OutlineDoc -> LHM
+viewEditingDoc title doc =
+    let
+        editItemId =
+            OutlineDoc.currentId doc
+
+        renderItem : Item -> LHM -> HM
+        renderItem item =
+            if item.id == editItemId then
+                renderEdit title
+
+            else
+                renderWithBeacons (viewItem (DraggableItem False)) item
+    in
+    OutlineDoc.restructure renderItem doc
 
 
 
