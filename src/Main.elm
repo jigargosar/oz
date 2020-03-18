@@ -123,7 +123,7 @@ init flags =
 -- Update
 
 
-type DndMsg
+type WhenDraggingMsg
     = Move XY
     | Stop
     | GotBeacons Value
@@ -133,7 +133,7 @@ type Msg
     = NoOp
     | TitleEditorFocusFailed String
     | OnDragStart ItemId Cursor
-    | WhenStateIsDragging DndMsg
+    | DM WhenDraggingMsg
     | ItemTitleClicked ItemId
     | TitleChanged String
     | AddNewClicked
@@ -296,7 +296,7 @@ update message model =
                 Dragging _ ->
                     Debug.todo "impossible state"
 
-        WhenStateIsDragging msg ->
+        DM msg ->
             case model.state of
                 Dragging cursor ->
                     onDndMsg msg cursor model
@@ -305,7 +305,7 @@ update message model =
                     Debug.todo "drag msg received, when not dragging"
 
 
-onDndMsg : DndMsg -> Cursor -> Model -> ( Model, Cmd Msg )
+onDndMsg : WhenDraggingMsg -> Cursor -> Model -> ( Model, Cmd Msg )
 onDndMsg msg cursor model =
     case msg of
         Move clientXY ->
@@ -535,7 +535,7 @@ subscriptions m =
                     , Browser.Events.onMouseUp (JD.succeed Stop)
                     , gotBeacons GotBeacons
                     ]
-                    |> Sub.map WhenStateIsDragging
+                    |> Sub.map DM
         , Browser.Events.onKeyDown (KE.decoder |> JD.map OnKeyDown)
         ]
 
