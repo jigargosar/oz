@@ -15,6 +15,7 @@ module OutlineDoc exposing
     , decoder
     , encoder
     , expand
+    , expandOrAlternate
     , goBackward
     , goForward
     , indent
@@ -191,6 +192,11 @@ ignoreNothing f v =
 
 expand : OutlineDoc -> Maybe OutlineDoc
 expand =
+    mapMaybe FIZ.expand
+
+
+expandOrAlternate : OutlineDoc -> Maybe OutlineDoc
+expandOrAlternate =
     mapMaybe FIZ.expand
 
 

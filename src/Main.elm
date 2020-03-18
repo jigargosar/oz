@@ -410,6 +410,7 @@ type UserIntent
     | FocusId ItemId
     | NavPrev
     | CollapseOrNavParent
+    | ExpandOrAlternate
     | NavNext
     | UnIndent
     | Indent
@@ -438,7 +439,7 @@ globalKeyEventToUserIntentWhenBrowsing ke =
         Just CollapseOrNavParent
 
     else if hotKey "ArrowRight" ke then
-        Just Expand
+        Just ExpandOrAlternate
 
     else if ctrl "ArrowUp" ke then
         Just MoveUp
@@ -475,6 +476,9 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
 
         CollapseOrNavParent ->
             updateBrowsingDocByMaybeF OutlineDoc.collapseOrNavParent
+
+        ExpandOrAlternate ->
+            updateBrowsingDocByMaybeF OutlineDoc.expandOrAlternate
 
         Expand ->
             updateBrowsingDocByMaybeF OutlineDoc.expand
