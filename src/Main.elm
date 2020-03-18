@@ -241,20 +241,6 @@ persistModelOnChange oldModel ( newModel, cmd ) =
     ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd oldModel.outline newModel.outline ] )
 
 
-maybeUpdateDocWhenEditing maybeDocFunc state doc model =
-    case state of
-        Editing _ ->
-            case maybeDocFunc doc of
-                Just newDoc ->
-                    ( { model | outline = Outline state newDoc }, Cmd.none )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
-
-
 maybeUpdateOutlineDocWhenEditing maybeDocFunc model =
     case model.outline of
         Outline ((Editing _) as state) doc ->
@@ -282,9 +268,7 @@ update message model =
             maybeUpdateOutlineDocWhenEditing OutlineDoc.indent model
 
         OnShiftTab ->
-            case model.outline of
-                Outline state doc ->
-                    maybeUpdateDocWhenEditing OutlineDoc.unIndent state doc model
+            maybeUpdateOutlineDocWhenEditing OutlineDoc.unIndent model
 
         OnKeyDown ke ->
             case model.outline of
