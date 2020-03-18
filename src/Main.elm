@@ -732,6 +732,10 @@ outlineToHtmlList outline =
             OutlineDoc.restructure renderItem doc
 
 
+
+-- RENDER ITEM FUNCTIONS
+
+
 renderEdit : String -> LHM -> HM
 renderEdit =
     renderWithoutBeacons viewEditItem
@@ -740,6 +744,25 @@ renderEdit =
 renderFadedDraggedWithoutBeacons : Item -> LHM -> HM
 renderFadedDraggedWithoutBeacons =
     renderWithoutBeacons viewFadedDraggedItem
+
+
+renderDragged : Item -> LHM -> HM
+renderDragged =
+    renderWithoutBeacons viewDraggedItem
+
+
+renderNotDraggableWithBeacons : Item -> LHM -> HM
+renderNotDraggableWithBeacons =
+    renderWithBeacons viewNotDraggableItem
+
+
+renderDraggableWithBeacons : Bool -> Item -> LHM -> HM
+renderDraggableWithBeacons isHighlighted =
+    renderWithBeacons (viewDraggableItem isHighlighted)
+
+
+
+-- Render Item Helpers
 
 
 renderWithoutBeacons : (a -> Html Msg) -> a -> List (Html Msg) -> Html Msg
@@ -765,19 +788,8 @@ renderWithBeacons renderItemFunc item childrenHtml =
         ]
 
 
-renderDragged : Item -> LHM -> HM
-renderDragged =
-    renderWithoutBeacons viewDraggedItem
 
-
-renderNotDraggableWithBeacons : Item -> LHM -> HM
-renderNotDraggableWithBeacons =
-    renderWithBeacons viewNotDraggableItem
-
-
-renderDraggableWithBeacons : Bool -> Item -> LHM -> HM
-renderDraggableWithBeacons isHighlighted =
-    renderWithBeacons (viewDraggableItem isHighlighted)
+-- Final View FUNCTIONS
 
 
 viewBeacon : CandidateLocation -> Html Msg
