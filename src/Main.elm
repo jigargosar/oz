@@ -676,7 +676,7 @@ viewDraggedNode outline =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                [ OutlineDoc.restructureFocused (renderWithoutBeacons (viewItem NotDraggableItem)) doc ]
+                [ OutlineDoc.restructureFocused (viewNodeWithoutBeacons (viewItem NotDraggableItem)) doc ]
 
         NoDoc ->
             text ""
@@ -723,7 +723,7 @@ viewDraggingDoc doc =
                                 List.map (\f -> f bool) renderChildrenFns
                         in
                         if shouldRenderWithoutBeacon || item.id == draggedId then
-                            renderWithoutBeacons (viewItem FadedItem) item (children True)
+                            viewNodeWithoutBeacons (viewItem FadedItem) item (children True)
 
                         else
                             viewNodeWithBeacons NotDraggableItem item (children False)
@@ -742,7 +742,7 @@ viewEditingDoc title doc =
         renderItem : Item -> LHM -> HM
         renderItem item =
             if item.id == editItemId then
-                renderWithoutBeacons viewEditItem title
+                viewNodeWithoutBeacons viewEditItem title
 
             else
                 viewNodeWithBeacons (DraggableItem False) item
@@ -754,8 +754,8 @@ viewEditingDoc title doc =
 -- NODE VIEW TEMPLATES
 
 
-renderWithoutBeacons : (a -> HM) -> a -> LHM -> HM
-renderWithoutBeacons renderItemFunc item childrenHtml =
+viewNodeWithoutBeacons : (a -> HM) -> a -> LHM -> HM
+viewNodeWithoutBeacons renderItemFunc item childrenHtml =
     div []
         [ renderItemFunc item
         , div [ class "pl4" ] childrenHtml
