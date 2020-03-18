@@ -11,6 +11,7 @@ import Html.Events as Event exposing (onClick, onInput, preventDefaultOn)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import KeyEvent as KE exposing (KeyEvent)
 import OutlineDoc as Doc exposing (CandidateLocation(..), OutlineDoc)
 import Random exposing (Generator, Seed)
 import Task
@@ -343,10 +344,10 @@ onKeyDown ke model =
             onKeyDownBrowsing ke model
 
         Editing editState ->
-            if hotKey "Enter" ke then
+            if KE.hot "Enter" ke then
                 { model | doc = endEdit editState model.doc, state = Browsing }
 
-            else if hotKey "Escape" ke then
+            else if KE.hot "Escape" ke then
                 { model | doc = cancelEdit model.doc, state = Browsing }
 
             else
@@ -383,34 +384,34 @@ type UserIntent
 
 globalKeyEventToUserIntentWhenBrowsing : KeyEvent -> Maybe UserIntent
 globalKeyEventToUserIntentWhenBrowsing ke =
-    if hotKey " " ke && not (targetInputOrButton ke) then
+    if KE.hot " " ke && not (KE.targetInputOrButton ke) then
         Just EditFocused
 
-    else if hotKey "Enter" ke && not (targetInputOrButton ke) then
+    else if KE.hot "Enter" ke && not (KE.targetInputOrButton ke) then
         Just AddNew
 
-    else if hotKey "ArrowUp" ke then
+    else if KE.hot "ArrowUp" ke then
         Just NavPrev
 
-    else if hotKey "ArrowDown" ke then
+    else if KE.hot "ArrowDown" ke then
         Just NavNext
 
-    else if hotKey "ArrowLeft" ke then
+    else if KE.hot "ArrowLeft" ke then
         Just CollapseOrNavParent
 
-    else if hotKey "ArrowRight" ke then
+    else if KE.hot "ArrowRight" ke then
         Just ExpandOrAlternate
 
-    else if ctrl "ArrowUp" ke then
+    else if KE.ctrl "ArrowUp" ke then
         Just MoveUp
 
-    else if ctrl "ArrowDown" ke then
+    else if KE.ctrl "ArrowDown" ke then
         Just MoveDown
 
-    else if ctrl "ArrowLeft" ke then
+    else if KE.ctrl "ArrowLeft" ke then
         Just UnIndent
 
-    else if ctrl "ArrowRight" ke then
+    else if KE.ctrl "ArrowRight" ke then
         Just Indent
 
     else
@@ -553,56 +554,8 @@ subscriptions m =
                     , Browser.Events.onMouseUp (JD.succeed Stop)
                     , gotBeacons GotBeacons
                     ]
-        , Browser.Events.onKeyDown
-            (keyEventDecoder
-                |> JD.map OnKeyDown
-            )
+        , Browser.Events.onKeyDown (KE.decoder |> JD.map OnKeyDown)
         ]
-
-
-
--- KEY EVENT
-
-
-type alias KeyEvent =
-    { key : String
-    , ctrl : Bool
-    , shift : Bool
-    , alt : Bool
-    , meta : Bool
-    , targetTagName : String
-    }
-
-
-keyEventDecoder : Decoder KeyEvent
-keyEventDecoder =
-    JD.succeed KeyEvent
-        |> requiredString "key"
-        |> requiredBool "ctrlKey"
-        |> requiredBool "shiftKey"
-        |> requiredBool "altKey"
-        |> requiredBool "metaKey"
-        |> requiredAt [ "target", "tagName" ] JD.string
-
-
-hotKey : String -> KeyEvent -> Bool
-hotKey name ke =
-    ke.key == name && not (ke.ctrl || ke.shift || ke.alt || ke.meta)
-
-
-ctrl : String -> KeyEvent -> Bool
-ctrl name ke =
-    ke.key == name && ke.ctrl && not (ke.shift || ke.alt || ke.meta)
-
-
-shift : String -> KeyEvent -> Bool
-shift name ke =
-    ke.key == name && ke.shift && not (ke.ctrl || ke.alt || ke.meta)
-
-
-targetInputOrButton : KeyEvent -> Bool
-targetInputOrButton ke =
-    List.member ke.targetTagName [ "INPUT", "BUTTON" ]
 
 
 
@@ -812,13 +765,13 @@ viewEditItem title =
                 , value title
                 , onInput TitleChanged
                 , preventDefaultOn "keydown"
-                    (keyEventDecoder
+                    (KE.decoder
                         |> JD.andThen
                             (\ke ->
-                                if hotKey "Tab" ke then
+                                if KE.hot "Tab" ke then
                                     JD.succeed ( OnTab, True )
 
-                                else if shift "Tab" ke then
+                                else if KE.shift "Tab" ke then
                                     JD.succeed ( OnShiftTab, True )
 
                                 else
