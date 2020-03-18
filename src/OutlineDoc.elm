@@ -15,7 +15,7 @@ module OutlineDoc exposing
     , decoder
     , encoder
     , expand
-    , expandOrAlternate
+    , expandOrGoForward
     , goBackward
     , goForward
     , indent
@@ -195,8 +195,8 @@ expand =
     mapMaybe FIZ.expand
 
 
-expandOrAlternate : OutlineDoc -> Maybe OutlineDoc
-expandOrAlternate =
+expandOrGoForward : OutlineDoc -> Maybe OutlineDoc
+expandOrGoForward =
     mapMaybe (Maybe.Extra.oneOf [ FIZ.expand, FIZ.goForward ])
 
 

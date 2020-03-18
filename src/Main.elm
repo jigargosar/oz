@@ -478,7 +478,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             updateBrowsingDocByMaybeF OutlineDoc.collapseOrNavParent
 
         ExpandOrAlternate ->
-            updateBrowsingDocByMaybeF OutlineDoc.expandOrAlternate
+            updateBrowsingDocByMaybeF OutlineDoc.expandOrGoForward
 
         Expand ->
             updateBrowsingDocByMaybeF OutlineDoc.expand
