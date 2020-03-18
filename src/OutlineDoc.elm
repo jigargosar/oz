@@ -4,6 +4,7 @@ module OutlineDoc exposing
     , OutlineDoc
     , addNew
     , after
+    , ancestorIds
     , appendIn
     , appendInPreviousSibling
     , before
@@ -21,7 +22,7 @@ module OutlineDoc exposing
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCurrentToCandidateLocation
-    , moveFocusToItemId
+    , moveCursorToItemId
     , prependIn
     , removeIfBlankLeaf
     , restructureCurrentNode
@@ -167,8 +168,8 @@ addNew =
     unwrap >> FIZ.addNew >> Random.map OutlineDoc
 
 
-moveFocusToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
-moveFocusToItemId itemId =
+moveCursorToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
+moveCursorToItemId itemId =
     mapMaybe (FIZ.gotoId itemId)
 
 
@@ -201,6 +202,10 @@ removeIfBlankLeaf =
 currentTitle : OutlineDoc -> String
 currentTitle =
     unwrap >> FIZ.getTitle
+
+
+ancestorIds =
+    unwrap >> FIZ.ancestorIds
 
 
 currentId : OutlineDoc -> ItemId

@@ -195,6 +195,21 @@ updateWrapper =
                 _ ->
                     ( newModel, cmd )
 
+        focusItemTitleOnChange oldModel ( newModel, cmd ) =
+            case ( oldModel.outline, newModel.outline ) of
+                ( Browsing oldD, Browsing newD ) ->
+                    if OutlineDoc.ancestorIds oldD /= OutlineDoc.ancestorIds newD then
+                        ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
+
+                    else
+                        ( newModel, cmd )
+
+                ( _, Browsing _ ) ->
+                    ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
+
+                _ ->
+                    ( newModel, cmd )
+
         persistModelOnChange oldModel ( newModel, cmd ) =
             ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd oldModel.outline newModel.outline ] )
 
@@ -202,6 +217,7 @@ updateWrapper =
             update message model
                 |> focusEditorOnStartEdit model
                 |> persistModelOnChange model
+                |> focusItemTitleOnChange model
     in
     helper
 
@@ -281,7 +297,7 @@ update message model =
         OnDragStart dragItemId cursor ->
             case model.outline of
                 Browsing oz ->
-                    case OutlineDoc.moveFocusToItemId dragItemId oz of
+                    case OutlineDoc.moveCursorToItemId dragItemId oz of
                         Just noz ->
                             ( { model | outline = Dragging cursor noz }
                             , getBeacons ()
@@ -445,7 +461,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
                 OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
 
         FocusId id ->
-            updateBrowsingDocByMaybeF (OutlineDoc.moveFocusToItemId id)
+            updateBrowsingDocByMaybeF (OutlineDoc.moveCursorToItemId id)
 
         EditFocused ->
             ( { model | outline = initEdit doc }, Cmd.none )
@@ -480,12 +496,12 @@ endEditAndInitBrowsing title =
 
 endEditAndBrowseId : ItemId -> String -> OutlineDoc -> Outline
 endEditAndBrowseId id title =
-    endEdit title >> ignoreNothing (OutlineDoc.moveFocusToItemId id) >> Browsing
+    endEdit title >> ignoreNothing (OutlineDoc.moveCursorToItemId id) >> Browsing
 
 
 endEditAndStartDraggingId : ItemId -> Cursor -> String -> OutlineDoc -> Maybe Outline
 endEditAndStartDraggingId dragId cursor title =
-    endEdit title >> OutlineDoc.moveFocusToItemId dragId >> Maybe.map (Dragging cursor)
+    endEdit title >> OutlineDoc.moveCursorToItemId dragId >> Maybe.map (Dragging cursor)
 
 
 cancelEditAndInitBrowsing : OutlineDoc -> Outline

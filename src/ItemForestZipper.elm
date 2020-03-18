@@ -3,6 +3,7 @@ module ItemForestZipper exposing
     , Item
     , Location(..)
     , addNew
+    , ancestorIds
     , collapse
     , decoder
     , deleteEmpty
@@ -121,6 +122,11 @@ getId =
 getTitle : FIZ -> String
 getTitle =
     Zipper.data >> .title
+
+
+ancestorIds : FIZ -> List ItemId
+ancestorIds =
+    Zipper.ancestors >> List.map .id
 
 
 hasVisibleChildren : FIZ -> Bool
