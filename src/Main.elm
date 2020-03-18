@@ -166,7 +166,7 @@ type Msg
     | GotBeacons Value
     | ItemTitleClicked ItemId
     | TitleChanged String
-    | New
+    | AddNewClicked
     | OnKeyDown KeyEvent
     | OnTab
     | OnShiftTab
@@ -314,7 +314,7 @@ update message model =
                     else
                         ( model, Cmd.none )
 
-        New ->
+        AddNewClicked ->
             case model.outline of
                 Browsing doc ->
                     updateWithUserIntentWhenBrowsing AddNew doc model
@@ -1027,7 +1027,7 @@ viewAddNewButton : Bool -> HM
 viewAddNewButton visible =
     button
         ([ class "ph2 pv0 self-start lh-title bn bg-inherit color-inherit"
-         , onClick New
+         , onClick AddNewClicked
          ]
             ++ (if visible then
                     []
