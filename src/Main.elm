@@ -742,7 +742,7 @@ viewBrowsingDoc doc =
         doc
 
 
-type alias ItemView =
+type alias LineItem =
     { id : ItemId
     , title : String
     , collapsed : CollapseState
@@ -772,7 +772,7 @@ viewEditingDoc title doc =
         editItemId =
             OutlineDoc.currentId doc
 
-        renderItem : ItemView -> LHM -> HM
+        renderItem : LineItem -> LHM -> HM
         renderItem item =
             if item.id == editItemId then
                 wrapWithoutBeacons (viewEditItem title)
@@ -795,7 +795,7 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
-viewNodeWithBeacons : ItemVariant -> ItemView -> LHM -> HM
+viewNodeWithBeacons : ItemVariant -> LineItem -> LHM -> HM
 viewNodeWithBeacons itemView item =
     wrapWithBeacons (viewItem itemView item) item.id
 
@@ -866,7 +866,7 @@ debug =
     False
 
 
-itemDisplayTitle : ItemView -> String
+itemDisplayTitle : LineItem -> String
 itemDisplayTitle item =
     (if String.trim item.title |> String.isEmpty then
         "<empty>"
@@ -904,7 +904,7 @@ type ItemVariant
     | FadedItem
 
 
-viewItem : ItemVariant -> ItemView -> HM
+viewItem : ItemVariant -> LineItem -> HM
 viewItem itemView item =
     let
         { isHighlighted, isDraggable, isFaded } =
