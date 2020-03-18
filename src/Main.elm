@@ -652,6 +652,31 @@ viewOutline outline =
         ]
 
 
+viewDraggedNode : Outline -> Html Msg
+viewDraggedNode outline =
+    case outline of
+        Dragging dnd doc ->
+            let
+                xy =
+                    dndDraggedXY dnd
+            in
+            div
+                [ class "fixed no-pe"
+                , style "left" (String.fromFloat xy.x ++ "px")
+                , style "top" (String.fromFloat xy.y ++ "px")
+                ]
+                [ OutlineDoc.restructureFocused renderDragged doc ]
+
+        NoDoc ->
+            text ""
+
+        Browsing _ ->
+            text ""
+
+        Editing _ _ ->
+            text ""
+
+
 outlineToHtmlList : Outline -> LHM
 outlineToHtmlList outline =
     case outline of
@@ -705,31 +730,6 @@ outlineToHtmlList outline =
                         renderDraggableWithBeacons False item
             in
             OutlineDoc.restructure renderItem doc
-
-
-viewDraggedNode : Outline -> Html Msg
-viewDraggedNode outline =
-    case outline of
-        NoDoc ->
-            text ""
-
-        Browsing _ ->
-            text ""
-
-        Dragging dnd doc ->
-            let
-                xy =
-                    dndDraggedXY dnd
-            in
-            div
-                [ class "fixed no-pe"
-                , style "left" (String.fromFloat xy.x ++ "px")
-                , style "top" (String.fromFloat xy.y ++ "px")
-                ]
-                [ OutlineDoc.restructureFocused renderDragged doc ]
-
-        Editing _ _ ->
-            text ""
 
 
 renderWithoutBeacons : Item -> LHM -> HM
