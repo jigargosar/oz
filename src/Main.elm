@@ -743,22 +743,22 @@ renderEdit =
 
 renderFadedDraggedWithoutBeacons : Item -> LHM -> HM
 renderFadedDraggedWithoutBeacons =
-    renderWithoutBeacons viewFadedDraggedItem
+    renderWithoutBeacons (viewItem FadedItem)
 
 
 renderDragged : Item -> LHM -> HM
 renderDragged =
-    renderWithoutBeacons viewDraggedItem
+    renderWithoutBeacons (viewItem NotDraggableItem)
 
 
 renderNotDraggableWithBeacons : Item -> LHM -> HM
 renderNotDraggableWithBeacons =
-    renderWithBeacons viewNotDraggableItem
+    renderWithBeacons (viewItem NotDraggableItem)
 
 
 renderDraggableWithBeacons : Bool -> Item -> LHM -> HM
 renderDraggableWithBeacons isHighlighted =
-    renderWithBeacons (viewDraggableItem isHighlighted)
+    renderWithBeacons (viewItem (DraggableItem isHighlighted))
 
 
 
@@ -838,21 +838,21 @@ viewDraggedItem item =
 
 
 type ItemView
-    = Draggable Bool
-    | NotDraggable
-    | Faded
+    = DraggableItem Bool
+    | NotDraggableItem
+    | FadedItem
 
 
 viewItem : ItemView -> Item -> Html Msg
 viewItem itemView item =
     case itemView of
-        Draggable isHighlighted ->
+        DraggableItem isHighlighted ->
             viewFlatLine False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True })
 
-        NotDraggable ->
+        NotDraggableItem ->
             viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False })
 
-        Faded ->
+        FadedItem ->
             viewFlatLine True (ItemLine item { isHighlighted = False, isDraggable = False })
 
 
