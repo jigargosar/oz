@@ -843,6 +843,19 @@ type ItemView
     | Faded
 
 
+viewItem : ItemView -> Item -> Html Msg
+viewItem itemView item =
+    case itemView of
+        Draggable isHighlighted ->
+            viewFlatLine False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True })
+
+        NotDraggable ->
+            viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False })
+
+        Faded ->
+            viewFlatLine True (ItemLine item { isHighlighted = False, isDraggable = False })
+
+
 viewEditItem : String -> Html Msg
 viewEditItem title =
     div
