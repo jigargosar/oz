@@ -382,6 +382,21 @@ type UserIntent
     | Expand
 
 
+kem : List ( KeyEvent -> Bool, UserIntent )
+kem =
+    [ ( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], EditFocused )
+    , ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], AddNew )
+    , ( KE.hot "ArrowUp", NavPrev )
+    , ( KE.hot "ArrowDown", NavNext )
+    , ( KE.hot "ArrowLeft", CollapseOrNavParent )
+    , ( KE.hot "ArrowRight", ExpandOrAlternate )
+    , ( KE.ctrl "ArrowUp", MoveUp )
+    , ( KE.ctrl "ArrowDown", MoveDown )
+    , ( KE.ctrl "ArrowLeft", UnIndent )
+    , ( KE.ctrl "ArrowRight", Indent )
+    ]
+
+
 globalKeyEventToUserIntentWhenBrowsing : KeyEvent -> Maybe UserIntent
 globalKeyEventToUserIntentWhenBrowsing ke =
     if KE.hot " " ke && not (KE.targetInputOrButton ke) then

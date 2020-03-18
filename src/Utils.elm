@@ -1,6 +1,7 @@
 module Utils exposing (..)
 
 import Json.Decode as JD exposing (Decoder)
+import List.Extra
 
 
 eqBy func a b =
@@ -27,3 +28,19 @@ requiredBool name =
 
 requiredString name =
     required name JD.string
+
+
+allPass : List (b -> Bool) -> b -> Bool
+allPass fs val =
+    List.all ((|>) val) fs
+
+
+cond : List ( a -> Bool, a -> b ) -> a -> Maybe b
+cond condPair a =
+    List.Extra.find (Tuple.first >> apply a) condPair
+        |> Maybe.map (Tuple.second >> apply a)
+
+
+apply : a -> (a -> b) -> b
+apply =
+    (|>)
