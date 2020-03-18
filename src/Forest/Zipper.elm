@@ -449,39 +449,39 @@ type alias ReAcc a b =
 
 restructure : (ForestZipper a -> List b -> b) -> ForestZipper a -> List b
 restructure render zipper =
-    restructureHelp render GoDown { leftReversed = [], crumbs = [], fiz = firstRoot zipper }
+    restructureHelp render ReGoDown { leftReversed = [], crumbs = [], fiz = firstRoot zipper }
 
 
 restructureHelp : (ForestZipper a -> List b -> b) -> RestructureMsg -> ReAcc a b -> List b
 restructureHelp render msg acc =
     case msg of
-        GoDown ->
+        ReGoDown ->
             case down acc.fiz of
                 Just fiz ->
                     restructureHelp render
-                        GoDown
+                        ReGoDown
                         { acc | leftReversed = [], crumbs = acc.leftReversed :: acc.crumbs, fiz = fiz }
 
                 Nothing ->
                     restructureHelp render
-                        GoRight
+                        ReGoRight
                         { acc
                             | leftReversed = render acc.fiz [] :: acc.leftReversed
                         }
 
-        GoRight ->
+        ReGoRight ->
             case right acc.fiz of
                 Just fiz ->
-                    restructureHelp render GoDown { acc | fiz = fiz }
+                    restructureHelp render ReGoDown { acc | fiz = fiz }
 
                 Nothing ->
-                    restructureHelp render GoUp acc
+                    restructureHelp render ReGoUp acc
 
-        GoUp ->
+        ReGoUp ->
             case ( up acc.fiz, acc.crumbs ) of
                 ( Just fiz, first :: rest ) ->
                     restructureHelp render
-                        GoRight
+                        ReGoRight
                         { acc
                             | leftReversed = render fiz (List.reverse acc.leftReversed) :: first
                             , crumbs = rest
@@ -496,6 +496,6 @@ restructureHelp render msg acc =
 
 
 type RestructureMsg
-    = GoDown
-    | GoRight
-    | GoUp
+    = ReGoDown
+    | ReGoRight
+    | ReGoUp
