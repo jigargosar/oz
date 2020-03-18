@@ -189,20 +189,28 @@ nonBlank =
 
 expand : FIZ -> Maybe FIZ
 expand fiz =
-    if Zipper.isLeaf fiz then
-        Nothing
+    if canExpand fiz then
+        Just (Zipper.mapData (setCollapsedUnsafe False) fiz)
 
     else
-        Just (Zipper.mapData (setCollapsedUnsafe False) fiz)
+        Nothing
 
 
 collapse : FIZ -> Maybe FIZ
 collapse fiz =
-    if Zipper.isLeaf fiz then
-        Nothing
+    if canCollapse fiz then
+        Just (Zipper.mapData (setCollapsedUnsafe True) fiz)
 
     else
-        Just (Zipper.mapData (setCollapsedUnsafe True) fiz)
+        Nothing
+
+
+canCollapse fiz =
+    not (Zipper.isLeaf fiz || (Zipper.data fiz).collapsed)
+
+
+canExpand fiz =
+    not (Zipper.isLeaf fiz) && (Zipper.data fiz).collapsed
 
 
 setCollapsedUnsafe collapsed model =

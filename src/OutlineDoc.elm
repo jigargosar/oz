@@ -9,6 +9,7 @@ module OutlineDoc exposing
     , candidateLocationDecoder
     , candidateLocationEncoder
     , collapse
+    , collapseOrNavParent
     , currentId
     , currentTitle
     , decoder
@@ -196,6 +197,11 @@ expand =
 collapse : OutlineDoc -> Maybe OutlineDoc
 collapse =
     mapMaybe FIZ.collapse
+
+
+collapseOrNavParent : OutlineDoc -> Maybe OutlineDoc
+collapseOrNavParent =
+    mapMaybe (Maybe.Extra.oneOf [ FIZ.collapse, FIZ.goUp ])
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
