@@ -128,12 +128,17 @@ type WhenEditingMsg
 type Msg
     = NoOp
     | TitleEditorFocusFailed String
-    | OnDragStart ItemId Cursor
-    | DM WhenDraggingMsg
-    | EM WhenEditingMsg
-    | ItemTitleClicked ItemId
-    | AddNewClicked
+      -- For All States
     | OnKeyDown KeyEvent
+      -- Only valid when state is dragging
+    | DM WhenDraggingMsg
+      -- Only valid when state is editing
+    | EM WhenEditingMsg
+      -- Valid for both editing & browsing
+    | ItemTitleClicked ItemId
+    | OnDragStart ItemId Cursor
+      -- Only valid when browsing
+    | AddNewClicked
 
 
 cacheDoc : Model -> Cmd msg
