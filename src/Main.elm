@@ -795,7 +795,7 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
-viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
+viewNodeWithBeacons : ItemVariant -> Item -> LHM -> HM
 viewNodeWithBeacons itemView item =
     wrapWithBeacons (viewItem itemView item) item.id
 
@@ -898,13 +898,13 @@ attrIf bool attrFunc attrValue =
         class ""
 
 
-type ItemView
+type ItemVariant
     = DraggableItem Bool
     | NotDraggableItem
     | FadedItem
 
 
-viewItem : ItemView -> Item -> HM
+viewItem : ItemVariant -> Item -> HM
 viewItem itemView item =
     let
         { isHighlighted, isDraggable, isFaded } =
