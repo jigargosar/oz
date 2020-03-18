@@ -686,28 +686,7 @@ outlineToHtmlList outline =
             viewBrowsingDoc doc
 
         Dragging _ doc ->
-            let
-                draggedId =
-                    OutlineDoc.currentId doc
-
-                renderForestFns : List (Bool -> HM)
-                renderForestFns =
-                    OutlineDoc.restructure
-                        (\item renderChildrenFns ->
-                            \shouldRenderWithoutBeacon ->
-                                let
-                                    children bool =
-                                        List.map (\f -> f bool) renderChildrenFns
-                                in
-                                if shouldRenderWithoutBeacon || item.id == draggedId then
-                                    renderWithoutBeacons (viewItem FadedItem) item (children True)
-
-                                else
-                                    renderWithBeacons (viewItem NotDraggableItem) item (children False)
-                        )
-                        doc
-            in
-            List.map (\fn -> fn False) renderForestFns
+            viewDraggingDoc doc
 
         Editing doc title ->
             let
@@ -742,6 +721,32 @@ viewBrowsingDoc doc =
                 item
         )
         doc
+
+
+viewDraggingDoc : OutlineDoc -> LHM
+viewDraggingDoc doc =
+    let
+        draggedId =
+            OutlineDoc.currentId doc
+
+        renderForestFns : List (Bool -> HM)
+        renderForestFns =
+            OutlineDoc.restructure
+                (\item renderChildrenFns ->
+                    \shouldRenderWithoutBeacon ->
+                        let
+                            children bool =
+                                List.map (\f -> f bool) renderChildrenFns
+                        in
+                        if shouldRenderWithoutBeacon || item.id == draggedId then
+                            renderWithoutBeacons (viewItem FadedItem) item (children True)
+
+                        else
+                            renderWithBeacons (viewItem NotDraggableItem) item (children False)
+                )
+                doc
+    in
+    List.map (\fn -> fn False) renderForestFns
 
 
 
