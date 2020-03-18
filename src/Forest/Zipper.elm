@@ -1,6 +1,7 @@
 module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
+    , ancestors
     , appendChild
     , appendChildGo
     , data
@@ -91,6 +92,11 @@ mapCrumbData func crumb =
 mapAncestorData : (a -> a) -> ForestZipper a -> ForestZipper a
 mapAncestorData func fz =
     { fz | crumbs = List.map (mapCrumbData func) fz.crumbs }
+
+
+ancestors : ForestZipper a -> List a
+ancestors =
+    .crumbs >> List.map .datum
 
 
 encoder : (a -> Value) -> ForestZipper a -> Value

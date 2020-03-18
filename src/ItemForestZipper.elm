@@ -20,6 +20,7 @@ module ItemForestZipper exposing
     , relocateBy
     , restructure
     , restructureNodeAtCursor
+    , restructureWithContext
     , setTitle
     )
 
@@ -338,9 +339,9 @@ propEq func val obj =
 -- VIEW HELPERS
 
 
-restructureWithFIZ : (ForestZipper a -> List b -> b) -> ForestZipper a -> List b
-restructureWithFIZ render fiz =
-    Zipper.restructure render fiz
+restructureWithContext : (( Item, List Item ) -> List b -> b) -> ForestZipper Item -> List b
+restructureWithContext render =
+    Zipper.restructure (\fiz -> render ( Zipper.data fiz, Zipper.ancestors fiz ))
 
 
 restructure : (Item -> List c -> c) -> FIZ -> List c
