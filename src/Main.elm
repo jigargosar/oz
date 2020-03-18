@@ -707,7 +707,7 @@ outlineToHtmlList outline =
                                         List.map (\f -> f bool) renderChildrenFns
                                 in
                                 if shouldRenderWithoutBeacon || item.id == draggedId then
-                                    renderFadedDraggedWithoutBeacons item (children True)
+                                    renderWithoutBeacons (viewItem FadedItem) item (children True)
 
                                 else
                                     renderNotDraggableWithBeacons item (children False)
@@ -739,11 +739,6 @@ outlineToHtmlList outline =
 renderEdit : String -> LHM -> HM
 renderEdit =
     renderWithoutBeacons viewEditItem
-
-
-renderFadedDraggedWithoutBeacons : Item -> LHM -> HM
-renderFadedDraggedWithoutBeacons =
-    renderWithoutBeacons (viewItem FadedItem)
 
 
 renderDragged : Item -> LHM -> HM
