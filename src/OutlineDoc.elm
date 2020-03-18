@@ -263,7 +263,6 @@ restructure render =
     unwrap >> FIZ.restructure render
 
 
-restructureWithContext : (( Item, List Item ) -> List b -> b) -> OutlineDoc -> List b
 restructureWithContext render =
     unwrap >> FIZ.restructureWithContext render
 

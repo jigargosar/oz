@@ -24,6 +24,7 @@ module ItemForestZipper exposing
     , setTitle
     )
 
+import CollapseState exposing (CollapseState)
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper)
 import ItemId exposing (ItemId)
@@ -339,9 +340,33 @@ propEq func val obj =
 -- VIEW HELPERS
 
 
-restructureWithContext : (( Item, List Item ) -> List b -> b) -> ForestZipper Item -> List b
+restructureWithContext : (( Item, List Item, CollapseState ) -> List b -> b) -> ForestZipper Item -> List b
 restructureWithContext render =
-    Zipper.restructure (\fiz -> render ( Zipper.data fiz, Zipper.ancestors fiz ))
+    Zipper.restructure
+        (\fiz children ->
+            let
+                item =
+                    Zipper.data fiz
+            in
+            render
+                ( item
+                , Zipper.ancestors fiz
+                , if List.isEmpty children then
+                    CollapseState.NoChildren
+
+                  else if item.collapsed then
+                    CollapseState.Collapsed
+
+                  else
+                    CollapseState.Expanded
+                )
+                (if item.collapsed then
+                    []
+
+                 else
+                    children
+                )
+        )
 
 
 restructure : (Item -> List c -> c) -> FIZ -> List c

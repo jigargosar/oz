@@ -3,6 +3,7 @@ port module Main exposing (main)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events
+import CollapseState exposing (CollapseState)
 import Html exposing (Attribute, button, div, input, text)
 import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
@@ -698,11 +699,12 @@ viewBrowsingDoc doc =
         highlightedId =
             OutlineDoc.currentId doc
     in
-    OutlineDoc.restructure
-        (\item ->
+    OutlineDoc.restructureWithContext
+        (\( item, _, cs ) ->
             viewNodeWithBeacons
                 (DraggableItem (item.id == highlightedId))
                 item
+                cs
         )
         doc
 
@@ -719,12 +721,12 @@ viewDraggingDoc doc =
                 |> List.any ((==) draggedId)
     in
     OutlineDoc.restructureWithContext
-        (\( item, ancestors ) ->
+        (\( item, ancestors, collapseState ) ->
             if isDragged ( item, ancestors ) then
-                viewNodeWithoutBeacons (viewItem FadedItem) item
+                viewNodeWithoutBeacons (viewItem FadedItem item collapseState)
 
             else
-                viewNodeWithBeacons NotDraggableItem item
+                viewNodeWithBeacons NotDraggableItem item collapseState
         )
         doc
 
@@ -735,15 +737,15 @@ viewEditingDoc title doc =
         editItemId =
             OutlineDoc.currentId doc
 
-        renderItem : Item -> LHM -> HM
-        renderItem item =
+        renderItem : Item -> CollapseState -> LHM -> HM
+        renderItem item cs =
             if item.id == editItemId then
                 wrapWithoutBeacons (viewEditItem title)
 
             else
-                viewNodeWithBeacons (DraggableItem False) item
+                viewNodeWithBeacons (DraggableItem False) item cs
     in
-    OutlineDoc.restructure renderItem doc
+    OutlineDoc.restructureWithContext (\( i, _, cs ) -> renderItem i cs) doc
 
 
 
@@ -758,9 +760,9 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
-viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
-viewNodeWithBeacons itemView item =
-    wrapWithBeacons (viewItem itemView item) item.id
+viewNodeWithBeacons : ItemView -> Item -> CollapseState -> LHM -> HM
+viewNodeWithBeacons itemView item collapseState =
+    wrapWithBeacons (viewItem itemView item collapseState) item.id
 
 
 wrapWithoutBeacons : HM -> LHM -> HM
@@ -859,8 +861,8 @@ type ItemView
     | FadedItem
 
 
-viewItem : ItemView -> Item -> HM
-viewItem itemView item =
+viewItem : ItemView -> Item -> CollapseState -> HM
+viewItem itemView item cs =
     let
         { isHighlighted, isDraggable, isFaded } =
             case itemView of
