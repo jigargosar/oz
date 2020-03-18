@@ -837,6 +837,12 @@ viewDraggedItem item =
     viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False })
 
 
+type ItemView
+    = Draggable Bool
+    | NotDraggable
+    | Faded
+
+
 viewEditItem : String -> Html Msg
 viewEditItem title =
     div
