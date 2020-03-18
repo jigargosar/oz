@@ -48,10 +48,22 @@ type alias Model =
     }
 
 
+type Edit
+    = Edit Bool String
+
+
+type alias State =
+    Maybe Edit
+
+
 type Outline
-    = Browsing OutlineDoc
+    = Outline State OutlineDoc
     | Dragging Cursor OutlineDoc
-    | Editing OutlineDoc String
+
+
+initOutline : OutlineDoc -> Outline
+initOutline doc =
+    Outline Nothing doc
 
 
 
@@ -93,7 +105,7 @@ decodeMaybeDoc encodedNullableDoc =
 
 initModelWithDocAndSeed : OutlineDoc -> Seed -> Model
 initModelWithDocAndSeed doc seed =
-    { outline = Browsing doc
+    { outline = initOutline doc
     , seed = seed
     }
 
@@ -113,7 +125,7 @@ init flags =
                 ( doc, seed ) =
                     Random.step OutlineDoc.new initialSeed
             in
-            { outline = Browsing doc
+            { outline = initOutline doc
             , seed = seed
             }
     , Cmd.none
@@ -181,44 +193,52 @@ cacheDocIfChanged oldOZ newOZ =
         Cmd.none
 
 
-outlineToDoc : Outline -> Maybe OutlineDoc
+outlineToDoc : Outline -> OutlineDoc
 outlineToDoc outline =
     case outline of
-        Browsing oz ->
-            Just oz
+        Dragging _ doc ->
+            doc
 
-        Dragging _ oz ->
-            Just oz
-
-        Editing oz _ ->
-            Just oz
+        Outline _ doc ->
+            doc
 
 
 cacheOutlineOnChangeCmd : Outline -> Outline -> Cmd msg
 cacheOutlineOnChangeCmd oldOutline newOutline =
-    Maybe.map2 cacheDocIfChanged (outlineToDoc oldOutline) (outlineToDoc newOutline)
-        |> Maybe.withDefault Cmd.none
+    cacheDocIfChanged (outlineToDoc oldOutline) (outlineToDoc newOutline)
 
 
 updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
 updateWrapper message model =
     update message model
-        |> focusEditorOnStartEditOrEditAncestorsChanged model
+        |> focusElOnOutlineChanged model
         |> persistModelOnChange model
-        |> focusItemTitleOnChange model
 
 
-focusEditorOnStartEditOrEditAncestorsChanged oldModel ( newModel, cmd ) =
+focusElOnOutlineChanged oldModel ( newModel, cmd ) =
     case ( oldModel.outline, newModel.outline ) of
-        ( Editing oldD _, Editing newD _ ) ->
-            if not (eqByAncestors oldD newD) then
-                ( newModel, Cmd.batch [ cmd, focusTitleEditor ] )
+        ( Outline oldState oldD, Outline newState newD ) ->
+            if oldState /= newState || not (eqByAncestors oldD newD) then
+                ( newModel
+                , Cmd.batch
+                    [ cmd
+                    , case newState of
+                        Just _ ->
+                            focusTitleEditor
+
+                        Nothing ->
+                            focusItemAtCursor
+                    ]
+                )
 
             else
                 ( newModel, cmd )
 
-        ( _, Editing _ _ ) ->
+        ( _, Outline (Just _) _ ) ->
             ( newModel, Cmd.batch [ cmd, focusTitleEditor ] )
+
+        ( _, Outline Nothing _ ) ->
+            ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
 
         _ ->
             ( newModel, cmd )
@@ -232,24 +252,41 @@ eqByAncestors =
     eqBy OutlineDoc.ancestorIds
 
 
-focusItemTitleOnChange oldModel ( newModel, cmd ) =
-    case ( oldModel.outline, newModel.outline ) of
-        ( Browsing oldD, Browsing newD ) ->
-            if not (eqByAncestors oldD newD) then
-                ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
-
-            else
-                ( newModel, cmd )
-
-        ( _, Browsing _ ) ->
-            ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
-
-        _ ->
-            ( newModel, cmd )
-
-
 persistModelOnChange oldModel ( newModel, cmd ) =
     ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd oldModel.outline newModel.outline ] )
+
+
+maybeUpdateDocWhenEditing maybeDocFunc state doc model =
+    case state of
+        Just _ ->
+            case maybeDocFunc doc of
+                Just newDoc ->
+                    ( { model | outline = Outline state newDoc }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Nothing ->
+            ( model, Cmd.none )
+
+
+maybeUpdateOutlineDocWhenEditing maybeDocFunc model =
+    case model.outline of
+        Outline state doc ->
+            case state of
+                Just _ ->
+                    case maybeDocFunc doc of
+                        Just newDoc ->
+                            ( { model | outline = Outline state newDoc }, Cmd.none )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Dragging _ _ ->
+            ( model, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -262,34 +299,19 @@ update message model =
             Debug.todo ("TitleEditorFocusFailed: " ++ domId)
 
         OnTab ->
-            case model.outline of
-                Editing doc title ->
-                    case OutlineDoc.indent doc of
-                        Just newDoc ->
-                            ( { model | outline = Editing newDoc title }, Cmd.none )
-
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            maybeUpdateOutlineDocWhenEditing OutlineDoc.indent model
 
         OnShiftTab ->
             case model.outline of
-                Editing doc title ->
-                    case OutlineDoc.unIndent doc of
-                        Just newDoc ->
-                            ( { model | outline = Editing newDoc title }, Cmd.none )
-
-                        Nothing ->
-                            ( model, Cmd.none )
+                Outline state doc ->
+                    maybeUpdateDocWhenEditing OutlineDoc.unIndent state doc model
 
                 _ ->
                     ( model, Cmd.none )
 
         OnKeyDown ke ->
             case model.outline of
-                Browsing doc ->
+                Outline Nothing doc ->
                     case globalKeyEventToUserIntentWhenBrowsing ke of
                         Just intent ->
                             updateWithUserIntentWhenBrowsing intent doc model
@@ -297,12 +319,9 @@ update message model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                Dragging _ _ ->
-                    ( model, Cmd.none )
-
-                Editing doc title ->
+                Outline (Just editState) doc ->
                     if hotKey "Enter" ke then
-                        ( { model | outline = endEditAndInitBrowsing title doc }
+                        ( { model | outline = endEditAndInitBrowsing editState doc }
                         , Cmd.none
                         )
 
@@ -314,9 +333,12 @@ update message model =
                     else
                         ( model, Cmd.none )
 
+                Dragging _ _ ->
+                    ( model, Cmd.none )
+
         AddNewClicked ->
             case model.outline of
-                Browsing doc ->
+                Outline Nothing doc ->
                     updateWithUserIntentWhenBrowsing AddNew doc model
 
                 _ ->
@@ -327,7 +349,7 @@ update message model =
 
         ItemTitleClicked iid ->
             case model.outline of
-                Browsing doc ->
+                Outline Nothing doc ->
                     let
                         intent =
                             if OutlineDoc.currentId doc == iid then
@@ -338,16 +360,16 @@ update message model =
                     in
                     updateWithUserIntentWhenBrowsing intent doc model
 
+                Outline (Just editState) doc ->
+                    ( { model | outline = endEditAndBrowseId iid editState doc }, Cmd.none )
+
                 Dragging _ _ ->
                     Debug.todo "impossible state"
 
-                Editing doc title ->
-                    ( { model | outline = endEditAndBrowseId iid title doc }, Cmd.none )
-
         OnDragStart dragItemId cursor ->
             case model.outline of
-                Browsing oz ->
-                    case OutlineDoc.moveCursorToItemId dragItemId oz of
+                Outline Nothing doc ->
+                    case OutlineDoc.moveCursorToItemId dragItemId doc of
                         Just noz ->
                             ( { model | outline = Dragging cursor noz }
                             , getBeacons ()
@@ -356,9 +378,9 @@ update message model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                Editing doc title ->
+                Outline (Just editState) doc ->
                     case
-                        endEditAndStartDraggingId dragItemId cursor title doc
+                        endEditAndStartDraggingId dragItemId cursor editState doc
                     of
                         Just outline ->
                             ( { model | outline = outline }
@@ -381,8 +403,8 @@ update message model =
 
         Stop ->
             case model.outline of
-                Dragging _ oz ->
-                    ( { model | outline = Browsing oz }, Cmd.none )
+                Dragging _ doc ->
+                    ( { model | outline = Outline Nothing doc }, Cmd.none )
 
                 _ ->
                     Debug.todo "impossible state"
@@ -476,7 +498,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
         updateBrowsingDocByMaybeF docMF =
             case docMF doc of
                 Just newDoc ->
-                    ( { model | outline = Browsing newDoc }
+                    ( { model | outline = Outline Nothing newDoc }
                     , Cmd.none
                     )
 
@@ -521,13 +543,13 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
                 ( newDoc, newModel ) =
                     generate (OutlineDoc.addNew doc) model
               in
-              { newModel | outline = initEdit newDoc }
+              { newModel | outline = initAdd newDoc }
             , Cmd.none
             )
 
 
-endEdit : String -> OutlineDoc -> OutlineDoc
-endEdit title doc =
+endEdit : Edit -> OutlineDoc -> OutlineDoc
+endEdit (Edit isAdding title) doc =
     doc
         |> OutlineDoc.setTitleUnlessBlank title
         |> OutlineDoc.removeIfBlankLeaf
@@ -539,36 +561,41 @@ cancelEdit doc =
         |> OutlineDoc.removeIfBlankLeaf
 
 
-endEditAndInitBrowsing : String -> OutlineDoc -> Outline
-endEditAndInitBrowsing title =
-    endEdit title >> Browsing
+endEditAndInitBrowsing : Edit -> OutlineDoc -> Outline
+endEditAndInitBrowsing edit =
+    endEdit edit >> Outline Nothing
 
 
-endEditAndBrowseId : ItemId -> String -> OutlineDoc -> Outline
-endEditAndBrowseId id title =
-    endEdit title >> ignoreNothing (OutlineDoc.moveCursorToItemId id) >> Browsing
+endEditAndBrowseId : ItemId -> Edit -> OutlineDoc -> Outline
+endEditAndBrowseId id edit =
+    endEdit edit >> ignoreNothing (OutlineDoc.moveCursorToItemId id) >> Outline Nothing
 
 
-endEditAndStartDraggingId : ItemId -> Cursor -> String -> OutlineDoc -> Maybe Outline
-endEditAndStartDraggingId dragId cursor title =
-    endEdit title >> OutlineDoc.moveCursorToItemId dragId >> Maybe.map (Dragging cursor)
+endEditAndStartDraggingId : ItemId -> Cursor -> Edit -> OutlineDoc -> Maybe Outline
+endEditAndStartDraggingId dragId cursor edit =
+    endEdit edit >> OutlineDoc.moveCursorToItemId dragId >> Maybe.map (Dragging cursor)
 
 
 cancelEditAndInitBrowsing : OutlineDoc -> Outline
 cancelEditAndInitBrowsing =
-    cancelEdit >> Browsing
+    cancelEdit >> Outline Nothing
 
 
 initEdit : OutlineDoc -> Outline
 initEdit doc =
-    Editing doc (OutlineDoc.currentTitle doc)
+    Outline (Just (Edit False (OutlineDoc.currentTitle doc))) doc
+
+
+initAdd : OutlineDoc -> Outline
+initAdd doc =
+    Outline (Just (Edit True (OutlineDoc.currentTitle doc))) doc
 
 
 onEditTitleChanged : String -> Outline -> Outline
 onEditTitleChanged title outline =
     case outline of
-        Editing doc _ ->
-            Editing doc title
+        Outline (Just (Edit isAdding _)) doc ->
+            Outline (Just (Edit isAdding title)) doc
 
         _ ->
             Debug.todo "Impossible state"
@@ -620,7 +647,7 @@ subscriptions : Model -> Sub Msg
 subscriptions m =
     Sub.batch
         [ case m.outline of
-            Browsing _ ->
+            Outline _ _ ->
                 Sub.none
 
             Dragging _ _ ->
@@ -629,9 +656,6 @@ subscriptions m =
                     , Browser.Events.onMouseUp (JD.succeed Stop)
                     , gotBeacons GotBeacons
                     ]
-
-            Editing _ _ ->
-                Sub.none
         , Browser.Events.onKeyDown
             (keyEventDecoder
                 |> JD.map OnKeyDown
@@ -732,13 +756,13 @@ viewOutline outline =
         [ div [ class "f1" ] [ text "OZ Outlining" ]
         , div [] <|
             case outline of
-                Browsing doc ->
+                Outline Nothing doc ->
                     viewBrowsingDoc doc
 
                 Dragging _ doc ->
                     viewDraggingDoc doc
 
-                Editing doc title ->
+                Outline (Just (Edit isAdding title)) doc ->
                     viewEditingDoc title doc
         ]
 
@@ -763,10 +787,7 @@ viewDraggedNode outline =
                     doc
                 )
 
-        Browsing _ ->
-            text ""
-
-        Editing _ _ ->
+        Outline _ _ ->
             text ""
 
 
