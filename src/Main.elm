@@ -623,7 +623,7 @@ requiredString name =
 -- View
 
 
-view : Model -> Html Msg
+view : Model -> HM
 view m =
     div [ class "pv3 ph5 measure-narrow f3 lh-copy" ]
         [ viewOutline m.outline
@@ -663,7 +663,7 @@ viewOutline outline =
         ]
 
 
-viewDraggedNode : Outline -> Html Msg
+viewDraggedNode : Outline -> HM
 viewDraggedNode outline =
     case outline of
         Dragging dnd doc ->
@@ -754,7 +754,7 @@ viewEditingDoc title doc =
 -- NODE VIEW TEMPLATES
 
 
-renderWithoutBeacons : (a -> Html Msg) -> a -> List (Html Msg) -> Html Msg
+renderWithoutBeacons : (a -> HM) -> a -> LHM -> HM
 renderWithoutBeacons renderItemFunc item childrenHtml =
     div []
         [ renderItemFunc item
@@ -791,7 +791,7 @@ dataBeacon value =
 -- NODE PARTS VIEW
 
 
-viewBeacon : CandidateLocation -> Html Msg
+viewBeacon : CandidateLocation -> HM
 viewBeacon candidateLocation =
     div
         ([ style "height" "0px"
@@ -811,7 +811,7 @@ viewBeacon candidateLocation =
         [ text " " ]
 
 
-viewEditItem : String -> Html Msg
+viewEditItem : String -> HM
 viewEditItem title =
     div
         [ class "pa1 bb b--black-10 pointer no-selection" ]
@@ -856,7 +856,7 @@ type ItemView
     | FadedItem
 
 
-viewItem : ItemView -> Item -> Html Msg
+viewItem : ItemView -> Item -> HM
 viewItem itemView item =
     let
         { isHighlighted, isDraggable, isFaded } =
@@ -891,7 +891,7 @@ viewItem itemView item =
         ]
 
 
-viewChildStateIndicator : Bool -> Html Msg
+viewChildStateIndicator : Bool -> HM
 viewChildStateIndicator collapseState =
     div [ class "mr2 self-start dim pointer" ]
         (if collapseState then
@@ -902,7 +902,7 @@ viewChildStateIndicator collapseState =
         )
 
 
-viewAddNewButton : Bool -> Html Msg
+viewAddNewButton : Bool -> HM
 viewAddNewButton visible =
     button
         ([ class "ph2 pv0 self-start lh-title bn bg-inherit color-inherit"
