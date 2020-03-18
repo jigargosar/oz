@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events
-import Html exposing (Attribute, Html, button, div, input, text)
+import Html exposing (Attribute, button, div, input, text)
 import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
 import ItemId exposing (ItemId)
