@@ -123,13 +123,17 @@ init flags =
 -- Update
 
 
+type DndMsg
+    = Move XY
+    | Stop
+    | GotBeacons Value
+
+
 type Msg
     = NoOp
     | TitleEditorFocusFailed String
     | OnDragStart ItemId Cursor
-    | Move XY
-    | Stop
-    | GotBeacons Value
+    | DM DndMsg
     | ItemTitleClicked ItemId
     | TitleChanged String
     | AddNewClicked
@@ -292,53 +296,50 @@ update message model =
                 Dragging _ ->
                     Debug.todo "impossible state"
 
-        Move clientXY ->
+        DM msg ->
             case model.state of
                 Dragging cursor ->
-                    ( { model | state = Dragging { cursor | clientXY = clientXY } }, getBeacons () )
+                    onDndMsg msg cursor model
 
                 _ ->
-                    Debug.todo "impossible state"
+                    Debug.todo "drag msg received, when not dragging"
+
+
+onDndMsg : DndMsg -> Cursor -> Model -> ( Model, Cmd Msg )
+onDndMsg msg cursor model =
+    case msg of
+        Move clientXY ->
+            ( { model | state = Dragging { cursor | clientXY = clientXY } }, getBeacons () )
 
         Stop ->
-            case model.state of
-                Dragging _ ->
-                    ( { model | state = Browsing }, Cmd.none )
-
-                _ ->
-                    Debug.todo "impossible state"
+            ( { model | state = Browsing }, Cmd.none )
 
         GotBeacons encodedBeacons ->
-            case model.state of
-                Dragging cursor ->
-                    let
-                        beaconsResult =
-                            JD.decodeValue (JD.list Dnd.beaconDecoder) encodedBeacons
+            let
+                beaconsResult =
+                    JD.decodeValue (JD.list Dnd.beaconDecoder) encodedBeacons
 
-                        maybeNewDoc =
-                            Result.toMaybe beaconsResult
-                                |> Maybe.andThen
-                                    (\beacons ->
-                                        Dnd.dndClosestCandidateLocation beacons cursor
-                                            |> (if debug then
-                                                    Debug.log "debug"
+                maybeNewDoc =
+                    Result.toMaybe beaconsResult
+                        |> Maybe.andThen
+                            (\beacons ->
+                                Dnd.dndClosestCandidateLocation beacons cursor
+                                    |> (if debug then
+                                            Debug.log "debug"
 
-                                                else
-                                                    identity
-                                               )
-                                    )
-                                |> Maybe.andThen
-                                    (\cl -> Doc.relocateToCandidateLocation cl model.doc)
-                    in
-                    case maybeNewDoc of
-                        Just newDoc ->
-                            ( { model | doc = newDoc }, Cmd.none )
+                                        else
+                                            identity
+                                       )
+                            )
+                        |> Maybe.andThen
+                            (\cl -> Doc.relocateToCandidateLocation cl model.doc)
+            in
+            case maybeNewDoc of
+                Just newDoc ->
+                    ( { model | doc = newDoc }, Cmd.none )
 
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    Debug.todo "impossible state"
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 onKeyDown : KeyEvent -> Model -> Model
