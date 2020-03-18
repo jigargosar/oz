@@ -22,6 +22,7 @@ module Forest.Zipper exposing
     , prependChild
     , prependChildGo
     , remove
+    , restructure
     , right
     , tree
     , up
