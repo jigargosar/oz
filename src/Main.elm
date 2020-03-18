@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events
-import CollapseState exposing (CollapseState)
+import CollapseState exposing (CollapseState(..))
 import Html exposing (Attribute, button, div, input, text)
 import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, tabindex, value)
 import Html.Events as Event exposing (onClick, onInput)
@@ -707,8 +707,8 @@ viewDraggedNode outline =
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
                 (OutlineDoc.restructureCurrentNode
-                    (\( i, _, cs ) ->
-                        viewNodeWithoutBeacons (viewItem NotDraggableItem i) cs
+                    (\( i, _ ) ->
+                        viewNodeWithoutBeacons (viewItem NotDraggableItem) i
                     )
                     doc
                 )
@@ -734,11 +734,10 @@ viewBrowsingDoc doc =
             OutlineDoc.currentId doc
     in
     OutlineDoc.restructureWithContext
-        (\( item, _, cs ) ->
+        (\( item, _ ) ->
             viewNodeWithBeacons
                 (DraggableItem (item.id == highlightedId))
                 item
-                cs
         )
         doc
 
@@ -746,7 +745,7 @@ viewBrowsingDoc doc =
 type alias Item =
     { id : ItemId
     , title : String
-    , collapsed : Bool
+    , collapsed : CollapseState
     }
 
 
@@ -755,19 +754,14 @@ viewDraggingDoc doc =
     let
         draggedId =
             OutlineDoc.currentId doc
-
-        isDragged : Item -> List Item -> Bool
-        isDragged item items =
-            List.map .id (item :: items)
-                |> List.any ((==) draggedId)
     in
     OutlineDoc.restructureWithContext
-        (\( item, ancestors, collapseState ) ->
-            if isDragged item ancestors then
-                viewNodeWithoutBeacons (viewItem FadedItem item) collapseState
+        (\( item, ancestorsIds ) ->
+            if List.any ((==) draggedId) (item.id :: ancestorsIds) then
+                viewNodeWithoutBeacons (viewItem FadedItem) item
 
             else
-                viewNodeWithBeacons NotDraggableItem item collapseState
+                viewNodeWithBeacons NotDraggableItem item
         )
         doc
 
@@ -778,15 +772,15 @@ viewEditingDoc title doc =
         editItemId =
             OutlineDoc.currentId doc
 
-        renderItem : Item -> CollapseState -> LHM -> HM
-        renderItem item cs =
+        renderItem : Item -> LHM -> HM
+        renderItem item =
             if item.id == editItemId then
                 wrapWithoutBeacons (viewEditItem title)
 
             else
-                viewNodeWithBeacons (DraggableItem False) item cs
+                viewNodeWithBeacons (DraggableItem False) item
     in
-    OutlineDoc.restructureWithContext (\( i, _, cs ) -> renderItem i cs) doc
+    OutlineDoc.restructureWithContext (\( i, _ ) -> renderItem i) doc
 
 
 
@@ -801,9 +795,9 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
-viewNodeWithBeacons : ItemView -> Item -> CollapseState -> LHM -> HM
-viewNodeWithBeacons itemView item collapseState =
-    wrapWithBeacons (viewItem itemView item collapseState) item.id
+viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
+viewNodeWithBeacons itemView item =
+    wrapWithBeacons (viewItem itemView item) item.id
 
 
 wrapWithoutBeacons : HM -> LHM -> HM
@@ -910,8 +904,8 @@ type ItemView
     | FadedItem
 
 
-viewItem : ItemView -> Item -> CollapseState -> HM
-viewItem itemView item cs =
+viewItem : ItemView -> Item -> HM
+viewItem itemView item =
     let
         { isHighlighted, isDraggable, isFaded } =
             case itemView of
@@ -947,14 +941,18 @@ viewItem itemView item cs =
         ]
 
 
-viewChildStateIndicator : Bool -> HM
+viewChildStateIndicator : CollapseState -> HM
 viewChildStateIndicator collapseState =
-    div [ class "mr2 self-start dim pointer" ]
-        (if collapseState then
-            [ text ">" ]
+    div [ class "mr2 self-start dim pointer code" ]
+        (case collapseState of
+            NoChildren ->
+                [ text "." ]
 
-         else
-            [ text "v" ]
+            Collapsed ->
+                [ text "+" ]
+
+            Expanded ->
+                [ text "-" ]
         )
 
 

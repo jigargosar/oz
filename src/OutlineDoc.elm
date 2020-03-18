@@ -249,12 +249,16 @@ moveCurrentToCandidateLocation (CandidateLocation loc itemId) =
     mapMaybe (FIZ.relocate loc itemId)
 
 
+wrapRender render a b c =
+    render ( { id = a.id, title = a.title, collapsed = c }, List.map .id b )
+
+
 restructureWithContext render =
-    unwrap >> FIZ.restructureWithContext render
+    unwrap >> FIZ.restructureWithContext (wrapRender render)
 
 
 restructureCurrentNode render =
-    unwrap >> FIZ.restructureCursorWithContext render
+    unwrap >> FIZ.restructureCursorWithContext (wrapRender render)
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc

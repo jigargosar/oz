@@ -19,9 +19,7 @@ module ItemForestZipper exposing
     , gotoId
     , relocate
     , relocateBy
-    , restructure
     , restructureCursorWithContext
-    , restructureNodeAtCursor
     , restructureWithContext
     , setTitle
     )
@@ -347,7 +345,7 @@ propEq func val obj =
 -- VIEW HELPERS
 
 
-restructureWithContext : (( Item, List Item, CollapseState ) -> List b -> b) -> ForestZipper Item -> List b
+restructureWithContext : (Item -> List Item -> CollapseState -> List b -> b) -> ForestZipper Item -> List b
 restructureWithContext render =
     Zipper.restructure
         (\fiz children ->
@@ -356,15 +354,15 @@ restructureWithContext render =
                     Zipper.data fiz
             in
             render
-                ( item
-                , Zipper.ancestors fiz
-                , if List.isEmpty children then
+                item
+                (Zipper.ancestors fiz)
+                (if List.isEmpty children then
                     CollapseState.NoChildren
 
-                  else if item.collapsed then
+                 else if item.collapsed then
                     CollapseState.Collapsed
 
-                  else
+                 else
                     CollapseState.Expanded
                 )
                 (if item.collapsed then
@@ -376,40 +374,11 @@ restructureWithContext render =
         )
 
 
-restructureCursorWithContext : (( Item, List Item, CollapseState ) -> List b -> b) -> ForestZipper Item -> List b
+restructureCursorWithContext : (Item -> List Item -> CollapseState -> List b -> b) -> ForestZipper Item -> List b
 restructureCursorWithContext render =
     Zipper.tree
         >> Zipper.fromTree
         >> restructureWithContext render
-
-
-restructure : (Item -> List c -> c) -> FIZ -> List c
-restructure render =
-    toForest >> List.map (restructureHelp render)
-
-
-toForest : FIZ -> Forest Item
-toForest =
-    Zipper.firstRoot >> Zipper.forest
-
-
-restructureNodeAtCursor : (Item -> List c -> c) -> FIZ -> c
-restructureNodeAtCursor render =
-    Zipper.tree >> restructureHelp render
-
-
-restructureHelp : (Item -> List c -> c) -> Tree Item -> c
-restructureHelp render =
-    Tree.restructure identity
-        (\item children ->
-            render item
-                (if item.collapsed then
-                    []
-
-                 else
-                    children
-                )
-        )
 
 
 
