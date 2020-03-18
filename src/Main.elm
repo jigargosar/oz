@@ -742,21 +742,12 @@ viewEditingDoc title doc =
         renderItem : Item -> LHM -> HM
         renderItem item =
             if item.id == editItemId then
-                renderEdit title
+                renderWithoutBeacons viewEditItem title
 
             else
                 renderWithBeacons (viewItem (DraggableItem False)) item
     in
     OutlineDoc.restructure renderItem doc
-
-
-
--- NODE VIEW
-
-
-renderEdit : String -> LHM -> HM
-renderEdit =
-    renderWithoutBeacons viewEditItem
 
 
 
