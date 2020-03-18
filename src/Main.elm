@@ -827,13 +827,13 @@ viewItem : ItemView -> Item -> Html Msg
 viewItem itemView item =
     case itemView of
         DraggableItem isHighlighted ->
-            viewFlatLine False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True })
+            viewFlatLine False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True, isFaded = False })
 
         NotDraggableItem ->
-            viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False })
+            viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False, isFaded = False })
 
         FadedItem ->
-            viewFlatLine True (ItemLine item { isHighlighted = False, isDraggable = False })
+            viewFlatLine True (ItemLine item { isHighlighted = False, isDraggable = False, isFaded = True })
 
 
 viewEditItem : String -> Html Msg
@@ -847,7 +847,7 @@ viewEditItem title =
 
 
 type FlatLine
-    = ItemLine Item { isHighlighted : Bool, isDraggable : Bool }
+    = ItemLine Item { isHighlighted : Bool, isDraggable : Bool, isFaded : Bool }
 
 
 debug =
