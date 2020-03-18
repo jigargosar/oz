@@ -733,11 +733,8 @@ outlineToHtmlList outline =
 
 
 renderEdit : String -> LHM -> HM
-renderEdit title lhm =
-    div []
-        [ viewEditItem title
-        , div [ class "pl4" ] lhm
-        ]
+renderEdit =
+    renderWithoutBeacons viewEditItem
 
 
 renderFadedDraggedWithoutBeacons : Item -> LHM -> HM
@@ -745,7 +742,7 @@ renderFadedDraggedWithoutBeacons =
     renderWithoutBeacons viewFadedDraggedItem
 
 
-renderWithoutBeacons : (Item -> Html Msg) -> Item -> List (Html Msg) -> Html Msg
+renderWithoutBeacons : (a -> Html Msg) -> a -> List (Html Msg) -> Html Msg
 renderWithoutBeacons renderItemFunc item childrenHtml =
     div []
         [ renderItemFunc item
