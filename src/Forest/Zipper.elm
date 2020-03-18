@@ -443,13 +443,19 @@ insertAndGo insertFunc focusFunc node zipper =
 --    | Up
 
 
-type alias ReAcc a b =
-    { leftReversed : List b, crumbs : List (List b), fiz : ForestZipper a }
-
-
 restructure : (ForestZipper a -> List b -> b) -> ForestZipper a -> List b
 restructure render zipper =
     restructureHelp render ReGoDown { leftReversed = [], crumbs = [], fiz = firstRoot zipper }
+
+
+type RestructureMsg
+    = ReGoDown
+    | ReGoRight
+    | ReGoUp
+
+
+type alias ReAcc a b =
+    { leftReversed : List b, crumbs : List (List b), fiz : ForestZipper a }
 
 
 restructureHelp : (ForestZipper a -> List b -> b) -> RestructureMsg -> ReAcc a b -> List b
@@ -491,9 +497,3 @@ restructureHelp render msg acc =
 
                 _ ->
                     List.reverse acc.leftReversed
-
-
-type RestructureMsg
-    = ReGoDown
-    | ReGoRight
-    | ReGoUp
