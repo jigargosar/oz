@@ -30,7 +30,7 @@ module OutlineDoc exposing
     , setTitleUnlessBlank
     )
 
-import ItemForestZipper as FIZ exposing (FIZ)
+import ItemForestZipper as FIZ exposing (FIZ, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -43,43 +43,40 @@ import Random exposing (Generator)
 
 
 type CandidateLocation
-    = Before ItemId
-    | After ItemId
-    | PrependIn ItemId
-    | AppendIn ItemId
+    = CandidateLocation FIZ.Location ItemId
 
 
 candidateLocationEncoder : CandidateLocation -> Value
-candidateLocationEncoder candidateLocation =
+candidateLocationEncoder (CandidateLocation loc itemId) =
     let
-        encodeHelp : String -> ItemId -> Value
-        encodeHelp tagName itemId =
+        encodeHelp : String -> Value
+        encodeHelp tagName =
             JE.object
                 [ ( "tag", JE.string tagName )
                 , ( "id", ItemId.itemIdEncoder itemId )
                 ]
     in
-    case candidateLocation of
-        Before itemId ->
-            encodeHelp "Before" itemId
+    case loc of
+        Before ->
+            encodeHelp "Before"
 
-        After itemId ->
-            encodeHelp "After" itemId
+        After ->
+            encodeHelp "After"
 
-        PrependIn itemId ->
-            encodeHelp "PrependIn" itemId
+        PrependChild ->
+            encodeHelp "PrependChild"
 
-        AppendIn itemId ->
-            encodeHelp "AppendIn" itemId
+        AppendChild ->
+            encodeHelp "AppendChild"
 
 
 candidateLocationDecoder : Decoder CandidateLocation
 candidateLocationDecoder =
     let
-        decodeHelp : (ItemId -> CandidateLocation) -> Decoder CandidateLocation
+        decodeHelp : Location -> Decoder CandidateLocation
         decodeHelp tag =
             JD.field "id" ItemId.itemIdDecoder
-                |> JD.map tag
+                |> JD.map (CandidateLocation tag)
 
         tagDecoder : String -> Decoder CandidateLocation
         tagDecoder tag =
@@ -90,11 +87,11 @@ candidateLocationDecoder =
                 "After" ->
                     decodeHelp After
 
-                "PrependIn" ->
-                    decodeHelp PrependIn
+                "PrependChild" ->
+                    decodeHelp PrependChild
 
-                "AppendIn" ->
-                    decodeHelp AppendIn
+                "AppendChild" ->
+                    decodeHelp AppendChild
 
                 _ ->
                     JD.fail ("unknown tag for CandidateLocation: " ++ tag)
@@ -102,20 +99,24 @@ candidateLocationDecoder =
     JD.field "tag" JD.string |> JD.andThen tagDecoder
 
 
+before : ItemId -> CandidateLocation
 before =
-    Before
+    CandidateLocation Before
 
 
+after : ItemId -> CandidateLocation
 after =
-    After
+    CandidateLocation After
 
 
+prependIn : ItemId -> CandidateLocation
 prependIn =
-    PrependIn
+    CandidateLocation PrependChild
 
 
+appendIn : ItemId -> CandidateLocation
 appendIn =
-    AppendIn
+    CandidateLocation AppendChild
 
 
 
@@ -245,21 +246,8 @@ moveAfterNextSiblingOrPrependInNextSiblingOfParent =
 
 
 moveCurrentToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-moveCurrentToCandidateLocation cl =
-    mapMaybe
-        (case cl of
-            Before itemId ->
-                FIZ.relocate FIZ.Before itemId
-
-            After itemId ->
-                FIZ.relocate FIZ.After itemId
-
-            PrependIn itemId ->
-                FIZ.relocate FIZ.PrependChild itemId
-
-            AppendIn itemId ->
-                FIZ.relocate FIZ.AppendChild itemId
-        )
+moveCurrentToCandidateLocation (CandidateLocation loc itemId) =
+    mapMaybe (FIZ.relocate loc itemId)
 
 
 restructureWithContext render =
