@@ -367,6 +367,79 @@ restructureHelp render =
         )
 
 
+tRestructure : (a -> b) -> (b -> List c -> c) -> Tree a -> c
+tRestructure convertLabel convertTree t =
+    let
+        ( l, c ) =
+            ( Tree.data t, Tree.children t )
+    in
+    tRestructureHelp convertLabel
+        convertTree
+        { todo = c
+        , label = convertLabel l
+        , done = []
+        }
+        []
+
+
+tRestructureHelp :
+    (a -> b)
+    -> (b -> List c -> c)
+    -> ReAcc a b c
+    -> List (ReAcc a b c)
+    -> c
+tRestructureHelp fLabel fTree acc stack =
+    case acc.todo of
+        [] ->
+            let
+                node =
+                    fTree acc.label (List.reverse acc.done)
+            in
+            case stack of
+                [] ->
+                    node
+
+                top :: rest ->
+                    tRestructureHelp
+                        fLabel
+                        fTree
+                        { top | done = node :: top.done }
+                        rest
+
+        first :: rest ->
+            let
+                ( l, cs ) =
+                    ( Tree.data first, Tree.children first )
+            in
+            case cs of
+                [] ->
+                    tRestructureHelp
+                        fLabel
+                        fTree
+                        { acc
+                            | todo = rest
+                            , done = fTree (fLabel l) [] :: acc.done
+                        }
+                        stack
+
+                _ ->
+                    tRestructureHelp
+                        fLabel
+                        fTree
+                        { todo = cs
+                        , done = []
+                        , label = fLabel l
+                        }
+                        ({ acc | todo = rest } :: stack)
+
+
+type alias ReAcc a b c =
+    { todo : List (Tree a)
+    , done : List c
+    , label : b
+    }
+
+
 
 -- ForestZipper Extra
 
