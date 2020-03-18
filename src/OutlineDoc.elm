@@ -25,7 +25,7 @@ module OutlineDoc exposing
     , prependIn
     , removeIfBlankLeaf
     , restructure
-    , restructureFocused
+    , restructureCurrentNode
     , setTitleUnlessBlank
     )
 
@@ -262,8 +262,8 @@ restructure render =
     unwrap >> FIZ.restructure render
 
 
-restructureFocused : (Item -> List c -> c) -> OutlineDoc -> c
-restructureFocused render =
+restructureCurrentNode : (Item -> List c -> c) -> OutlineDoc -> c
+restructureCurrentNode render =
     unwrap >> FIZ.restructureNodeAtCursor render
 
 

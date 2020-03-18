@@ -676,7 +676,7 @@ viewDraggedNode outline =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                [ OutlineDoc.restructureFocused (viewNodeWithoutBeacons (viewItem NotDraggableItem)) doc ]
+                [ OutlineDoc.restructureCurrentNode (viewNodeWithoutBeacons (viewItem NotDraggableItem)) doc ]
 
         NoDoc ->
             text ""
