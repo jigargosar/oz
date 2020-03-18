@@ -742,7 +742,7 @@ viewEditingDoc title doc =
         renderItem : Item -> LHM -> HM
         renderItem item =
             if item.id == editItemId then
-                viewNodeWithoutBeacons viewEditItem title
+                wrapWithoutBeacons (viewEditItem title)
 
             else
                 viewNodeWithBeacons (DraggableItem False) item
@@ -762,17 +762,17 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
+viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
+viewNodeWithBeacons itemView item =
+    wrapWithBeacons (viewItem itemView item) item.id
+
+
 wrapWithoutBeacons : HM -> LHM -> HM
 wrapWithoutBeacons nodeHtml childrenHtml =
     div []
         [ nodeHtml
         , div [ class "pl4" ] childrenHtml
         ]
-
-
-viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
-viewNodeWithBeacons itemView item =
-    wrapWithBeacons (viewItem itemView item) item.id
 
 
 wrapWithBeacons : HM -> ItemId -> LHM -> HM
