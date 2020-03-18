@@ -186,15 +186,19 @@ cacheOutlineOnChangeCmd oldOutline newOutline =
 updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
 updateWrapper message model =
     update message model
-        |> focusEditorOnStartEdit model
+        |> focusEditorOnStartEditOrEditAncestorsChanged model
         |> persistModelOnChange model
         |> focusItemTitleOnChange model
 
 
-focusEditorOnStartEdit oldModel ( newModel, cmd ) =
+focusEditorOnStartEditOrEditAncestorsChanged oldModel ( newModel, cmd ) =
     case ( oldModel.outline, newModel.outline ) of
-        ( Editing _ _, _ ) ->
-            ( newModel, cmd )
+        ( Editing oldD _, Editing newD _ ) ->
+            if not (eqByAncestors oldD newD) then
+                ( newModel, Cmd.batch [ cmd, focusTitleEditor ] )
+
+            else
+                ( newModel, cmd )
 
         ( _, Editing _ _ ) ->
             ( newModel, Cmd.batch [ cmd, focusTitleEditor ] )
@@ -203,10 +207,18 @@ focusEditorOnStartEdit oldModel ( newModel, cmd ) =
             ( newModel, cmd )
 
 
+eqBy func a b =
+    func a == func b
+
+
+eqByAncestors =
+    eqBy OutlineDoc.ancestorIds
+
+
 focusItemTitleOnChange oldModel ( newModel, cmd ) =
     case ( oldModel.outline, newModel.outline ) of
         ( Browsing oldD, Browsing newD ) ->
-            if OutlineDoc.ancestorIds oldD /= OutlineDoc.ancestorIds newD then
+            if not (eqByAncestors oldD newD) then
                 ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
 
             else
