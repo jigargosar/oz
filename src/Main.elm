@@ -5,7 +5,7 @@ import Browser.Dom as Dom
 import Browser.Events
 import CollapseState exposing (CollapseState)
 import Html exposing (Attribute, button, div, input, text)
-import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, value)
+import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, tabindex, value)
 import Html.Events as Event exposing (onClick, onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
@@ -860,6 +860,14 @@ classIf bool classValue =
         class ""
 
 
+attrIf bool attrFunc attrValue =
+    if bool then
+        attrFunc attrValue
+
+    else
+        class ""
+
+
 type ItemView
     = DraggableItem Bool
     | NotDraggableItem
@@ -894,6 +902,7 @@ viewItem itemView item cs =
         , div
             [ class "flex-auto lh-title "
             , classIf isHighlighted "bg-blue white"
+            , attrIf isHighlighted tabindex 0
             , onClick (ItemTitleClicked item.id)
             ]
             [ text (itemDisplayTitle item) ]
