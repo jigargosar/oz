@@ -898,7 +898,7 @@ viewFlatLine _ (ItemLine item { isHighlighted, isDraggable, isFaded }) =
             , onClick (ItemTitleClicked item.id)
             ]
             [ text (itemDisplayTitle item) ]
-        , viewAddNewButton (isDraggable && isHighlighted)
+        , viewAddNewButton isHighlighted
         ]
 
 
