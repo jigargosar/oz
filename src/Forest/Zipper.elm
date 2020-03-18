@@ -466,23 +466,36 @@ restructureHelp render msg acc =
                 Just fiz ->
                     restructureHelp render
                         ReGoDown
-                        { acc | leftReversed = [], crumbs = acc.leftReversed :: acc.crumbs, fiz = fiz }
+                        { acc
+                            | leftReversed = []
+                            , crumbs = acc.leftReversed :: acc.crumbs
+                            , fiz = fiz
+                        }
 
                 Nothing ->
                     restructureHelp render
                         ReGoRight
-                        { acc | leftReversed = render acc.fiz [] :: acc.leftReversed }
+                        { acc
+                            | leftReversed = render acc.fiz [] :: acc.leftReversed
+                        }
 
         ReGoRight ->
             case right acc.fiz of
                 Just fiz ->
-                    restructureHelp render ReGoDown { acc | fiz = fiz }
+                    restructureHelp render
+                        ReGoDown
+                        { acc | fiz = fiz }
 
                 Nothing ->
-                    restructureHelp render ReGoUp acc
+                    restructureHelp render
+                        ReGoUp
+                        acc
 
         ReGoUp ->
             case ( up acc.fiz, acc.crumbs ) of
+                ( Nothing, [] ) ->
+                    List.reverse acc.leftReversed
+
                 ( Just fiz, first :: rest ) ->
                     restructureHelp render
                         ReGoRight
@@ -492,8 +505,8 @@ restructureHelp render msg acc =
                             , fiz = fiz
                         }
 
-                ( Just _, [] ) ->
+                ( Nothing, _ :: _ ) ->
                     Debug.todo "impl"
 
-                _ ->
-                    List.reverse acc.leftReversed
+                ( Just _, [] ) ->
+                    Debug.todo "impl"
