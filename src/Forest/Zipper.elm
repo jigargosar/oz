@@ -465,9 +465,7 @@ restructureHelp render msg acc =
                 Nothing ->
                     restructureHelp render
                         ReGoRight
-                        { acc
-                            | leftReversed = render acc.fiz [] :: acc.leftReversed
-                        }
+                        { acc | leftReversed = render acc.fiz [] :: acc.leftReversed }
 
         ReGoRight ->
             case right acc.fiz of
