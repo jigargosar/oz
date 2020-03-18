@@ -133,7 +133,7 @@ type Msg
     = NoOp
     | TitleEditorFocusFailed String
     | OnDragStart ItemId Cursor
-    | DM DndMsg
+    | WhenDragging DndMsg
     | ItemTitleClicked ItemId
     | TitleChanged String
     | AddNewClicked
@@ -296,7 +296,7 @@ update message model =
                 Dragging _ ->
                     Debug.todo "impossible state"
 
-        DM msg ->
+        WhenDragging msg ->
             case model.state of
                 Dragging cursor ->
                     onDndMsg msg cursor model
@@ -535,7 +535,7 @@ subscriptions m =
                     , Browser.Events.onMouseUp (JD.succeed Stop)
                     , gotBeacons GotBeacons
                     ]
-                    |> Sub.map DM
+                    |> Sub.map WhenDragging
         , Browser.Events.onKeyDown (KE.decoder |> JD.map OnKeyDown)
         ]
 
