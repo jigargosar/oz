@@ -535,6 +535,7 @@ subscriptions m =
                     , Browser.Events.onMouseUp (JD.succeed Stop)
                     , gotBeacons GotBeacons
                     ]
+                    |> Sub.map DM
         , Browser.Events.onKeyDown (KE.decoder |> JD.map OnKeyDown)
         ]
 
