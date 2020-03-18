@@ -688,7 +688,11 @@ outlineToHtmlList outline =
                     OutlineDoc.currentId doc
             in
             OutlineDoc.restructure
-                (\item -> renderWithBeacons (viewItem (DraggableItem (item.id == highlightedId))) item)
+                (\item ->
+                    renderWithBeacons
+                        (viewItem (DraggableItem (item.id == highlightedId)))
+                        item
+                )
                 doc
 
         Dragging _ doc ->
