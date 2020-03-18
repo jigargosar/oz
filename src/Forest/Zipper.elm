@@ -449,7 +449,7 @@ type alias ReAcc a b =
 
 restructure : (ForestZipper a -> List b -> b) -> ForestZipper a -> List b
 restructure render zipper =
-    restructureHelp render GoDown { leftReversed = [], crumbs = [], fiz = zipper }
+    restructureHelp render GoDown { leftReversed = [], crumbs = [], fiz = firstRoot zipper }
 
 
 restructureHelp : (ForestZipper a -> List b -> b) -> RestructureMsg -> ReAcc a b -> List b
@@ -488,12 +488,8 @@ restructureHelp render msg acc =
                             , fiz = fiz
                         }
 
-                ( Just fiz, [] ) ->
-                    let
-                        _ =
-                            Debug.log "debug" fiz
-                    in
-                    [ render fiz (List.reverse acc.leftReversed) ]
+                ( Just _, [] ) ->
+                    Debug.todo "impl"
 
                 _ ->
                     List.reverse acc.leftReversed
