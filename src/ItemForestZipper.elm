@@ -338,6 +338,11 @@ propEq func val obj =
 -- VIEW HELPERS
 
 
+restructureWithFIZ : (ForestZipper a -> List b -> b) -> ForestZipper a -> List b
+restructureWithFIZ render fiz =
+    Zipper.restructure render fiz
+
+
 restructure : (Item -> List c -> c) -> FIZ -> List c
 restructure render =
     toForest >> List.map (restructureHelp render)
