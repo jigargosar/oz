@@ -656,6 +656,11 @@ ctrl name ke =
     ke.key == name && ke.ctrl && not (ke.shift || ke.alt || ke.meta)
 
 
+shift : String -> KeyEvent -> Bool
+shift name ke =
+    ke.key == name && ke.shift && not (ke.ctrl || ke.alt || ke.meta)
+
+
 targetInputOrButton : KeyEvent -> Bool
 targetInputOrButton ke =
     List.member ke.targetTagName [ "INPUT", "BUTTON" ]
@@ -896,6 +901,9 @@ viewEditItem title =
                         |> JD.andThen
                             (\ke ->
                                 if hotKey "Tab" ke then
+                                    JD.succeed ( OnTab, True )
+
+                                else if shift "Tab" ke then
                                     JD.succeed ( OnTab, True )
 
                                 else
