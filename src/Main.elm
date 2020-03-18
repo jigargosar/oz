@@ -741,11 +741,8 @@ renderEdit title lhm =
 
 
 renderFadedDraggedWithoutBeacons : Item -> LHM -> HM
-renderFadedDraggedWithoutBeacons item childrenHtml =
-    div []
-        [ viewFadedDraggedItem item
-        , div [ class "pl4" ] childrenHtml
-        ]
+renderFadedDraggedWithoutBeacons =
+    renderWithoutBeacons viewFadedDraggedItem
 
 
 renderWithoutBeacons : (Item -> Html Msg) -> Item -> List (Html Msg) -> Html Msg
