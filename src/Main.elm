@@ -3,7 +3,6 @@ port module Main exposing (main)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events
-import Forest.Tree exposing (Forest)
 import Html exposing (Attribute, Html, button, div, input, text)
 import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, value)
 import Html.Events as Event exposing (onClick, onInput)
@@ -665,7 +664,7 @@ viewDraggedNode outline =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                [ OutlineDoc.restructureFocused renderDragged doc ]
+                [ OutlineDoc.restructureFocused (renderWithoutBeacons (viewItem NotDraggableItem)) doc ]
 
         NoDoc ->
             text ""
@@ -689,7 +688,7 @@ outlineToHtmlList outline =
                     OutlineDoc.currentId doc
             in
             OutlineDoc.restructure
-                (\item -> renderDraggableWithBeacons (item.id == highlightedId) item)
+                (\item -> renderWithBeacons (viewItem (DraggableItem (item.id == highlightedId))) item)
                 doc
 
         Dragging _ doc ->
@@ -710,7 +709,7 @@ outlineToHtmlList outline =
                                     renderWithoutBeacons (viewItem FadedItem) item (children True)
 
                                 else
-                                    renderNotDraggableWithBeacons item (children False)
+                                    renderWithBeacons (viewItem NotDraggableItem) item (children False)
                         )
                         doc
             in
@@ -727,7 +726,7 @@ outlineToHtmlList outline =
                         renderEdit title
 
                     else
-                        renderDraggableWithBeacons False item
+                        renderWithBeacons (viewItem (DraggableItem False)) item
             in
             OutlineDoc.restructure renderItem doc
 
@@ -739,21 +738,6 @@ outlineToHtmlList outline =
 renderEdit : String -> LHM -> HM
 renderEdit =
     renderWithoutBeacons viewEditItem
-
-
-renderDragged : Item -> LHM -> HM
-renderDragged =
-    renderWithoutBeacons (viewItem NotDraggableItem)
-
-
-renderNotDraggableWithBeacons : Item -> LHM -> HM
-renderNotDraggableWithBeacons =
-    renderWithBeacons (viewItem NotDraggableItem)
-
-
-renderDraggableWithBeacons : Bool -> Item -> LHM -> HM
-renderDraggableWithBeacons isHighlighted =
-    renderWithBeacons (viewItem (DraggableItem isHighlighted))
 
 
 
@@ -820,10 +804,6 @@ viewEditItem title =
             [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
             ]
         ]
-
-
-type FlatLine
-    = ItemLine Item { isHighlighted : Bool, isDraggable : Bool, isFaded : Bool }
 
 
 debug =
