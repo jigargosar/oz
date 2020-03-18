@@ -880,28 +880,26 @@ classIf bool classValue =
 
 
 viewFlatLine : Bool -> FlatLine -> Html Msg
-viewFlatLine fadeNotDraggable flatLine =
-    case flatLine of
-        ItemLine item { isHighlighted, isDraggable } ->
-            div
-                (class "pa1 bb b--black-30 pointer no-selection flex"
-                    :: classIf (not isDraggable && fadeNotDraggable) "o-50"
-                    :: (if isDraggable then
-                            dragEvents item.id
+viewFlatLine _ (ItemLine item { isHighlighted, isDraggable, isFaded }) =
+    div
+        (class "pa1 bb b--black-30 pointer no-selection flex"
+            :: classIf isFaded "o-50"
+            :: (if isDraggable then
+                    dragEvents item.id
 
-                        else
-                            []
-                       )
-                )
-                [ viewChildStateIndicator item.collapsed
-                , div
-                    [ class "flex-auto lh-title "
-                    , classIf isHighlighted "bg-blue white"
-                    , onClick (ItemTitleClicked item.id)
-                    ]
-                    [ text (itemDisplayTitle item) ]
-                , viewAddNewButton (not (isDraggable && isHighlighted))
-                ]
+                else
+                    []
+               )
+        )
+        [ viewChildStateIndicator item.collapsed
+        , div
+            [ class "flex-auto lh-title "
+            , classIf isHighlighted "bg-blue white"
+            , onClick (ItemTitleClicked item.id)
+            ]
+            [ text (itemDisplayTitle item) ]
+        , viewAddNewButton (isDraggable && isHighlighted)
+        ]
 
 
 viewChildStateIndicator : Bool -> Html Msg
@@ -916,16 +914,16 @@ viewChildStateIndicator collapseState =
 
 
 viewAddNewButton : Bool -> Html Msg
-viewAddNewButton invisible =
+viewAddNewButton visible =
     button
         ([ class "ph2 pv0 self-start lh-title bn bg-inherit color-inherit"
          , onClick New
          ]
-            ++ (if invisible then
-                    [ class "pe-none o-0", disabled True ]
+            ++ (if visible then
+                    []
 
                 else
-                    []
+                    [ class "pe-none o-0", disabled True ]
                )
         )
         [ text "+" ]
