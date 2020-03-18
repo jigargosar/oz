@@ -6,7 +6,7 @@ import Browser.Events
 import CollapseState exposing (CollapseState(..))
 import Html exposing (Attribute, button, div, input, text)
 import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, tabindex, value)
-import Html.Events as Event exposing (onClick, onInput)
+import Html.Events as Event exposing (onClick, onInput, preventDefaultOn)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -148,6 +148,8 @@ type Msg
     | TitleChanged String
     | New
     | OnKeyDown KeyEvent
+    | OnTab
+    | OnShiftTab
 
 
 cacheDocIfChanged : OutlineDoc -> OutlineDoc -> Cmd msg
@@ -229,6 +231,22 @@ update message model =
 
         TitleEditorFocusFailed domId ->
             Debug.todo ("TitleEditorFocusFailed: " ++ domId)
+
+        OnTab ->
+            case model.outline of
+                Editing doc title ->
+                    case OutlineDoc.indent doc of
+                        Just newDoc ->
+                            ( { model | outline = Editing newDoc title }, Cmd.none )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        OnShiftTab ->
+            ( model, Cmd.none )
 
         OnKeyDown ke ->
             case model.outline of
@@ -449,7 +467,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             updateBrowsingDocByMaybeF OutlineDoc.moveAfterParent
 
         Indent ->
-            updateBrowsingDocByMaybeF OutlineDoc.appendInPreviousSibling
+            updateBrowsingDocByMaybeF OutlineDoc.indent
 
         MoveUp ->
             updateBrowsingDocByMaybeF
@@ -856,7 +874,24 @@ viewEditItem title =
     div
         [ class "pa1 bb b--black-10 pointer no-selection" ]
         [ div [ class "flex lh-title" ]
-            [ input [ A.id "item-title-editor", class "flex-auto", value title, onInput TitleChanged ] []
+            [ input
+                [ A.id "item-title-editor"
+                , class "flex-auto"
+                , value title
+                , onInput TitleChanged
+                , preventDefaultOn "keydown"
+                    (keyEventDecoder
+                        |> JD.andThen
+                            (\ke ->
+                                if hotKey "Tab" ke then
+                                    JD.succeed ( OnTab, True )
+
+                                else
+                                    JD.fail ""
+                            )
+                    )
+                ]
+                []
             ]
         ]
 

@@ -5,7 +5,6 @@ module OutlineDoc exposing
     , after
     , ancestorIds
     , appendIn
-    , appendInPreviousSibling
     , before
     , candidateLocationDecoder
     , candidateLocationEncoder
@@ -17,6 +16,7 @@ module OutlineDoc exposing
     , expand
     , goBackward
     , goForward
+    , indent
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
@@ -223,8 +223,9 @@ moveAfterParent =
     relocateBy FIZ.After FIZ.goUp
 
 
-appendInPreviousSibling : OutlineDoc -> Maybe OutlineDoc
-appendInPreviousSibling =
+indent : OutlineDoc -> Maybe OutlineDoc
+indent =
+    -- appendInPreviousSibling
     relocateBy FIZ.AppendChild FIZ.goLeft
 
 
