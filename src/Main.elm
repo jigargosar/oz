@@ -48,14 +48,20 @@ type alias Model =
     }
 
 
-type Edit
-    = Edit Bool String
-
-
 type State
     = Editing Edit
     | Dragging Cursor
     | Browsing
+
+
+type alias Cursor =
+    { clientXY : XY
+    , offsetXY : XY
+    }
+
+
+type Edit
+    = Edit Bool String
 
 
 type Outline
@@ -69,15 +75,6 @@ initOutline doc =
 
 
 -- OUTLINE DRAG AND DROP
-
-
-type alias Cursor =
-    { clientXY : XY
-    , offsetXY : XY
-    }
-
-
-
 -- DRAG AND DROP BEACON: HELPS DETERMINE DROP INTENT
 
 
