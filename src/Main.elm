@@ -10,7 +10,7 @@ import Html.Events as Event exposing (onClick, onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import OutlineDoc exposing (CandidateLocation(..), Item, OutlineDoc)
+import OutlineDoc exposing (CandidateLocation(..), OutlineDoc)
 import Random exposing (Generator, Seed)
 import Task
 
@@ -741,6 +741,13 @@ viewBrowsingDoc doc =
                 cs
         )
         doc
+
+
+type alias Item =
+    { id : ItemId
+    , title : String
+    , collapsed : Bool
+    }
 
 
 viewDraggingDoc : OutlineDoc -> LHM

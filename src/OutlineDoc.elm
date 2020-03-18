@@ -1,6 +1,5 @@
 module OutlineDoc exposing
     ( CandidateLocation
-    , Item
     , OutlineDoc
     , addNew
     , after
