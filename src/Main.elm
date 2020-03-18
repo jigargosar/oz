@@ -733,7 +733,7 @@ outlineToHtmlList outline =
 
 
 
--- RENDER ITEM FUNCTIONS
+-- NODE VIEW
 
 
 renderEdit : String -> LHM -> HM
@@ -762,7 +762,7 @@ renderDraggableWithBeacons isHighlighted =
 
 
 
--- Render Item Helpers
+-- NODE VIEW TEMPLATES
 
 
 renderWithoutBeacons : (a -> Html Msg) -> a -> List (Html Msg) -> Html Msg
@@ -789,7 +789,7 @@ renderWithBeacons renderItemFunc item childrenHtml =
 
 
 
--- Final View FUNCTIONS
+-- NODE PARTS VIEW
 
 
 viewBeacon : CandidateLocation -> Html Msg
