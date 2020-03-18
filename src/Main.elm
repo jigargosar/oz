@@ -756,14 +756,14 @@ viewDraggingDoc doc =
         draggedId =
             OutlineDoc.currentId doc
 
-        isDragged : ( Item, List Item ) -> Bool
-        isDragged ( item, items ) =
+        isDragged : Item -> List Item -> Bool
+        isDragged item items =
             List.map .id (item :: items)
                 |> List.any ((==) draggedId)
     in
     OutlineDoc.restructureWithContext
         (\( item, ancestors, collapseState ) ->
-            if isDragged ( item, ancestors ) then
+            if isDragged item ancestors then
                 viewNodeWithoutBeacons (viewItem FadedItem item) collapseState
 
             else
