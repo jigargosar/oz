@@ -817,26 +817,6 @@ viewBeacon candidateLocation =
         [ text " " ]
 
 
-viewDraggableItem : Bool -> Item -> Html Msg
-viewDraggableItem isHighlighted item =
-    viewFlatLine False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True })
-
-
-viewNotDraggableItem : Item -> Html Msg
-viewNotDraggableItem item =
-    viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False })
-
-
-viewFadedDraggedItem : Item -> Html Msg
-viewFadedDraggedItem item =
-    viewFlatLine True (ItemLine item { isHighlighted = False, isDraggable = False })
-
-
-viewDraggedItem : Item -> Html Msg
-viewDraggedItem item =
-    viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False })
-
-
 type ItemView
     = DraggableItem Bool
     | NotDraggableItem
