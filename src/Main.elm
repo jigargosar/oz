@@ -766,11 +766,8 @@ renderWithBeacons renderItemFunc item childrenHtml =
 
 
 renderDragged : Item -> LHM -> HM
-renderDragged item childrenHtml =
-    div [ class "" ]
-        [ viewDraggedItem item
-        , div [ class "pl4" ] childrenHtml
-        ]
+renderDragged =
+    renderWithoutBeacons viewDraggedItem
 
 
 renderNotDraggableWithBeacons : Item -> LHM -> HM
