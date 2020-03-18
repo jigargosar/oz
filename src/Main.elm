@@ -328,7 +328,7 @@ update message model =
                                                )
                                     )
                                 |> Maybe.andThen
-                                    (\cl -> Doc.moveCurrentToCandidateLocation cl model.doc)
+                                    (\cl -> Doc.relocateToCandidateLocation cl model.doc)
                     in
                     case maybeNewDoc of
                         Just newDoc ->

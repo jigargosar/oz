@@ -21,10 +21,10 @@ module OutlineDoc exposing
     , indent
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    , moveCurrentToCandidateLocation
     , moveCursorToItemId
     , new
     , prependIn
+    , relocateToCandidateLocation
     , removeIfBlankLeaf
     , restructureCurrentNode
     , restructureWithContext
@@ -263,8 +263,8 @@ moveAfterNextSiblingOrPrependInNextSiblingOfParent =
         ]
 
 
-moveCurrentToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-moveCurrentToCandidateLocation (CandidateLocation loc itemId) =
+relocateToCandidateLocation : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+relocateToCandidateLocation (CandidateLocation loc itemId) =
     mapMaybe (FIZ.relocate loc itemId)
 
 
