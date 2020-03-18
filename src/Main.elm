@@ -182,44 +182,43 @@ cacheOutlineOnChangeCmd oldOutline newOutline =
 
 
 updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
-updateWrapper =
-    let
-        focusEditorOnStartEdit oldModel ( newModel, cmd ) =
-            case ( oldModel.outline, newModel.outline ) of
-                ( Editing _ _, _ ) ->
-                    ( newModel, cmd )
+updateWrapper message model =
+    update message model
+        |> focusEditorOnStartEdit model
+        |> persistModelOnChange model
+        |> focusItemTitleOnChange model
 
-                ( _, Editing _ _ ) ->
-                    ( newModel, Cmd.batch [ cmd, focusTitleEditor ] )
 
-                _ ->
-                    ( newModel, cmd )
+focusEditorOnStartEdit oldModel ( newModel, cmd ) =
+    case ( oldModel.outline, newModel.outline ) of
+        ( Editing _ _, _ ) ->
+            ( newModel, cmd )
 
-        focusItemTitleOnChange oldModel ( newModel, cmd ) =
-            case ( oldModel.outline, newModel.outline ) of
-                ( Browsing oldD, Browsing newD ) ->
-                    if OutlineDoc.ancestorIds oldD /= OutlineDoc.ancestorIds newD then
-                        ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
+        ( _, Editing _ _ ) ->
+            ( newModel, Cmd.batch [ cmd, focusTitleEditor ] )
 
-                    else
-                        ( newModel, cmd )
+        _ ->
+            ( newModel, cmd )
 
-                ( _, Browsing _ ) ->
-                    ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
 
-                _ ->
-                    ( newModel, cmd )
+focusItemTitleOnChange oldModel ( newModel, cmd ) =
+    case ( oldModel.outline, newModel.outline ) of
+        ( Browsing oldD, Browsing newD ) ->
+            if OutlineDoc.ancestorIds oldD /= OutlineDoc.ancestorIds newD then
+                ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
 
-        persistModelOnChange oldModel ( newModel, cmd ) =
-            ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd oldModel.outline newModel.outline ] )
+            else
+                ( newModel, cmd )
 
-        helper message model =
-            update message model
-                |> focusEditorOnStartEdit model
-                |> persistModelOnChange model
-                |> focusItemTitleOnChange model
-    in
-    helper
+        ( _, Browsing _ ) ->
+            ( newModel, Cmd.batch [ cmd, focusItemAtCursor ] )
+
+        _ ->
+            ( newModel, cmd )
+
+
+persistModelOnChange oldModel ( newModel, cmd ) =
+    ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd oldModel.outline newModel.outline ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
