@@ -827,13 +827,13 @@ viewItem : ItemView -> Item -> Html Msg
 viewItem itemView item =
     case itemView of
         DraggableItem isHighlighted ->
-            viewFlatLine False (ItemLine item { isHighlighted = isHighlighted, isDraggable = True, isFaded = False })
+            viewFlatLine (ItemLine item { isHighlighted = isHighlighted, isDraggable = True, isFaded = False })
 
         NotDraggableItem ->
-            viewFlatLine False (ItemLine item { isHighlighted = False, isDraggable = False, isFaded = False })
+            viewFlatLine (ItemLine item { isHighlighted = False, isDraggable = False, isFaded = False })
 
         FadedItem ->
-            viewFlatLine True (ItemLine item { isHighlighted = False, isDraggable = False, isFaded = True })
+            viewFlatLine (ItemLine item { isHighlighted = False, isDraggable = False, isFaded = True })
 
 
 viewEditItem : String -> Html Msg
@@ -879,8 +879,8 @@ classIf bool classValue =
         class ""
 
 
-viewFlatLine : Bool -> FlatLine -> Html Msg
-viewFlatLine _ (ItemLine item { isHighlighted, isDraggable, isFaded }) =
+viewFlatLine : FlatLine -> Html Msg
+viewFlatLine (ItemLine item { isHighlighted, isDraggable, isFaded }) =
     div
         (class "pa1 bb b--black-30 pointer no-selection flex"
             :: classIf isFaded "o-50"
