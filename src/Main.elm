@@ -48,12 +48,12 @@ type alias Model =
     }
 
 
-type EditState
-    = EditState Bool String
+type Edit
+    = Edit Bool String
 
 
 type State
-    = Edit EditState
+    = Editing Edit
     | Dnd Cursor
     | Browse
 
@@ -214,7 +214,7 @@ focusElOnOutlineChanged oldModel ( newModel, cmd ) =
                 , Cmd.batch
                     [ cmd
                     , case newState of
-                        Edit _ ->
+                        Editing _ ->
                             focusTitleEditor
 
                         Browse ->
@@ -243,7 +243,7 @@ persistModelOnChange oldModel ( newModel, cmd ) =
 
 maybeUpdateDocWhenEditing maybeDocFunc state doc model =
     case state of
-        Edit _ ->
+        Editing _ ->
             case maybeDocFunc doc of
                 Just newDoc ->
                     ( { model | outline = Outline state newDoc }, Cmd.none )
@@ -257,7 +257,7 @@ maybeUpdateDocWhenEditing maybeDocFunc state doc model =
 
 maybeUpdateOutlineDocWhenEditing maybeDocFunc model =
     case model.outline of
-        Outline ((Edit _) as state) doc ->
+        Outline ((Editing _) as state) doc ->
             case maybeDocFunc doc of
                 Just newDoc ->
                     ( { model | outline = Outline state newDoc }, Cmd.none )
@@ -298,7 +298,7 @@ update message model =
                                 Nothing ->
                                     ( model, Cmd.none )
 
-                        Edit editState ->
+                        Editing editState ->
                             if hotKey "Enter" ke then
                                 ( { model | outline = endEditAndInitBrowsing editState doc }
                                 , Cmd.none
@@ -339,7 +339,7 @@ update message model =
                     in
                     updateWithUserIntentWhenBrowsing intent doc model
 
-                Outline (Edit editState) doc ->
+                Outline (Editing editState) doc ->
                     ( { model | outline = endEditAndBrowseId iid editState doc }, Cmd.none )
 
                 Outline (Dnd _) _ ->
@@ -357,7 +357,7 @@ update message model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                Outline (Edit editState) doc ->
+                Outline (Editing editState) doc ->
                     case
                         endEditAndStartDraggingId dragItemId cursor editState doc
                     of
@@ -527,8 +527,8 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             )
 
 
-endEdit : EditState -> OutlineDoc -> OutlineDoc
-endEdit (EditState _ title) doc =
+endEdit : Edit -> OutlineDoc -> OutlineDoc
+endEdit (Edit _ title) doc =
     doc
         |> OutlineDoc.setTitleUnlessBlank title
         |> OutlineDoc.removeIfBlankLeaf
@@ -540,17 +540,17 @@ cancelEdit doc =
         |> OutlineDoc.removeIfBlankLeaf
 
 
-endEditAndInitBrowsing : EditState -> OutlineDoc -> Outline
+endEditAndInitBrowsing : Edit -> OutlineDoc -> Outline
 endEditAndInitBrowsing edit =
     endEdit edit >> Outline Browse
 
 
-endEditAndBrowseId : ItemId -> EditState -> OutlineDoc -> Outline
+endEditAndBrowseId : ItemId -> Edit -> OutlineDoc -> Outline
 endEditAndBrowseId id edit =
     endEdit edit >> ignoreNothing (OutlineDoc.moveCursorToItemId id) >> Outline Browse
 
 
-endEditAndStartDraggingId : ItemId -> Cursor -> EditState -> OutlineDoc -> Maybe Outline
+endEditAndStartDraggingId : ItemId -> Cursor -> Edit -> OutlineDoc -> Maybe Outline
 endEditAndStartDraggingId dragId cursor edit =
     endEdit edit >> OutlineDoc.moveCursorToItemId dragId >> Maybe.map (Outline (Dnd cursor))
 
@@ -562,19 +562,19 @@ cancelEditAndInitBrowsing =
 
 initEdit : OutlineDoc -> Outline
 initEdit doc =
-    Outline (Edit (EditState False (OutlineDoc.currentTitle doc))) doc
+    Outline (Editing (Edit False (OutlineDoc.currentTitle doc))) doc
 
 
 initAdd : OutlineDoc -> Outline
 initAdd doc =
-    Outline (Edit (EditState True (OutlineDoc.currentTitle doc))) doc
+    Outline (Editing (Edit True (OutlineDoc.currentTitle doc))) doc
 
 
 onEditTitleChanged : String -> Outline -> Outline
 onEditTitleChanged title outline =
     case outline of
-        Outline (Edit (EditState isAdding _)) doc ->
-            Outline (Edit (EditState isAdding title)) doc
+        Outline (Editing (Edit isAdding _)) doc ->
+            Outline (Editing (Edit isAdding title)) doc
 
         _ ->
             Debug.todo "Impossible state"
@@ -629,7 +629,7 @@ subscriptions m =
             Outline Browse _ ->
                 Sub.none
 
-            Outline (Edit _) _ ->
+            Outline (Editing _) _ ->
                 Sub.none
 
             Outline (Dnd _) _ ->
@@ -744,7 +744,7 @@ viewOutline outline =
                 Outline (Dnd _) doc ->
                     viewDraggingDoc doc
 
-                Outline (Edit (EditState _ title)) doc ->
+                Outline (Editing (Edit _ title)) doc ->
                     viewEditingDoc title doc
         ]
 
@@ -769,7 +769,7 @@ viewDraggedNode outline =
                     doc
                 )
 
-        Outline (Edit _) _ ->
+        Outline (Editing _) _ ->
             text ""
 
         Outline Browse _ ->
