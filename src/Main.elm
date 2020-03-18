@@ -647,7 +647,19 @@ viewOutline : Outline -> HM
 viewOutline outline =
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
-        , div [] (outlineToHtmlList outline)
+        , div [] <|
+            case outline of
+                NoDoc ->
+                    []
+
+                Browsing doc ->
+                    viewBrowsingDoc doc
+
+                Dragging _ doc ->
+                    viewDraggingDoc doc
+
+                Editing doc title ->
+                    viewEditingDoc title doc
         ]
 
 
@@ -674,22 +686,6 @@ viewDraggedNode outline =
 
         Editing _ _ ->
             text ""
-
-
-outlineToHtmlList : Outline -> LHM
-outlineToHtmlList outline =
-    case outline of
-        NoDoc ->
-            []
-
-        Browsing doc ->
-            viewBrowsingDoc doc
-
-        Dragging _ doc ->
-            viewDraggingDoc doc
-
-        Editing doc title ->
-            viewEditingDoc title doc
 
 
 
