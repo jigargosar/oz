@@ -73,11 +73,6 @@ initOutline doc =
     Outline Browsing doc
 
 
-
--- OUTLINE DRAG AND DROP
--- DRAG AND DROP BEACON: HELPS DETERMINE DROP INTENT
-
-
 type alias Beacon =
     ( CandidateLocation, Rect )
 
