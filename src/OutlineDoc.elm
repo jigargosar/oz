@@ -18,7 +18,6 @@ module OutlineDoc exposing
     , goForward
     , indent
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
-    , moveAfterParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCurrentToCandidateLocation
     , moveCursorToItemId
@@ -27,6 +26,7 @@ module OutlineDoc exposing
     , restructureCurrentNode
     , restructureWithContext
     , setTitleUnlessBlank
+    , unIndent
     )
 
 import ItemForestZipper as FIZ exposing (FIZ, Location(..))
@@ -218,8 +218,9 @@ relocateBy a b =
     mapMaybe (FIZ.relocateBy a b)
 
 
-moveAfterParent : OutlineDoc -> Maybe OutlineDoc
-moveAfterParent =
+unIndent : OutlineDoc -> Maybe OutlineDoc
+unIndent =
+    -- moveAfterParent
     relocateBy FIZ.After FIZ.goUp
 
 

@@ -258,7 +258,17 @@ update message model =
                     ( model, Cmd.none )
 
         OnShiftTab ->
-            ( model, Cmd.none )
+            case model.outline of
+                Editing doc title ->
+                    case OutlineDoc.unIndent doc of
+                        Just newDoc ->
+                            ( { model | outline = Editing newDoc title }, Cmd.none )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         OnKeyDown ke ->
             case model.outline of
@@ -476,7 +486,7 @@ updateWithUserIntentWhenBrowsing keyboardIntent doc model =
             updateBrowsingDocByMaybeF OutlineDoc.goForward
 
         UnIndent ->
-            updateBrowsingDocByMaybeF OutlineDoc.moveAfterParent
+            updateBrowsingDocByMaybeF OutlineDoc.unIndent
 
         Indent ->
             updateBrowsingDocByMaybeF OutlineDoc.indent
