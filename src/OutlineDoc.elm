@@ -197,7 +197,7 @@ expand =
 
 expandOrAlternate : OutlineDoc -> Maybe OutlineDoc
 expandOrAlternate =
-    mapMaybe FIZ.expand
+    mapMaybe (Maybe.Extra.oneOf [ FIZ.expand, FIZ.goForward ])
 
 
 collapse : OutlineDoc -> Maybe OutlineDoc
