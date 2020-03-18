@@ -683,17 +683,7 @@ outlineToHtmlList outline =
             []
 
         Browsing doc ->
-            let
-                highlightedId =
-                    OutlineDoc.currentId doc
-            in
-            OutlineDoc.restructure
-                (\item ->
-                    renderWithBeacons
-                        (viewItem (DraggableItem (item.id == highlightedId)))
-                        item
-                )
-                doc
+            viewBrowsingDoc doc
 
         Dragging _ doc ->
             let
@@ -733,6 +723,25 @@ outlineToHtmlList outline =
                         renderWithBeacons (viewItem (DraggableItem False)) item
             in
             OutlineDoc.restructure renderItem doc
+
+
+
+-- OUTLINE VIEWS
+
+
+viewBrowsingDoc : OutlineDoc -> LHM
+viewBrowsingDoc doc =
+    let
+        highlightedId =
+            OutlineDoc.currentId doc
+    in
+    OutlineDoc.restructure
+        (\item ->
+            renderWithBeacons
+                (viewItem (DraggableItem (item.id == highlightedId)))
+                item
+        )
+        doc
 
 
 
