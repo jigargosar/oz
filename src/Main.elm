@@ -341,7 +341,12 @@ onKeyDown : KeyEvent -> Model -> Model
 onKeyDown ke model =
     case model.state of
         Browsing ->
-            onKeyDownBrowsing ke model
+            case toUserIntent ke of
+                Just intent ->
+                    updateWithUserIntentWhenBrowsing intent model
+
+                Nothing ->
+                    model
 
         Editing editState ->
             if KE.hot "Enter" ke then
@@ -354,15 +359,6 @@ onKeyDown ke model =
                 model
 
         Dragging _ ->
-            model
-
-
-onKeyDownBrowsing ke model =
-    case globalKeyEventToUserIntentWhenBrowsing ke of
-        Just intent ->
-            updateWithUserIntentWhenBrowsing intent model
-
-        Nothing ->
             model
 
 
@@ -382,8 +378,8 @@ type UserIntent
     | Expand
 
 
-kem : List ( KeyEvent -> Bool, UserIntent )
-kem =
+toUserIntent : KeyEvent -> Maybe UserIntent
+toUserIntent =
     [ ( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], EditFocused )
     , ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], AddNew )
     , ( KE.hot "ArrowUp", NavPrev )
@@ -395,42 +391,7 @@ kem =
     , ( KE.ctrl "ArrowLeft", UnIndent )
     , ( KE.ctrl "ArrowRight", Indent )
     ]
-
-
-globalKeyEventToUserIntentWhenBrowsing : KeyEvent -> Maybe UserIntent
-globalKeyEventToUserIntentWhenBrowsing ke =
-    if KE.hot " " ke && not (KE.targetInputOrButton ke) then
-        Just EditFocused
-
-    else if KE.hot "Enter" ke && not (KE.targetInputOrButton ke) then
-        Just AddNew
-
-    else if KE.hot "ArrowUp" ke then
-        Just NavPrev
-
-    else if KE.hot "ArrowDown" ke then
-        Just NavNext
-
-    else if KE.hot "ArrowLeft" ke then
-        Just CollapseOrNavParent
-
-    else if KE.hot "ArrowRight" ke then
-        Just ExpandOrAlternate
-
-    else if KE.ctrl "ArrowUp" ke then
-        Just MoveUp
-
-    else if KE.ctrl "ArrowDown" ke then
-        Just MoveDown
-
-    else if KE.ctrl "ArrowLeft" ke then
-        Just UnIndent
-
-    else if KE.ctrl "ArrowRight" ke then
-        Just Indent
-
-    else
-        Nothing
+        |> condAlways
 
 
 updateWithUserIntentWhenBrowsing : UserIntent -> Model -> Model

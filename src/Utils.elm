@@ -36,9 +36,14 @@ allPass fs val =
 
 
 cond : List ( a -> Bool, a -> b ) -> a -> Maybe b
-cond condPair a =
-    List.Extra.find (Tuple.first >> apply a) condPair
+cond conditions a =
+    List.Extra.find (Tuple.first >> apply a) conditions
         |> Maybe.map (Tuple.second >> apply a)
+
+
+condAlways : List ( b -> Bool, a ) -> b -> Maybe a
+condAlways conditions =
+    cond (List.map (Tuple.mapSecond always) conditions)
 
 
 apply : a -> (a -> b) -> b
