@@ -636,11 +636,11 @@ view m =
 
 
 type alias HM =
-    Html Msg
+    Html.Html Msg
 
 
 type alias LHM =
-    List HM
+    List (Html.Html Msg)
 
 
 viewOutline : Outline -> HM
