@@ -817,25 +817,6 @@ viewBeacon candidateLocation =
         [ text " " ]
 
 
-type ItemView
-    = DraggableItem Bool
-    | NotDraggableItem
-    | FadedItem
-
-
-viewItem : ItemView -> Item -> Html Msg
-viewItem itemView item =
-    case itemView of
-        DraggableItem isHighlighted ->
-            viewFlatLine (ItemLine item { isHighlighted = isHighlighted, isDraggable = True, isFaded = False })
-
-        NotDraggableItem ->
-            viewFlatLine (ItemLine item { isHighlighted = False, isDraggable = False, isFaded = False })
-
-        FadedItem ->
-            viewFlatLine (ItemLine item { isHighlighted = False, isDraggable = False, isFaded = True })
-
-
 viewEditItem : String -> Html Msg
 viewEditItem title =
     div
@@ -879,8 +860,26 @@ classIf bool classValue =
         class ""
 
 
-viewFlatLine : FlatLine -> Html Msg
-viewFlatLine (ItemLine item { isHighlighted, isDraggable, isFaded }) =
+type ItemView
+    = DraggableItem Bool
+    | NotDraggableItem
+    | FadedItem
+
+
+viewItem : ItemView -> Item -> Html Msg
+viewItem itemView item =
+    let
+        { isHighlighted, isDraggable, isFaded } =
+            case itemView of
+                DraggableItem isHighlighted_ ->
+                    { isHighlighted = isHighlighted_, isDraggable = True, isFaded = False }
+
+                NotDraggableItem ->
+                    { isHighlighted = False, isDraggable = False, isFaded = False }
+
+                FadedItem ->
+                    { isHighlighted = False, isDraggable = False, isFaded = True }
+    in
     div
         (class "pa1 bb b--black-30 pointer no-selection flex"
             :: classIf isFaded "o-50"
