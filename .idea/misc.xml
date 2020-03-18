@@ -3,10 +3,12 @@
   <component name="ClojureProjectResolveSettings">
     <currentScheme>IDE</currentScheme>
   </component>
+  <component name="ElmPluginSettings">
+    <option name="elmMakeExecutable" value="G:\apps\npm\node_modules\elm\bin\elm.exe" />
+    <option name="nodeExecutable" value="D:\apps\nodejs\node.exe" />
+    <option name="pluginEnabled" value="true" />
+  </component>
   <component name="ProjectRootManager">
     <output url="file://$PROJECT_DIR$/out" />
-  </component>
-  <component name="WebPackConfiguration">
-    <option name="path" value="$PROJECT_DIR$/webpack.config.js" />
   </component>
 </project>

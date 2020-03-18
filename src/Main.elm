@@ -677,7 +677,12 @@ viewDraggedNode outline =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                [ OutlineDoc.restructureCurrentNode (viewNodeWithoutBeacons (viewItem NotDraggableItem)) doc ]
+                (OutlineDoc.restructureCurrentNode
+                    (\( i, _, cs ) ->
+                        viewNodeWithoutBeacons (viewItem NotDraggableItem i) cs
+                    )
+                    doc
+                )
 
         NoDoc ->
             text ""
@@ -723,7 +728,7 @@ viewDraggingDoc doc =
     OutlineDoc.restructureWithContext
         (\( item, ancestors, collapseState ) ->
             if isDragged ( item, ancestors ) then
-                viewNodeWithoutBeacons (viewItem FadedItem item collapseState)
+                viewNodeWithoutBeacons (viewItem FadedItem item) collapseState
 
             else
                 viewNodeWithBeacons NotDraggableItem item collapseState

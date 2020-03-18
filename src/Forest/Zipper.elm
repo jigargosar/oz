@@ -10,6 +10,7 @@ module Forest.Zipper exposing
     , encoder
     , firstRoot
     , forest
+    , fromTree
     , insertLeft
     , insertLeftGo
     , insertRight
@@ -53,11 +54,12 @@ type alias Crumb a =
     }
 
 
+fromTree : Tree a -> ForestZipper a
+fromTree t =
+    { leftReversed = [], center = t, right_ = [], crumbs = [] }
 
---fromTree : Tree a -> ForestZipper a
---fromTree tree =
---    { leftReversed = [], center = tree, right_ = [], crumbs = [] }
---
+
+
 --
 --fromForest : Forest a -> Maybe (ForestZipper a)
 --fromForest forest =

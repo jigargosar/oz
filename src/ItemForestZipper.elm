@@ -19,6 +19,7 @@ module ItemForestZipper exposing
     , relocate
     , relocateBy
     , restructure
+    , restructureCursorWithContext
     , restructureNodeAtCursor
     , restructureWithContext
     , setTitle
@@ -367,6 +368,37 @@ restructureWithContext render =
                     children
                 )
         )
+
+
+restructureCursorWithContext : (( Item, List Item, CollapseState ) -> List b -> b) -> ForestZipper Item -> List b
+restructureCursorWithContext render =
+    Zipper.tree
+        >> Zipper.fromTree
+        >> Zipper.restructure
+            (\fiz children ->
+                let
+                    item =
+                        Zipper.data fiz
+                in
+                render
+                    ( item
+                    , Zipper.ancestors fiz
+                    , if List.isEmpty children then
+                        CollapseState.NoChildren
+
+                      else if item.collapsed then
+                        CollapseState.Collapsed
+
+                      else
+                        CollapseState.Expanded
+                    )
+                    (if item.collapsed then
+                        []
+
+                     else
+                        children
+                    )
+            )
 
 
 restructure : (Item -> List c -> c) -> FIZ -> List c

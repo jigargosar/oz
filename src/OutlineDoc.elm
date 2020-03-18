@@ -24,7 +24,6 @@ module OutlineDoc exposing
     , moveFocusToItemId
     , prependIn
     , removeIfBlankLeaf
-    , restructure
     , restructureCurrentNode
     , restructureWithContext
     , setTitleUnlessBlank
@@ -258,18 +257,12 @@ moveCurrentToCandidateLocation cl =
         )
 
 
-restructure : (Item -> List c -> c) -> OutlineDoc -> List c
-restructure render =
-    unwrap >> FIZ.restructure render
-
-
 restructureWithContext render =
     unwrap >> FIZ.restructureWithContext render
 
 
-restructureCurrentNode : (Item -> List c -> c) -> OutlineDoc -> c
 restructureCurrentNode render =
-    unwrap >> FIZ.restructureNodeAtCursor render
+    unwrap >> FIZ.restructureCursorWithContext render
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
