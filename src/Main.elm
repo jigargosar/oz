@@ -188,14 +188,6 @@ attemptMapDoc maybeFunc model =
             model
 
 
-maybeUpdateEditingDoc maybeDocFunc model =
-    if isEditing model then
-        attemptMapDoc maybeDocFunc model
-
-    else
-        model
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
