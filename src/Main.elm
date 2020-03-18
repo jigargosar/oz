@@ -206,10 +206,22 @@ update message model =
             Debug.todo ("TitleEditorFocusFailed: " ++ domId)
 
         OnTab ->
-            ( maybeUpdateEditingDoc Doc.indent model, Cmd.none )
+            ( if isEditing model then
+                attemptMapDoc Doc.indent model
+
+              else
+                model
+            , Cmd.none
+            )
 
         OnShiftTab ->
-            ( maybeUpdateEditingDoc Doc.unIndent model, Cmd.none )
+            ( if isEditing model then
+                attemptMapDoc Doc.unIndent model
+
+              else
+                model
+            , Cmd.none
+            )
 
         OnKeyDown ke ->
             ( onKeyDown ke model, Cmd.none )
