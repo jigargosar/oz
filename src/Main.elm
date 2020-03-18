@@ -4,15 +4,17 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import CollapseState exposing (CollapseState(..))
+import Dnd exposing (Cursor, XY)
 import Html exposing (Attribute, button, div, input, text)
 import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, tabindex, value)
 import Html.Events as Event exposing (onClick, onInput, preventDefaultOn)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import OutlineDoc exposing (CandidateLocation(..), OutlineDoc)
+import OutlineDoc as Doc exposing (CandidateLocation(..), OutlineDoc)
 import Random exposing (Generator, Seed)
 import Task
+import Utils exposing (..)
 
 
 port getBeacons : () -> Cmd msg
@@ -43,7 +45,8 @@ main =
 
 
 type alias Model =
-    { outline : Outline
+    { doc : OutlineDoc
+    , state : State
     , seed : Seed
     }
 
@@ -54,27 +57,18 @@ type State
     | Browsing
 
 
-type alias Cursor =
-    { clientXY : XY
-    , offsetXY : XY
-    }
+isEditing : Model -> Bool
+isEditing { state } =
+    case state of
+        Editing _ ->
+            True
+
+        _ ->
+            False
 
 
 type Edit
     = Edit Bool String
-
-
-type Outline
-    = Outline State OutlineDoc
-
-
-initOutline : OutlineDoc -> Outline
-initOutline doc =
-    Outline Browsing doc
-
-
-type alias Beacon =
-    ( CandidateLocation, Rect )
 
 
 
@@ -87,7 +81,7 @@ type alias Flags =
 
 decodeMaybeDoc : Value -> Maybe OutlineDoc
 decodeMaybeDoc encodedNullableDoc =
-    case JD.decodeValue (JD.nullable OutlineDoc.decoder) encodedNullableDoc of
+    case JD.decodeValue (JD.nullable Doc.decoder) encodedNullableDoc of
         Ok maybeDoc ->
             maybeDoc
 
@@ -96,9 +90,10 @@ decodeMaybeDoc encodedNullableDoc =
                 |> always Debug.todo "handle doc decode error"
 
 
-initModelWithDocAndSeed : OutlineDoc -> Seed -> Model
-initModelWithDocAndSeed doc seed =
-    { outline = initOutline doc
+initModel : OutlineDoc -> Seed -> Model
+initModel doc seed =
+    { doc = doc
+    , state = Browsing
     , seed = seed
     }
 
@@ -111,51 +106,16 @@ init flags =
     in
     ( case decodeMaybeDoc flags.oz of
         Just doc ->
-            initModelWithDocAndSeed doc initialSeed
+            initModel doc initialSeed
 
         Nothing ->
             let
                 ( doc, seed ) =
-                    Random.step OutlineDoc.new initialSeed
+                    Random.step Doc.new initialSeed
             in
-            { outline = initOutline doc
-            , seed = seed
-            }
+            initModel doc seed
     , Cmd.none
     )
-
-
-
--- DND HELPERS
-
-
-dndDraggedXY : Cursor -> XY
-dndDraggedXY dnd =
-    subtractXY dnd.clientXY dnd.offsetXY
-
-
-dndClosestCandidateLocation : List Beacon -> Cursor -> Maybe CandidateLocation
-dndClosestCandidateLocation beacons dnd =
-    let
-        draggedXY : XY
-        draggedXY =
-            dndDraggedXY dnd
-
-        sortByFunc : Beacon -> Float
-        sortByFunc ( _, rect ) =
-            distanceFromRectCenterTo draggedXY rect
-    in
-    beacons
-        |> List.sortBy sortByFunc
-        |> List.head
-        |> Maybe.map Tuple.first
-
-
-beaconDecoder : Decoder Beacon
-beaconDecoder =
-    JD.map2 Tuple.pair
-        (JD.field "id" OutlineDoc.candidateLocationDecoder)
-        rectDecoder
 
 
 
@@ -177,74 +137,62 @@ type Msg
     | OnShiftTab
 
 
-cacheDocIfChanged : OutlineDoc -> OutlineDoc -> Cmd msg
-cacheDocIfChanged oldOZ newOZ =
-    if oldOZ /= newOZ then
-        newOZ |> (OutlineDoc.encoder >> saveOZ)
+cacheDoc : Model -> Cmd msg
+cacheDoc =
+    .doc >> Doc.encoder >> saveOZ
+
+
+cacheDocIfChanged : Model -> Model -> Cmd msg
+cacheDocIfChanged old new =
+    if neqBy .doc old new then
+        cacheDoc new
 
     else
         Cmd.none
 
 
-cacheOutlineOnChangeCmd : Outline -> Outline -> Cmd msg
-cacheOutlineOnChangeCmd (Outline _ oldDoc) (Outline _ newDoc) =
-    cacheDocIfChanged oldDoc newDoc
+effect func ( m, c ) =
+    ( m, Cmd.batch [ c, func m ] )
 
 
 updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
 updateWrapper message model =
     update message model
-        |> focusElOnOutlineChanged model
-        |> persistModelOnChange model
+        |> effect (cacheDocIfChanged model)
+        |> effect (focusElOnDocCursorChange model)
 
 
-focusElOnOutlineChanged oldModel ( newModel, cmd ) =
-    case ( oldModel.outline, newModel.outline ) of
-        ( Outline oldState oldD, Outline newState newD ) ->
-            if oldState /= newState || not (eqByAncestors oldD newD) then
-                ( newModel
-                , Cmd.batch
-                    [ cmd
-                    , case newState of
-                        Editing _ ->
-                            focusTitleEditor
+focusElOnDocCursorChange old new =
+    if neqBy .state old new || neqBy (.doc >> Doc.ancestorIds) old new then
+        case new.state of
+            Editing _ ->
+                focusTitleEditor
 
-                        Browsing ->
-                            focusItemAtCursor
+            Browsing ->
+                focusItemAtCursor
 
-                        Dragging _ ->
-                            Cmd.none
-                    ]
-                )
+            Dragging _ ->
+                Cmd.none
 
-            else
-                ( newModel, cmd )
+    else
+        Cmd.none
 
 
-eqBy func a b =
-    func a == func b
+maybeUpdateDoc maybeFunc model =
+    case maybeFunc model.doc of
+        Just doc ->
+            { model | doc = doc }
+
+        Nothing ->
+            model
 
 
-eqByAncestors =
-    eqBy OutlineDoc.ancestorIds
+maybeUpdateEditingDoc maybeDocFunc model =
+    if isEditing model then
+        maybeUpdateDoc maybeDocFunc model
 
-
-persistModelOnChange oldModel ( newModel, cmd ) =
-    ( newModel, Cmd.batch [ cmd, cacheOutlineOnChangeCmd oldModel.outline newModel.outline ] )
-
-
-maybeUpdateOutlineDocWhenEditing maybeDocFunc model =
-    case model.outline of
-        Outline ((Editing _) as state) doc ->
-            case maybeDocFunc doc of
-                Just newDoc ->
-                    ( { model | outline = Outline state newDoc }, Cmd.none )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
+    else
+        model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -257,39 +205,13 @@ update message model =
             Debug.todo ("TitleEditorFocusFailed: " ++ domId)
 
         OnTab ->
-            maybeUpdateOutlineDocWhenEditing OutlineDoc.indent model
+            ( maybeUpdateEditingDoc Doc.indent model, Cmd.none )
 
         OnShiftTab ->
-            maybeUpdateOutlineDocWhenEditing OutlineDoc.unIndent model
+            ( maybeUpdateEditingDoc Doc.unIndent model, Cmd.none )
 
         OnKeyDown ke ->
-            case model.outline of
-                Outline state doc ->
-                    case state of
-                        Browsing ->
-                            case globalKeyEventToUserIntentWhenBrowsing ke of
-                                Just intent ->
-                                    updateWithUserIntentWhenBrowsing intent doc model
-
-                                Nothing ->
-                                    ( model, Cmd.none )
-
-                        Editing editState ->
-                            if hotKey "Enter" ke then
-                                ( { model | outline = endEditAndInitBrowsing editState doc }
-                                , Cmd.none
-                                )
-
-                            else if hotKey "Escape" ke then
-                                ( { model | outline = cancelEditAndInitBrowsing doc }
-                                , Cmd.none
-                                )
-
-                            else
-                                ( model, Cmd.none )
-
-                        Dragging _ ->
-                            ( model, Cmd.none )
+            ( onKeyDown ke model, Cmd.none )
 
         AddNewClicked ->
             case model.outline of
@@ -307,7 +229,7 @@ update message model =
                 Outline Browsing doc ->
                     let
                         intent =
-                            if OutlineDoc.currentId doc == iid then
+                            if Doc.currentId doc == iid then
                                 EditFocused
 
                             else
@@ -324,7 +246,7 @@ update message model =
         OnDragStart dragItemId cursor ->
             case model.outline of
                 Outline Browsing doc ->
-                    case OutlineDoc.moveCursorToItemId dragItemId doc of
+                    case Doc.moveCursorToItemId dragItemId doc of
                         Just noz ->
                             ( { model | outline = Outline (Dragging cursor) noz }
                             , getBeacons ()
@@ -384,7 +306,7 @@ update message model =
                                                )
                                     )
                                 |> Maybe.andThen
-                                    (\cl -> OutlineDoc.moveCurrentToCandidateLocation cl doc)
+                                    (\cl -> Doc.moveCurrentToCandidateLocation cl doc)
                     in
                     case maybeNoz of
                         Just noz ->
@@ -395,6 +317,38 @@ update message model =
 
                 _ ->
                     Debug.todo "impossible state"
+
+
+onKeyDown ke model =
+    case model.state of
+        Browsing ->
+            onKeyDownBrowsing ke model
+
+        Editing editState ->
+            if hotKey "Enter" ke then
+                ( { model | outline = endEditAndInitBrowsing editState doc }
+                , Cmd.none
+                )
+
+            else if hotKey "Escape" ke then
+                ( { model | outline = cancelEditAndInitBrowsing doc }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
+
+        Dragging _ ->
+            ( model, Cmd.none )
+
+
+onKeyDownBrowsing ke model =
+    case globalKeyEventToUserIntentWhenBrowsing ke of
+        Just intent ->
+            updateWithUserIntentWhenBrowsing intent model
+
+        Nothing ->
+            model
 
 
 type UserIntent
@@ -449,79 +403,82 @@ globalKeyEventToUserIntentWhenBrowsing ke =
         Nothing
 
 
-updateWithUserIntentWhenBrowsing : UserIntent -> OutlineDoc -> Model -> ( Model, Cmd Msg )
-updateWithUserIntentWhenBrowsing keyboardIntent doc model =
-    let
-        updateBrowsingDocByMaybeF docMF =
-            case docMF doc of
-                Just newDoc ->
-                    ( { model | outline = Outline Browsing newDoc }
-                    , Cmd.none
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none )
-    in
+updateWithUserIntentWhenBrowsing : UserIntent -> Model -> Model
+updateWithUserIntentWhenBrowsing keyboardIntent =
     case keyboardIntent of
         Collapse ->
-            updateBrowsingDocByMaybeF OutlineDoc.collapse
+            maybeUpdateDoc Doc.collapse
 
         CollapseOrNavParent ->
-            updateBrowsingDocByMaybeF OutlineDoc.collapseOrNavParent
+            maybeUpdateDoc Doc.collapseOrNavParent
 
         ExpandOrAlternate ->
-            updateBrowsingDocByMaybeF OutlineDoc.expandOrGoForward
+            maybeUpdateDoc Doc.expandOrGoForward
 
         Expand ->
-            updateBrowsingDocByMaybeF OutlineDoc.expand
+            maybeUpdateDoc Doc.expand
 
         NavPrev ->
-            updateBrowsingDocByMaybeF OutlineDoc.goBackward
+            maybeUpdateDoc Doc.goBackward
 
         NavNext ->
-            updateBrowsingDocByMaybeF OutlineDoc.goForward
+            maybeUpdateDoc Doc.goForward
 
         UnIndent ->
-            updateBrowsingDocByMaybeF OutlineDoc.unIndent
+            maybeUpdateDoc Doc.unIndent
 
         Indent ->
-            updateBrowsingDocByMaybeF OutlineDoc.indent
+            maybeUpdateDoc Doc.indent
 
         MoveUp ->
-            updateBrowsingDocByMaybeF
-                OutlineDoc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
+            maybeUpdateDoc
+                Doc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
 
         MoveDown ->
-            updateBrowsingDocByMaybeF
-                OutlineDoc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
+            maybeUpdateDoc
+                Doc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
 
         FocusId id ->
-            updateBrowsingDocByMaybeF (OutlineDoc.moveCursorToItemId id)
+            maybeUpdateDoc (Doc.moveCursorToItemId id)
 
         EditFocused ->
-            ( { model | outline = initEdit doc }, Cmd.none )
+            initEditState
 
         AddNew ->
-            ( let
-                ( newDoc, newModel ) =
-                    generate (OutlineDoc.addNew doc) model
-              in
-              { newModel | outline = initAdd newDoc }
-            , Cmd.none
-            )
+            addNewLine
+
+
+initEditState : Model -> Model
+initEditState model =
+    { model | state = Editing (Edit False (Doc.currentTitle model.doc)) }
+
+
+addNewLine : Model -> Model
+addNewLine model =
+    let
+        ( newDoc, newModel ) =
+            generate (Doc.addNew model.doc) model
+    in
+    { newModel | doc = newDoc }
+        |> initEditNewState
+
+
+initEditNewState : Model -> Model
+initEditNewState model =
+    { model | state = Editing (Edit True (Doc.currentTitle model.doc)) }
 
 
 endEdit : Edit -> OutlineDoc -> OutlineDoc
 endEdit (Edit _ title) doc =
     doc
-        |> OutlineDoc.setTitleUnlessBlank title
-        |> OutlineDoc.removeIfBlankLeaf
+        |> Doc.setTitleUnlessBlank title
+        |> Doc.removeIfBlankLeaf
 
 
 cancelEdit : OutlineDoc -> OutlineDoc
 cancelEdit doc =
     doc
-        |> OutlineDoc.removeIfBlankLeaf
+        |> Doc.removeIfBlankLeaf
 
 
 endEditAndInitBrowsing : Edit -> OutlineDoc -> Outline
@@ -531,27 +488,17 @@ endEditAndInitBrowsing edit =
 
 endEditAndBrowseId : ItemId -> Edit -> OutlineDoc -> Outline
 endEditAndBrowseId id edit =
-    endEdit edit >> ignoreNothing (OutlineDoc.moveCursorToItemId id) >> Outline Browsing
+    endEdit edit >> ignoreNothing (Doc.moveCursorToItemId id) >> Outline Browsing
 
 
 endEditAndStartDraggingId : ItemId -> Cursor -> Edit -> OutlineDoc -> Maybe Outline
 endEditAndStartDraggingId dragId cursor edit =
-    endEdit edit >> OutlineDoc.moveCursorToItemId dragId >> Maybe.map (Outline (Dragging cursor))
+    endEdit edit >> Doc.moveCursorToItemId dragId >> Maybe.map (Outline (Dragging cursor))
 
 
 cancelEditAndInitBrowsing : OutlineDoc -> Outline
 cancelEditAndInitBrowsing =
     cancelEdit >> Outline Browsing
-
-
-initEdit : OutlineDoc -> Outline
-initEdit doc =
-    Outline (Editing (Edit False (OutlineDoc.currentTitle doc))) doc
-
-
-initAdd : OutlineDoc -> Outline
-initAdd doc =
-    Outline (Editing (Edit True (OutlineDoc.currentTitle doc))) doc
 
 
 onEditTitleChanged : String -> Outline -> Outline
@@ -746,7 +693,7 @@ viewDraggedNode outline =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                (OutlineDoc.restructureCurrentNode
+                (Doc.restructureCurrentNode
                     (\( i, _ ) ->
                         viewNodeWithoutBeacons (viewItem NotDraggableItem) i
                     )
@@ -768,9 +715,9 @@ viewBrowsingDoc : OutlineDoc -> LHM
 viewBrowsingDoc doc =
     let
         highlightedId =
-            OutlineDoc.currentId doc
+            Doc.currentId doc
     in
-    OutlineDoc.restructureWithContext
+    Doc.restructureWithContext
         (\( item, _ ) ->
             viewNodeWithBeacons
                 (DraggableItem (item.id == highlightedId))
@@ -790,9 +737,9 @@ viewDraggingDoc : OutlineDoc -> LHM
 viewDraggingDoc doc =
     let
         draggedId =
-            OutlineDoc.currentId doc
+            Doc.currentId doc
     in
-    OutlineDoc.restructureWithContext
+    Doc.restructureWithContext
         (\( item, ancestorsIds ) ->
             if List.any ((==) draggedId) (item.id :: ancestorsIds) then
                 viewNodeWithoutBeacons (viewItem FadedItem) item
@@ -807,7 +754,7 @@ viewEditingDoc : String -> OutlineDoc -> LHM
 viewEditingDoc title doc =
     let
         editItemId =
-            OutlineDoc.currentId doc
+            Doc.currentId doc
 
         renderItem : LineItem -> LHM -> HM
         renderItem item =
@@ -817,7 +764,7 @@ viewEditingDoc title doc =
             else
                 viewNodeWithBeacons (DraggableItem False) item
     in
-    OutlineDoc.restructureWithContext (\( i, _ ) -> renderItem i) doc
+    Doc.restructureWithContext (\( i, _ ) -> renderItem i) doc
 
 
 
@@ -848,14 +795,14 @@ wrapWithoutBeacons nodeHtml childrenHtml =
 wrapWithBeacons : HM -> ItemId -> LHM -> HM
 wrapWithBeacons itemHtml itemId childrenHtml =
     div []
-        [ viewBeacon (OutlineDoc.before itemId)
+        [ viewBeacon (Doc.before itemId)
         , itemHtml
         , div [ class "pl4" ]
-            (viewBeacon (OutlineDoc.prependIn itemId)
+            (viewBeacon (Doc.prependIn itemId)
                 :: childrenHtml
-                ++ [ viewBeacon (OutlineDoc.appendIn itemId) ]
+                ++ [ viewBeacon (Doc.appendIn itemId) ]
             )
-        , viewBeacon (OutlineDoc.after itemId)
+        , viewBeacon (Doc.after itemId)
         ]
 
 
@@ -873,7 +820,7 @@ viewBeacon candidateLocation =
     div
         ([ style "height" "0px"
          , style "width" "0px"
-         , dataBeacon (OutlineDoc.candidateLocationEncoder candidateLocation)
+         , dataBeacon (Doc.candidateLocationEncoder candidateLocation)
          ]
             ++ (if debug then
                     [ style "height" "10px"
@@ -1046,19 +993,6 @@ preventDefault bool =
     JD.map (\msg -> ( msg, bool ))
 
 
-
--- XY
-
-
-type alias XY =
-    { x : Float, y : Float }
-
-
-subtractXY : XY -> XY -> XY
-subtractXY a b =
-    XY (a.x - b.x) (a.y - b.y)
-
-
 clientXYDecoder : Decoder XY
 clientXYDecoder =
     JD.map2 XY
@@ -1071,38 +1005,3 @@ offsetXYDecoder =
     JD.map2 XY
         (JD.field "offsetX" JD.float)
         (JD.field "offsetY" JD.float)
-
-
-
--- RECT
-
-
-type alias Rect =
-    { x : Float
-    , y : Float
-    , width : Float
-    , height : Float
-    }
-
-
-rectDecoder : Decoder Rect
-rectDecoder =
-    JD.map4 Rect
-        (JD.field "x" JD.float)
-        (JD.field "y" JD.float)
-        (JD.field "width" JD.float)
-        (JD.field "height" JD.float)
-
-
-rectCenter : Rect -> XY
-rectCenter rect =
-    XY (rect.x + (rect.width / 2)) (rect.y + (rect.height / 2))
-
-
-distanceFromRectCenterTo : XY -> Rect -> Float
-distanceFromRectCenterTo xy rect =
-    let
-        fromXY =
-            rectCenter rect
-    in
-    sqrt (((xy.x - fromXY.x) ^ 2) + ((xy.y - fromXY.y) ^ 2))
