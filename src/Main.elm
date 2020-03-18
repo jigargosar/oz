@@ -58,16 +58,6 @@ type State
     | Browsing
 
 
-isEditing : Model -> Bool
-isEditing { state } =
-    case state of
-        Editing _ ->
-            True
-
-        _ ->
-            False
-
-
 type Edit
     = Edit Bool String
 
@@ -129,17 +119,21 @@ type WhenDraggingMsg
     | GotBeacons Value
 
 
+type WhenEditingMsg
+    = TitleChanged String
+    | OnTab
+    | OnShiftTab
+
+
 type Msg
     = NoOp
     | TitleEditorFocusFailed String
     | OnDragStart ItemId Cursor
     | DM WhenDraggingMsg
+    | EM WhenEditingMsg
     | ItemTitleClicked ItemId
-    | TitleChanged String
     | AddNewClicked
     | OnKeyDown KeyEvent
-    | OnTab
-    | OnShiftTab
 
 
 cacheDoc : Model -> Cmd msg
@@ -201,24 +195,6 @@ update message model =
         TitleEditorFocusFailed domId ->
             Debug.todo ("TitleEditorFocusFailed: " ++ domId)
 
-        OnTab ->
-            ( if isEditing model then
-                attemptMapDoc Doc.indent model
-
-              else
-                model
-            , Cmd.none
-            )
-
-        OnShiftTab ->
-            ( if isEditing model then
-                attemptMapDoc Doc.unIndent model
-
-              else
-                model
-            , Cmd.none
-            )
-
         OnKeyDown ke ->
             ( onKeyDown ke model, Cmd.none )
 
@@ -229,16 +205,6 @@ update message model =
 
                 _ ->
                     Debug.todo "impl"
-
-        TitleChanged title ->
-            ( case model.state of
-                Editing (Edit isAdding _) ->
-                    { model | state = Editing (Edit isAdding title) }
-
-                _ ->
-                    Debug.todo "Impossible state"
-            , Cmd.none
-            )
 
         ItemTitleClicked iid ->
             case model.state of
@@ -299,14 +265,37 @@ update message model =
         DM msg ->
             case model.state of
                 Dragging cursor ->
-                    onDndMsg msg cursor model
+                    updateWhenDragging msg cursor model
 
                 _ ->
                     Debug.todo "drag msg received, when not dragging"
 
+        EM msg ->
+            ( case model.state of
+                Editing editState ->
+                    updateWhenEditing msg editState model
 
-onDndMsg : WhenDraggingMsg -> Cursor -> Model -> ( Model, Cmd Msg )
-onDndMsg msg cursor model =
+                _ ->
+                    Debug.todo "drag msg received, when not dragging"
+            , Cmd.none
+            )
+
+
+updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
+updateWhenEditing msg (Edit isAdding _) model =
+    case msg of
+        OnTab ->
+            attemptMapDoc Doc.indent model
+
+        OnShiftTab ->
+            attemptMapDoc Doc.unIndent model
+
+        TitleChanged title ->
+            { model | state = Editing (Edit isAdding title) }
+
+
+updateWhenDragging : WhenDraggingMsg -> Cursor -> Model -> ( Model, Cmd Msg )
+updateWhenDragging msg cursor model =
     case msg of
         Move clientXY ->
             ( { model | state = Dragging { cursor | clientXY = clientXY } }, getBeacons () )
@@ -745,16 +734,16 @@ viewEditItem title =
                 [ A.id "item-title-editor"
                 , class "flex-auto"
                 , value title
-                , onInput TitleChanged
+                , onInput (EM << TitleChanged)
                 , preventDefaultOn "keydown"
                     (KE.decoder
                         |> JD.andThen
                             (\ke ->
                                 if KE.hot "Tab" ke then
-                                    JD.succeed ( OnTab, True )
+                                    JD.succeed ( EM OnTab, True )
 
                                 else if KE.shift "Tab" ke then
-                                    JD.succeed ( OnShiftTab, True )
+                                    JD.succeed ( EM OnShiftTab, True )
 
                                 else
                                     JD.fail ""
