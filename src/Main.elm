@@ -700,8 +700,8 @@ viewBrowsingDoc doc =
     in
     OutlineDoc.restructure
         (\item ->
-            renderWithBeacons
-                (viewItem (DraggableItem (item.id == highlightedId)))
+            viewNodeWithBeacons
+                (DraggableItem (item.id == highlightedId))
                 item
         )
         doc
@@ -726,7 +726,7 @@ viewDraggingDoc doc =
                             renderWithoutBeacons (viewItem FadedItem) item (children True)
 
                         else
-                            renderWithBeacons (viewItem NotDraggableItem) item (children False)
+                            viewNodeWithBeacons NotDraggableItem item (children False)
                 )
                 doc
     in
@@ -745,7 +745,7 @@ viewEditingDoc title doc =
                 renderWithoutBeacons viewEditItem title
 
             else
-                renderWithBeacons (viewItem (DraggableItem False)) item
+                viewNodeWithBeacons (DraggableItem False) item
     in
     OutlineDoc.restructure renderItem doc
 
@@ -764,11 +764,11 @@ renderWithoutBeacons renderItemFunc item childrenHtml =
 
 viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
 viewNodeWithBeacons itemView =
-    renderWithBeacons (viewItem itemView)
+    renderWithBeacons_ (viewItem itemView)
 
 
-renderWithBeacons : (Item -> HM) -> Item -> LHM -> HM
-renderWithBeacons renderItemFunc item childrenHtml =
+renderWithBeacons_ : (Item -> HM) -> Item -> LHM -> HM
+renderWithBeacons_ renderItemFunc item childrenHtml =
     div []
         [ viewBeacon (OutlineDoc.before item.id)
         , renderItemFunc item
