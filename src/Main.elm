@@ -762,6 +762,14 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
+wrapWithoutBeacons : HM -> LHM -> HM
+wrapWithoutBeacons nodeHtml childrenHtml =
+    div []
+        [ nodeHtml
+        , div [ class "pl4" ] childrenHtml
+        ]
+
+
 viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
 viewNodeWithBeacons itemView item =
     wrapWithBeacons (viewItem itemView item) item.id
