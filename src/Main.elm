@@ -385,10 +385,10 @@ type UserIntent
 
 globalKeyEventToUserIntentWhenBrowsing : KeyEvent -> Maybe UserIntent
 globalKeyEventToUserIntentWhenBrowsing ke =
-    if hotKey "Enter" ke && not (targetInputOrButton ke) then
+    if hotKey " " ke && not (targetInputOrButton ke) then
         Just EditFocused
 
-    else if hotKey "o" ke then
+    else if hotKey "Enter" ke && not (targetInputOrButton ke) then
         Just AddNew
 
     else if hotKey "ArrowUp" ke then
