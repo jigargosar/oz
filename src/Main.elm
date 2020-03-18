@@ -49,8 +49,7 @@ type alias Model =
 
 
 type Outline
-    = NoDoc
-    | Browsing OutlineDoc
+    = Browsing OutlineDoc
     | Dragging Cursor OutlineDoc
     | Editing OutlineDoc String
 
@@ -185,9 +184,6 @@ cacheDocIfChanged oldOZ newOZ =
 outlineToDoc : Outline -> Maybe OutlineDoc
 outlineToDoc outline =
     case outline of
-        NoDoc ->
-            Nothing
-
         Browsing oz ->
             Just oz
 
@@ -301,9 +297,6 @@ update message model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                NoDoc ->
-                    ( model, Cmd.none )
-
                 Dragging _ _ ->
                     ( model, Cmd.none )
 
@@ -334,9 +327,6 @@ update message model =
 
         ItemTitleClicked iid ->
             case model.outline of
-                NoDoc ->
-                    Debug.todo "impossible state"
-
                 Browsing doc ->
                     let
                         intent =
@@ -630,9 +620,6 @@ subscriptions : Model -> Sub Msg
 subscriptions m =
     Sub.batch
         [ case m.outline of
-            NoDoc ->
-                Sub.none
-
             Browsing _ ->
                 Sub.none
 
@@ -745,9 +732,6 @@ viewOutline outline =
         [ div [ class "f1" ] [ text "OZ Outlining" ]
         , div [] <|
             case outline of
-                NoDoc ->
-                    []
-
                 Browsing doc ->
                     viewBrowsingDoc doc
 
@@ -778,9 +762,6 @@ viewDraggedNode outline =
                     )
                     doc
                 )
-
-        NoDoc ->
-            text ""
 
         Browsing _ ->
             text ""
