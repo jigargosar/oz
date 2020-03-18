@@ -762,7 +762,12 @@ renderWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
-renderWithBeacons : (Item -> Html Msg) -> Item -> List (Html Msg) -> Html Msg
+viewNodeWithBeacons : ItemView -> Item -> LHM -> HM
+viewNodeWithBeacons itemView =
+    renderWithBeacons (viewItem itemView)
+
+
+renderWithBeacons : (Item -> HM) -> Item -> LHM -> HM
 renderWithBeacons renderItemFunc item childrenHtml =
     div []
         [ viewBeacon (OutlineDoc.before item.id)
