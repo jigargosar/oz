@@ -914,7 +914,7 @@ viewEditItem title =
                                     JD.succeed ( OnTab, True )
 
                                 else if shift "Tab" ke then
-                                    JD.succeed ( OnTab, True )
+                                    JD.succeed ( OnShiftTab, True )
 
                                 else
                                     JD.fail ""
