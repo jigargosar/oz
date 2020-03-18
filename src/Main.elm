@@ -788,6 +788,11 @@ renderWithBeacons renderItemFunc item childrenHtml =
         ]
 
 
+dataBeacon : Value -> Attribute msg
+dataBeacon value =
+    attribute "data-beacon" (JE.encode 0 value)
+
+
 
 -- NODE PARTS VIEW
 
@@ -849,11 +854,6 @@ type FlatLine
 debug =
     --    True
     False
-
-
-dataBeacon : Value -> Attribute msg
-dataBeacon value =
-    attribute "data-beacon" (JE.encode 0 value)
 
 
 itemDisplayTitle : Item -> String
