@@ -17,6 +17,7 @@ module ItemForestZipper exposing
     , goRight
     , goUp
     , gotoId
+    , new
     , relocate
     , relocateBy
     , restructureCursorWithContext
@@ -110,6 +111,12 @@ emptyLeafGenerator =
             Tree.tree item []
     in
     itemGenerator "" |> Random.map itemToTree
+
+
+new : Generator FIZ
+new =
+    emptyLeafGenerator
+        |> Random.map Zipper.fromTree
 
 
 getId : FIZ -> ItemId

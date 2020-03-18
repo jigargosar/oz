@@ -21,6 +21,7 @@ module OutlineDoc exposing
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     , moveCurrentToCandidateLocation
     , moveCursorToItemId
+    , new
     , prependIn
     , removeIfBlankLeaf
     , restructureCurrentNode
@@ -132,6 +133,10 @@ type alias Item =
 
 type OutlineDoc
     = OutlineDoc FIZ
+
+
+new =
+    FIZ.new |> Random.map OutlineDoc
 
 
 encoder : OutlineDoc -> Value

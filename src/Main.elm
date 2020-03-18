@@ -81,21 +81,33 @@ type alias Flags =
     { oz : Value, now : Int }
 
 
+decodeMaybeDoc : Value -> Maybe OutlineDoc
+decodeMaybeDoc encodedNullableDoc =
+    case JD.decodeValue (JD.nullable OutlineDoc.decoder) encodedNullableDoc of
+        Ok maybeDoc ->
+            maybeDoc
+
+        Err err ->
+            Debug.log "oz" (JD.errorToString err)
+                |> always Debug.todo "handle doc decode error"
+
+
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    let
-        oz =
-            case JD.decodeValue (JD.nullable OutlineDoc.decoder) flags.oz of
-                Ok got ->
-                    got
+    ( case decodeMaybeDoc flags.oz of
+        Just doc ->
+            { outline = Browsing doc
+            , seed = Random.initialSeed flags.now
+            }
 
-                Err err ->
-                    Debug.log "oz" (JD.errorToString err)
-                        |> always Nothing
-    in
-    ( { outline = Maybe.map Browsing oz |> Maybe.withDefault NoDoc
-      , seed = Random.initialSeed flags.now
-      }
+        Nothing ->
+            let
+                ( doc, seed ) =
+                    Random.step OutlineDoc.new (Random.initialSeed flags.now)
+            in
+            { outline = Browsing doc
+            , seed = seed
+            }
     , Cmd.none
     )
 
