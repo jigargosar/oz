@@ -377,6 +377,28 @@ gotoIdIgnoreNothing itemId =
     mapDocIgnoreNothing (Doc.gotoId itemId)
 
 
+zoomInIgnoreNothing : Model -> Model
+zoomInIgnoreNothing model =
+    let
+        foo : Maybe ( OutlineDoc, OutlineDoc )
+        foo =
+            case model.parent of
+                Just oldParent ->
+                    Doc.zoomOut model.doc oldParent
+                        |> Doc.gotoId (Doc.currentId model.doc)
+                        |> Maybe.andThen Doc.zoomIn
+
+                Nothing ->
+                    Doc.zoomIn model.doc
+    in
+    case foo of
+        Just ( parent, child ) ->
+            { model | parent = Just parent, doc = child }
+
+        Nothing ->
+            model
+
+
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg (Edit isAdding _) =
     case msg of
@@ -419,6 +441,8 @@ type BrowsingMsg
     | GotoNext
     | UnIndent
     | Indent
+    | ZoomIn
+    | ZoomOut
     | AddNew
     | MoveUp
     | MoveDown
@@ -438,6 +462,8 @@ toBrowsingMsg =
     , ( KE.ctrl "ArrowDown", MoveDown )
     , ( KE.ctrl "ArrowLeft", UnIndent )
     , ( KE.ctrl "ArrowRight", Indent )
+    , ( KE.alt "ArrowLeft", ZoomIn )
+    , ( KE.alt "ArrowRight", ZoomOut )
     ]
         |> condAlways
 
@@ -462,6 +488,12 @@ updateWhenBrowsing message =
                     gotoIdIgnoreNothing iid model
 
         Collapse ->
+            mapDocIgnoreNothing Doc.collapse
+
+        ZoomIn ->
+            zoomInIgnoreNothing
+
+        ZoomOut ->
             mapDocIgnoreNothing Doc.collapse
 
         CollapseOrGotoParent ->

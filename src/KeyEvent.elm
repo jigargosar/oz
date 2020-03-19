@@ -40,6 +40,11 @@ shift name ke =
     ke.key == name && ke.shift && not (ke.ctrl || ke.alt || ke.meta)
 
 
+alt : String -> KeyEvent -> Bool
+alt name ke =
+    ke.key == name && ke.alt && not (ke.ctrl || ke.shift || ke.meta)
+
+
 targetInputOrButton : KeyEvent -> Bool
 targetInputOrButton ke =
     List.member ke.targetTagName [ "INPUT", "BUTTON" ]

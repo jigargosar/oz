@@ -146,9 +146,10 @@ new =
     FIZ.new |> Random.map OutlineDoc
 
 
-zoomIn : OutlineDoc -> Maybe OutlineDoc
-zoomIn =
-    mapMaybe (Forest.Zipper.forest >> Forest.Zipper.fromForest)
+zoomIn : OutlineDoc -> Maybe ( OutlineDoc, OutlineDoc )
+zoomIn parentDoc =
+    mapMaybe (Forest.Zipper.forest >> Forest.Zipper.fromForest) parentDoc
+        |> Maybe.map (Tuple.pair parentDoc)
 
 
 zoomOut : OutlineDoc -> OutlineDoc -> OutlineDoc
