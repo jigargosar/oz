@@ -273,24 +273,12 @@ update message model =
         OnDragStart dragId cursor ->
             case model.state of
                 Browsing ->
-                    case initDragging dragId cursor model of
-                        Just newModel ->
-                            newModel
-
-                        Nothing ->
-                            model
+                    attemptInitDragging dragId cursor model
 
                 Editing editState ->
-                    case
-                        model
-                            |> mapDoc (endEdit editState)
-                            |> initDragging dragId cursor
-                    of
-                        Just newModel ->
-                            newModel
-
-                        Nothing ->
-                            model
+                    model
+                        |> mapDoc (endEdit editState)
+                        |> attemptInitDragging dragId cursor
 
                 Dragging _ ->
                     Debug.todo "impossible state"
