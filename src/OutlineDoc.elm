@@ -252,6 +252,10 @@ addNew doc =
             z |> FIZ.addNew >> Random.map (initZoomed pz)
 
 
+
+-- Update Node
+
+
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
     map
