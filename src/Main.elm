@@ -223,7 +223,7 @@ getBeaconsOnDragStartOrDragMove oldModel newModel =
                 _ ->
                     Nothing
     in
-    if getDragState oldModel /= getDragState newModel && isDragging newModel then
+    if isDragging newModel && getDragState oldModel /= getDragState newModel then
         getBeacons ()
 
     else
