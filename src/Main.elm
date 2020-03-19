@@ -386,6 +386,13 @@ type DocMsg
     = GotoId ItemId
 
 
+updateDoc : DocMsg -> Model -> Model
+updateDoc message =
+    case message of
+        GotoId itemId ->
+            attemptMapDoc (Doc.gotoId itemId)
+
+
 type BrowsingMsg
     = BM_TitleClicked ItemId
     | StartEdit
@@ -423,9 +430,7 @@ updateWhenBrowsing : BrowsingMsg -> Model -> Model
 updateWhenBrowsing message =
     case message of
         BM_DocMsg msg ->
-            case msg of
-                GotoId iid ->
-                    attemptMapDoc (Doc.gotoId iid)
+            updateDoc msg
 
         BM_TitleClicked iid ->
             \model ->
@@ -518,11 +523,6 @@ generate generator model =
             Random.step generator model.seed
     in
     ( a, { model | seed = seed } )
-
-
-ignoreNothing : (b -> Maybe b) -> b -> b
-ignoreNothing func val =
-    func val |> Maybe.withDefault val
 
 
 subscriptions : Model -> Sub Msg
