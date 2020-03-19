@@ -140,50 +140,35 @@ type alias Item =
 
 
 type OutlineDoc
-    = Doc FIZ
-    | Zoomed FIZ FIZ
+    = Doc_ FIZ
+    | Zoomed_ FIZ FIZ
 
 
 initZoomed : FIZ -> FIZ -> OutlineDoc
 initZoomed pz z =
-    Zoomed pz z
+    Zoomed_ pz z
+        |> ensureInvariants
 
 
 initDoc : FIZ -> OutlineDoc
 initDoc z =
-    Doc z
+    Doc_ z
+        |> ensureInvariants
 
 
-new : Generator OutlineDoc
-new =
-    FIZ.new |> Random.map Doc
+ensureInvariants : OutlineDoc -> OutlineDoc
+ensureInvariants doc =
+    let
+        _ =
+            case doc of
+                Doc_ z ->
+                    ensureUniqueNodes z
 
-
-zoomIn : OutlineDoc -> Maybe OutlineDoc
-zoomIn doc =
-    case doc of
-        Doc z ->
-            Z.childrenAsZipper z |> Maybe.map (Zoomed z)
-
-        Zoomed pz z ->
-            Z.merge z pz
-                |> FIZ.gotoId (FIZ.getId z)
-                |> Maybe.andThen (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (Zoomed newPZ))
-
-
-zoomOut : OutlineDoc -> Maybe OutlineDoc
-zoomOut doc =
-    case doc of
-        Doc _ ->
-            Nothing
-
-        Zoomed pz z ->
-            case Z.transferOneLevelTo z pz of
-                ( newZ, Just newPZ ) ->
-                    Just (Zoomed newPZ newZ)
-
-                ( newZ, Nothing ) ->
-                    Just (Doc newZ)
+                Zoomed_ pz z ->
+                    ensureUniqueNodes z
+                        |> always (ensureUniqueNodes pz)
+    in
+    doc
 
 
 ensureUniqueNodes : FIZ -> FIZ
@@ -196,7 +181,7 @@ ensureUniqueNodes fiz =
 
                 _ =
                     case Dict.get strId d of
-                        Just existing ->
+                        Just _ ->
                             Debug.todo (Debug.toString ( "duplicate item found", item, d ))
 
                         Nothing ->
@@ -204,59 +189,90 @@ ensureUniqueNodes fiz =
             in
             Dict.insert strId item d
 
-        foo : Dict String Item
-        foo =
+        _ =
             Z.rootForest fiz
                 |> List.foldl (\t d -> T.foldl safeInsertItem d t) Dict.empty
     in
     fiz
 
 
+new : Generator OutlineDoc
+new =
+    FIZ.new |> Random.map initDoc
+
+
+zoomIn : OutlineDoc -> Maybe OutlineDoc
+zoomIn doc =
+    case doc of
+        Doc_ z ->
+            Z.childrenAsZipper z |> Maybe.map (initZoomed z)
+
+        Zoomed_ pz z ->
+            Z.merge z pz
+                |> FIZ.gotoId (FIZ.getId z)
+                |> Maybe.andThen (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (initZoomed newPZ))
+
+
+zoomOut : OutlineDoc -> Maybe OutlineDoc
+zoomOut doc =
+    case doc of
+        Doc_ _ ->
+            Nothing
+
+        Zoomed_ pz z ->
+            case Z.transferOneLevelTo z pz of
+                ( newZ, Just newPZ ) ->
+                    Just (initZoomed newPZ newZ)
+
+                ( newZ, Nothing ) ->
+                    Just (initDoc newZ)
+
+
 encoder : OutlineDoc -> Value
 encoder doc =
     case doc of
-        Doc z ->
+        Doc_ z ->
             FIZ.encoder z
 
-        Zoomed pz z ->
+        Zoomed_ pz z ->
             JE.object [ ( "tag", JE.string "Zoomed" ), ( "pz", FIZ.encoder pz ), ( "z", FIZ.encoder z ) ]
 
 
 decoder : Decoder OutlineDoc
 decoder =
     JD.oneOf
-        [ FIZ.decoder |> JD.map Doc
-        , JD.succeed Zoomed |> required "pz" FIZ.decoder |> required "z" FIZ.decoder
+        [ FIZ.decoder |> JD.map initDoc
+        , JD.succeed initZoomed |> required "pz" FIZ.decoder |> required "z" FIZ.decoder
         ]
 
 
 map : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
 map func doc =
     case doc of
-        Doc z ->
-            Doc (func z)
+        Doc_ z ->
+            initDoc (func z)
 
-        Zoomed pz z ->
-            func z |> Zoomed pz
+        Zoomed_ pz z ->
+            func z |> initZoomed pz
 
 
 mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
 mapMaybe func doc =
     case doc of
-        Doc z ->
-            func z |> Maybe.map Doc
+        Doc_ z ->
+            func z |> Maybe.map initDoc
 
-        Zoomed pz z ->
-            func z |> Maybe.map (Zoomed pz)
+        Zoomed_ pz z ->
+            func z |> Maybe.map (initZoomed pz)
 
 
 unwrap : OutlineDoc -> FIZ
 unwrap doc =
     case doc of
-        Doc z ->
+        Doc_ z ->
             z
 
-        Zoomed pz z ->
+        Zoomed_ _ z ->
             z
 
 
@@ -267,11 +283,11 @@ unwrap doc =
 addNew : OutlineDoc -> Generator OutlineDoc
 addNew doc =
     case doc of
-        Doc z ->
-            z |> FIZ.addNew >> Random.map Doc
+        Doc_ z ->
+            z |> FIZ.addNew >> Random.map initDoc
 
-        Zoomed pz z ->
-            z |> FIZ.addNew >> Random.map (Zoomed pz)
+        Zoomed_ pz z ->
+            z |> FIZ.addNew >> Random.map (initZoomed pz)
 
 
 gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
