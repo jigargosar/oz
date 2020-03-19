@@ -178,16 +178,6 @@ focusElOnDocCursorChange old new =
         Cmd.none
 
 
-attemptMapDoc : (OutlineDoc -> Maybe OutlineDoc) -> Model -> Model
-attemptMapDoc maybeFunc model =
-    case maybeFunc model.doc of
-        Just doc ->
-            { model | doc = doc }
-
-        Nothing ->
-            model
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -281,6 +271,16 @@ update message model =
                     Debug.todo "drag msg received, when not dragging"
             , Cmd.none
             )
+
+
+attemptMapDoc : (OutlineDoc -> Maybe OutlineDoc) -> Model -> Model
+attemptMapDoc maybeFunc model =
+    case maybeFunc model.doc of
+        Just doc ->
+            { model | doc = doc }
+
+        Nothing ->
+            model
 
 
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
