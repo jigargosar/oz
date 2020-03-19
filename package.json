@@ -8,7 +8,6 @@
   },
   "keywords": [],
   "author": "Jigar Gosar <jigar.gosar@gmail.com>",
-  "license": "ISC",
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.4.2",
@@ -24,5 +23,14 @@
   "dependencies": {
     "ramda": "^0.27.0",
     "tachyons": "^4.11.1"
-  }
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jigargosar/oz.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jigargosar/oz/issues"
+  },
+  "homepage": "https://github.com/jigargosar/oz#readme"
 }
