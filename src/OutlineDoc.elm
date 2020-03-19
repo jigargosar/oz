@@ -303,9 +303,13 @@ setTitle rawTitle fiz =
 
 
 zExpand : FIZ -> Maybe FIZ
-zExpand fiz =
-    if canExpand fiz then
-        Just (Z.mapData (setCollapsedUnsafe False) fiz)
+zExpand z =
+    let
+        canExpand =
+            not (Z.isLeaf z) && (Z.data z).collapsed
+    in
+    if canExpand then
+        Just (Z.mapData (setCollapsedUnsafe False) z)
 
     else
         Nothing
@@ -322,10 +326,6 @@ zCollapse fiz =
 
 canCollapse fiz =
     not (Z.isLeaf fiz || (Z.data fiz).collapsed)
-
-
-canExpand fiz =
-    not (Z.isLeaf fiz) && (Z.data fiz).collapsed
 
 
 setCollapsedUnsafe collapsed model =
