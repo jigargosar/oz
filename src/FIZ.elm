@@ -23,6 +23,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Random exposing (Generator)
+import Utils exposing (applyWhileJust, findWithIterator)
 
 
 
@@ -254,30 +255,6 @@ restructureCursorWithContext render =
 -- ForestZipper Extra
 
 
-applyWhileJust : (a -> Maybe a) -> a -> a
-applyWhileJust func a =
-    case func a of
-        Just a2 ->
-            applyWhileJust func a2
-
-        Nothing ->
-            a
-
-
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
 zFindByData pred =
     findWithIterator (Zipper.data >> pred)
-
-
-findWithIterator : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
-findWithIterator pred iterator zipper =
-    if pred zipper then
-        Just zipper
-
-    else
-        case iterator zipper of
-            Just nextAcc ->
-                findWithIterator pred iterator nextAcc
-
-            Nothing ->
-                Nothing

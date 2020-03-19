@@ -75,3 +75,27 @@ nonBlank =
 ignoreNothing : (b -> Maybe b) -> b -> b
 ignoreNothing f v =
     f v |> Maybe.withDefault v
+
+
+applyWhileJust : (a -> Maybe a) -> a -> a
+applyWhileJust func a =
+    case func a of
+        Just a2 ->
+            applyWhileJust func a2
+
+        Nothing ->
+            a
+
+
+findWithIterator : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
+findWithIterator pred iterator zipper =
+    if pred zipper then
+        Just zipper
+
+    else
+        case iterator zipper of
+            Just nextAcc ->
+                findWithIterator pred iterator nextAcc
+
+            Nothing ->
+                Nothing
