@@ -242,11 +242,9 @@ update message model =
                     )
 
                 Editing editState ->
-                    ( { model
-                        | doc =
-                            endEdit editState model.doc
-                                |> ignoreNothing (Doc.gotoId iid)
-                      }
+                    ( model
+                        |> mapDoc (endEdit editState)
+                        |> attemptMapDoc (Doc.gotoId iid)
                     , Cmd.none
                     )
 
@@ -299,6 +297,11 @@ update message model =
                     Debug.todo "drag msg received, when not dragging"
             , Cmd.none
             )
+
+
+mapDoc : (OutlineDoc -> OutlineDoc) -> Model -> Model
+mapDoc func model =
+    { model | doc = func model.doc }
 
 
 attemptMapDoc : (OutlineDoc -> Maybe OutlineDoc) -> Model -> Model
