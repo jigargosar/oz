@@ -172,21 +172,22 @@ zoomOut doc =
                 nz =
                     zoomOutHelp z pz
             in
-            nz
-                |> FIZ.goUp
-                |> Maybe.andThen (\newPZ -> zoomInHelp newPZ |> Maybe.map (Zoomed newPZ))
-                |> Maybe.withDefault (Doc nz)
-                |> Just
+            --nz
+            --    |> FIZ.goUp
+            --    |> Maybe.andThen (\newPZ -> zoomInHelp newPZ |> Maybe.map (Zoomed newPZ))
+            --    |> Maybe.withDefault (Doc nz)
+            --    |> Just
+            Just (Doc nz)
 
 
 zoomOutHelp : FIZ -> FIZ -> FIZ
 zoomOutHelp z pz =
-    Forest.Zipper.replaceChildForest z pz |> ensureUniqueNodes
+    Forest.Zipper.merge z pz |> ensureUniqueNodes
 
 
 zoomInHelp : FIZ -> Maybe FIZ
 zoomInHelp z =
-    Forest.Zipper.fromChildren z
+    Forest.Zipper.childrenAsZipper z
 
 
 ensureUniqueNodes : FIZ -> FIZ

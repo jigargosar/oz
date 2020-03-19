@@ -4,12 +4,12 @@ module Forest.Zipper exposing
     , ancestors
     , appendChild
     , appendChildGo
+    , childrenAsZipper
     , data
     , decoder
     , down
     , encoder
     , firstRoot
-    , fromChildren
     , fromForest
     , fromTree
     , insertLeft
@@ -22,10 +22,10 @@ module Forest.Zipper exposing
     , mapAncestorData
     , mapData
     , mapTree
+    , merge
     , prependChild
     , prependChildGo
     , remove
-    , replaceChildForest
     , restructure
     , right
     , rootForest
@@ -82,13 +82,45 @@ rootForest =
     firstRoot >> forest
 
 
-fromChildren : ForestZipper a -> Maybe (ForestZipper a)
-fromChildren =
+childrenAsZipper : ForestZipper a -> Maybe (ForestZipper a)
+childrenAsZipper =
     tree >> Tree.children >> fromForest
 
 
-replaceChildForest : ForestZipper a -> ForestZipper a -> ForestZipper a
-replaceChildForest newFiz fiz =
+merge : ForestZipper a -> ForestZipper a -> ForestZipper a
+merge cz zipper =
+    let
+        ret =
+            mergeInternal cz zipper
+
+        _ =
+            if rootForest ret == rootForest (replaceChildrenWithZipper cz zipper) then
+                "All is well"
+
+            else
+                Debug.todo "invalid merge"
+    in
+    ret
+
+
+mergeInternal : ForestZipper a -> ForestZipper a -> ForestZipper a
+mergeInternal cz zipper =
+    { zipper
+        | leftReversed = cz.leftReversed
+        , center = cz.center
+        , right_ = cz.right_
+        , crumbs =
+            cz.crumbs
+                ++ { leftReversed = zipper.leftReversed
+                   , datum = Tree.data zipper.center
+                   , right_ = zipper.right_
+                   }
+                :: zipper.crumbs
+    }
+
+
+replaceChildrenWithZipper : ForestZipper a -> ForestZipper a -> ForestZipper a
+replaceChildrenWithZipper newFiz fiz =
     { fiz | center = Tree.mapChildren (always (rootForest newFiz)) fiz.center }
 
 
