@@ -472,8 +472,8 @@ toBrowsingMsg =
     , ( KE.ctrl "ArrowDown", MoveDown )
     , ( KE.ctrl "ArrowLeft", UnIndent )
     , ( KE.ctrl "ArrowRight", Indent )
-    , ( KE.alt "ArrowLeft", ZoomOut )
-    , ( KE.alt "ArrowRight", ZoomIn )
+    , ( KE.shiftAlt "ArrowLeft", ZoomOut )
+    , ( KE.shiftAlt "ArrowRight", ZoomIn )
     ]
         |> condAlways
 
