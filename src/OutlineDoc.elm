@@ -350,20 +350,3 @@ goBackward =
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
     mapMaybe FIZ.goForward
-
-
-
--- ForestZipper Extra
-{-
-
-   initialItemGenerator : Generator (List Item)
-   initialItemGenerator =
-               [ "Quick Brown Fox Jumped Over The Lazy Dog"
-               , "Take Notes"
-               , "Thou shall not experiment with experiments"
-               , "Watch Movies"
-               , "Run the mill"
-               ]
-                   |> List.map OutlineDoc.itemGenerator
-                   |> Random.Extra.combine
--}
