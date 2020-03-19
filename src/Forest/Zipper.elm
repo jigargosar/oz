@@ -119,6 +119,32 @@ mergeInternal cz zipper =
     }
 
 
+merge1 : ForestZipper a -> ForestZipper a -> ( ForestZipper a, Maybe (ForestZipper a) )
+merge1 cz zipper =
+    let
+        newChildZipper =
+            { cz
+                | crumbs = cz.crumbs ++ [ { leftReversed = zipper.leftReversed, datum = Tree.data zipper.center, right_ = zipper.right_ } ]
+            }
+    in
+    case zipper.crumbs of
+        [] ->
+            ( newChildZipper
+            , Nothing
+            )
+
+        first :: rest ->
+            ( newChildZipper
+            , Just
+                { zipper
+                    | leftReversed = first.leftReversed
+                    , center = Tree.tree first.datum (List.reverse zipper.leftReversed ++ zipper.center :: zipper.right_)
+                    , right_ = first.right_
+                    , crumbs = rest
+                }
+            )
+
+
 replaceChildrenWithZipper : ForestZipper a -> ForestZipper a -> ForestZipper a
 replaceChildrenWithZipper newFiz fiz =
     { fiz | center = Tree.mapChildren (always (rootForest newFiz)) fiz.center }
