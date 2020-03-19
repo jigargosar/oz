@@ -141,25 +141,25 @@ type Msg
     | AddNewClicked
 
 
-cacheDoc : Model -> Cmd msg
-cacheDoc =
-    .doc >> Doc.encoder >> saveOZ
-
-
-cacheDocIfChanged : Model -> Model -> Cmd msg
-cacheDocIfChanged old new =
-    if neqBy .doc old new then
-        cacheDoc new
-
-    else
-        Cmd.none
-
-
 updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
 updateWrapper message model =
     update message model
         |> effect (cacheDocIfChanged model)
         |> effect (focusElOnDocCursorChange model)
+
+
+cacheDocIfChanged : Model -> Model -> Cmd msg
+cacheDocIfChanged old new =
+    let
+        cacheDoc : Model -> Cmd msg
+        cacheDoc =
+            .doc >> Doc.encoder >> saveOZ
+    in
+    if neqBy .doc old new then
+        cacheDoc new
+
+    else
+        Cmd.none
 
 
 focusElOnDocCursorChange old new =
