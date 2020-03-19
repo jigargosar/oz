@@ -8,6 +8,7 @@ module OutlineDoc exposing
     , before
     , candidateLocationDecoder
     , candidateLocationEncoder
+    , childDoc
     , collapse
     , collapseOrNavParent
     , currentId
@@ -32,6 +33,7 @@ module OutlineDoc exposing
     , unIndent
     )
 
+import Forest.Zipper
 import ItemForestZipper as FIZ exposing (FIZ, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
@@ -139,6 +141,11 @@ type OutlineDoc
 
 new =
     FIZ.new |> Random.map OutlineDoc
+
+
+childDoc : OutlineDoc -> Maybe OutlineDoc
+childDoc =
+    mapMaybe (Forest.Zipper.forest >> Forest.Zipper.fromForest)
 
 
 encoder : OutlineDoc -> Value

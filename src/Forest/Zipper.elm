@@ -10,6 +10,7 @@ module Forest.Zipper exposing
     , encoder
     , firstRoot
     , forest
+    , fromForest
     , fromTree
     , insertLeft
     , insertLeftGo
@@ -59,16 +60,14 @@ fromTree t =
     { leftReversed = [], center = t, right_ = [], crumbs = [] }
 
 
+fromForest : Forest a -> Maybe (ForestZipper a)
+fromForest trees =
+    case trees of
+        [] ->
+            Nothing
 
---
---fromForest : Forest a -> Maybe (ForestZipper a)
---fromForest forest =
---    case forest of
---        [] ->
---            Nothing
---
---        first :: rest ->
---            Just { leftReversed = [], center = first, right_ = rest, crumbs = [] }
+        first :: rest ->
+            Just { leftReversed = [], center = first, right_ = rest, crumbs = [] }
 
 
 forest : ForestZipper a -> Forest a

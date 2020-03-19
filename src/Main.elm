@@ -47,6 +47,7 @@ main =
 
 type alias Model =
     { doc : OutlineDoc
+    , parent : Maybe OutlineDoc
     , state : State
     , seed : Seed
     }
@@ -84,6 +85,7 @@ decodeMaybeDoc encodedNullableDoc =
 initModel : OutlineDoc -> Seed -> Model
 initModel doc seed =
     { doc = doc
+    , parent = Nothing
     , state = Browsing
     , seed = seed
     }
