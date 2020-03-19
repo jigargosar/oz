@@ -34,13 +34,14 @@ module OutlineDoc exposing
     )
 
 import FIZ as FIZ exposing (FIZ, Location(..))
-import Forest.Zipper as Z
+import Forest.Zipper as Z exposing (ForestZipper)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
 import Random exposing (Generator)
+import Tree exposing (Tree)
 import Utils exposing (nonBlank, required)
 
 
@@ -351,6 +352,36 @@ zRelocateBy loc findTargetFunc doc =
 relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 relocateTo (CandidateLocation loc itemId) =
     mapMaybe (FIZ.relocate loc itemId)
+
+
+zRelocate : Location -> ItemId -> FIZ -> Maybe FIZ
+zRelocate relativeLocation targetId zipper =
+    let
+        removedNode =
+            Z.tree zipper
+
+        insertHelp =
+            zInsertAndGoto relativeLocation removedNode
+                >> FIZ.expandAncestors
+    in
+    Z.remove zipper
+        |> Maybe.andThen (FIZ.gotoId targetId >> Maybe.map insertHelp)
+
+
+zInsertAndGoto : Location -> Tree a -> ForestZipper a -> ForestZipper a
+zInsertAndGoto location =
+    case location of
+        Before ->
+            Z.insertLeftGo
+
+        After ->
+            Z.insertRightGo
+
+        PrependChild ->
+            Z.prependChildGo
+
+        AppendChild ->
+            Z.appendChildGo
 
 
 unIndent : OutlineDoc -> Maybe OutlineDoc
