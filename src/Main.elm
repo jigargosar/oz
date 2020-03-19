@@ -232,10 +232,10 @@ update message model =
                     let
                         intent =
                             if Doc.currentId model.doc == iid then
-                                EditFocused
+                                StartEdit
 
                             else
-                                FocusId iid
+                                GotoId iid
                     in
                     ( updateWhenBrowsing intent model
                     , Cmd.none
@@ -391,12 +391,12 @@ updateOnGlobalKeyDown ke model =
 
 
 type BrowsingMsg
-    = EditFocused
-    | FocusId ItemId
-    | NavPrev
-    | CollapseOrNavParent
-    | ExpandOrAlternate
-    | NavNext
+    = StartEdit
+    | GotoId ItemId
+    | GotoPrev
+    | CollapseOrGotoParent
+    | ExpandOrGotoNext
+    | GotoNext
     | UnIndent
     | Indent
     | AddNew
@@ -408,12 +408,12 @@ type BrowsingMsg
 
 toBrowsingMsg : KeyEvent -> Maybe BrowsingMsg
 toBrowsingMsg =
-    [ ( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], EditFocused )
+    [ ( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], StartEdit )
     , ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], AddNew )
-    , ( KE.hot "ArrowUp", NavPrev )
-    , ( KE.hot "ArrowDown", NavNext )
-    , ( KE.hot "ArrowLeft", CollapseOrNavParent )
-    , ( KE.hot "ArrowRight", ExpandOrAlternate )
+    , ( KE.hot "ArrowUp", GotoPrev )
+    , ( KE.hot "ArrowDown", GotoNext )
+    , ( KE.hot "ArrowLeft", CollapseOrGotoParent )
+    , ( KE.hot "ArrowRight", ExpandOrGotoNext )
     , ( KE.ctrl "ArrowUp", MoveUp )
     , ( KE.ctrl "ArrowDown", MoveDown )
     , ( KE.ctrl "ArrowLeft", UnIndent )
@@ -428,19 +428,19 @@ updateWhenBrowsing msg =
         Collapse ->
             attemptMapDoc Doc.collapse
 
-        CollapseOrNavParent ->
+        CollapseOrGotoParent ->
             attemptMapDoc Doc.collapseOrNavParent
 
-        ExpandOrAlternate ->
+        ExpandOrGotoNext ->
             attemptMapDoc Doc.expandOrGoForward
 
         Expand ->
             attemptMapDoc Doc.expand
 
-        NavPrev ->
+        GotoPrev ->
             attemptMapDoc Doc.goBackward
 
-        NavNext ->
+        GotoNext ->
             attemptMapDoc Doc.goForward
 
         UnIndent ->
@@ -457,10 +457,10 @@ updateWhenBrowsing msg =
             attemptMapDoc
                 Doc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
 
-        FocusId id ->
+        GotoId id ->
             attemptMapDoc (Doc.gotoId id)
 
-        EditFocused ->
+        StartEdit ->
             initEditState
 
         AddNew ->
