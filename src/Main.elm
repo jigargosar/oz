@@ -316,6 +316,11 @@ setState state model =
     { model | state = state }
 
 
+setEditingState : Edit -> Model -> Model
+setEditingState =
+    Editing >> setState
+
+
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg (Edit isAdding _) =
     case msg of
