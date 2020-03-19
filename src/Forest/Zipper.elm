@@ -1,6 +1,7 @@
 module Forest.Zipper exposing
     ( Crumb
     , ForestZipper
+    , Location(..)
     , ancestors
     , appendChild
     , appendChildGo
@@ -12,6 +13,7 @@ module Forest.Zipper exposing
     , firstRoot
     , fromForest
     , fromTree
+    , insertAndGoto
     , insertLeft
     , insertLeftGo
     , insertRight
@@ -37,6 +39,29 @@ module Forest.Zipper exposing
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+
+
+type Location
+    = Before
+    | After
+    | PrependChild
+    | AppendChild
+
+
+insertAndGoto : Location -> Tree a -> ForestZipper a -> ForestZipper a
+insertAndGoto location =
+    case location of
+        Before ->
+            insertLeftGo
+
+        After ->
+            insertRightGo
+
+        PrependChild ->
+            prependChildGo
+
+        AppendChild ->
+            appendChildGo
 
 
 

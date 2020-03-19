@@ -33,15 +33,14 @@ module OutlineDoc exposing
     , zoomOut
     )
 
-import FIZ as FIZ exposing (FIZ, Location(..))
-import Forest.Zipper as Z exposing (ForestZipper)
+import FIZ as FIZ exposing (FIZ)
+import Forest.Zipper as Z exposing (ForestZipper, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
 import Random exposing (Generator)
-import Tree exposing (Tree)
 import Utils exposing (nonBlank, required)
 
 
@@ -50,7 +49,7 @@ import Utils exposing (nonBlank, required)
 
 
 type CandidateLocation
-    = CandidateLocation FIZ.Location ItemId
+    = CandidateLocation Location ItemId
 
 
 candidateLocationEncoder : CandidateLocation -> Value
@@ -330,7 +329,7 @@ gotoParent =
 -- MOVE NODE
 
 
-relocateBy : FIZ.Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+relocateBy : Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
 relocateBy a b =
     mapMaybe (zRelocateBy a b)
 
@@ -351,7 +350,7 @@ zRelocateBy loc findTargetFunc doc =
 
 relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 relocateTo (CandidateLocation loc itemId) =
-    mapMaybe (FIZ.relocate loc itemId)
+    mapMaybe (zRelocate loc itemId)
 
 
 zRelocate : Location -> ItemId -> FIZ -> Maybe FIZ
@@ -361,47 +360,31 @@ zRelocate relativeLocation targetId zipper =
             Z.tree zipper
 
         insertHelp =
-            zInsertAndGoto relativeLocation removedNode
+            Z.insertAndGoto relativeLocation removedNode
                 >> FIZ.expandAncestors
     in
     Z.remove zipper
         |> Maybe.andThen (FIZ.gotoId targetId >> Maybe.map insertHelp)
 
 
-zInsertAndGoto : Location -> Tree a -> ForestZipper a -> ForestZipper a
-zInsertAndGoto location =
-    case location of
-        Before ->
-            Z.insertLeftGo
-
-        After ->
-            Z.insertRightGo
-
-        PrependChild ->
-            Z.prependChildGo
-
-        AppendChild ->
-            Z.appendChildGo
-
-
 unIndent : OutlineDoc -> Maybe OutlineDoc
 unIndent =
     -- moveAfterParent
-    relocateBy FIZ.After FIZ.goUp
+    relocateBy After FIZ.goUp
 
 
 indent : OutlineDoc -> Maybe OutlineDoc
 indent =
     -- appendInPreviousSibling
-    relocateBy FIZ.AppendChild FIZ.goLeft
+    relocateBy AppendChild FIZ.goLeft
 
 
 moveUpwards : OutlineDoc -> Maybe OutlineDoc
 moveUpwards =
     -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     Maybe.Extra.oneOf
-        [ relocateBy FIZ.Before FIZ.goLeft
-        , relocateBy FIZ.AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
+        [ relocateBy Before FIZ.goLeft
+        , relocateBy AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
         ]
 
 
@@ -409,8 +392,8 @@ moveDownwards : OutlineDoc -> Maybe OutlineDoc
 moveDownwards =
     -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
     Maybe.Extra.oneOf
-        [ relocateBy FIZ.After FIZ.goRight
-        , relocateBy FIZ.PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
+        [ relocateBy After FIZ.goRight
+        , relocateBy PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
         ]
 
 

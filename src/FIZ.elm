@@ -1,7 +1,6 @@
 module FIZ exposing
     ( FIZ
     , Item
-    , Location(..)
     , addNew
     , collapse
     , decoder
@@ -24,24 +23,13 @@ module FIZ exposing
 
 import CollapseState exposing (CollapseState)
 import Forest.Tree as Tree exposing (Forest, Tree)
-import Forest.Zipper as Zipper exposing (ForestZipper)
+import Forest.Zipper as Zipper exposing (ForestZipper, Location)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Random exposing (Generator)
 import Utils exposing (nonBlank)
-
-
-
--- CANDIDATE LOCATION
-
-
-type Location
-    = Before
-    | After
-    | PrependChild
-    | AppendChild
 
 
 
@@ -204,7 +192,7 @@ relocate relativeLocation targetId zipper =
             Zipper.tree zipper
 
         insertHelp =
-            zInsertAndGoto relativeLocation removedNode
+            Zipper.insertAndGoto relativeLocation removedNode
                 >> expandAncestors
     in
     Zipper.remove zipper
@@ -357,22 +345,6 @@ applyWhileJust func a =
 
         Nothing ->
             a
-
-
-zInsertAndGoto : Location -> Tree a -> ForestZipper a -> ForestZipper a
-zInsertAndGoto location =
-    case location of
-        Before ->
-            Zipper.insertLeftGo
-
-        After ->
-            Zipper.insertRightGo
-
-        PrependChild ->
-            Zipper.prependChildGo
-
-        AppendChild ->
-            Zipper.appendChildGo
 
 
 zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
