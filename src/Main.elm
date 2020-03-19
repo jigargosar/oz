@@ -382,10 +382,14 @@ updateOnGlobalKeyDown ke model =
             model
 
 
+type DocMsg
+    = GotoId ItemId
+
+
 type BrowsingMsg
     = BM_TitleClicked ItemId
     | StartEdit
-    | GotoId ItemId
+    | BM_DocMsg DocMsg
     | GotoPrev
     | CollapseOrGotoParent
     | ExpandOrGotoNext
@@ -416,8 +420,13 @@ toBrowsingMsg =
 
 
 updateWhenBrowsing : BrowsingMsg -> Model -> Model
-updateWhenBrowsing msg =
-    case msg of
+updateWhenBrowsing message =
+    case message of
+        BM_DocMsg msg ->
+            case msg of
+                GotoId iid ->
+                    attemptMapDoc (Doc.gotoId iid)
+
         BM_TitleClicked iid ->
             \model ->
                 let
@@ -426,7 +435,7 @@ updateWhenBrowsing msg =
                             StartEdit
 
                         else
-                            GotoId iid
+                            BM_DocMsg (GotoId iid)
                 in
                 updateWhenBrowsing intent model
 
@@ -461,9 +470,6 @@ updateWhenBrowsing msg =
         MoveDown ->
             attemptMapDoc
                 Doc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
-
-        GotoId id ->
-            attemptMapDoc (Doc.gotoId id)
 
         StartEdit ->
             initEditState
