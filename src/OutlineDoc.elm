@@ -252,11 +252,6 @@ addNew doc =
             z |> FIZ.addNew >> Random.map (initZoomed pz)
 
 
-gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
-gotoId itemId =
-    mapMaybe (FIZ.gotoId itemId)
-
-
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
     map
@@ -285,6 +280,11 @@ removeIfBlankLeaf =
 
 
 -- MOVE CURSOR
+
+
+gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
+gotoId itemId =
+    mapMaybe (FIZ.gotoId itemId)
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
