@@ -25,6 +25,7 @@ module Forest.Zipper exposing
     , prependChild
     , prependChildGo
     , remove
+    , replaceChildForest
     , restructure
     , right
     , tree
@@ -73,6 +74,16 @@ fromForest trees =
 forest : ForestZipper a -> Forest a
 forest fz =
     List.reverse fz.leftReversed ++ fz.center :: fz.right_
+
+
+rootForest : ForestZipper a -> Forest a
+rootForest =
+    firstRoot >> forest
+
+
+replaceChildForest : ForestZipper a -> ForestZipper a -> ForestZipper a
+replaceChildForest newFiz fiz =
+    { fiz | center = Tree.mapChildren (always (rootForest newFiz)) fiz.center }
 
 
 mapTree : (Tree a -> Tree a) -> ForestZipper a -> ForestZipper a

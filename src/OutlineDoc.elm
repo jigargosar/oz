@@ -27,6 +27,7 @@ module OutlineDoc exposing
     , prependIn
     , relocateTo
     , removeIfBlankLeaf
+    , replaceChildDoc
     , restructureCurrentNode
     , restructureWithContext
     , setTitleUnlessBlank
@@ -146,6 +147,13 @@ new =
 childDoc : OutlineDoc -> Maybe OutlineDoc
 childDoc =
     mapMaybe (Forest.Zipper.forest >> Forest.Zipper.fromForest)
+
+
+replaceChildDoc : OutlineDoc -> OutlineDoc -> OutlineDoc
+replaceChildDoc (OutlineDoc c) =
+    -- TODO: Need to ensure invariants, i.e. unique ItemID
+    -- write quick and dirty func.
+    map (Forest.Zipper.replaceChildForest c)
 
 
 encoder : OutlineDoc -> Value
