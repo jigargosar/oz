@@ -127,7 +127,7 @@ type WhenEditingMsg
 
 type Msg
     = NoOp
-    | TitleEditorFocusFailed String
+    | DomFocusFailed String
       -- For All States
     | OnKeyDown KeyEvent
       -- Only valid when state is dragging
@@ -193,7 +193,7 @@ update message model =
         NoOp ->
             ( model, Cmd.none )
 
-        TitleEditorFocusFailed domId ->
+        DomFocusFailed domId ->
             Debug.todo ("TitleEditorFocusFailed: " ++ domId)
 
         OnKeyDown ke ->
@@ -488,7 +488,7 @@ focusTitleEditor =
             (\result ->
                 case result of
                     Err (Dom.NotFound domId) ->
-                        TitleEditorFocusFailed domId
+                        DomFocusFailed domId
 
                     Ok () ->
                         NoOp
@@ -502,7 +502,7 @@ focusItemAtCursor =
             (\result ->
                 case result of
                     Err (Dom.NotFound domId) ->
-                        TitleEditorFocusFailed domId
+                        DomFocusFailed domId
 
                     Ok () ->
                         NoOp
