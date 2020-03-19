@@ -216,7 +216,7 @@ update message model =
             Debug.todo ("DomFocusFailed: " ++ domId)
 
         OnKeyDown ke ->
-            ( onKeyDown ke model, Cmd.none )
+            ( updateOnGlobalKeyDown ke model, Cmd.none )
 
         AddNewClicked ->
             case model.state of
@@ -361,8 +361,8 @@ updateWhenDragging msg cursor model =
                     ( model, Cmd.none )
 
 
-onKeyDown : KeyEvent -> Model -> Model
-onKeyDown ke model =
+updateOnGlobalKeyDown : KeyEvent -> Model -> Model
+updateOnGlobalKeyDown ke model =
     case model.state of
         Browsing ->
             case toUserIntent ke of
