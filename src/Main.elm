@@ -396,7 +396,7 @@ updateDoc message =
 type BrowsingMsg
     = BM_TitleClicked ItemId
     | StartEdit
-    | BM_DocMsg DocMsg
+      --| BM_DocMsg DocMsg
     | GotoPrev
     | CollapseOrGotoParent
     | ExpandOrGotoNext
@@ -429,9 +429,8 @@ toBrowsingMsg =
 updateWhenBrowsing : BrowsingMsg -> Model -> Model
 updateWhenBrowsing message =
     case message of
-        BM_DocMsg msg ->
-            updateDoc msg
-
+        --BM_DocMsg msg ->
+        --    updateDoc msg
         BM_TitleClicked iid ->
             \model ->
                 if Doc.currentId model.doc == iid then
