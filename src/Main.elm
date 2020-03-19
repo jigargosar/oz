@@ -282,7 +282,7 @@ update message model =
                 Editing editState ->
                     model
                         |> mapDoc (endEdit editState)
-                        |> updateDoc (GotoId itemId)
+                        |> gotoIdIgnoreNothing itemId
 
                 Dragging _ ->
                     Debug.todo "impossible state"
@@ -372,15 +372,9 @@ setBrowsingState =
     setState Browsing
 
 
-type DocMsg
-    = GotoId ItemId
-
-
-updateDoc : DocMsg -> Model -> Model
-updateDoc message =
-    case message of
-        GotoId itemId ->
-            mapDocIgnoreNothing (Doc.gotoId itemId)
+gotoIdIgnoreNothing : ItemId -> Model -> Model
+gotoIdIgnoreNothing itemId =
+    mapDocIgnoreNothing (Doc.gotoId itemId)
 
 
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
@@ -465,7 +459,7 @@ updateWhenBrowsing message =
                     updateWhenBrowsing StartEdit model
 
                 else
-                    updateDoc (GotoId iid) model
+                    gotoIdIgnoreNothing iid model
 
         Collapse ->
             mapDocIgnoreNothing Doc.collapse
