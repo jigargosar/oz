@@ -290,12 +290,12 @@ update message model =
         OnDragStart dragId cursor ->
             case model.state of
                 Browsing ->
-                    attemptInitDragging dragId cursor model
+                    initDraggingIgnoreNothing dragId cursor model
 
                 Editing editState ->
                     model
                         |> mapDoc (endEdit editState)
-                        |> attemptInitDragging dragId cursor
+                        |> initDraggingIgnoreNothing dragId cursor
 
                 Dragging _ ->
                     Debug.todo "impossible state"
@@ -357,8 +357,8 @@ initDragging dragId pointer model =
             )
 
 
-attemptInitDragging : ItemId -> Pointer -> Model -> Model
-attemptInitDragging itemId pointer model =
+initDraggingIgnoreNothing : ItemId -> Pointer -> Model -> Model
+initDraggingIgnoreNothing itemId pointer model =
     initDragging itemId pointer model |> Maybe.withDefault model
 
 
