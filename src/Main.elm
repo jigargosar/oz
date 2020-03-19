@@ -326,6 +326,11 @@ setDraggingState =
     Dragging >> setState
 
 
+setBrowsingState : Model -> Model
+setBrowsingState =
+    setState Browsing
+
+
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg (Edit isAdding _) =
     case msg of
@@ -340,13 +345,13 @@ updateWhenEditing msg (Edit isAdding _) =
 
 
 updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> ( Model, Cmd Msg )
-updateWhenDragging msg cursor model =
+updateWhenDragging msg pointer model =
     case msg of
         Move clientXY ->
-            ( { model | state = Dragging { cursor | clientXY = clientXY } }, getBeacons () )
+            ( setDraggingState (Dnd.setClientXY clientXY pointer) model, getBeacons () )
 
         Stop ->
-            ( { model | state = Browsing }, Cmd.none )
+            ( setBrowsingState model, Cmd.none )
 
         GotBeacons encodedBeacons ->
             let
@@ -357,7 +362,7 @@ updateWhenDragging msg cursor model =
                     Result.toMaybe beaconsResult
                         |> Maybe.andThen
                             (\beacons ->
-                                Dnd.dndClosestCandidateLocation beacons cursor
+                                Dnd.dndClosestCandidateLocation beacons pointer
                                     |> (if debug then
                                             Debug.log "debug"
 

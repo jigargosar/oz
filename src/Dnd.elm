@@ -14,6 +14,11 @@ type alias Beacon =
     ( CandidateLocation, Rect )
 
 
+setClientXY : XY -> Pointer -> Pointer
+setClientXY clientXY pointer =
+    { pointer | clientXY = clientXY }
+
+
 dndDraggedXY : Pointer -> XY
 dndDraggedXY dnd =
     subtractXY dnd.clientXY dnd.offsetXY
