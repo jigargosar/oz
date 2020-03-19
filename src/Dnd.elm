@@ -3,9 +3,8 @@ module Dnd exposing
     , Pointer
     , XY
     , beaconAttr
-    , beaconDecoder
     , clientXYDecoder
-    , dndClosestCandidateLocation
+    , closestCandidateResult
     , dndDraggedXY
     , dragEvents
     , setClientXY
@@ -54,6 +53,21 @@ dndClosestCandidateLocation beacons dnd =
         |> List.sortBy sortByFunc
         |> List.head
         |> Maybe.map Tuple.first
+
+
+closestCandidateResult : Pointer -> Value -> Result String CandidateLocation
+closestCandidateResult pointer encodedBeacons =
+    JD.decodeValue (JD.list beaconDecoder) encodedBeacons
+        |> Result.mapError JD.errorToString
+        |> Result.andThen
+            (\beacons ->
+                case dndClosestCandidateLocation beacons pointer of
+                    Just cl ->
+                        Ok cl
+
+                    Nothing ->
+                        Err "dndClosestCandidateLocation not found"
+            )
 
 
 beaconDecoder : Decoder Beacon

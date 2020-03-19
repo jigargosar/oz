@@ -354,25 +354,12 @@ updateWhenDragging msg pointer model =
             ( setBrowsingState model, Cmd.none )
 
         GotBeacons encodedBeacons ->
-            let
-                beaconsResult =
-                    JD.decodeValue (JD.list Dnd.beaconDecoder) encodedBeacons
+            case Dnd.closestCandidateResult pointer encodedBeacons of
+                Ok cl ->
+                    ( attemptMapDoc (Doc.relocateTo cl) model, Cmd.none )
 
-                maybeNewDoc =
-                    Result.toMaybe beaconsResult
-                        |> Maybe.andThen
-                            (\beacons ->
-                                Dnd.dndClosestCandidateLocation beacons pointer
-                            )
-                        |> Maybe.andThen
-                            (\cl -> Doc.relocateToCandidateLocation cl model.doc)
-            in
-            case maybeNewDoc of
-                Just newDoc ->
-                    ( { model | doc = newDoc }, Cmd.none )
-
-                Nothing ->
-                    ( model, Cmd.none )
+                Err err ->
+                    Debug.todo ("GotBeacons Error: " ++ err)
 
 
 updateOnGlobalKeyDown : KeyEvent -> Model -> Model
