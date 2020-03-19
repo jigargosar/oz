@@ -6,7 +6,6 @@ module FIZ exposing
     , decoder
     , encoder
     , expand
-    , expandAncestors
     , goBackward
     , goForward
     , goLeft
@@ -172,15 +171,6 @@ canExpand fiz =
 
 setCollapsedUnsafe collapsed model =
     { model | collapsed = collapsed }
-
-
-
--- MOVE NODE AT CURSOR
-
-
-expandAncestors : FIZ -> FIZ
-expandAncestors =
-    Zipper.mapAncestorData (setCollapsedUnsafe False)
 
 
 
