@@ -265,7 +265,7 @@ update message model =
                 Editing editState ->
                     model
                         |> mapDoc (endEdit editState)
-                        |> attemptMapDoc (Doc.gotoId itemId)
+                        |> updateDoc (GotoId itemId)
 
                 Dragging _ ->
                     Debug.todo "impossible state"
