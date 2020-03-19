@@ -153,10 +153,12 @@ zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn doc =
     case doc of
         Doc z ->
-            Forest.Zipper.fromChildren z |> Maybe.map (Zoomed z)
+            zoomInHelp z |> Maybe.map (Zoomed z)
 
         Zoomed pz z ->
-            Nothing
+            zoomOutHelp z pz
+                |> FIZ.gotoId (FIZ.getId z)
+                |> Maybe.andThen (\newPZ -> zoomInHelp newPZ |> Maybe.map (Zoomed newPZ))
 
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
@@ -172,6 +174,11 @@ zoomOut doc =
 zoomOutHelp : FIZ -> FIZ -> FIZ
 zoomOutHelp z pz =
     Forest.Zipper.replaceChildForest z pz |> ensureUniqueNodes
+
+
+zoomInHelp : FIZ -> Maybe FIZ
+zoomInHelp z =
+    Forest.Zipper.fromChildren z
 
 
 ensureUniqueNodes : FIZ -> FIZ
