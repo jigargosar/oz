@@ -369,9 +369,9 @@ updateOnGlobalKeyDown : KeyEvent -> Model -> Model
 updateOnGlobalKeyDown ke model =
     case model.state of
         Browsing ->
-            case toUserIntent ke of
-                Just intent ->
-                    updateDocWithUserIntent intent model
+            case toBrowsingMsg ke of
+                Just msg ->
+                    updateDocWithUserIntent msg model
 
                 Nothing ->
                     model
@@ -390,7 +390,7 @@ updateOnGlobalKeyDown ke model =
             model
 
 
-type UserIntent
+type BrowsingMsg
     = EditFocused
     | FocusId ItemId
     | NavPrev
@@ -406,8 +406,8 @@ type UserIntent
     | Expand
 
 
-toUserIntent : KeyEvent -> Maybe UserIntent
-toUserIntent =
+toBrowsingMsg : KeyEvent -> Maybe BrowsingMsg
+toBrowsingMsg =
     [ ( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], EditFocused )
     , ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], AddNew )
     , ( KE.hot "ArrowUp", NavPrev )
@@ -422,7 +422,7 @@ toUserIntent =
         |> condAlways
 
 
-updateDocWithUserIntent : UserIntent -> Model -> Model
+updateDocWithUserIntent : BrowsingMsg -> Model -> Model
 updateDocWithUserIntent keyboardIntent =
     case keyboardIntent of
         Collapse ->
