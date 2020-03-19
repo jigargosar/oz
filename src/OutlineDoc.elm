@@ -30,8 +30,6 @@ module OutlineDoc exposing
     , restructureWithContext
     , setTitleUnlessBlank
     , unIndent
-    , zoomIn
-    , zoomOut
     )
 
 import Dict exposing (Dict)
@@ -43,6 +41,7 @@ import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Random exposing (Generator)
 import Tree as T
+import Utils exposing (required)
 
 
 
@@ -139,24 +138,26 @@ type alias Item =
 
 
 type OutlineDoc
-    = OutlineDoc FIZ
+    = Doc FIZ
+    | Zoomed FIZ FIZ
 
 
+new : Generator OutlineDoc
 new =
-    FIZ.new |> Random.map OutlineDoc
+    FIZ.new |> Random.map Doc
 
 
-zoomIn : OutlineDoc -> Maybe ( OutlineDoc, OutlineDoc )
-zoomIn parentDoc =
-    mapMaybe Forest.Zipper.fromChildren parentDoc
-        |> Maybe.map (Tuple.pair parentDoc)
 
-
-zoomOut : OutlineDoc -> OutlineDoc -> OutlineDoc
-zoomOut (OutlineDoc zoomDoc) =
-    -- TODO: Need to ensure invariants, i.e. unique ItemID
-    -- write quick and dirty func.
-    map (Forest.Zipper.replaceChildForest zoomDoc >> ensureUniqueNodes)
+--zoomIn : OutlineDoc -> Maybe ( OutlineDoc, OutlineDoc )
+--zoomIn parentDoc =
+--    mapMaybe Forest.Zipper.fromChildren parentDoc
+--        |> Maybe.map (Tuple.pair parentDoc)
+--zoomOut : OutlineDoc -> OutlineDoc -> OutlineDoc
+--zoomOut (OutlineDoc zoomDoc) =
+--    -- TODO: Need to ensure invariants, i.e. unique ItemID
+--    -- write quick and dirty func.
+--    map (Forest.Zipper.replaceChildForest zoomDoc >> ensureUniqueNodes)
+--
 
 
 ensureUniqueNodes : FIZ -> FIZ
@@ -186,28 +187,51 @@ ensureUniqueNodes fiz =
 
 
 encoder : OutlineDoc -> Value
-encoder (OutlineDoc zipper) =
-    FIZ.encoder zipper
+encoder doc =
+    case doc of
+        Doc z ->
+            FIZ.encoder z
+
+        Zoomed pz z ->
+            JE.object [ ( "tag", JE.string "Zoomed" ), ( "pz", FIZ.encoder pz ), ( "z", FIZ.encoder z ) ]
 
 
 decoder : Decoder OutlineDoc
 decoder =
-    FIZ.decoder |> JD.map OutlineDoc
+    JD.oneOf
+        [ FIZ.decoder |> JD.map Doc
+        , JD.succeed Zoomed |> required "pz" FIZ.decoder |> required "z" FIZ.decoder
+        ]
 
 
 map : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
-map func (OutlineDoc z) =
-    func z |> OutlineDoc
+map func doc =
+    case doc of
+        Doc z ->
+            Doc (func z)
+
+        Zoomed pz z ->
+            func z |> Zoomed pz
 
 
 mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-mapMaybe func (OutlineDoc z) =
-    func z |> Maybe.map OutlineDoc
+mapMaybe func doc =
+    case doc of
+        Doc z ->
+            func z |> Maybe.map Doc
+
+        Zoomed pz z ->
+            func z |> Maybe.map (Zoomed pz)
 
 
 unwrap : OutlineDoc -> FIZ
-unwrap (OutlineDoc z) =
-    z
+unwrap doc =
+    case doc of
+        Doc z ->
+            z
+
+        Zoomed pz z ->
+            z
 
 
 
@@ -215,8 +239,13 @@ unwrap (OutlineDoc z) =
 
 
 addNew : OutlineDoc -> Generator OutlineDoc
-addNew =
-    unwrap >> FIZ.addNew >> Random.map OutlineDoc
+addNew doc =
+    case doc of
+        Doc z ->
+            z |> FIZ.addNew >> Random.map Doc
+
+        Zoomed pz z ->
+            z |> FIZ.addNew >> Random.map (Zoomed pz)
 
 
 gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
