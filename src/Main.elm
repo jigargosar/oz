@@ -247,7 +247,22 @@ update message model =
             Debug.todo ("DomFocusFailed: " ++ domId)
 
         OnKeyDown ke ->
-            updateOnGlobalKeyDown ke model
+            case model.state of
+                Browsing ->
+                    updateWhenBrowsing (BM_OnGlobalKeyDown ke) model
+
+                Editing editState ->
+                    if KE.hot "Enter" ke then
+                        { model | doc = endEdit editState model.doc, state = Browsing }
+
+                    else if KE.hot "Escape" ke then
+                        { model | doc = cancelEdit model.doc, state = Browsing }
+
+                    else
+                        model
+
+                Dragging _ ->
+                    model
 
         AddNewClicked ->
             case model.state of
@@ -397,33 +412,9 @@ updateWhenDragging msg pointer model =
                     Debug.todo ("GotBeacons Error: " ++ err)
 
 
-updateOnGlobalKeyDown : KeyEvent -> Model -> Model
-updateOnGlobalKeyDown ke model =
-    case model.state of
-        Browsing ->
-            case toBrowsingMsg ke of
-                Just msg ->
-                    updateWhenBrowsing msg model
-
-                Nothing ->
-                    model
-
-        Editing editState ->
-            if KE.hot "Enter" ke then
-                { model | doc = endEdit editState model.doc, state = Browsing }
-
-            else if KE.hot "Escape" ke then
-                { model | doc = cancelEdit model.doc, state = Browsing }
-
-            else
-                model
-
-        Dragging _ ->
-            model
-
-
 type BrowsingMsg
     = BM_TitleClicked ItemId
+    | BM_OnGlobalKeyDown KeyEvent
     | StartEdit
       --| BM_DocMsg DocMsg
     | GotoPrev
@@ -460,6 +451,12 @@ updateWhenBrowsing message =
     case message of
         --BM_DocMsg msg ->
         --    updateDoc msg
+        BM_OnGlobalKeyDown ke ->
+            \model ->
+                toBrowsingMsg ke
+                    |> Maybe.map (\m -> updateWhenBrowsing m model)
+                    |> Maybe.withDefault model
+
         BM_TitleClicked iid ->
             \model ->
                 if Doc.currentId model.doc == iid then
