@@ -20,8 +20,8 @@ module OutlineDoc exposing
     , goForward
     , gotoId
     , indent
-    , moveAfterNextSiblingOrPrependInNextSiblingOfParent
-    , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
+    , moveDownwards
+    , moveUpwards
     , new
     , prependIn
     , relocateTo
@@ -307,16 +307,18 @@ indent =
     relocateBy FIZ.AppendChild FIZ.goLeft
 
 
-moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
-moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent =
+moveUpwards : OutlineDoc -> Maybe OutlineDoc
+moveUpwards =
+    -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     Maybe.Extra.oneOf
         [ relocateBy FIZ.Before FIZ.goLeft
         , relocateBy FIZ.AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
         ]
 
 
-moveAfterNextSiblingOrPrependInNextSiblingOfParent : OutlineDoc -> Maybe OutlineDoc
-moveAfterNextSiblingOrPrependInNextSiblingOfParent =
+moveDownwards : OutlineDoc -> Maybe OutlineDoc
+moveDownwards =
+    -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
     Maybe.Extra.oneOf
         [ relocateBy FIZ.After FIZ.goRight
         , relocateBy FIZ.PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)

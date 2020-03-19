@@ -505,11 +505,11 @@ updateWhenBrowsing message =
 
         MoveUp ->
             mapDocIgnoreNothing
-                Doc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
+                Doc.moveUpwards
 
         MoveDown ->
             mapDocIgnoreNothing
-                Doc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
+                Doc.moveDownwards
 
         StartEdit ->
             initEditState
