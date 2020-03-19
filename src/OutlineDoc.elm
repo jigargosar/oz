@@ -41,7 +41,7 @@ import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
 import Random exposing (Generator)
-import Utils exposing (nonBlank, required)
+import Utils exposing (firstOf, nonBlank, required)
 
 
 
@@ -349,17 +349,19 @@ indent =
 moveUpwards : OutlineDoc -> Maybe OutlineDoc
 moveUpwards =
     -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    Maybe.Extra.oneOf
-        [ mapMaybe (zRelocateBy Before FIZ.goLeft)
-        , mapMaybe (zRelocateBy AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft))
-        ]
+    mapMaybe
+        (firstOf
+            [ zRelocateBy Before FIZ.goLeft
+            , zRelocateBy AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
+            ]
+        )
 
 
 moveDownwards : OutlineDoc -> Maybe OutlineDoc
 moveDownwards =
     -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
     mapMaybe
-        (Maybe.Extra.oneOf
+        (firstOf
             [ zRelocateBy After FIZ.goRight
             , zRelocateBy PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
             ]
