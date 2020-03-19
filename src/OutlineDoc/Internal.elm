@@ -30,28 +30,44 @@ open doc =
 initZoomed : FIZ -> FIZ -> OutlineDoc
 initZoomed pz z =
     Zoomed_ pz z
-        |> ensureInvariants
+        |> ensureDocInvariants
 
 
 initDoc : FIZ -> OutlineDoc
 initDoc z =
     Doc_ z
-        |> ensureInvariants
+        |> ensureDocInvariants
 
 
-ensureInvariants : OutlineDoc -> OutlineDoc
-ensureInvariants doc =
+ensureDocInvariants : OutlineDoc -> OutlineDoc
+ensureDocInvariants doc =
     let
         _ =
             case doc of
                 Doc_ z ->
-                    ensureUniqueNodes z
+                    ensureZipperInvariants z
 
                 Zoomed_ pz z ->
-                    ensureUniqueNodes z
-                        |> always (ensureUniqueNodes pz)
+                    ensureZipperInvariants z |> always (ensureZipperInvariants pz)
     in
     doc
+
+
+ensureZipperInvariants z =
+    ensureUniqueNodes z |> always (ensureAncestorsExpanded z)
+
+
+ensureAncestorsExpanded : FIZ -> FIZ
+ensureAncestorsExpanded fiz =
+    let
+        _ =
+            if Z.ancestors fiz |> List.map .collapsed |> List.any identity then
+                Debug.todo "ancestors should be expanded, invariant failed"
+
+            else
+                1
+    in
+    fiz
 
 
 ensureUniqueNodes : FIZ -> FIZ
