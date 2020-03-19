@@ -29,6 +29,7 @@ module Forest.Zipper exposing
     , restructure
     , right
     , rootForest
+    , transferOneLevelTo
     , tree
     , up
     )
@@ -117,6 +118,32 @@ mergeInternal cz zipper =
                    }
                 :: zipper.crumbs
     }
+
+
+transferOneLevelTo : ForestZipper a -> ForestZipper a -> ( ForestZipper a, Maybe (ForestZipper a) )
+transferOneLevelTo cz zipper =
+    let
+        ret =
+            transferOneLevelToInternal cz zipper
+
+        _ =
+            if rootForest (mergeInternal cz zipper) == rootForest (transferOneLevelLoop ret) then
+                "All is well"
+
+            else
+                Debug.todo "invalid merge"
+    in
+    ret
+
+
+transferOneLevelLoop : ( ForestZipper a, Maybe (ForestZipper a) ) -> ForestZipper a
+transferOneLevelLoop ( cz, maybeZipper ) =
+    case maybeZipper of
+        Nothing ->
+            cz
+
+        Just zipper ->
+            transferOneLevelLoop (transferOneLevelToInternal cz zipper)
 
 
 transferOneLevelToInternal : ForestZipper a -> ForestZipper a -> ( ForestZipper a, Maybe (ForestZipper a) )
