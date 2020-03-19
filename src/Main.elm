@@ -143,10 +143,18 @@ type Msg
 
 updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
 updateWrapper message model =
-    update message model
-        |> effect (cacheDocIfChanged model)
-        |> effect (focusElOnDocCursorChange model)
-        |> effect (getBeaconsOnDragStartOrDragMove model)
+    let
+        addEffects newModel =
+            ( newModel
+            , [ cacheDocIfChanged model
+              , focusElOnDocCursorChange model
+              , getBeaconsOnDragStartOrDragMove model
+              ]
+                |> List.map (apply newModel)
+                |> Cmd.batch
+            )
+    in
+    addEffects (update message model)
 
 
 cacheDocIfChanged : Model -> Model -> Cmd msg
@@ -230,22 +238,22 @@ getBeaconsOnDragStartOrDragMove oldModel newModel =
         Cmd.none
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update message model =
     case message of
         NoOp ->
-            ( model, Cmd.none )
+            model
 
         DomFocusFailed domId ->
             Debug.todo ("DomFocusFailed: " ++ domId)
 
         OnKeyDown ke ->
-            ( updateOnGlobalKeyDown ke model, Cmd.none )
+            updateOnGlobalKeyDown ke model
 
         AddNewClicked ->
             case model.state of
                 Browsing ->
-                    ( updateWhenBrowsing AddNew model, Cmd.none )
+                    updateWhenBrowsing AddNew model
 
                 _ ->
                     Debug.todo "impl"
@@ -253,16 +261,12 @@ update message model =
         ItemTitleClicked itemId ->
             case model.state of
                 Browsing ->
-                    ( updateWhenBrowsing (BM_TitleClicked itemId) model
-                    , Cmd.none
-                    )
+                    updateWhenBrowsing (BM_TitleClicked itemId) model
 
                 Editing editState ->
-                    ( model
+                    model
                         |> mapDoc (endEdit editState)
                         |> attemptMapDoc (Doc.gotoId itemId)
-                    , Cmd.none
-                    )
 
                 Dragging _ ->
                     Debug.todo "impossible state"
@@ -272,12 +276,10 @@ update message model =
                 Browsing ->
                     case initDragging dragId cursor model of
                         Just newModel ->
-                            ( newModel
-                            , getBeacons ()
-                            )
+                            newModel
 
                         Nothing ->
-                            ( model, Cmd.none )
+                            model
 
                 Editing editState ->
                     case
@@ -286,12 +288,10 @@ update message model =
                             |> initDragging dragId cursor
                     of
                         Just newModel ->
-                            ( newModel
-                            , getBeacons ()
-                            )
+                            newModel
 
                         Nothing ->
-                            ( model, Cmd.none )
+                            model
 
                 Dragging _ ->
                     Debug.todo "impossible state"
@@ -305,14 +305,12 @@ update message model =
                     Debug.todo "drag msg received, when not dragging"
 
         EM msg ->
-            ( case model.state of
+            case model.state of
                 Editing editState ->
                     updateWhenEditing msg editState model
 
                 _ ->
                     Debug.todo "drag msg received, when not dragging"
-            , Cmd.none
-            )
 
 
 setDoc : OutlineDoc -> Model -> Model
@@ -383,19 +381,19 @@ updateWhenEditing msg (Edit isAdding _) =
             setEditingState (Edit isAdding title)
 
 
-updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> ( Model, Cmd Msg )
+updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> Model
 updateWhenDragging msg pointer model =
     case msg of
         Move clientXY ->
-            ( setDraggingState (Dnd.setClientXY clientXY pointer) model, getBeacons () )
+            setDraggingState (Dnd.setClientXY clientXY pointer) model
 
         Stop ->
-            ( setBrowsingState model, Cmd.none )
+            setBrowsingState model
 
         GotBeacons encodedBeacons ->
             case Dnd.closestCandidateResult pointer encodedBeacons of
                 Ok cl ->
-                    ( attemptMapDoc (Doc.relocateTo cl) model, Cmd.none )
+                    attemptMapDoc (Doc.relocateTo cl) model
 
                 Err err ->
                     Debug.todo ("GotBeacons Error: " ++ err)
