@@ -7,7 +7,6 @@ module FIZ exposing
     , encoder
     , expand
     , expandAncestors
-    , getId
     , goBackward
     , goForward
     , goLeft
@@ -103,11 +102,6 @@ new : Generator FIZ
 new =
     emptyLeafGenerator
         |> Random.map Zipper.fromTree
-
-
-getId : FIZ -> ItemId
-getId =
-    Zipper.data >> .id
 
 
 hasVisibleChildren : FIZ -> Bool
