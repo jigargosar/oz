@@ -385,16 +385,6 @@ gotoIdIgnoreNothing itemId =
     mapDocIgnoreNothing (Doc.gotoId itemId)
 
 
-zoomInIgnoreNothing : Model -> Model
-zoomInIgnoreNothing =
-    mapDocIgnoreNothing Doc.zoomIn
-
-
-zoomOutIgnoreNothing : Model -> Model
-zoomOutIgnoreNothing =
-    mapDocIgnoreNothing Doc.zoomOut
-
-
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg (Edit isAdding _) =
     case msg of
@@ -487,10 +477,10 @@ updateWhenBrowsing message =
             mapDocIgnoreNothing Doc.collapse
 
         ZoomIn ->
-            zoomInIgnoreNothing
+            mapDocIgnoreNothing Doc.zoomIn
 
         ZoomOut ->
-            zoomOutIgnoreNothing
+            mapDocIgnoreNothing Doc.zoomOut
 
         CollapseOrGotoParent ->
             mapDocIgnoreNothing Doc.collapseOrNavParent
