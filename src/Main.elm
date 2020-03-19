@@ -221,7 +221,7 @@ update message model =
         AddNewClicked ->
             case model.state of
                 Browsing ->
-                    ( updateDocWithUserIntent AddNew model, Cmd.none )
+                    ( updateWhenBrowsing AddNew model, Cmd.none )
 
                 _ ->
                     Debug.todo "impl"
@@ -237,7 +237,7 @@ update message model =
                             else
                                 FocusId iid
                     in
-                    ( updateDocWithUserIntent intent model
+                    ( updateWhenBrowsing intent model
                     , Cmd.none
                     )
 
@@ -371,7 +371,7 @@ updateOnGlobalKeyDown ke model =
         Browsing ->
             case toBrowsingMsg ke of
                 Just msg ->
-                    updateDocWithUserIntent msg model
+                    updateWhenBrowsing msg model
 
                 Nothing ->
                     model
@@ -422,9 +422,9 @@ toBrowsingMsg =
         |> condAlways
 
 
-updateDocWithUserIntent : BrowsingMsg -> Model -> Model
-updateDocWithUserIntent keyboardIntent =
-    case keyboardIntent of
+updateWhenBrowsing : BrowsingMsg -> Model -> Model
+updateWhenBrowsing msg =
+    case msg of
         Collapse ->
             attemptMapDoc Doc.collapse
 
