@@ -45,16 +45,15 @@ ensureDocInvariants doc =
         _ =
             case doc of
                 Doc_ z ->
-                    ensureZipperInvariants z
+                    ensureUniqueNodes z
+                        |> always (ensureAncestorsExpanded z)
 
                 Zoomed_ pz z ->
-                    ensureZipperInvariants z |> always (ensureZipperInvariants pz)
+                    ensureUniqueNodes z
+                        |> always (ensureAncestorsExpanded z)
+                        |> always ensureUniqueNodes pz
     in
     doc
-
-
-ensureZipperInvariants z =
-    ensureUniqueNodes z |> always (ensureAncestorsExpanded z)
 
 
 ensureAncestorsExpanded : FIZ -> FIZ
