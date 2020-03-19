@@ -6,11 +6,11 @@ import Browser.Events
 import CollapseState exposing (CollapseState(..))
 import Dnd exposing (Pointer, XY)
 import Html exposing (Attribute, button, div, input, text)
-import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, tabindex, value)
-import Html.Events as Event exposing (onClick, onInput, preventDefaultOn)
+import Html.Attributes as A exposing (class, disabled, style, tabindex, value)
+import Html.Events exposing (onClick, onInput, preventDefaultOn)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
-import Json.Encode as JE exposing (Value)
+import Json.Encode exposing (Value)
 import KeyEvent as KE exposing (KeyEvent)
 import OutlineDoc as Doc exposing (CandidateLocation(..), OutlineDoc)
 import Random exposing (Generator, Seed)
@@ -542,7 +542,7 @@ subscriptions m =
 
             Dragging _ ->
                 Sub.batch
-                    [ Browser.Events.onMouseMove (JD.map Move clientXYDecoder)
+                    [ Browser.Events.onMouseMove (JD.map Move Dnd.clientXYDecoder)
                     , Browser.Events.onMouseUp (JD.succeed Stop)
                     , gotBeacons GotBeacons
                     ]
@@ -718,11 +718,6 @@ wrapWithBeacons itemHtml itemId childrenHtml =
         ]
 
 
-dataBeacon : Value -> Attribute msg
-dataBeacon value =
-    attribute "data-beacon" (JE.encode 0 value)
-
-
 
 -- NODE PARTS VIEW
 
@@ -732,7 +727,7 @@ viewBeacon candidateLocation =
     div
         ([ style "height" "0px"
          , style "width" "0px"
-         , dataBeacon (Doc.candidateLocationEncoder candidateLocation)
+         , Dnd.beaconAttr candidateLocation
          ]
             ++ (if debug then
                     [ style "height" "10px"
@@ -838,7 +833,7 @@ viewItem itemView item =
         (class "pa1 bb b--black-30 pointer no-selection flex"
             :: classIf isFaded "o-50"
             :: (if isDraggable then
-                    dragEvents item.id
+                    Dnd.dragEvents (OnDragStart item.id)
 
                 else
                     []
@@ -886,34 +881,3 @@ viewAddNewButton visible =
                )
         )
         [ text "+" ]
-
-
-dragEvents : ItemId -> List (Html.Attribute Msg)
-dragEvents itemId =
-    [ draggable "true"
-    , Event.preventDefaultOn "dragstart"
-        (JD.map2 (\clientXY offsetXY -> OnDragStart itemId (Pointer clientXY offsetXY))
-            clientXYDecoder
-            offsetXYDecoder
-            |> preventDefault True
-        )
-    ]
-
-
-preventDefault : Bool -> Decoder b -> Decoder ( b, Bool )
-preventDefault bool =
-    JD.map (\msg -> ( msg, bool ))
-
-
-clientXYDecoder : Decoder XY
-clientXYDecoder =
-    JD.map2 XY
-        (JD.field "clientX" JD.float)
-        (JD.field "clientY" JD.float)
-
-
-offsetXYDecoder : Decoder XY
-offsetXYDecoder =
-    JD.map2 XY
-        (JD.field "offsetX" JD.float)
-        (JD.field "offsetY" JD.float)

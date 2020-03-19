@@ -1,7 +1,22 @@
-module Dnd exposing (..)
+module Dnd exposing
+    ( Beacon
+    , Pointer
+    , XY
+    , beaconAttr
+    , beaconDecoder
+    , clientXYDecoder
+    , dndClosestCandidateLocation
+    , dndDraggedXY
+    , dragEvents
+    , setClientXY
+    )
 
+import Html exposing (Attribute)
+import Html.Attributes exposing (attribute, draggable)
+import Html.Events exposing (preventDefaultOn)
 import Json.Decode as JD exposing (Decoder)
-import OutlineDoc exposing (CandidateLocation)
+import Json.Encode as JE exposing (Value)
+import OutlineDoc as Doc exposing (CandidateLocation)
 
 
 type alias Pointer =
@@ -44,8 +59,49 @@ dndClosestCandidateLocation beacons dnd =
 beaconDecoder : Decoder Beacon
 beaconDecoder =
     JD.map2 Tuple.pair
-        (JD.field "id" OutlineDoc.candidateLocationDecoder)
+        (JD.field "id" Doc.candidateLocationDecoder)
         rectDecoder
+
+
+dataBeacon : Value -> Attribute msg
+dataBeacon value =
+    attribute "data-beacon" (JE.encode 0 value)
+
+
+beaconAttr : CandidateLocation -> Attribute msg
+beaconAttr candidateLocation =
+    dataBeacon (Doc.candidateLocationEncoder candidateLocation)
+
+
+dragEvents : (Pointer -> msg) -> List (Html.Attribute msg)
+dragEvents onDragStart =
+    [ draggable "true"
+    , preventDefaultOn "dragstart"
+        (JD.map2 (\clientXY offsetXY -> onDragStart (Pointer clientXY offsetXY))
+            clientXYDecoder
+            offsetXYDecoder
+            |> preventDefault True
+        )
+    ]
+
+
+preventDefault : Bool -> Decoder b -> Decoder ( b, Bool )
+preventDefault bool =
+    JD.map (\msg -> ( msg, bool ))
+
+
+clientXYDecoder : Decoder XY
+clientXYDecoder =
+    JD.map2 XY
+        (JD.field "clientX" JD.float)
+        (JD.field "clientY" JD.float)
+
+
+offsetXYDecoder : Decoder XY
+offsetXYDecoder =
+    JD.map2 XY
+        (JD.field "offsetX" JD.float)
+        (JD.field "offsetY" JD.float)
 
 
 
