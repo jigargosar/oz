@@ -234,10 +234,10 @@ update message model =
                 Dragging _ ->
                     Debug.todo "impossible state"
 
-        OnDragStart dragItemId cursor ->
+        OnDragStart dragId cursor ->
             case model.state of
                 Browsing ->
-                    case Doc.gotoId dragItemId model.doc of
+                    case Doc.gotoId dragId model.doc of
                         Just newDoc ->
                             ( { model | doc = newDoc, state = Dragging cursor }
                             , getBeacons ()
@@ -250,7 +250,7 @@ update message model =
                     case
                         model.doc
                             |> endEdit editState
-                            |> Doc.gotoId dragItemId
+                            |> Doc.gotoId dragId
                     of
                         Just newDoc ->
                             ( { model | doc = newDoc, state = Dragging cursor }
