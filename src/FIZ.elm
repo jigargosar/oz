@@ -1,4 +1,4 @@
-module ItemForestZipper exposing
+module FIZ exposing
     ( FIZ
     , Item
     , Location(..)

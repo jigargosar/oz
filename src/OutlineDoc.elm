@@ -35,8 +35,8 @@ module OutlineDoc exposing
     )
 
 import Dict exposing (Dict)
+import FIZ as FIZ exposing (FIZ, Location(..))
 import Forest.Zipper
-import ItemForestZipper as FIZ exposing (FIZ, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
