@@ -47,7 +47,6 @@ main =
 
 type alias Model =
     { doc : OutlineDoc
-    , parent : Maybe OutlineDoc
     , state : State
     , seed : Seed
     }
@@ -85,7 +84,6 @@ decodeMaybeDoc encodedNullableDoc =
 initModel : OutlineDoc -> Seed -> Model
 initModel doc seed =
     { doc = doc
-    , parent = Nothing
     , state = Browsing
     , seed = seed
     }
@@ -174,12 +172,12 @@ cacheDocIfChanged old new =
 
 reconstructDoc : Model -> OutlineDoc
 reconstructDoc model =
-    case model.parent of
-        Just oldParent ->
-            Doc.zoomOut model.doc oldParent
-
-        Nothing ->
-            model.doc
+    --case model.parent of
+    --    Just oldParent ->
+    --        Doc.zoomOut model.doc oldParent
+    --
+    --    Nothing ->
+    model.doc
 
 
 focusElOnDocCursorChange : Model -> Model -> Cmd Msg
@@ -389,25 +387,35 @@ gotoIdIgnoreNothing itemId =
 
 zoomInIgnoreNothing : Model -> Model
 zoomInIgnoreNothing model =
-    let
-        foo : Maybe ( OutlineDoc, OutlineDoc )
-        foo =
-            case model.parent of
-                Just oldParent ->
-                    Doc.zoomOut model.doc oldParent
-                        |> Debug.log "debug"
-                        |> Doc.gotoId (Doc.currentId model.doc |> Debug.log "debug")
-                        |> Maybe.andThen Doc.zoomIn
+    --let
+    --    foo : Maybe ( OutlineDoc, OutlineDoc )
+    --    foo =
+    --        case model.parent of
+    --            Just oldParent ->
+    --                Doc.zoomOut model.doc oldParent
+    --                    |> Debug.log "debug"
+    --                    |> Doc.gotoId (Doc.currentId model.doc |> Debug.log "debug")
+    --                    |> Maybe.andThen Doc.zoomIn
+    --
+    --            Nothing ->
+    --                Doc.zoomIn model.doc
+    --in
+    --case foo of
+    --    Just ( parent, child ) ->
+    --        { model | parent = Just parent, doc = child }
+    --
+    --    Nothing ->
+    model
 
-                Nothing ->
-                    Doc.zoomIn model.doc
-    in
-    case foo of
-        Just ( parent, child ) ->
-            { model | parent = Just parent, doc = child }
 
-        Nothing ->
-            model
+zoomOutIgnoreNothing : Model -> Model
+zoomOutIgnoreNothing model =
+    --case model.parent |> Maybe.map (Doc.zoomOut model.doc) of
+    --    Just newDoc ->
+    --        { model | parent = Nothing, doc = newDoc }
+    --
+    --    Nothing ->
+    model
 
 
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
@@ -505,7 +513,7 @@ updateWhenBrowsing message =
             zoomInIgnoreNothing
 
         ZoomOut ->
-            mapDocIgnoreNothing Doc.collapse
+            zoomOutIgnoreNothing
 
         CollapseOrGotoParent ->
             mapDocIgnoreNothing Doc.collapseOrNavParent
