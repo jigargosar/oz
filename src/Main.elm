@@ -355,6 +355,17 @@ setBrowsingState =
     setState Browsing
 
 
+type DocMsg
+    = GotoId ItemId
+
+
+updateDoc : DocMsg -> Model -> Model
+updateDoc message =
+    case message of
+        GotoId itemId ->
+            attemptMapDoc (Doc.gotoId itemId)
+
+
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg (Edit isAdding _) =
     case msg of
@@ -409,17 +420,6 @@ updateOnGlobalKeyDown ke model =
 
         Dragging _ ->
             model
-
-
-type DocMsg
-    = GotoId ItemId
-
-
-updateDoc : DocMsg -> Model -> Model
-updateDoc message =
-    case message of
-        GotoId itemId ->
-            attemptMapDoc (Doc.gotoId itemId)
 
 
 type BrowsingMsg
