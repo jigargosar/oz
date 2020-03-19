@@ -317,16 +317,16 @@ setState state model =
 
 
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
-updateWhenEditing msg (Edit isAdding _) model =
+updateWhenEditing msg (Edit isAdding _) =
     case msg of
         OnTab ->
-            attemptMapDoc Doc.indent model
+            attemptMapDoc Doc.indent
 
         OnShiftTab ->
-            attemptMapDoc Doc.unIndent model
+            attemptMapDoc Doc.unIndent
 
         TitleChanged title ->
-            { model | state = Editing (Edit isAdding title) }
+            setState (Editing (Edit isAdding title))
 
 
 updateWhenDragging : WhenDraggingMsg -> Cursor -> Model -> ( Model, Cmd Msg )
