@@ -49,3 +49,7 @@ condAlways conditions =
 apply : a -> (a -> b) -> b
 apply =
     (|>)
+
+
+effect func ( m, c ) =
+    ( m, Cmd.batch [ c, func m ] )

@@ -155,10 +155,6 @@ cacheDocIfChanged old new =
         Cmd.none
 
 
-effect func ( m, c ) =
-    ( m, Cmd.batch [ c, func m ] )
-
-
 updateWrapper : Msg -> Model -> ( Model, Cmd Msg )
 updateWrapper message model =
     update message model
