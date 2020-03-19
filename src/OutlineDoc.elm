@@ -34,7 +34,6 @@ module OutlineDoc exposing
     , zoomOut
     )
 
-import Dict exposing (Dict)
 import FIZ as FIZ exposing (FIZ, Location(..))
 import Forest.Zipper as Z
 import ItemId exposing (ItemId)
@@ -43,7 +42,6 @@ import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
 import Random exposing (Generator)
-import Tree as T
 import Utils exposing (required)
 
 
