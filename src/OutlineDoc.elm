@@ -168,7 +168,15 @@ zoomOut doc =
             Nothing
 
         Zoomed pz z ->
-            zoomOutHelp z pz |> Doc |> Just
+            let
+                nz =
+                    zoomOutHelp z pz
+            in
+            nz
+                |> FIZ.goUp
+                |> Maybe.andThen (\newPZ -> zoomInHelp newPZ |> Maybe.map (Zoomed newPZ))
+                |> Maybe.withDefault (Doc nz)
+                |> Just
 
 
 zoomOutHelp : FIZ -> FIZ -> FIZ
