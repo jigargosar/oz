@@ -9,6 +9,7 @@ module FIZ exposing
     , deleteEmpty
     , encoder
     , expand
+    , expandAncestors
     , getId
     , getTitle
     , goBackward

@@ -170,7 +170,7 @@ zoomOut doc =
         Zoomed pz z ->
             case Z.transferOneLevelTo z pz of
                 ( newZ, Just newPZ ) ->
-                    Just (initZoomed newPZ newZ)
+                    Just (initZoomed newPZ (FIZ.expandAncestors newZ))
 
                 ( newZ, Nothing ) ->
                     Just (initDoc newZ)
