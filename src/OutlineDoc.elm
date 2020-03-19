@@ -317,15 +317,15 @@ zExpand z =
 
 zCollapse : FIZ -> Maybe FIZ
 zCollapse fiz =
-    if canCollapse fiz then
+    let
+        canCollapse =
+            not (Z.isLeaf fiz || (Z.data fiz).collapsed)
+    in
+    if canCollapse then
         Just (Z.mapData (setCollapsedUnsafe True) fiz)
 
     else
         Nothing
-
-
-canCollapse fiz =
-    not (Z.isLeaf fiz || (Z.data fiz).collapsed)
 
 
 setCollapsedUnsafe collapsed model =
