@@ -434,15 +434,11 @@ updateWhenBrowsing message =
 
         BM_TitleClicked iid ->
             \model ->
-                let
-                    intent =
-                        if Doc.currentId model.doc == iid then
-                            StartEdit
+                if Doc.currentId model.doc == iid then
+                    updateWhenBrowsing StartEdit model
 
-                        else
-                            BM_DocMsg (GotoId iid)
-                in
-                updateWhenBrowsing intent model
+                else
+                    updateDoc (GotoId iid) model
 
         Collapse ->
             attemptMapDoc Doc.collapse
