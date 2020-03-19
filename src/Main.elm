@@ -146,6 +146,7 @@ updateWrapper message model =
     update message model
         |> effect (cacheDocIfChanged model)
         |> effect (focusElOnDocCursorChange model)
+        |> effect (getBeaconsOnDragStartOrDragMove model)
 
 
 cacheDocIfChanged : Model -> Model -> Cmd msg
@@ -201,6 +202,29 @@ focusElOnDocCursorChange old new =
 
             Dragging _ ->
                 Cmd.none
+
+    else
+        Cmd.none
+
+
+getBeaconsOnDragStartOrDragMove : Model -> Model -> Cmd msg
+getBeaconsOnDragStartOrDragMove oldModel newModel =
+    let
+        isDragging : Model -> Bool
+        isDragging model =
+            getDragState model /= Nothing
+
+        getDragState : Model -> Maybe Pointer
+        getDragState model =
+            case model.state of
+                Dragging pointer ->
+                    Just pointer
+
+                _ ->
+                    Nothing
+    in
+    if getDragState oldModel /= getDragState newModel && isDragging newModel then
+        getBeacons ()
 
     else
         Cmd.none
