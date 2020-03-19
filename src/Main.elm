@@ -363,12 +363,6 @@ updateWhenDragging msg pointer model =
                         |> Maybe.andThen
                             (\beacons ->
                                 Dnd.dndClosestCandidateLocation beacons pointer
-                                    |> (if debug then
-                                            Debug.log "debug"
-
-                                        else
-                                            identity
-                                       )
                             )
                         |> Maybe.andThen
                             (\cl -> Doc.relocateToCandidateLocation cl model.doc)
