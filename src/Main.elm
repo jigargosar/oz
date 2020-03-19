@@ -226,25 +226,17 @@ update message model =
                 _ ->
                     Debug.todo "impl"
 
-        ItemTitleClicked iid ->
+        ItemTitleClicked itemId ->
             case model.state of
                 Browsing ->
-                    let
-                        intent =
-                            if Doc.currentId model.doc == iid then
-                                StartEdit
-
-                            else
-                                GotoId iid
-                    in
-                    ( updateWhenBrowsing intent model
+                    ( updateWhenBrowsing (BM_TitleClicked itemId) model
                     , Cmd.none
                     )
 
                 Editing editState ->
                     ( model
                         |> mapDoc (endEdit editState)
-                        |> attemptMapDoc (Doc.gotoId iid)
+                        |> attemptMapDoc (Doc.gotoId itemId)
                     , Cmd.none
                     )
 
@@ -391,7 +383,8 @@ updateOnGlobalKeyDown ke model =
 
 
 type BrowsingMsg
-    = StartEdit
+    = BM_TitleClicked ItemId
+    | StartEdit
     | GotoId ItemId
     | GotoPrev
     | CollapseOrGotoParent
@@ -425,6 +418,18 @@ toBrowsingMsg =
 updateWhenBrowsing : BrowsingMsg -> Model -> Model
 updateWhenBrowsing msg =
     case msg of
+        BM_TitleClicked iid ->
+            \model ->
+                let
+                    intent =
+                        if Doc.currentId model.doc == iid then
+                            StartEdit
+
+                        else
+                            GotoId iid
+                in
+                updateWhenBrowsing intent model
+
         Collapse ->
             attemptMapDoc Doc.collapse
 
