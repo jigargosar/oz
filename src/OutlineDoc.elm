@@ -34,6 +34,7 @@ module OutlineDoc exposing
     , zoomOut
     )
 
+import Dict exposing (Dict)
 import Forest.Zipper
 import ItemForestZipper as FIZ exposing (FIZ, Location(..))
 import ItemId exposing (ItemId)
@@ -41,6 +42,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Random exposing (Generator)
+import Tree as T
 
 
 
@@ -153,7 +155,33 @@ zoomOut : OutlineDoc -> OutlineDoc -> OutlineDoc
 zoomOut (OutlineDoc zoomDoc) =
     -- TODO: Need to ensure invariants, i.e. unique ItemID
     -- write quick and dirty func.
-    map (Forest.Zipper.replaceChildForest zoomDoc)
+    map (Forest.Zipper.replaceChildForest zoomDoc >> ensureUniqueNodes)
+
+
+ensureUniqueNodes : FIZ -> FIZ
+ensureUniqueNodes fiz =
+    let
+        safeInsertItem item d =
+            let
+                strId =
+                    ItemId.toString item.id
+
+                _ =
+                    case Dict.get strId d of
+                        Just existing ->
+                            Debug.todo (Debug.toString ( "duplicate item found", item, d ))
+
+                        Nothing ->
+                            1
+            in
+            Dict.insert strId item d
+
+        foo : Dict String Item
+        foo =
+            Forest.Zipper.rootForest fiz
+                |> List.foldl (\t d -> T.foldl safeInsertItem d t) Dict.empty
+    in
+    fiz
 
 
 encoder : OutlineDoc -> Value

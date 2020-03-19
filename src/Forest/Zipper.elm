@@ -28,6 +28,7 @@ module Forest.Zipper exposing
     , replaceChildForest
     , restructure
     , right
+    , rootForest
     , tree
     , up
     )

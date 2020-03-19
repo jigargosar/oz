@@ -1,4 +1,4 @@
-module ItemId exposing (ItemId, itemIdDecoder, itemIdEncoder, itemIdGenerator)
+module ItemId exposing (ItemId, itemIdDecoder, itemIdEncoder, itemIdGenerator, toString)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -31,3 +31,8 @@ itemIdDecoder =
                 else
                     JD.fail ("invalid item id prefix: " ++ idStr)
             )
+
+
+toString : ItemId -> String
+toString (ItemId string) =
+    string
