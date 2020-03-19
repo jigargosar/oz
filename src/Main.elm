@@ -194,7 +194,7 @@ update message model =
             ( model, Cmd.none )
 
         DomFocusFailed domId ->
-            Debug.todo ("TitleEditorFocusFailed: " ++ domId)
+            Debug.todo ("DomFocusFailed: " ++ domId)
 
         OnKeyDown ke ->
             ( onKeyDown ke model, Cmd.none )
