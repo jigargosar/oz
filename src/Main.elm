@@ -162,6 +162,7 @@ cacheDocIfChanged old new =
         Cmd.none
 
 
+focusElOnDocCursorChange : Model -> Model -> Cmd Msg
 focusElOnDocCursorChange old new =
     if neqBy .state old new || neqBy (.doc >> Doc.ancestorIds) old new then
         case new.state of
