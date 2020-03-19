@@ -166,7 +166,11 @@ zoomOut doc =
             Nothing
 
         Zoomed pz z ->
-            Forest.Zipper.replaceChildForest z pz |> ensureUniqueNodes |> Doc |> Just
+            zoomOutHelp z pz |> Doc |> Just
+
+
+zoomOutHelp z pz =
+    Forest.Zipper.replaceChildForest z pz |> ensureUniqueNodes
 
 
 ensureUniqueNodes : FIZ -> FIZ
