@@ -331,7 +331,7 @@ updateWhenEditing msg (Edit isAdding _) =
             attemptMapDoc Doc.unIndent
 
         TitleChanged title ->
-            setState (Editing (Edit isAdding title))
+            setEditingState (Edit isAdding title)
 
 
 updateWhenDragging : WhenDraggingMsg -> Cursor -> Model -> ( Model, Cmd Msg )
