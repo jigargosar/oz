@@ -311,6 +311,11 @@ attemptMapDoc maybeFunc model =
             model
 
 
+setState : State -> Model -> Model
+setState state model =
+    { model | state = state }
+
+
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg (Edit isAdding _) model =
     case msg of
