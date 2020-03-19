@@ -157,8 +157,7 @@ zoomIn doc =
 
         Zoomed pz z ->
             Z.merge z pz
-                |> FIZ.gotoId (FIZ.getId z)
-                |> Maybe.andThen (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (initZoomed newPZ))
+                |> (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (initZoomed newPZ))
 
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
