@@ -119,8 +119,8 @@ mergeInternal cz zipper =
     }
 
 
-merge1 : ForestZipper a -> ForestZipper a -> ( ForestZipper a, Maybe (ForestZipper a) )
-merge1 cz zipper =
+transferOneLevelToInternal : ForestZipper a -> ForestZipper a -> ( ForestZipper a, Maybe (ForestZipper a) )
+transferOneLevelToInternal cz zipper =
     let
         newChildZipper =
             { cz
