@@ -30,6 +30,8 @@ module OutlineDoc exposing
     , restructureWithContext
     , setTitleUnlessBlank
     , unIndent
+    , zoomIn
+    , zoomOut
     )
 
 import Dict exposing (Dict)
@@ -147,17 +149,24 @@ new =
     FIZ.new |> Random.map Doc
 
 
+zoomIn : OutlineDoc -> Maybe OutlineDoc
+zoomIn doc =
+    case doc of
+        Doc z ->
+            Forest.Zipper.fromChildren z |> Maybe.map (Zoomed z)
 
---zoomIn : OutlineDoc -> Maybe ( OutlineDoc, OutlineDoc )
---zoomIn parentDoc =
---    mapMaybe Forest.Zipper.fromChildren parentDoc
---        |> Maybe.map (Tuple.pair parentDoc)
---zoomOut : OutlineDoc -> OutlineDoc -> OutlineDoc
---zoomOut (OutlineDoc zoomDoc) =
---    -- TODO: Need to ensure invariants, i.e. unique ItemID
---    -- write quick and dirty func.
---    map (Forest.Zipper.replaceChildForest zoomDoc >> ensureUniqueNodes)
---
+        Zoomed pz z ->
+            Nothing
+
+
+zoomOut : OutlineDoc -> Maybe OutlineDoc
+zoomOut doc =
+    case doc of
+        Doc z ->
+            Nothing
+
+        Zoomed pz z ->
+            Forest.Zipper.replaceChildForest z pz |> ensureUniqueNodes |> Doc |> Just
 
 
 ensureUniqueNodes : FIZ -> FIZ

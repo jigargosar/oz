@@ -386,36 +386,13 @@ gotoIdIgnoreNothing itemId =
 
 
 zoomInIgnoreNothing : Model -> Model
-zoomInIgnoreNothing model =
-    --let
-    --    foo : Maybe ( OutlineDoc, OutlineDoc )
-    --    foo =
-    --        case model.parent of
-    --            Just oldParent ->
-    --                Doc.zoomOut model.doc oldParent
-    --                    |> Debug.log "debug"
-    --                    |> Doc.gotoId (Doc.currentId model.doc |> Debug.log "debug")
-    --                    |> Maybe.andThen Doc.zoomIn
-    --
-    --            Nothing ->
-    --                Doc.zoomIn model.doc
-    --in
-    --case foo of
-    --    Just ( parent, child ) ->
-    --        { model | parent = Just parent, doc = child }
-    --
-    --    Nothing ->
-    model
+zoomInIgnoreNothing =
+    mapDocIgnoreNothing Doc.zoomIn
 
 
 zoomOutIgnoreNothing : Model -> Model
-zoomOutIgnoreNothing model =
-    --case model.parent |> Maybe.map (Doc.zoomOut model.doc) of
-    --    Just newDoc ->
-    --        { model | parent = Nothing, doc = newDoc }
-    --
-    --    Nothing ->
-    model
+zoomOutIgnoreNothing =
+    mapDocIgnoreNothing Doc.zoomOut
 
 
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
