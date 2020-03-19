@@ -41,7 +41,7 @@ import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
 import Random exposing (Generator)
-import Utils exposing (required)
+import Utils exposing (nonBlank, required)
 
 
 
@@ -226,16 +226,27 @@ unwrap doc =
 
 currentTitle : OutlineDoc -> String
 currentTitle =
-    unwrap >> FIZ.getTitle
+    unwrap >> zTitle
 
 
+zTitle : FIZ -> String
+zTitle =
+    Z.data >> .title
+
+
+ancestorIds : OutlineDoc -> List ItemId
 ancestorIds =
-    unwrap >> FIZ.ancestorIds
+    unwrap >> Z.ancestors >> List.map .id
 
 
 currentId : OutlineDoc -> ItemId
 currentId =
-    unwrap >> FIZ.getId
+    unwrap >> zId
+
+
+zId : FIZ -> ItemId
+zId =
+    Z.data >> .id
 
 
 
@@ -278,7 +289,16 @@ collapse =
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
-    map (FIZ.deleteEmpty |> ignoreNothing)
+    map (deleteEmpty |> ignoreNothing)
+
+
+deleteEmpty : FIZ -> Maybe FIZ
+deleteEmpty z =
+    if nonBlank (zTitle z) == Nothing && Z.isLeaf z then
+        Z.remove z
+
+    else
+        Nothing
 
 
 
@@ -311,7 +331,26 @@ gotoParent =
 
 relocateBy : FIZ.Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
 relocateBy a b =
-    mapMaybe (FIZ.relocateBy a b)
+    mapMaybe (zRelocateBy a b)
+
+
+zRelocateBy :
+    Location
+    -> (FIZ -> Maybe FIZ)
+    -> FIZ
+    -> Maybe FIZ
+zRelocateBy loc findTargetFunc doc =
+    case findTargetFunc doc |> Maybe.map zId of
+        Just targetId ->
+            FIZ.relocate loc targetId doc
+
+        Nothing ->
+            Nothing
+
+
+relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+relocateTo (CandidateLocation loc itemId) =
+    mapMaybe (FIZ.relocate loc itemId)
 
 
 unIndent : OutlineDoc -> Maybe OutlineDoc
@@ -342,11 +381,6 @@ moveDownwards =
         [ relocateBy FIZ.After FIZ.goRight
         , relocateBy FIZ.PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
         ]
-
-
-relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-relocateTo (CandidateLocation loc itemId) =
-    mapMaybe (FIZ.relocate loc itemId)
 
 
 

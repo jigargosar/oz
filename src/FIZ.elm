@@ -3,15 +3,12 @@ module FIZ exposing
     , Item
     , Location(..)
     , addNew
-    , ancestorIds
     , collapse
     , decoder
-    , deleteEmpty
     , encoder
     , expand
     , expandAncestors
     , getId
-    , getTitle
     , goBackward
     , goForward
     , goLeft
@@ -20,7 +17,6 @@ module FIZ exposing
     , gotoId
     , new
     , relocate
-    , relocateBy
     , restructureCursorWithContext
     , restructureWithContext
     , setTitle
@@ -34,6 +30,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Random exposing (Generator)
+import Utils exposing (nonBlank)
 
 
 
@@ -125,16 +122,6 @@ getId =
     Zipper.data >> .id
 
 
-getTitle : FIZ -> String
-getTitle =
-    Zipper.data >> .title
-
-
-ancestorIds : FIZ -> List ItemId
-ancestorIds =
-    Zipper.ancestors >> List.map .id
-
-
 hasVisibleChildren : FIZ -> Bool
 hasVisibleChildren fiz =
     not (Zipper.isLeaf fiz || (Zipper.data fiz |> .collapsed))
@@ -176,18 +163,6 @@ setTitleUnsafe title_ model =
     { model | title = title_ }
 
 
-nonBlank : String -> Maybe String
-nonBlank =
-    String.trim
-        >> (\trimmedString ->
-                if trimmedString == "" then
-                    Nothing
-
-                else
-                    Just trimmedString
-           )
-
-
 expand : FIZ -> Maybe FIZ
 expand fiz =
     if canExpand fiz then
@@ -219,34 +194,7 @@ setCollapsedUnsafe collapsed model =
 
 
 
--- DELETE NODE
-
-
-deleteEmpty : FIZ -> Maybe FIZ
-deleteEmpty fiz =
-    if nonBlank (getTitle fiz) == Nothing && Zipper.isLeaf fiz then
-        Zipper.remove fiz
-
-    else
-        Nothing
-
-
-
 -- MOVE NODE AT CURSOR
-
-
-relocateBy :
-    Location
-    -> (FIZ -> Maybe FIZ)
-    -> FIZ
-    -> Maybe FIZ
-relocateBy relativeLocation findTargetFunc doc =
-    case findTargetFunc doc |> Maybe.map getId of
-        Just targetId ->
-            relocate relativeLocation targetId doc
-
-        Nothing ->
-            Nothing
 
 
 relocate : Location -> ItemId -> FIZ -> Maybe FIZ

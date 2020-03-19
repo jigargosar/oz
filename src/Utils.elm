@@ -58,3 +58,15 @@ effect func ( m, c ) =
 
 firstOf =
     Maybe.Extra.oneOf
+
+
+nonBlank : String -> Maybe String
+nonBlank =
+    String.trim
+        >> (\trimmedString ->
+                if trimmedString == "" then
+                    Nothing
+
+                else
+                    Just trimmedString
+           )
