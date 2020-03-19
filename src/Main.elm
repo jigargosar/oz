@@ -4,7 +4,7 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events
 import CollapseState exposing (CollapseState(..))
-import Dnd exposing (Cursor, XY)
+import Dnd exposing (Pointer, XY)
 import Html exposing (Attribute, button, div, input, text)
 import Html.Attributes as A exposing (attribute, class, disabled, draggable, style, tabindex, value)
 import Html.Events as Event exposing (onClick, onInput, preventDefaultOn)
@@ -54,7 +54,7 @@ type alias Model =
 
 type State
     = Editing Edit
-    | Dragging Cursor
+    | Dragging Pointer
     | Browsing
 
 
@@ -136,7 +136,7 @@ type Msg
     | EM WhenEditingMsg
       -- Valid for both editing & browsing
     | ItemTitleClicked ItemId
-    | OnDragStart ItemId Cursor
+    | OnDragStart ItemId Pointer
       -- Only valid when browsing
     | AddNewClicked
 
@@ -321,6 +321,11 @@ setEditingState =
     Editing >> setState
 
 
+setDraggingState : Pointer -> Model -> Model
+setDraggingState =
+    Dragging >> setState
+
+
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg (Edit isAdding _) =
     case msg of
@@ -334,7 +339,7 @@ updateWhenEditing msg (Edit isAdding _) =
             setEditingState (Edit isAdding title)
 
 
-updateWhenDragging : WhenDraggingMsg -> Cursor -> Model -> ( Model, Cmd Msg )
+updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> ( Model, Cmd Msg )
 updateWhenDragging msg cursor model =
     case msg of
         Move clientXY ->
@@ -882,7 +887,7 @@ dragEvents : ItemId -> List (Html.Attribute Msg)
 dragEvents itemId =
     [ draggable "true"
     , Event.preventDefaultOn "dragstart"
-        (JD.map2 (\clientXY offsetXY -> OnDragStart itemId (Cursor clientXY offsetXY))
+        (JD.map2 (\clientXY offsetXY -> OnDragStart itemId (Pointer clientXY offsetXY))
             clientXYDecoder
             offsetXYDecoder
             |> preventDefault True

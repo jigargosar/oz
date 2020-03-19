@@ -4,7 +4,7 @@ import Json.Decode as JD exposing (Decoder)
 import OutlineDoc exposing (CandidateLocation)
 
 
-type alias Cursor =
+type alias Pointer =
     { clientXY : XY
     , offsetXY : XY
     }
@@ -14,12 +14,12 @@ type alias Beacon =
     ( CandidateLocation, Rect )
 
 
-dndDraggedXY : Cursor -> XY
+dndDraggedXY : Pointer -> XY
 dndDraggedXY dnd =
     subtractXY dnd.clientXY dnd.offsetXY
 
 
-dndClosestCandidateLocation : List Beacon -> Cursor -> Maybe CandidateLocation
+dndClosestCandidateLocation : List Beacon -> Pointer -> Maybe CandidateLocation
 dndClosestCandidateLocation beacons dnd =
     let
         draggedXY : XY
