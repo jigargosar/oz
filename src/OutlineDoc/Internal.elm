@@ -1,4 +1,4 @@
-module OutlineDoc.Internal exposing (OutlineDoc, Unwrapped(..), initDoc, initZoomed, unwrap)
+module OutlineDoc.Internal exposing (OutlineDoc, Unwrapped(..), initDoc, initZoomed, open)
 
 import Dict
 import FIZ exposing (FIZ)
@@ -17,8 +17,8 @@ type Unwrapped
     | Zoomed FIZ FIZ
 
 
-unwrap : OutlineDoc -> Unwrapped
-unwrap doc =
+open : OutlineDoc -> Unwrapped
+open doc =
     case doc of
         Doc_ z ->
             Doc z
