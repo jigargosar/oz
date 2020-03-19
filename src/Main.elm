@@ -163,13 +163,23 @@ cacheDocIfChanged old new =
     let
         cacheDoc : Model -> Cmd msg
         cacheDoc =
-            .doc >> Doc.encoder >> saveOZ
+            reconstructDoc >> Doc.encoder >> saveOZ
     in
     if neqBy .doc old new then
         cacheDoc new
 
     else
         Cmd.none
+
+
+reconstructDoc : Model -> OutlineDoc
+reconstructDoc model =
+    case model.parent of
+        Just oldParent ->
+            Doc.zoomOut model.doc oldParent
+
+        Nothing ->
+            model.doc
 
 
 focusElOnDocCursorChange : Model -> Model -> Cmd Msg
