@@ -5,8 +5,8 @@ module Dnd exposing
     , beaconAttr
     , clientXYDecoder
     , closestCandidateResult
-    , dndDraggedXY
     , dragEvents
+    , pointerXY
     , setClientXY
     )
 
@@ -33,8 +33,8 @@ setClientXY clientXY pointer =
     { pointer | clientXY = clientXY }
 
 
-dndDraggedXY : Pointer -> XY
-dndDraggedXY dnd =
+pointerXY : Pointer -> XY
+pointerXY dnd =
     subtractXY dnd.clientXY dnd.offsetXY
 
 
@@ -43,7 +43,7 @@ dndClosestCandidateLocation beacons dnd =
     let
         draggedXY : XY
         draggedXY =
-            dndDraggedXY dnd
+            pointerXY dnd
 
         sortByFunc : Beacon -> Float
         sortByFunc ( _, rect ) =

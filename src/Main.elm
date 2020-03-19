@@ -576,10 +576,10 @@ viewOutline state doc =
 viewDraggedNode : State -> OutlineDoc -> HM
 viewDraggedNode state doc =
     case state of
-        Dragging cursor ->
+        Dragging pointer ->
             let
                 xy =
-                    Dnd.dndDraggedXY cursor
+                    Dnd.pointerXY pointer
             in
             div
                 [ class "fixed no-pe"
