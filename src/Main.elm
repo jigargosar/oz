@@ -178,6 +178,7 @@ focusElOnDocCursorChange old new =
         Cmd.none
 
 
+attemptMapDoc : (OutlineDoc -> Maybe OutlineDoc) -> Model -> Model
 attemptMapDoc maybeFunc model =
     case maybeFunc model.doc of
         Just doc ->
