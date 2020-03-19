@@ -164,7 +164,7 @@ zoomIn doc =
 zoomOut : OutlineDoc -> Maybe OutlineDoc
 zoomOut doc =
     case doc of
-        Doc z ->
+        Doc _ ->
             Nothing
 
         Zoomed pz z ->
