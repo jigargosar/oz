@@ -329,9 +329,41 @@ gotoParent =
 -- MOVE NODE
 
 
-relocateBy : Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-relocateBy a b =
-    mapMaybe (zRelocateBy a b)
+relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
+relocateTo (CandidateLocation loc itemId) =
+    mapMaybe (zRelocate loc itemId)
+
+
+unIndent : OutlineDoc -> Maybe OutlineDoc
+unIndent =
+    -- moveAfterParent
+    mapMaybe (zRelocateBy After FIZ.goUp)
+
+
+indent : OutlineDoc -> Maybe OutlineDoc
+indent =
+    -- appendInPreviousSibling
+    mapMaybe (zRelocateBy AppendChild FIZ.goLeft)
+
+
+moveUpwards : OutlineDoc -> Maybe OutlineDoc
+moveUpwards =
+    -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
+    Maybe.Extra.oneOf
+        [ mapMaybe (zRelocateBy Before FIZ.goLeft)
+        , mapMaybe (zRelocateBy AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft))
+        ]
+
+
+moveDownwards : OutlineDoc -> Maybe OutlineDoc
+moveDownwards =
+    -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
+    mapMaybe
+        (Maybe.Extra.oneOf
+            [ zRelocateBy After FIZ.goRight
+            , zRelocateBy PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
+            ]
+        )
 
 
 zRelocateBy :
@@ -348,11 +380,6 @@ zRelocateBy loc findTargetFunc doc =
             Nothing
 
 
-relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
-relocateTo (CandidateLocation loc itemId) =
-    mapMaybe (zRelocate loc itemId)
-
-
 zRelocate : Location -> ItemId -> FIZ -> Maybe FIZ
 zRelocate relativeLocation targetId zipper =
     let
@@ -365,36 +392,6 @@ zRelocate relativeLocation targetId zipper =
     in
     Z.remove zipper
         |> Maybe.andThen (FIZ.gotoId targetId >> Maybe.map insertHelp)
-
-
-unIndent : OutlineDoc -> Maybe OutlineDoc
-unIndent =
-    -- moveAfterParent
-    relocateBy After FIZ.goUp
-
-
-indent : OutlineDoc -> Maybe OutlineDoc
-indent =
-    -- appendInPreviousSibling
-    relocateBy AppendChild FIZ.goLeft
-
-
-moveUpwards : OutlineDoc -> Maybe OutlineDoc
-moveUpwards =
-    -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    Maybe.Extra.oneOf
-        [ relocateBy Before FIZ.goLeft
-        , relocateBy AppendChild (FIZ.goUp >> Maybe.andThen FIZ.goLeft)
-        ]
-
-
-moveDownwards : OutlineDoc -> Maybe OutlineDoc
-moveDownwards =
-    -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
-    Maybe.Extra.oneOf
-        [ relocateBy After FIZ.goRight
-        , relocateBy PrependChild (FIZ.goUp >> Maybe.andThen FIZ.goRight)
-        ]
 
 
 
