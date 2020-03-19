@@ -270,26 +270,70 @@ addNew doc =
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
     map
-        (FIZ.setTitle title |> ignoreNothing)
-
-
-ignoreNothing f v =
-    f v |> Maybe.withDefault v
+        (setTitle title |> ignoreNothing)
 
 
 expand : OutlineDoc -> Maybe OutlineDoc
 expand =
-    mapMaybe FIZ.expand
+    mapMaybe zExpand
 
 
 collapse : OutlineDoc -> Maybe OutlineDoc
 collapse =
-    mapMaybe FIZ.collapse
+    mapMaybe zCollapse
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map (deleteEmpty |> ignoreNothing)
+
+
+setTitle : String -> FIZ -> Maybe FIZ
+setTitle rawTitle fiz =
+    let
+        setTitleUnsafe title_ model =
+            { model | title = title_ }
+    in
+    case nonBlank rawTitle of
+        Just title ->
+            Just (Z.mapData (setTitleUnsafe title) fiz)
+
+        Nothing ->
+            Nothing
+
+
+zExpand : FIZ -> Maybe FIZ
+zExpand fiz =
+    if canExpand fiz then
+        Just (Z.mapData (setCollapsedUnsafe False) fiz)
+
+    else
+        Nothing
+
+
+zCollapse : FIZ -> Maybe FIZ
+zCollapse fiz =
+    if canCollapse fiz then
+        Just (Z.mapData (setCollapsedUnsafe True) fiz)
+
+    else
+        Nothing
+
+
+canCollapse fiz =
+    not (Z.isLeaf fiz || (Z.data fiz).collapsed)
+
+
+canExpand fiz =
+    not (Z.isLeaf fiz) && (Z.data fiz).collapsed
+
+
+setCollapsedUnsafe collapsed model =
+    { model | collapsed = collapsed }
+
+
+ignoreNothing f v =
+    f v |> Maybe.withDefault v
 
 
 deleteEmpty : FIZ -> Maybe FIZ
@@ -398,10 +442,6 @@ zRelocate relativeLocation targetId zipper =
 
 zExpandAncestors =
     Z.mapAncestorData (setCollapsedUnsafe False)
-
-
-setCollapsedUnsafe collapsed model =
-    { model | collapsed = collapsed }
 
 
 

@@ -2,10 +2,8 @@ module FIZ exposing
     ( FIZ
     , Item
     , addNew
-    , collapse
     , decoder
     , encoder
-    , expand
     , goBackward
     , goForward
     , goLeft
@@ -15,7 +13,6 @@ module FIZ exposing
     , new
     , restructureCursorWithContext
     , restructureWithContext
-    , setTitle
     )
 
 import CollapseState exposing (CollapseState)
@@ -26,7 +23,6 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Random exposing (Generator)
-import Utils exposing (nonBlank)
 
 
 
@@ -127,53 +123,6 @@ addNew fiz =
 
 
 -- UPDATE NODE
-
-
-setTitle : String -> FIZ -> Maybe FIZ
-setTitle rawTitle fiz =
-    case nonBlank rawTitle of
-        Just title ->
-            Just (Zipper.mapData (setTitleUnsafe title) fiz)
-
-        Nothing ->
-            Nothing
-
-
-setTitleUnsafe title_ model =
-    { model | title = title_ }
-
-
-expand : FIZ -> Maybe FIZ
-expand fiz =
-    if canExpand fiz then
-        Just (Zipper.mapData (setCollapsedUnsafe False) fiz)
-
-    else
-        Nothing
-
-
-collapse : FIZ -> Maybe FIZ
-collapse fiz =
-    if canCollapse fiz then
-        Just (Zipper.mapData (setCollapsedUnsafe True) fiz)
-
-    else
-        Nothing
-
-
-canCollapse fiz =
-    not (Zipper.isLeaf fiz || (Zipper.data fiz).collapsed)
-
-
-canExpand fiz =
-    not (Zipper.isLeaf fiz) && (Zipper.data fiz).collapsed
-
-
-setCollapsedUnsafe collapsed model =
-    { model | collapsed = collapsed }
-
-
-
 -- CORE NAVIGATION
 
 
