@@ -8,7 +8,6 @@ module OutlineDoc exposing
     , before
     , candidateLocationDecoder
     , candidateLocationEncoder
-    , childDoc
     , collapse
     , collapseOrNavParent
     , currentId
@@ -27,11 +26,12 @@ module OutlineDoc exposing
     , prependIn
     , relocateTo
     , removeIfBlankLeaf
-    , replaceChildDoc
     , restructureCurrentNode
     , restructureWithContext
     , setTitleUnlessBlank
     , unIndent
+    , zoomIn
+    , zoomOut
     )
 
 import Forest.Zipper
@@ -144,16 +144,16 @@ new =
     FIZ.new |> Random.map OutlineDoc
 
 
-childDoc : OutlineDoc -> Maybe OutlineDoc
-childDoc =
+zoomIn : OutlineDoc -> Maybe OutlineDoc
+zoomIn =
     mapMaybe (Forest.Zipper.forest >> Forest.Zipper.fromForest)
 
 
-replaceChildDoc : OutlineDoc -> OutlineDoc -> OutlineDoc
-replaceChildDoc (OutlineDoc c) =
+zoomOut : OutlineDoc -> OutlineDoc -> OutlineDoc
+zoomOut (OutlineDoc zoomDoc) =
     -- TODO: Need to ensure invariants, i.e. unique ItemID
     -- write quick and dirty func.
-    map (Forest.Zipper.replaceChildForest c)
+    map (Forest.Zipper.replaceChildForest zoomDoc)
 
 
 encoder : OutlineDoc -> Value
