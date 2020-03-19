@@ -226,7 +226,7 @@ update message model =
                     ( { model
                         | doc =
                             endEdit editState model.doc
-                                |> ignoreNothing (Doc.moveCursorToItemId iid)
+                                |> ignoreNothing (Doc.gotoId iid)
                       }
                     , Cmd.none
                     )
@@ -237,7 +237,7 @@ update message model =
         OnDragStart dragItemId cursor ->
             case model.state of
                 Browsing ->
-                    case Doc.moveCursorToItemId dragItemId model.doc of
+                    case Doc.gotoId dragItemId model.doc of
                         Just newDoc ->
                             ( { model | doc = newDoc, state = Dragging cursor }
                             , getBeacons ()
@@ -250,7 +250,7 @@ update message model =
                     case
                         model.doc
                             |> endEdit editState
-                            |> Doc.moveCursorToItemId dragItemId
+                            |> Doc.gotoId dragItemId
                     of
                         Just newDoc ->
                             ( { model | doc = newDoc, state = Dragging cursor }
@@ -425,7 +425,7 @@ updateDoc keyboardIntent =
                 Doc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
 
         FocusId id ->
-            attemptMapDoc (Doc.moveCursorToItemId id)
+            attemptMapDoc (Doc.gotoId id)
 
         EditFocused ->
             initEditState

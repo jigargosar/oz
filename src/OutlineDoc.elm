@@ -18,10 +18,10 @@ module OutlineDoc exposing
     , expandOrGoForward
     , goBackward
     , goForward
+    , gotoId
     , indent
     , moveAfterNextSiblingOrPrependInNextSiblingOfParent
     , moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    , moveCursorToItemId
     , new
     , prependIn
     , relocateToCandidateLocation
@@ -175,8 +175,8 @@ addNew =
     unwrap >> FIZ.addNew >> Random.map OutlineDoc
 
 
-moveCursorToItemId : ItemId -> OutlineDoc -> Maybe OutlineDoc
-moveCursorToItemId itemId =
+gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
+gotoId itemId =
     mapMaybe (FIZ.gotoId itemId)
 
 
