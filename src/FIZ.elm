@@ -122,7 +122,6 @@ addNew fiz =
 
 
 
--- UPDATE NODE
 -- CORE NAVIGATION
 
 
