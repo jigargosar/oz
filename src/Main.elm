@@ -421,10 +421,10 @@ type BrowsingMsg
     | BM_OnGlobalKeyDown KeyEvent
     | StartEdit
       --| BM_DocMsg DocMsg
-    | GotoPrev
+    | GoBackward
     | CollapseOrGotoParent
     | ExpandOrGotoNext
-    | GotoNext
+    | GoForward
     | UnIndent
     | Indent
     | ZoomIn
@@ -440,8 +440,8 @@ toBrowsingMsg : KeyEvent -> Maybe BrowsingMsg
 toBrowsingMsg =
     [ ( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], StartEdit )
     , ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], AddNew )
-    , ( KE.hot "ArrowUp", GotoPrev )
-    , ( KE.hot "ArrowDown", GotoNext )
+    , ( KE.hot "ArrowUp", GoBackward )
+    , ( KE.hot "ArrowDown", GoForward )
     , ( KE.hot "ArrowLeft", CollapseOrGotoParent )
     , ( KE.hot "ArrowRight", ExpandOrGotoNext )
     , ( KE.ctrl "ArrowUp", MoveUp )
@@ -491,10 +491,10 @@ updateWhenBrowsing message =
         Expand ->
             mapDocIgnoreNothing Doc.expand
 
-        GotoPrev ->
+        GoBackward ->
             mapDocIgnoreNothing Doc.goBackward
 
-        GotoNext ->
+        GoForward ->
             mapDocIgnoreNothing Doc.goForward
 
         UnIndent ->
