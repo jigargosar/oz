@@ -9,7 +9,6 @@ module OutlineDoc exposing
     , candidateLocationDecoder
     , candidateLocationEncoder
     , collapse
-    , collapseOrNavParent
     , currentId
     , currentTitle
     , decoder
@@ -17,8 +16,8 @@ module OutlineDoc exposing
     , expand
     , goBackward
     , goForward
-    , goUp
     , gotoId
+    , gotoParent
     , indent
     , moveDownwards
     , moveUpwards
@@ -278,11 +277,6 @@ collapse =
     mapMaybe FIZ.collapse
 
 
-collapseOrNavParent : OutlineDoc -> Maybe OutlineDoc
-collapseOrNavParent =
-    mapMaybe (Maybe.Extra.oneOf [ FIZ.collapse, FIZ.goUp ])
-
-
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     map
@@ -303,8 +297,8 @@ goForward =
     mapMaybe FIZ.goForward
 
 
-goUp : OutlineDoc -> Maybe OutlineDoc
-goUp =
+gotoParent : OutlineDoc -> Maybe OutlineDoc
+gotoParent =
     mapMaybe FIZ.goUp
 
 

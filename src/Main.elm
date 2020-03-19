@@ -483,7 +483,7 @@ updateWhenBrowsing message =
             mapDocIgnoreNothing Doc.zoomOut
 
         CollapseOrGotoParent ->
-            mapDocIgnoreNothing Doc.collapseOrNavParent
+            mapDocIgnoreNothing (firstOf [ Doc.collapse, Doc.gotoParent ])
 
         ExpandOrGotoNext ->
             mapDocIgnoreNothing (firstOf [ Doc.expand, Doc.goForward ])
@@ -504,12 +504,10 @@ updateWhenBrowsing message =
             mapDocIgnoreNothing Doc.indent
 
         MoveUp ->
-            mapDocIgnoreNothing
-                Doc.moveUpwards
+            mapDocIgnoreNothing Doc.moveUpwards
 
         MoveDown ->
-            mapDocIgnoreNothing
-                Doc.moveDownwards
+            mapDocIgnoreNothing Doc.moveDownwards
 
         StartEdit ->
             initEditState
