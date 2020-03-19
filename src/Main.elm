@@ -327,8 +327,8 @@ mapDoc func model =
     setDoc (func model.doc) model
 
 
-attemptMapDoc : (OutlineDoc -> Maybe OutlineDoc) -> Model -> Model
-attemptMapDoc maybeFunc model =
+mapDocIgnoreNothing : (OutlineDoc -> Maybe OutlineDoc) -> Model -> Model
+mapDocIgnoreNothing maybeFunc model =
     case maybeFunc model.doc of
         Just doc ->
             setDoc doc model
@@ -380,17 +380,17 @@ updateDoc : DocMsg -> Model -> Model
 updateDoc message =
     case message of
         GotoId itemId ->
-            attemptMapDoc (Doc.gotoId itemId)
+            mapDocIgnoreNothing (Doc.gotoId itemId)
 
 
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg (Edit isAdding _) =
     case msg of
         OnTab ->
-            attemptMapDoc Doc.indent
+            mapDocIgnoreNothing Doc.indent
 
         OnShiftTab ->
-            attemptMapDoc Doc.unIndent
+            mapDocIgnoreNothing Doc.unIndent
 
         TitleChanged title ->
             setEditingState (Edit isAdding title)
@@ -408,7 +408,7 @@ updateWhenDragging msg pointer model =
         GotBeacons encodedBeacons ->
             case Dnd.closestCandidateResult pointer encodedBeacons of
                 Ok cl ->
-                    attemptMapDoc (Doc.relocateTo cl) model
+                    mapDocIgnoreNothing (Doc.relocateTo cl) model
 
                 Err err ->
                     Debug.todo ("GotBeacons Error: " ++ err)
@@ -468,35 +468,35 @@ updateWhenBrowsing message =
                     updateDoc (GotoId iid) model
 
         Collapse ->
-            attemptMapDoc Doc.collapse
+            mapDocIgnoreNothing Doc.collapse
 
         CollapseOrGotoParent ->
-            attemptMapDoc Doc.collapseOrNavParent
+            mapDocIgnoreNothing Doc.collapseOrNavParent
 
         ExpandOrGotoNext ->
-            attemptMapDoc Doc.expandOrGoForward
+            mapDocIgnoreNothing Doc.expandOrGoForward
 
         Expand ->
-            attemptMapDoc Doc.expand
+            mapDocIgnoreNothing Doc.expand
 
         GotoPrev ->
-            attemptMapDoc Doc.goBackward
+            mapDocIgnoreNothing Doc.goBackward
 
         GotoNext ->
-            attemptMapDoc Doc.goForward
+            mapDocIgnoreNothing Doc.goForward
 
         UnIndent ->
-            attemptMapDoc Doc.unIndent
+            mapDocIgnoreNothing Doc.unIndent
 
         Indent ->
-            attemptMapDoc Doc.indent
+            mapDocIgnoreNothing Doc.indent
 
         MoveUp ->
-            attemptMapDoc
+            mapDocIgnoreNothing
                 Doc.moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
 
         MoveDown ->
-            attemptMapDoc
+            mapDocIgnoreNothing
                 Doc.moveAfterNextSiblingOrPrependInNextSiblingOfParent
 
         StartEdit ->
