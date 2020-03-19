@@ -14,7 +14,6 @@ module FIZ exposing
     , goUp
     , gotoId
     , new
-    , relocate
     , restructureCursorWithContext
     , restructureWithContext
     , setTitle
@@ -177,20 +176,6 @@ setCollapsedUnsafe collapsed model =
 
 
 -- MOVE NODE AT CURSOR
-
-
-relocate : Location -> ItemId -> FIZ -> Maybe FIZ
-relocate relativeLocation targetId zipper =
-    let
-        removedNode =
-            Zipper.tree zipper
-
-        insertHelp =
-            Zipper.insertAndGoto relativeLocation removedNode
-                >> expandAncestors
-    in
-    Zipper.remove zipper
-        |> Maybe.andThen (gotoId targetId >> Maybe.map insertHelp)
 
 
 expandAncestors : FIZ -> FIZ

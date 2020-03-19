@@ -376,7 +376,7 @@ zRelocateBy :
 zRelocateBy loc findTargetFunc doc =
     case findTargetFunc doc |> Maybe.map zId of
         Just targetId ->
-            FIZ.relocate loc targetId doc
+            zRelocate loc targetId doc
 
         Nothing ->
             Nothing
@@ -390,10 +390,18 @@ zRelocate relativeLocation targetId zipper =
 
         insertHelp =
             Z.insertAndGoto relativeLocation removedNode
-                >> FIZ.expandAncestors
+                >> zExpandAncestors
     in
     Z.remove zipper
         |> Maybe.andThen (FIZ.gotoId targetId >> Maybe.map insertHelp)
+
+
+zExpandAncestors =
+    Z.mapAncestorData (setCollapsedUnsafe False)
+
+
+setCollapsedUnsafe collapsed model =
+    { model | collapsed = collapsed }
 
 
 
