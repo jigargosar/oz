@@ -146,12 +146,11 @@ updateWrapper message model =
     let
         addEffects newModel =
             ( newModel
-            , [ cacheDocIfChanged model
-              , focusElOnDocCursorChange model
-              , getBeaconsOnDragStartOrDragMove model
-              ]
-                |> List.map (apply newModel)
-                |> Cmd.batch
+            , Cmd.batch
+                [ cacheDocIfChanged model newModel
+                , focusElOnDocCursorChange model newModel
+                , getBeaconsOnDragStartOrDragMove model newModel
+                ]
             )
     in
     addEffects (update message model)
