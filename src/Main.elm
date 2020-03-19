@@ -246,9 +246,9 @@ update message model =
         OnDragStart dragId cursor ->
             case model.state of
                 Browsing ->
-                    case Doc.gotoId dragId model.doc of
-                        Just newDoc ->
-                            ( { model | doc = newDoc, state = Dragging cursor }
+                    case initDragging dragId cursor model of
+                        Just newModel ->
+                            ( newModel
                             , getBeacons ()
                             )
 
@@ -257,12 +257,12 @@ update message model =
 
                 Editing editState ->
                     case
-                        model.doc
-                            |> endEdit editState
-                            |> Doc.gotoId dragId
+                        model
+                            |> mapDoc (endEdit editState)
+                            |> initDragging dragId cursor
                     of
-                        Just newDoc ->
-                            ( { model | doc = newDoc, state = Dragging cursor }
+                        Just newModel ->
+                            ( newModel
                             , getBeacons ()
                             )
 
@@ -291,16 +291,21 @@ update message model =
             )
 
 
+setDoc : OutlineDoc -> Model -> Model
+setDoc doc model =
+    { model | doc = doc }
+
+
 mapDoc : (OutlineDoc -> OutlineDoc) -> Model -> Model
 mapDoc func model =
-    { model | doc = func model.doc }
+    setDoc (func model.doc) model
 
 
 attemptMapDoc : (OutlineDoc -> Maybe OutlineDoc) -> Model -> Model
 attemptMapDoc maybeFunc model =
     case maybeFunc model.doc of
         Just doc ->
-            { model | doc = doc }
+            setDoc doc model
 
         Nothing ->
             model
@@ -314,6 +319,21 @@ setState state model =
 setEditingState : Edit -> Model -> Model
 setEditingState =
     Editing >> setState
+
+
+initDragging : ItemId -> Pointer -> Model -> Maybe Model
+initDragging dragId pointer model =
+    Doc.gotoId dragId model.doc
+        |> Maybe.map
+            (\nd ->
+                setDoc nd model
+                    |> setDraggingState pointer
+            )
+
+
+attemptInitDragging : ItemId -> Pointer -> Model -> Model
+attemptInitDragging itemId pointer model =
+    initDragging itemId pointer model |> Maybe.withDefault model
 
 
 setDraggingState : Pointer -> Model -> Model
