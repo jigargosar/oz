@@ -70,3 +70,8 @@ nonBlank =
                 else
                     Just trimmedString
            )
+
+
+ignoreNothing : (b -> Maybe b) -> b -> b
+ignoreNothing f v =
+    f v |> Maybe.withDefault v

@@ -38,10 +38,9 @@ import Forest.Zipper as Z exposing (ForestZipper, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Maybe.Extra
 import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
 import Random exposing (Generator)
-import Utils exposing (firstOf, nonBlank, required)
+import Utils exposing (firstOf, ignoreNothing, nonBlank, required)
 
 
 
@@ -269,8 +268,12 @@ addNew doc =
 
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
-    map
-        (setTitle title |> ignoreNothing)
+    map (setTitle title |> ignoreNothing)
+
+
+removeIfBlankLeaf : OutlineDoc -> OutlineDoc
+removeIfBlankLeaf =
+    map (zDeleteEmpty |> ignoreNothing)
 
 
 expand : OutlineDoc -> Maybe OutlineDoc
@@ -281,11 +284,6 @@ expand =
 collapse : OutlineDoc -> Maybe OutlineDoc
 collapse =
     mapMaybe zCollapse
-
-
-removeIfBlankLeaf : OutlineDoc -> OutlineDoc
-removeIfBlankLeaf =
-    map (deleteEmpty |> ignoreNothing)
 
 
 setTitle : String -> FIZ -> Maybe FIZ
@@ -328,16 +326,16 @@ zCollapse fiz =
         Nothing
 
 
+zExpandAncestors =
+    Z.mapAncestorData (setCollapsedUnsafe False)
+
+
 setCollapsedUnsafe collapsed model =
     { model | collapsed = collapsed }
 
 
-ignoreNothing f v =
-    f v |> Maybe.withDefault v
-
-
-deleteEmpty : FIZ -> Maybe FIZ
-deleteEmpty z =
+zDeleteEmpty : FIZ -> Maybe FIZ
+zDeleteEmpty z =
     if nonBlank (zTitle z) == Nothing && Z.isLeaf z then
         Z.remove z
 
@@ -438,10 +436,6 @@ zRelocate relativeLocation targetId zipper =
     in
     Z.remove zipper
         |> Maybe.andThen (FIZ.gotoId targetId >> Maybe.map insertHelp)
-
-
-zExpandAncestors =
-    Z.mapAncestorData (setCollapsedUnsafe False)
 
 
 
