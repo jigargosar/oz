@@ -486,7 +486,7 @@ updateWhenBrowsing message =
             mapDocIgnoreNothing Doc.collapseOrNavParent
 
         ExpandOrGotoNext ->
-            mapDocIgnoreNothing Doc.expandOrGoForward
+            mapDocIgnoreNothing (firstOf [ Doc.expand, Doc.goForward ])
 
         Expand ->
             mapDocIgnoreNothing Doc.expand

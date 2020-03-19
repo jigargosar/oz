@@ -15,9 +15,9 @@ module OutlineDoc exposing
     , decoder
     , encoder
     , expand
-    , expandOrGoForward
     , goBackward
     , goForward
+    , goUp
     , gotoId
     , indent
     , moveDownwards
@@ -222,6 +222,24 @@ unwrap doc =
 
 
 
+-- Getters
+
+
+currentTitle : OutlineDoc -> String
+currentTitle =
+    unwrap >> FIZ.getTitle
+
+
+ancestorIds =
+    unwrap >> FIZ.ancestorIds
+
+
+currentId : OutlineDoc -> ItemId
+currentId =
+    unwrap >> FIZ.getId
+
+
+
 -- NEW INSERTIONS
 
 
@@ -255,11 +273,6 @@ expand =
     mapMaybe FIZ.expand
 
 
-expandOrGoForward : OutlineDoc -> Maybe OutlineDoc
-expandOrGoForward =
-    mapMaybe (Maybe.Extra.oneOf [ FIZ.expand, FIZ.goForward ])
-
-
 collapse : OutlineDoc -> Maybe OutlineDoc
 collapse =
     mapMaybe FIZ.collapse
@@ -276,18 +289,27 @@ removeIfBlankLeaf =
         (FIZ.deleteEmpty |> ignoreNothing)
 
 
-currentTitle : OutlineDoc -> String
-currentTitle =
-    unwrap >> FIZ.getTitle
+
+-- MOVE CURSOR
 
 
-ancestorIds =
-    unwrap >> FIZ.ancestorIds
+goBackward : OutlineDoc -> Maybe OutlineDoc
+goBackward =
+    mapMaybe FIZ.goBackward
 
 
-currentId : OutlineDoc -> ItemId
-currentId =
-    unwrap >> FIZ.getId
+goForward : OutlineDoc -> Maybe OutlineDoc
+goForward =
+    mapMaybe FIZ.goForward
+
+
+goUp : OutlineDoc -> Maybe OutlineDoc
+goUp =
+    mapMaybe FIZ.goUp
+
+
+
+-- MOVE NODE
 
 
 relocateBy : FIZ.Location -> (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
@@ -330,6 +352,10 @@ relocateTo (CandidateLocation loc itemId) =
     mapMaybe (FIZ.relocate loc itemId)
 
 
+
+-- VIEW
+
+
 wrapRender render a b c =
     render ( { id = a.id, title = a.title, collapsed = c }, List.map .id b )
 
@@ -340,13 +366,3 @@ restructureWithContext render =
 
 restructureCurrentNode render =
     unwrap >> FIZ.restructureCursorWithContext (wrapRender render)
-
-
-goBackward : OutlineDoc -> Maybe OutlineDoc
-goBackward =
-    mapMaybe FIZ.goBackward
-
-
-goForward : OutlineDoc -> Maybe OutlineDoc
-goForward =
-    mapMaybe FIZ.goForward

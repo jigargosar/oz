@@ -2,6 +2,7 @@ module Utils exposing (..)
 
 import Json.Decode as JD exposing (Decoder)
 import List.Extra
+import Maybe.Extra
 
 
 eqBy func a b =
@@ -53,3 +54,7 @@ apply =
 
 effect func ( m, c ) =
     ( m, Cmd.batch [ c, func m ] )
+
+
+firstOf =
+    Maybe.Extra.oneOf
