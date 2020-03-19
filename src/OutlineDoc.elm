@@ -144,6 +144,16 @@ type OutlineDoc
     | Zoomed FIZ FIZ
 
 
+initZoomed : FIZ -> FIZ -> OutlineDoc
+initZoomed pz z =
+    Zoomed pz z
+
+
+initDoc : FIZ -> OutlineDoc
+initDoc z =
+    Doc z
+
+
 new : Generator OutlineDoc
 new =
     FIZ.new |> Random.map Doc
@@ -153,12 +163,12 @@ zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn doc =
     case doc of
         Doc z ->
-            zoomInHelp z |> Maybe.map (Zoomed z)
+            Z.childrenAsZipper z |> Maybe.map (Zoomed z)
 
         Zoomed pz z ->
-            zoomOutHelp z pz
+            Z.merge z pz
                 |> FIZ.gotoId (FIZ.getId z)
-                |> Maybe.andThen (\newPZ -> zoomInHelp newPZ |> Maybe.map (Zoomed newPZ))
+                |> Maybe.andThen (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (Zoomed newPZ))
 
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
@@ -174,16 +184,6 @@ zoomOut doc =
 
                 ( newZ, Nothing ) ->
                     Just (Doc newZ)
-
-
-zoomOutHelp : FIZ -> FIZ -> FIZ
-zoomOutHelp z pz =
-    Z.merge z pz |> ensureUniqueNodes
-
-
-zoomInHelp : FIZ -> Maybe FIZ
-zoomInHelp z =
-    Z.childrenAsZipper z
 
 
 ensureUniqueNodes : FIZ -> FIZ
