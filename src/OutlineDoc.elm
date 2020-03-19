@@ -274,8 +274,7 @@ collapse =
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
-    map
-        (FIZ.deleteEmpty |> ignoreNothing)
+    map (FIZ.deleteEmpty |> ignoreNothing)
 
 
 
