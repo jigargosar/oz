@@ -36,7 +36,7 @@ module OutlineDoc exposing
 
 import Dict exposing (Dict)
 import FIZ as FIZ exposing (FIZ, Location(..))
-import Forest.Zipper
+import Forest.Zipper as Z
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -182,12 +182,12 @@ zoomOut doc =
 
 zoomOutHelp : FIZ -> FIZ -> FIZ
 zoomOutHelp z pz =
-    Forest.Zipper.merge z pz |> ensureUniqueNodes
+    Z.merge z pz |> ensureUniqueNodes
 
 
 zoomInHelp : FIZ -> Maybe FIZ
 zoomInHelp z =
-    Forest.Zipper.childrenAsZipper z
+    Z.childrenAsZipper z
 
 
 ensureUniqueNodes : FIZ -> FIZ
@@ -210,7 +210,7 @@ ensureUniqueNodes fiz =
 
         foo : Dict String Item
         foo =
-            Forest.Zipper.rootForest fiz
+            Z.rootForest fiz
                 |> List.foldl (\t d -> T.foldl safeInsertItem d t) Dict.empty
     in
     fiz
