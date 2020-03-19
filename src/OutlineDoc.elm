@@ -148,7 +148,7 @@ new =
 
 zoomIn : OutlineDoc -> Maybe ( OutlineDoc, OutlineDoc )
 zoomIn parentDoc =
-    mapMaybe (Forest.Zipper.forest >> Forest.Zipper.fromForest) parentDoc
+    mapMaybe Forest.Zipper.fromChildren parentDoc
         |> Maybe.map (Tuple.pair parentDoc)
 
 

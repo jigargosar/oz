@@ -395,7 +395,8 @@ zoomInIgnoreNothing model =
             case model.parent of
                 Just oldParent ->
                     Doc.zoomOut model.doc oldParent
-                        |> Doc.gotoId (Doc.currentId model.doc)
+                        |> Debug.log "debug"
+                        |> Doc.gotoId (Doc.currentId model.doc |> Debug.log "debug")
                         |> Maybe.andThen Doc.zoomIn
 
                 Nothing ->
@@ -486,7 +487,7 @@ updateWhenBrowsing message =
         BM_OnGlobalKeyDown ke ->
             \model ->
                 toBrowsingMsg ke
-                    |> Maybe.map (\m -> updateWhenBrowsing m model)
+                    |> Maybe.map (Debug.log "bm" >> (\m -> updateWhenBrowsing m model))
                     |> Maybe.withDefault model
 
         BM_TitleClicked iid ->

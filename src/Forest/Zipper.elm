@@ -9,7 +9,7 @@ module Forest.Zipper exposing
     , down
     , encoder
     , firstRoot
-    , forest
+    , fromChildren
     , fromForest
     , fromTree
     , insertLeft
@@ -80,6 +80,11 @@ forest fz =
 rootForest : ForestZipper a -> Forest a
 rootForest =
     firstRoot >> forest
+
+
+fromChildren : ForestZipper a -> Maybe (ForestZipper a)
+fromChildren =
+    tree >> Tree.children >> fromForest
 
 
 replaceChildForest : ForestZipper a -> ForestZipper a -> ForestZipper a
