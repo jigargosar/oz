@@ -164,6 +164,33 @@ cacheDocIfChanged old new =
 
 focusElOnDocCursorChange : Model -> Model -> Cmd Msg
 focusElOnDocCursorChange old new =
+    let
+        focusTitleEditor : Cmd Msg
+        focusTitleEditor =
+            Dom.focus "item-title-editor"
+                |> Task.attempt
+                    (\result ->
+                        case result of
+                            Err (Dom.NotFound domId) ->
+                                DomFocusFailed domId
+
+                            Ok () ->
+                                NoOp
+                    )
+
+        focusItemAtCursor : Cmd Msg
+        focusItemAtCursor =
+            Dom.focus "item-title-at-cursor"
+                |> Task.attempt
+                    (\result ->
+                        case result of
+                            Err (Dom.NotFound domId) ->
+                                DomFocusFailed domId
+
+                            Ok () ->
+                                NoOp
+                    )
+    in
     if neqBy .state old new || neqBy (.doc >> Doc.ancestorIds) old new then
         case new.state of
             Editing _ ->
@@ -481,34 +508,6 @@ generate generator model =
 ignoreNothing : (b -> Maybe b) -> b -> b
 ignoreNothing func val =
     func val |> Maybe.withDefault val
-
-
-focusTitleEditor : Cmd Msg
-focusTitleEditor =
-    Dom.focus "item-title-editor"
-        |> Task.attempt
-            (\result ->
-                case result of
-                    Err (Dom.NotFound domId) ->
-                        DomFocusFailed domId
-
-                    Ok () ->
-                        NoOp
-            )
-
-
-focusItemAtCursor : Cmd Msg
-focusItemAtCursor =
-    Dom.focus "item-title-at-cursor"
-        |> Task.attempt
-            (\result ->
-                case result of
-                    Err (Dom.NotFound domId) ->
-                        DomFocusFailed domId
-
-                    Ok () ->
-                        NoOp
-            )
 
 
 subscriptions : Model -> Sub Msg
