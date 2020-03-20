@@ -369,18 +369,18 @@ zGoBackwardToPreviousVisible : FIZ -> Maybe FIZ
 zGoBackwardToPreviousVisible =
     let
         zLastDescendant =
-            applyWhileJust (zGotoFirstVisibleChild >> Maybe.map (applyWhileJust gotoNextVisibleSibling))
+            applyWhileJust (zGotoFirstVisibleChild >> Maybe.map (applyWhileJust zGotoNextVisibleSibling))
     in
-    firstOf [ gotoPreviousVisibleSibling >> Maybe.map zLastDescendant, Z.up ]
+    firstOf [ zGotoPreviousVisibleSibling >> Maybe.map zLastDescendant, Z.up ]
 
 
-gotoPreviousVisibleSibling : FIZ -> Maybe FIZ
-gotoPreviousVisibleSibling =
+zGotoPreviousVisibleSibling : FIZ -> Maybe FIZ
+zGotoPreviousVisibleSibling =
     Z.left
 
 
-gotoNextVisibleSibling : FIZ -> Maybe FIZ
-gotoNextVisibleSibling =
+zGotoNextVisibleSibling : FIZ -> Maybe FIZ
+zGotoNextVisibleSibling =
     Z.right
 
 
@@ -400,14 +400,14 @@ zHasVisibleChildren fiz =
 
 zGoForwardToNextVisible : FIZ -> Maybe FIZ
 zGoForwardToNextVisible =
-    firstOf [ zGotoFirstVisibleChild, gotoNextVisibleSibling, zGotoNextVisibleSiblingOfAncestor ]
+    firstOf [ zGotoFirstVisibleChild, zGotoNextVisibleSibling, zGotoNextVisibleSiblingOfAncestor ]
 
 
 zGotoNextVisibleSiblingOfAncestor : FIZ -> Maybe FIZ
 zGotoNextVisibleSiblingOfAncestor z =
     case Z.up z of
         Just parentFIZ ->
-            case gotoNextVisibleSibling parentFIZ of
+            case zGotoNextVisibleSibling parentFIZ of
                 Just ns ->
                     Just ns
 
@@ -436,7 +436,7 @@ unIndent =
 indent : OutlineDoc -> Maybe OutlineDoc
 indent =
     -- appendInPreviousSibling
-    mapMaybe (zRelocateBy AppendChild gotoPreviousVisibleSibling)
+    mapMaybe (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
 
 
 moveUpwards : OutlineDoc -> Maybe OutlineDoc
@@ -444,8 +444,8 @@ moveUpwards =
     -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
     mapMaybe
         (firstOf
-            [ zRelocateBy Before gotoPreviousVisibleSibling
-            , zRelocateBy AppendChild (Z.up >> Maybe.andThen gotoPreviousVisibleSibling)
+            [ zRelocateBy Before zGotoPreviousVisibleSibling
+            , zRelocateBy AppendChild (Z.up >> Maybe.andThen zGotoPreviousVisibleSibling)
             ]
         )
 
@@ -455,8 +455,8 @@ moveDownwards =
     -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
     mapMaybe
         (firstOf
-            [ zRelocateBy After gotoNextVisibleSibling
-            , zRelocateBy PrependChild (Z.up >> Maybe.andThen gotoNextVisibleSibling)
+            [ zRelocateBy After zGotoNextVisibleSibling
+            , zRelocateBy PrependChild (Z.up >> Maybe.andThen zGotoNextVisibleSibling)
             ]
         )
 
