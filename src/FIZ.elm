@@ -4,11 +4,8 @@ module FIZ exposing
     , decoder
     , encoder
     , newLeaf
-    , restructureCursorWithContext
-    , restructureWithContext
     )
 
-import CollapseState exposing (CollapseState)
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Forest.Zipper as Zipper exposing (ForestZipper, Location)
 import ItemId exposing (ItemId)
@@ -78,43 +75,3 @@ newLeaf =
             Tree.tree item []
     in
     itemGenerator "" |> Random.map itemToTree
-
-
-
--- VIEW HELPERS
-
-
-restructureWithContext : (Item -> List Item -> CollapseState -> List b -> b) -> ForestZipper Item -> List b
-restructureWithContext render =
-    Zipper.restructure
-        (\fiz children ->
-            let
-                item =
-                    Zipper.data fiz
-            in
-            render
-                item
-                (Zipper.ancestors fiz)
-                (if List.isEmpty children then
-                    CollapseState.NoChildren
-
-                 else if item.collapsed then
-                    CollapseState.Collapsed
-
-                 else
-                    CollapseState.Expanded
-                )
-                (if item.collapsed then
-                    []
-
-                 else
-                    children
-                )
-        )
-
-
-restructureCursorWithContext : (Item -> List Item -> CollapseState -> List b -> b) -> ForestZipper Item -> List b
-restructureCursorWithContext render =
-    Zipper.tree
-        >> Zipper.fromTree
-        >> restructureWithContext render
