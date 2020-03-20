@@ -597,7 +597,7 @@ viewOutline : State -> OutlineDoc -> HM
 viewOutline state doc =
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
-        , div [] <| viewZoomAncestors (Doc.zoomAncestors doc)
+        , viewZoomAncestors (Doc.zoomAncestors doc)
         , div [] <|
             case state of
                 Browsing ->
@@ -611,16 +611,16 @@ viewOutline state doc =
         ]
 
 
-viewZoomAncestors : List ZoomAncestor -> List (Html.Html msg)
+viewZoomAncestors : List ZoomAncestor -> HM
 viewZoomAncestors =
     let
         viewZA za =
-            div [ class "flex items-center" ]
+            div [ class "flex-auto flex items-center" ]
                 [ div [ class "f1 red truncate" ] [ text (itemDisplayTitle za) ]
                 , div [] [ text ">>" ]
                 ]
     in
-    List.reverse >> List.map viewZA
+    List.reverse >> List.map viewZA >> div [ class "flex" ]
 
 
 viewDraggedNode : State -> OutlineDoc -> HM
