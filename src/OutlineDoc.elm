@@ -42,7 +42,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
+import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, unpack)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -148,7 +148,7 @@ zNew =
 
 zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn doc =
-    case open doc of
+    case unpack doc of
         Doc z ->
             Z.childrenAsZipper z |> Maybe.map (initZoomed z)
 
@@ -159,7 +159,7 @@ zoomIn doc =
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
 zoomOut doc =
-    case open doc of
+    case unpack doc of
         Doc _ ->
             Nothing
 
@@ -174,7 +174,7 @@ zoomOut doc =
 
 encoder : OutlineDoc -> Value
 encoder doc =
-    case open doc of
+    case unpack doc of
         Doc z ->
             FIZ.encoder z
 
@@ -192,7 +192,7 @@ decoder =
 
 map : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
 map func doc =
-    case open doc of
+    case unpack doc of
         Doc z ->
             initDoc (func z)
 
@@ -202,7 +202,7 @@ map func doc =
 
 mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
 mapMaybe func doc =
-    case open doc of
+    case unpack doc of
         Doc z ->
             func z |> Maybe.map initDoc
 
@@ -212,7 +212,7 @@ mapMaybe func doc =
 
 unwrap : OutlineDoc -> FIZ
 unwrap doc =
-    case open doc of
+    case unpack doc of
         Doc z ->
             z
 
@@ -255,7 +255,7 @@ zId =
 
 addNew : OutlineDoc -> Generator OutlineDoc
 addNew doc =
-    case open doc of
+    case unpack doc of
         Doc z ->
             z |> zAddNew >> Random.map initDoc
 
@@ -544,7 +544,7 @@ zoomAncestors doc =
         itemToZoomAncestor { id, title } =
             { id = id, title = title }
     in
-    case open doc of
+    case unpack doc of
         Doc _ ->
             []
 

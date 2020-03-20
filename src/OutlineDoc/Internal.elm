@@ -1,4 +1,4 @@
-module OutlineDoc.Internal exposing (OutlineDoc, Unwrapped(..), initDoc, initZoomed, open)
+module OutlineDoc.Internal exposing (OutlineDoc, Unwrapped(..), initDoc, initZoomed, unpack)
 
 import Dict
 import Forest.Zipper as Z
@@ -17,8 +17,8 @@ type Unwrapped
     | Zoomed FIZ FIZ
 
 
-open : OutlineDoc -> Unwrapped
-open doc =
+unpack : OutlineDoc -> Unwrapped
+unpack doc =
     case doc of
         Doc_ z ->
             Doc z
