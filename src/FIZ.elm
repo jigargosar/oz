@@ -3,8 +3,6 @@ module FIZ exposing
     , addNew
     , decoder
     , encoder
-    , goLeft
-    , goRight
     , new
     , restructureCursorWithContext
     , restructureWithContext
@@ -114,20 +112,6 @@ addNew fiz =
     in
     emptyLeafGenerator
         |> Random.map insertNewHelper
-
-
-
--- CORE NAVIGATION
-
-
-goLeft : FIZ -> Maybe FIZ
-goLeft =
-    Zipper.left
-
-
-goRight : FIZ -> Maybe FIZ
-goRight =
-    Zipper.right
 
 
 
