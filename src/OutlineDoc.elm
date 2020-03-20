@@ -2,6 +2,7 @@ module OutlineDoc exposing
     ( CandidateLocation
     , LineInfo
     , OutlineDoc
+    , ZoomAncestor
     , addNew
     , after
     , ancestorIds
@@ -30,6 +31,7 @@ module OutlineDoc exposing
     , unIndent
     , view
     , viewCurrent
+    , zoomAncestors
     , zoomIn
     , zoomOut
     )
@@ -529,6 +531,27 @@ view render =
 viewCurrent : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 viewCurrent render =
     unwrap >> Z.treeAsZipper >> zView render
+
+
+type alias ZoomAncestor =
+    { id : ItemId, title : String }
+
+
+zoomAncestors : OutlineDoc -> List ZoomAncestor
+zoomAncestors doc =
+    let
+        itemToZoomAncestor : Item -> ZoomAncestor
+        itemToZoomAncestor { id, title } =
+            { id = id, title = title }
+    in
+    case open doc of
+        Doc _ ->
+            []
+
+        Zoomed pz _ ->
+            Z.data pz
+                :: Z.ancestors pz
+                |> List.map itemToZoomAncestor
 
 
 zView : (LineInfo -> List a -> a) -> FIZ -> List a

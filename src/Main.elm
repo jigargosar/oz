@@ -12,7 +12,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode exposing (Value)
 import KeyEvent as KE exposing (KeyEvent)
-import OutlineDoc as Doc exposing (CandidateLocation(..), LineInfo, OutlineDoc)
+import OutlineDoc as Doc exposing (CandidateLocation(..), LineInfo, OutlineDoc, ZoomAncestor)
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -597,6 +597,7 @@ viewOutline : State -> OutlineDoc -> HM
 viewOutline state doc =
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
+        , div [] <| viewZoomAncestors (Doc.zoomAncestors doc)
         , div [] <|
             case state of
                 Browsing ->
@@ -608,6 +609,18 @@ viewOutline state doc =
                 Editing (Edit _ title) ->
                     viewEditingDoc title doc
         ]
+
+
+viewZoomAncestors : List ZoomAncestor -> List (Html.Html msg)
+viewZoomAncestors =
+    let
+        viewZA za =
+            div [ class "flex items-center" ]
+                [ div [ class "f1 red truncate" ] [ text (itemDisplayTitle za) ]
+                , div [] [ text ">>" ]
+                ]
+    in
+    List.reverse >> List.map viewZA
 
 
 viewDraggedNode : State -> OutlineDoc -> HM
@@ -777,7 +790,7 @@ debug =
     False
 
 
-itemDisplayTitle : LineInfo -> String
+itemDisplayTitle : { a | title : String, id : b } -> String
 itemDisplayTitle item =
     (if String.trim item.title |> String.isEmpty then
         "<empty>"
