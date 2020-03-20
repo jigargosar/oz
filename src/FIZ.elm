@@ -129,7 +129,7 @@ gotoId : ItemId -> FIZ -> Maybe FIZ
 gotoId itemId =
     Zipper.firstRoot
         >> zFindByData (idEq itemId)
-            (Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfClosestAncestor ])
+            (Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfAncestor ])
 
 
 goUp : FIZ -> Maybe FIZ
@@ -162,11 +162,11 @@ goRight =
 
 goForward : FIZ -> Maybe FIZ
 goForward =
-    Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfClosestAncestor ]
+    Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfAncestor ]
 
 
-gotoNextSiblingOfClosestAncestor : FIZ -> Maybe (ForestZipper Item)
-gotoNextSiblingOfClosestAncestor fiz =
+gotoNextSiblingOfAncestor : FIZ -> Maybe (ForestZipper Item)
+gotoNextSiblingOfAncestor fiz =
     case goUp fiz of
         Just parentFIZ ->
             case goRight parentFIZ of
@@ -174,7 +174,7 @@ gotoNextSiblingOfClosestAncestor fiz =
                     Just ns
 
                 Nothing ->
-                    gotoNextSiblingOfClosestAncestor parentFIZ
+                    gotoNextSiblingOfAncestor parentFIZ
 
         Nothing ->
             Nothing
