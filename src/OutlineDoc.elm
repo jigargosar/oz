@@ -345,14 +345,19 @@ gotoId itemId =
     mapMaybe (zGotoIdAndExpandAncestors itemId)
 
 
-zGotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
-zGotoIdAndExpandAncestors itemId =
-    zFindId itemId >> Maybe.map zExpandAncestors
-
-
 goBackward : OutlineDoc -> Maybe OutlineDoc
 goBackward =
     mapMaybe zGotoPrevVisible
+
+
+goForward : OutlineDoc -> Maybe OutlineDoc
+goForward =
+    mapMaybe zGoForwardToNextVisible
+
+
+zGotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
+zGotoIdAndExpandAncestors itemId =
+    zFindId itemId >> Maybe.map zExpandAncestors
 
 
 zGotoPrevVisible : FIZ -> Maybe FIZ
@@ -388,13 +393,8 @@ zHasVisibleChildren fiz =
     not (Z.isLeaf fiz || (Z.data fiz |> .collapsed))
 
 
-goForward : OutlineDoc -> Maybe OutlineDoc
-goForward =
-    mapMaybe zGotoNextVisible
-
-
-zGotoNextVisible : FIZ -> Maybe FIZ
-zGotoNextVisible =
+zGoForwardToNextVisible : FIZ -> Maybe FIZ
+zGoForwardToNextVisible =
     firstOf [ zGotoFirstVisibleChild, gotoNextVisibleSibling, zGotoNextVisibleSiblingOfAncestor ]
 
 
