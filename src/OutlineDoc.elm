@@ -511,6 +511,42 @@ zRelocate relativeLocation targetId zipper =
 -- VIEW
 
 
+type alias NodeInfo =
+    { id : ItemId
+    , title : String
+    , collapseState : CollapseState
+    , isCursorOrDescendentOfCursor : Bool
+    }
+
+
+view render =
+    Z.restructure
+        (\z renderedChildren ->
+            let
+                item =
+                    Z.data z
+            in
+            render
+                item
+                (Z.ancestors z)
+                (if List.isEmpty renderedChildren then
+                    CollapseState.NoChildren
+
+                 else if item.collapsed then
+                    CollapseState.Collapsed
+
+                 else
+                    CollapseState.Expanded
+                )
+                (if item.collapsed then
+                    []
+
+                 else
+                    renderedChildren
+                )
+        )
+
+
 wrapRender render a b c =
     render ( { id = a.id, title = a.title, collapsed = c }, List.map .id b )
 
