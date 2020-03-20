@@ -358,10 +358,10 @@ goBackward =
 zGotoPrevVisible : FIZ -> Maybe FIZ
 zGotoPrevVisible =
     let
-        gotoLastDescendant =
+        zLastDescendant =
             applyWhileJust (FIZ.goDown >> Maybe.map (applyWhileJust FIZ.goRight))
     in
-    firstOf [ FIZ.goLeft >> Maybe.map gotoLastDescendant, FIZ.goUp ]
+    firstOf [ FIZ.goLeft >> Maybe.map zLastDescendant, FIZ.goUp ]
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
