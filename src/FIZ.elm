@@ -1,9 +1,8 @@
 module FIZ exposing
     ( FIZ
-    , addNew
     , decoder
     , encoder
-    , new
+    , newLeaf
     , restructureCursorWithContext
     , restructureWithContext
     )
@@ -70,42 +69,14 @@ decoder =
     Zipper.decoder itemDecoder
 
 
-emptyLeafGenerator : Generator (Tree Item)
-emptyLeafGenerator =
+newLeaf : Generator (Tree Item)
+newLeaf =
     let
         itemToTree : Item -> Tree Item
         itemToTree item =
             Tree.tree item []
     in
     itemGenerator "" |> Random.map itemToTree
-
-
-new : Generator FIZ
-new =
-    emptyLeafGenerator |> Random.map Zipper.fromTree
-
-
-hasVisibleChildren : FIZ -> Bool
-hasVisibleChildren fiz =
-    not (Zipper.isLeaf fiz || (Zipper.data fiz |> .collapsed))
-
-
-
--- NEW INSERTIONS
-
-
-addNew : FIZ -> Generator FIZ
-addNew fiz =
-    let
-        insertNewHelper node =
-            if hasVisibleChildren fiz then
-                Zipper.prependChildGo node fiz
-
-            else
-                Zipper.insertRightGo node fiz
-    in
-    emptyLeafGenerator
-        |> Random.map insertNewHelper
 
 
 

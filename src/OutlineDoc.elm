@@ -134,7 +134,12 @@ type alias OutlineDoc =
 
 new : Generator OutlineDoc
 new =
-    FIZ.new |> Random.map initDoc
+    zNew |> Random.map initDoc
+
+
+zNew : Generator FIZ
+zNew =
+    FIZ.newLeaf |> Random.map Z.fromTree
 
 
 zoomIn : OutlineDoc -> Maybe OutlineDoc
@@ -248,10 +253,24 @@ addNew : OutlineDoc -> Generator OutlineDoc
 addNew doc =
     case open doc of
         Doc z ->
-            z |> FIZ.addNew >> Random.map initDoc
+            z |> zAddNew >> Random.map initDoc
 
         Zoomed pz z ->
-            z |> FIZ.addNew >> Random.map (initZoomed pz)
+            z |> zAddNew >> Random.map (initZoomed pz)
+
+
+zAddNew : FIZ -> Generator FIZ
+zAddNew z =
+    let
+        insertNewHelper node =
+            if zHasVisibleChildren z then
+                Z.prependChildGo node z
+
+            else
+                Z.insertRightGo node z
+    in
+    FIZ.newLeaf
+        |> Random.map insertNewHelper
 
 
 
