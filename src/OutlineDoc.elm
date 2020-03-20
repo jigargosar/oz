@@ -345,9 +345,9 @@ gotoId itemId =
     mapMaybe (zGotoIdAndExpandAncestors itemId)
 
 
-goBackward : OutlineDoc -> Maybe OutlineDoc
-goBackward =
-    mapMaybe zGotoPrevVisible
+gotoParent : OutlineDoc -> Maybe OutlineDoc
+gotoParent =
+    mapMaybe Z.up
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
@@ -355,13 +355,18 @@ goForward =
     mapMaybe zGoForwardToNextVisible
 
 
+goBackward : OutlineDoc -> Maybe OutlineDoc
+goBackward =
+    mapMaybe zGoBackwardToPreviousVisible
+
+
 zGotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
 zGotoIdAndExpandAncestors itemId =
     zFindId itemId >> Maybe.map zExpandAncestors
 
 
-zGotoPrevVisible : FIZ -> Maybe FIZ
-zGotoPrevVisible =
+zGoBackwardToPreviousVisible : FIZ -> Maybe FIZ
+zGoBackwardToPreviousVisible =
     let
         zLastDescendant =
             applyWhileJust (zGotoFirstVisibleChild >> Maybe.map (applyWhileJust gotoNextVisibleSibling))
@@ -411,11 +416,6 @@ zGotoNextVisibleSiblingOfAncestor z =
 
         Nothing ->
             Nothing
-
-
-gotoParent : OutlineDoc -> Maybe OutlineDoc
-gotoParent =
-    mapMaybe Z.up
 
 
 
