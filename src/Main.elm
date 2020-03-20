@@ -637,6 +637,9 @@ viewZoomAncestors zas =
 
         viewAncestorLink ancestor =
             viewLink (itemDisplayTitle ancestor)
+
+        viewLastAncestor ancestor =
+            container [ div [ class "pr1 f5 truncate" ] [ text (itemDisplayTitle ancestor) ] ]
     in
     case zas of
         [] ->
@@ -646,6 +649,7 @@ viewZoomAncestors zas =
             div [ class "pv2 flex flex-wrap" ]
                 (viewHomeLink
                     :: List.map viewAncestorLink (List.reverse ancestors)
+                    ++ [ viewLastAncestor last ]
                     |> List.intersperse viewSeparator
                 )
 
