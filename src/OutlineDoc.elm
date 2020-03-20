@@ -520,24 +520,6 @@ type alias NodeInfo =
     }
 
 
-zToNodeInfo : ItemId -> FIZ -> NodeInfo
-zToNodeInfo cursorId z =
-    { id = zId z
-    , title = zTitle z
-    , collapseState =
-        case ( Z.isLeaf z, (Z.data z).collapsed ) of
-            ( True, _ ) ->
-                CollapseState.NoChildren
-
-            ( _, True ) ->
-                CollapseState.Collapsed
-
-            ( _, False ) ->
-                CollapseState.Expanded
-    , isCursorOrDescendentOfCursor = zId z == cursorId || List.any (idEq cursorId) (Z.ancestors z)
-    }
-
-
 view : (NodeInfo -> List a -> a) -> OutlineDoc -> List a
 view render =
     unwrap >> zView render
@@ -569,6 +551,24 @@ zView render initialZ =
                         []
                     )
             )
+
+
+zToNodeInfo : ItemId -> FIZ -> NodeInfo
+zToNodeInfo cursorId z =
+    { id = zId z
+    , title = zTitle z
+    , collapseState =
+        case ( Z.isLeaf z, (Z.data z).collapsed ) of
+            ( True, _ ) ->
+                CollapseState.NoChildren
+
+            ( _, True ) ->
+                CollapseState.Collapsed
+
+            ( _, False ) ->
+                CollapseState.Expanded
+    , isCursorOrDescendentOfCursor = zId z == cursorId || List.any (idEq cursorId) (Z.ancestors z)
+    }
 
 
 
