@@ -169,7 +169,7 @@ zoomOut doc =
                     Just (initZoomed newPZ (zExpandAncestors newZ))
 
                 ( newZ, Nothing ) ->
-                    Just (initDoc newZ)
+                    Just (initDoc (zExpandAncestors newZ))
 
 
 encoder : OutlineDoc -> Value
