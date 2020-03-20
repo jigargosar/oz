@@ -185,19 +185,8 @@ goBackward =
     Maybe.Extra.oneOf [ goLeft >> Maybe.map gotoLastDescendant, goUp ]
 
 
-gotoLastDescendant : FIZ -> FIZ
-gotoLastDescendant zipper =
-    case gotoLastChild zipper of
-        Nothing ->
-            zipper
-
-        Just child ->
-            gotoLastDescendant child
-
-
-gotoLastChild : FIZ -> Maybe FIZ
-gotoLastChild =
-    goDown >> Maybe.map (applyWhileJust goRight)
+gotoLastDescendant =
+    applyWhileJust (goDown >> Maybe.map (applyWhileJust goRight))
 
 
 idEq : ItemId -> Item -> Bool
