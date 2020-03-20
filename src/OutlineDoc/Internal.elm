@@ -1,4 +1,4 @@
-module OutlineDoc.Internal exposing (OutlineDoc, Unwrapped(..), initDoc, initZoomed, unpack)
+module OutlineDoc.Internal exposing (OutlineDoc, Unwrapped(..), initDoc, initZoomed, map, mapMaybe, unwrap, wrap)
 
 import Dict
 import Forest.Zipper as Z
@@ -17,14 +17,34 @@ type Unwrapped
     | Zoomed FIZ FIZ
 
 
-unpack : OutlineDoc -> Unwrapped
-unpack doc =
+unwrap : OutlineDoc -> Unwrapped
+unwrap doc =
     case doc of
         Doc_ z ->
             Doc z
 
         Zoomed_ pz z ->
             Zoomed pz z
+
+
+wrap : Unwrapped -> OutlineDoc
+wrap unwrapped =
+    case unwrapped of
+        Doc z ->
+            initDoc z
+
+        Zoomed pz z ->
+            initZoomed pz z
+
+
+map : (Unwrapped -> Unwrapped) -> OutlineDoc -> OutlineDoc
+map func =
+    unwrap >> func >> wrap
+
+
+mapMaybe : (Unwrapped -> Maybe Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
+mapMaybe func =
+    unwrap >> func >> Maybe.map wrap
 
 
 initZoomed : FIZ -> FIZ -> OutlineDoc

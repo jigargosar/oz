@@ -42,7 +42,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, unpack)
+import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, mapMaybe, unwrap, wrap)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -148,7 +148,7 @@ zNew =
 
 zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn doc =
-    case unpack doc of
+    case unwrap doc of
         Doc z ->
             Z.childrenAsZipper z |> Maybe.map (initZoomed z)
 
@@ -158,23 +158,60 @@ zoomIn doc =
 
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
-zoomOut doc =
-    case unpack doc of
+zoomOut =
+    mapMaybe
+        (zoomOutUnwrapped
+            >> Maybe.map (mapUnwrappedChildZipper zGotoFirstVisibleAncestor)
+        )
+
+
+mapUnwrappedChildZipper : (FIZ -> FIZ) -> Unwrapped -> Unwrapped
+mapUnwrappedChildZipper func unwrapped =
+    case unwrapped of
+        Doc z ->
+            Doc (func z)
+
+        Zoomed pz z ->
+            Zoomed pz (func z)
+
+
+zoomOutUnwrapped : Unwrapped -> Maybe Unwrapped
+zoomOutUnwrapped unwrapped =
+    case unwrapped of
         Doc _ ->
             Nothing
 
         Zoomed pz z ->
             case Z.transferOneLevelTo z pz of
                 ( newZ, Just newPZ ) ->
-                    Just (initZoomed newPZ (zExpandAncestors newZ))
+                    Just (Zoomed newPZ newZ)
 
                 ( newZ, Nothing ) ->
-                    Just (initDoc (zExpandAncestors newZ))
+                    Just (Doc newZ)
+
+
+zGotoFirstVisibleAncestor : FIZ -> FIZ
+zGotoFirstVisibleAncestor z =
+    if isVisible z then
+        z
+
+    else
+        case Z.up z of
+            Just pz ->
+                zGotoFirstVisibleAncestor pz
+
+            Nothing ->
+                z
+
+
+isVisible : FIZ -> Bool
+isVisible =
+    Z.ancestors >> List.any .collapsed >> not
 
 
 encoder : OutlineDoc -> Value
 encoder doc =
-    case unpack doc of
+    case unwrap doc of
         Doc z ->
             FIZ.encoder z
 
@@ -190,9 +227,9 @@ decoder =
         ]
 
 
-map : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
-map func doc =
-    case unpack doc of
+mapChildZipper : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
+mapChildZipper func doc =
+    case unwrap doc of
         Doc z ->
             initDoc (func z)
 
@@ -200,9 +237,9 @@ map func doc =
             func z |> initZoomed pz
 
 
-mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-mapMaybe func doc =
-    case unpack doc of
+mapMaybeChildZipper : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+mapMaybeChildZipper func doc =
+    case unwrap doc of
         Doc z ->
             func z |> Maybe.map initDoc
 
@@ -210,9 +247,9 @@ mapMaybe func doc =
             func z |> Maybe.map (initZoomed pz)
 
 
-unwrap : OutlineDoc -> FIZ
-unwrap doc =
-    case unpack doc of
+getChildZipper : OutlineDoc -> FIZ
+getChildZipper doc =
+    case unwrap doc of
         Doc z ->
             z
 
@@ -226,7 +263,7 @@ unwrap doc =
 
 currentTitle : OutlineDoc -> String
 currentTitle =
-    unwrap >> zTitle
+    getChildZipper >> zTitle
 
 
 zTitle : FIZ -> String
@@ -236,12 +273,12 @@ zTitle =
 
 ancestorIds : OutlineDoc -> List ItemId
 ancestorIds =
-    unwrap >> Z.ancestors >> List.map .id
+    getChildZipper >> Z.ancestors >> List.map .id
 
 
 isCurrent : ItemId -> OutlineDoc -> Bool
 isCurrent itemId =
-    unwrap >> propEq zId itemId
+    getChildZipper >> propEq zId itemId
 
 
 zId : FIZ -> ItemId
@@ -255,7 +292,7 @@ zId =
 
 addNew : OutlineDoc -> Generator OutlineDoc
 addNew doc =
-    case unpack doc of
+    case unwrap doc of
         Doc z ->
             z |> zAddNew >> Random.map initDoc
 
@@ -283,22 +320,22 @@ zAddNew z =
 
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
-    map (setTitle title |> ignoreNothing)
+    mapChildZipper (setTitle title |> ignoreNothing)
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
-    map (zDeleteEmpty |> ignoreNothing)
+    mapChildZipper (zDeleteEmpty |> ignoreNothing)
 
 
 expand : OutlineDoc -> Maybe OutlineDoc
 expand =
-    mapMaybe zExpand
+    mapMaybeChildZipper zExpand
 
 
 collapse : OutlineDoc -> Maybe OutlineDoc
 collapse =
-    mapMaybe zCollapse
+    mapMaybeChildZipper zCollapse
 
 
 setTitle : String -> FIZ -> Maybe FIZ
@@ -365,22 +402,22 @@ zDeleteEmpty z =
 
 gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 gotoId itemId =
-    mapMaybe (zGotoIdAndExpandAncestors itemId)
+    mapMaybeChildZipper (zGotoIdAndExpandAncestors itemId)
 
 
 gotoParent : OutlineDoc -> Maybe OutlineDoc
 gotoParent =
-    mapMaybe Z.up
+    mapMaybeChildZipper Z.up
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    mapMaybe zGoForwardToNextVisible
+    mapMaybeChildZipper zGoForwardToNextVisible
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
 goBackward =
-    mapMaybe zGoBackwardToPreviousVisible
+    mapMaybeChildZipper zGoBackwardToPreviousVisible
 
 
 zGotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
@@ -447,25 +484,25 @@ zGotoNextVisibleSiblingOfAncestor z =
 
 relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 relocateTo (CandidateLocation loc itemId) =
-    mapMaybe (zRelocate loc itemId)
+    mapMaybeChildZipper (zRelocate loc itemId)
 
 
 unIndent : OutlineDoc -> Maybe OutlineDoc
 unIndent =
     -- moveAfterParent
-    mapMaybe (zRelocateBy After Z.up)
+    mapMaybeChildZipper (zRelocateBy After Z.up)
 
 
 indent : OutlineDoc -> Maybe OutlineDoc
 indent =
     -- appendInPreviousSibling
-    mapMaybe (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
+    mapMaybeChildZipper (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
 
 
 moveUpwards : OutlineDoc -> Maybe OutlineDoc
 moveUpwards =
     -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    mapMaybe
+    mapMaybeChildZipper
         (firstOf
             [ zRelocateBy Before zGotoPreviousVisibleSibling
             , zRelocateBy AppendChild (Z.up >> Maybe.andThen zGotoPreviousVisibleSibling)
@@ -476,7 +513,7 @@ moveUpwards =
 moveDownwards : OutlineDoc -> Maybe OutlineDoc
 moveDownwards =
     -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
-    mapMaybe
+    mapMaybeChildZipper
         (firstOf
             [ zRelocateBy After zGotoNextVisibleSibling
             , zRelocateBy PrependChild (Z.up >> Maybe.andThen zGotoNextVisibleSibling)
@@ -525,12 +562,12 @@ type alias LineInfo =
 
 view : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 view render =
-    unwrap >> zView render
+    getChildZipper >> zView render
 
 
 viewCurrent : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 viewCurrent render =
-    unwrap >> Z.treeAsZipper >> zView render
+    getChildZipper >> Z.treeAsZipper >> zView render
 
 
 type alias ZoomAncestor =
@@ -544,7 +581,7 @@ zoomAncestors doc =
         itemToZoomAncestor { id, title } =
             { id = id, title = title }
     in
-    case unpack doc of
+    case unwrap doc of
         Doc _ ->
             []
 
