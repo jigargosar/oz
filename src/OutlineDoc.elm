@@ -357,16 +357,16 @@ goBackward =
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    mapMaybe fizGotoNextVisible
+    mapMaybe zGotoNextVisible
 
 
-fizGotoNextVisible : FIZ -> Maybe FIZ
-fizGotoNextVisible =
-    firstOf [ FIZ.goDown, FIZ.goRight, fizGotoNextVisibleSiblingOfAncestor ]
+zGotoNextVisible : FIZ -> Maybe FIZ
+zGotoNextVisible =
+    firstOf [ FIZ.goDown, FIZ.goRight, zGotoNextVisibleSiblingOfAncestor ]
 
 
-fizGotoNextVisibleSiblingOfAncestor : FIZ -> Maybe FIZ
-fizGotoNextVisibleSiblingOfAncestor z =
+zGotoNextVisibleSiblingOfAncestor : FIZ -> Maybe FIZ
+zGotoNextVisibleSiblingOfAncestor z =
     case FIZ.goUp z of
         Just parentFIZ ->
             case FIZ.goRight parentFIZ of
@@ -374,7 +374,7 @@ fizGotoNextVisibleSiblingOfAncestor z =
                     Just ns
 
                 Nothing ->
-                    fizGotoNextVisibleSiblingOfAncestor parentFIZ
+                    zGotoNextVisibleSiblingOfAncestor parentFIZ
 
         Nothing ->
             Nothing
