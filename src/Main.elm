@@ -616,11 +616,11 @@ viewZoomAncestors =
     let
         viewZA za =
             div [ class "flex-auto flex items-center" ]
-                [ div [ class "f1 red truncate" ] [ text (itemDisplayTitle za) ]
+                [ div [ class "truncate" ] [ text (itemDisplayTitle za) ]
                 , div [] [ text ">>" ]
                 ]
     in
-    List.reverse >> List.map viewZA >> div [ class "flex" ]
+    List.reverse >> List.map viewZA >> div [ class "flex flex-wrap" ]
 
 
 viewDraggedNode : State -> OutlineDoc -> HM
