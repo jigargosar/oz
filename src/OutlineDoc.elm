@@ -342,13 +342,17 @@ zDeleteEmpty z =
 
 gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 gotoId itemId =
-    mapMaybe (gotoIdAndExpandAncestors itemId)
+    mapMaybe (zGotoIdAndExpandAncestors itemId)
 
 
-gotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
-gotoIdAndExpandAncestors itemId =
+zGotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
+zGotoIdAndExpandAncestors itemId =
+    zFindId itemId >> Maybe.map zExpandAncestors
+
+
+zFindId : ItemId -> FIZ -> Maybe FIZ
+zFindId itemId =
     Z.findFirst (idEq itemId)
-        >> Maybe.map zExpandAncestors
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
@@ -434,7 +438,7 @@ zRelocate relativeLocation targetId zipper =
                 >> zExpandAncestors
     in
     Z.remove zipper
-        |> Maybe.andThen (FIZ.gotoIdAndExpandAncestors targetId >> Maybe.map insertHelp)
+        |> Maybe.andThen (zGotoIdAndExpandAncestors targetId >> Maybe.map insertHelp)
 
 
 
