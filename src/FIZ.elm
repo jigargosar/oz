@@ -3,7 +3,6 @@ module FIZ exposing
     , addNew
     , decoder
     , encoder
-    , goBackward
     , goDown
     , goLeft
     , goRight
@@ -145,19 +144,6 @@ goLeft =
 goRight : FIZ -> Maybe FIZ
 goRight =
     Zipper.right
-
-
-
--- NAVIGATION HELPERS
-
-
-goBackward : FIZ -> Maybe FIZ
-goBackward =
-    let
-        gotoLastDescendant =
-            applyWhileJust (goDown >> Maybe.map (applyWhileJust goRight))
-    in
-    firstOf [ goLeft >> Maybe.map gotoLastDescendant, goUp ]
 
 
 
