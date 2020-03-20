@@ -35,11 +35,11 @@ module OutlineDoc exposing
     )
 
 import CollapseState exposing (CollapseState)
-import FIZ as FIZ exposing (FIZ, Item)
 import Forest.Zipper as Z exposing (ForestZipper, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
 import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
 import Random exposing (Generator)
 import Utils exposing (..)

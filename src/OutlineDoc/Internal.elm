@@ -1,9 +1,9 @@
 module OutlineDoc.Internal exposing (OutlineDoc, Unwrapped(..), initDoc, initZoomed, open)
 
 import Dict
-import FIZ exposing (FIZ)
 import Forest.Zipper as Z
 import ItemId
+import OutlineDoc.FIZ exposing (FIZ)
 import Tree as T
 
 

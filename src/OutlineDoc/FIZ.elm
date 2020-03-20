@@ -1,4 +1,4 @@
-module FIZ exposing
+module OutlineDoc.FIZ exposing
     ( FIZ
     , Item
     , decoder
