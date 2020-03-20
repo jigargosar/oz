@@ -615,9 +615,9 @@ viewZoomAncestors : List ZoomAncestor -> HM
 viewZoomAncestors =
     let
         viewZA za =
-            div [ class "flex-auto flex-grow-0 flex items-center" ]
-                [ div [ class "truncate" ] [ text (itemDisplayTitle za) ]
-                , div [ class "code" ] [ text ">>" ]
+            div [ class "flex-auto flex-grow-0 pr3 flex items-center" ]
+                [ div [ class "truncate pr1 dim pointer" ] [ text (itemDisplayTitle za) ]
+                , div [ class "code gray" ] [ text ">>" ]
                 ]
     in
     List.reverse >> List.map viewZA >> div [ class "flex flex-wrap" ]
