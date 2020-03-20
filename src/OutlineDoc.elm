@@ -359,9 +359,23 @@ zGotoPrevVisible : FIZ -> Maybe FIZ
 zGotoPrevVisible =
     let
         zLastDescendant =
-            applyWhileJust (FIZ.goDown >> Maybe.map (applyWhileJust FIZ.goRight))
+            applyWhileJust (zGotoFirstVisibleChild >> Maybe.map (applyWhileJust FIZ.goRight))
     in
     firstOf [ FIZ.goLeft >> Maybe.map zLastDescendant, Z.up ]
+
+
+zGotoFirstVisibleChild : FIZ -> Maybe FIZ
+zGotoFirstVisibleChild fiz =
+    if zHasVisibleChildren fiz then
+        Z.down fiz
+
+    else
+        Nothing
+
+
+zHasVisibleChildren : FIZ -> Bool
+zHasVisibleChildren fiz =
+    not (Z.isLeaf fiz || (Z.data fiz |> .collapsed))
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
@@ -371,7 +385,7 @@ goForward =
 
 zGotoNextVisible : FIZ -> Maybe FIZ
 zGotoNextVisible =
-    firstOf [ FIZ.goDown, FIZ.goRight, zGotoNextVisibleSiblingOfAncestor ]
+    firstOf [ zGotoFirstVisibleChild, FIZ.goRight, zGotoNextVisibleSiblingOfAncestor ]
 
 
 zGotoNextVisibleSiblingOfAncestor : FIZ -> Maybe FIZ

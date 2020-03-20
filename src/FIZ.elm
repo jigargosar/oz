@@ -3,7 +3,6 @@ module FIZ exposing
     , addNew
     , decoder
     , encoder
-    , goDown
     , goLeft
     , goRight
     , new
@@ -119,15 +118,6 @@ addNew fiz =
 
 
 -- CORE NAVIGATION
-
-
-goDown : FIZ -> Maybe FIZ
-goDown fiz =
-    if hasVisibleChildren fiz then
-        Zipper.down fiz
-
-    else
-        Nothing
 
 
 goLeft : FIZ -> Maybe FIZ
