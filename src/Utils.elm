@@ -99,3 +99,13 @@ findWithIterator pred iterator zipper =
 
             Nothing ->
                 Nothing
+
+
+idEq : b -> { a | id : b } -> Bool
+idEq =
+    propEq .id
+
+
+propEq : (c -> b) -> b -> c -> Bool
+propEq func val obj =
+    func obj == val

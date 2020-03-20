@@ -182,21 +182,11 @@ gotoNextSiblingOfClosestAncestor fiz =
 
 goBackward : FIZ -> Maybe FIZ
 goBackward =
+    let
+        gotoLastDescendant =
+            applyWhileJust (goDown >> Maybe.map (applyWhileJust goRight))
+    in
     firstOf [ goLeft >> Maybe.map gotoLastDescendant, goUp ]
-
-
-gotoLastDescendant =
-    applyWhileJust (goDown >> Maybe.map (applyWhileJust goRight))
-
-
-idEq : ItemId -> Item -> Bool
-idEq =
-    propEq .id
-
-
-propEq : (c -> b) -> b -> c -> Bool
-propEq func val obj =
-    func obj == val
 
 
 
