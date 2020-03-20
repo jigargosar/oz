@@ -351,7 +351,7 @@ goBackward =
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    mapMaybe FIZ.goForward
+    mapMaybe FIZ.gotoNextVisible
 
 
 gotoParent : OutlineDoc -> Maybe OutlineDoc

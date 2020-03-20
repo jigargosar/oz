@@ -4,11 +4,11 @@ module FIZ exposing
     , decoder
     , encoder
     , goBackward
-    , goForward
     , goLeft
     , goRight
     , goUp
     , gotoId
+    , gotoNextVisible
     , new
     , restructureCursorWithContext
     , restructureWithContext
@@ -20,7 +20,6 @@ import Forest.Zipper as Zipper exposing (ForestZipper, Location)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Maybe.Extra
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -129,7 +128,7 @@ gotoId : ItemId -> FIZ -> Maybe FIZ
 gotoId itemId =
     Zipper.firstRoot
         >> zFindByData (idEq itemId)
-            (Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfAncestor ])
+            (firstOf [ goDown, goRight, gotoNextVisibleSiblingOfAncestor ])
 
 
 goUp : FIZ -> Maybe FIZ
@@ -160,21 +159,21 @@ goRight =
 -- NAVIGATION HELPERS
 
 
-goForward : FIZ -> Maybe FIZ
-goForward =
-    Maybe.Extra.oneOf [ goDown, goRight, gotoNextSiblingOfAncestor ]
+gotoNextVisible : FIZ -> Maybe FIZ
+gotoNextVisible =
+    firstOf [ goDown, goRight, gotoNextVisibleSiblingOfAncestor ]
 
 
-gotoNextSiblingOfAncestor : FIZ -> Maybe (ForestZipper Item)
-gotoNextSiblingOfAncestor fiz =
-    case goUp fiz of
+gotoNextVisibleSiblingOfAncestor : FIZ -> Maybe (ForestZipper Item)
+gotoNextVisibleSiblingOfAncestor z =
+    case goUp z of
         Just parentFIZ ->
             case goRight parentFIZ of
                 Just ns ->
                     Just ns
 
                 Nothing ->
-                    gotoNextSiblingOfAncestor parentFIZ
+                    gotoNextVisibleSiblingOfAncestor parentFIZ
 
         Nothing ->
             Nothing
