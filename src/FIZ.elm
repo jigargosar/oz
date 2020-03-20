@@ -22,7 +22,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Maybe.Extra
 import Random exposing (Generator)
-import Utils exposing (applyWhileJust, findWithIterator)
+import Utils exposing (..)
 
 
 
@@ -182,7 +182,7 @@ gotoNextSiblingOfClosestAncestor fiz =
 
 goBackward : FIZ -> Maybe FIZ
 goBackward =
-    Maybe.Extra.oneOf [ goLeft >> Maybe.map gotoLastDescendant, goUp ]
+    firstOf [ goLeft >> Maybe.map gotoLastDescendant, goUp ]
 
 
 gotoLastDescendant =
