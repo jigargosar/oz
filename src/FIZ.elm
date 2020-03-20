@@ -4,10 +4,10 @@ module FIZ exposing
     , decoder
     , encoder
     , goBackward
+    , goDown
     , goLeft
     , goRight
     , goUp
-    , gotoNextVisible
     , new
     , restructureCursorWithContext
     , restructureWithContext
@@ -149,26 +149,6 @@ goRight =
 
 
 -- NAVIGATION HELPERS
-
-
-gotoNextVisible : FIZ -> Maybe FIZ
-gotoNextVisible =
-    firstOf [ goDown, goRight, gotoNextVisibleSiblingOfAncestor ]
-
-
-gotoNextVisibleSiblingOfAncestor : FIZ -> Maybe (ForestZipper Item)
-gotoNextVisibleSiblingOfAncestor z =
-    case goUp z of
-        Just parentFIZ ->
-            case goRight parentFIZ of
-                Just ns ->
-                    Just ns
-
-                Nothing ->
-                    gotoNextVisibleSiblingOfAncestor parentFIZ
-
-        Nothing ->
-            Nothing
 
 
 goBackward : FIZ -> Maybe FIZ
