@@ -12,7 +12,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode exposing (Value)
 import KeyEvent as KE exposing (KeyEvent)
-import OutlineDoc as Doc exposing (CandidateLocation(..), NodeInfo, OutlineDoc)
+import OutlineDoc as Doc exposing (CandidateLocation(..), LineInfo, OutlineDoc)
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -666,15 +666,11 @@ viewBrowsingDoc doc =
         doc
 
 
-type alias LineItem =
-    NodeInfo
-
-
 viewDraggingDoc : OutlineDoc -> LHM
 viewDraggingDoc doc =
     Doc.view
         (\item ->
-            if item.isCursorOrDescendentOfCursor then
+            if item.isAtCursorOrDescendentOfCursor then
                 viewNodeWithoutBeacons (viewItem FadedItem) item
 
             else
@@ -689,9 +685,9 @@ viewEditingDoc title doc =
         editItemId =
             Doc.currentId doc
 
-        renderItem : LineItem -> LHM -> HM
+        renderItem : LineInfo -> LHM -> HM
         renderItem item =
-            if item.id == editItemId then
+            if item.isAtCursor then
                 wrapWithoutBeacons (viewEditItem title)
 
             else
@@ -712,7 +708,7 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
-viewNodeWithBeacons : ItemVariant -> NodeInfo -> LHM -> HM
+viewNodeWithBeacons : ItemVariant -> LineInfo -> LHM -> HM
 viewNodeWithBeacons itemView item =
     wrapWithBeacons (viewItem itemView item) item.id
 
@@ -798,7 +794,7 @@ debug =
     False
 
 
-itemDisplayTitle : NodeInfo -> String
+itemDisplayTitle : LineInfo -> String
 itemDisplayTitle item =
     (if String.trim item.title |> String.isEmpty then
         "<empty>"
@@ -836,7 +832,7 @@ type ItemVariant
     | FadedItem
 
 
-viewItem : ItemVariant -> NodeInfo -> HM
+viewItem : ItemVariant -> LineInfo -> HM
 viewItem itemView item =
     let
         { isHighlighted, isDraggable, isFaded } =

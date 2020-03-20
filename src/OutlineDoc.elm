@@ -1,6 +1,6 @@
 module OutlineDoc exposing
     ( CandidateLocation
-    , NodeInfo
+    , LineInfo
     , OutlineDoc
     , addNew
     , after
@@ -512,25 +512,26 @@ zRelocate relativeLocation targetId zipper =
 -- VIEW
 
 
-type alias NodeInfo =
+type alias LineInfo =
     { id : ItemId
     , title : String
     , collapseState : CollapseState
-    , isCursorOrDescendentOfCursor : Bool
+    , isAtCursorOrDescendentOfCursor : Bool
+    , isAtCursor : Bool
     }
 
 
-view : (NodeInfo -> List a -> a) -> OutlineDoc -> List a
+view : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 view render =
     unwrap >> zView render
 
 
-viewCurrent : (NodeInfo -> List a -> a) -> OutlineDoc -> List a
+viewCurrent : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 viewCurrent render =
     unwrap >> Z.treeAsZipper >> zView render
 
 
-zView : (NodeInfo -> List a -> a) -> FIZ -> List a
+zView : (LineInfo -> List a -> a) -> FIZ -> List a
 zView render initialZ =
     let
         cursorId =
@@ -553,8 +554,12 @@ zView render initialZ =
             )
 
 
-zToNodeInfo : ItemId -> FIZ -> NodeInfo
+zToNodeInfo : ItemId -> FIZ -> LineInfo
 zToNodeInfo cursorId z =
+    let
+        isCursor =
+            zId z == cursorId
+    in
     { id = zId z
     , title = zTitle z
     , collapseState =
@@ -567,7 +572,8 @@ zToNodeInfo cursorId z =
 
             ( _, False ) ->
                 CollapseState.Expanded
-    , isCursorOrDescendentOfCursor = zId z == cursorId || List.any (idEq cursorId) (Z.ancestors z)
+    , isAtCursorOrDescendentOfCursor = isCursor || List.any (idEq cursorId) (Z.ancestors z)
+    , isAtCursor = isCursor
     }
 
 
