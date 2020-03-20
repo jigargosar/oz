@@ -12,7 +12,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode exposing (Value)
 import KeyEvent as KE exposing (KeyEvent)
-import OutlineDoc as Doc exposing (CandidateLocation(..), OutlineDoc)
+import OutlineDoc as Doc exposing (CandidateLocation(..), NodeInfo, OutlineDoc)
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -633,8 +633,8 @@ viewDraggedNode state doc =
                 , style "left" (String.fromFloat xy.x ++ "px")
                 , style "top" (String.fromFloat xy.y ++ "px")
                 ]
-                (Doc.restructureCurrentNode
-                    (\( i, _ ) ->
+                (Doc.viewCurrent
+                    (\i ->
                         viewNodeWithoutBeacons (viewItem NotDraggableItem) i
                     )
                     doc
@@ -657,8 +657,8 @@ viewBrowsingDoc doc =
         highlightedId =
             Doc.currentId doc
     in
-    Doc.restructureWithContext
-        (\( item, _ ) ->
+    Doc.view
+        (\item ->
             viewNodeWithBeacons
                 (DraggableItem (item.id == highlightedId))
                 item
@@ -667,21 +667,14 @@ viewBrowsingDoc doc =
 
 
 type alias LineItem =
-    { id : ItemId
-    , title : String
-    , collapsed : CollapseState
-    }
+    NodeInfo
 
 
 viewDraggingDoc : OutlineDoc -> LHM
 viewDraggingDoc doc =
-    let
-        draggedId =
-            Doc.currentId doc
-    in
-    Doc.restructureWithContext
-        (\( item, ancestorsIds ) ->
-            if List.any ((==) draggedId) (item.id :: ancestorsIds) then
+    Doc.view
+        (\item ->
+            if item.isCursorOrDescendentOfCursor then
                 viewNodeWithoutBeacons (viewItem FadedItem) item
 
             else
@@ -704,7 +697,7 @@ viewEditingDoc title doc =
             else
                 viewNodeWithBeacons (DraggableItem False) item
     in
-    Doc.restructureWithContext (\( i, _ ) -> renderItem i) doc
+    Doc.view (\i -> renderItem i) doc
 
 
 
@@ -719,7 +712,7 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
-viewNodeWithBeacons : ItemVariant -> LineItem -> LHM -> HM
+viewNodeWithBeacons : ItemVariant -> NodeInfo -> LHM -> HM
 viewNodeWithBeacons itemView item =
     wrapWithBeacons (viewItem itemView item) item.id
 
@@ -805,7 +798,7 @@ debug =
     False
 
 
-itemDisplayTitle : LineItem -> String
+itemDisplayTitle : NodeInfo -> String
 itemDisplayTitle item =
     (if String.trim item.title |> String.isEmpty then
         "<empty>"
@@ -843,7 +836,7 @@ type ItemVariant
     | FadedItem
 
 
-viewItem : ItemVariant -> LineItem -> HM
+viewItem : ItemVariant -> NodeInfo -> HM
 viewItem itemView item =
     let
         { isHighlighted, isDraggable, isFaded } =
@@ -867,7 +860,7 @@ viewItem itemView item =
                     []
                )
         )
-        [ viewChildStateIndicator item.collapsed
+        [ viewChildStateIndicator item.collapseState
         , div
             [ class "flex-auto lh-title "
             , classIf isHighlighted "bg-blue white"

@@ -1,5 +1,6 @@
 module OutlineDoc exposing
     ( CandidateLocation
+    , NodeInfo
     , OutlineDoc
     , addNew
     , after
@@ -25,10 +26,10 @@ module OutlineDoc exposing
     , prependIn
     , relocateTo
     , removeIfBlankLeaf
-    , restructureCurrentNode
-    , restructureWithContext
     , setTitleUnlessBlank
     , unIndent
+    , view
+    , viewCurrent
     , zoomIn
     , zoomOut
     )
@@ -519,73 +520,55 @@ type alias NodeInfo =
     }
 
 
+zToNodeInfo : ItemId -> FIZ -> NodeInfo
+zToNodeInfo cursorId z =
+    { id = zId z
+    , title = zTitle z
+    , collapseState =
+        case ( Z.isLeaf z, (Z.data z).collapsed ) of
+            ( True, _ ) ->
+                CollapseState.NoChildren
+
+            ( _, True ) ->
+                CollapseState.Collapsed
+
+            ( _, False ) ->
+                CollapseState.Expanded
+    , isCursorOrDescendentOfCursor = zId z == cursorId || List.any (idEq cursorId) (Z.ancestors z)
+    }
+
+
+view : (NodeInfo -> List a -> a) -> OutlineDoc -> List a
 view render =
-    Z.restructure
-        (\z renderedChildren ->
-            let
-                item =
-                    Z.data z
-            in
-            render
-                item
-                (Z.ancestors z)
-                (if List.isEmpty renderedChildren then
-                    CollapseState.NoChildren
-
-                 else if item.collapsed then
-                    CollapseState.Collapsed
-
-                 else
-                    CollapseState.Expanded
-                )
-                (if item.collapsed then
-                    []
-
-                 else
-                    renderedChildren
-                )
-        )
+    unwrap >> zView render
 
 
-wrapRender render a b c =
-    render ( { id = a.id, title = a.title, collapsed = c }, List.map .id b )
+viewCurrent : (NodeInfo -> List a -> a) -> OutlineDoc -> List a
+viewCurrent render =
+    unwrap >> Z.treeAsZipper >> zView render
 
 
-restructureWithContext render =
-    unwrap >> zRestructureWithContext (wrapRender render)
+zView : (NodeInfo -> List a -> a) -> FIZ -> List a
+zView render initialZ =
+    let
+        cursorId =
+            zId initialZ
+    in
+    initialZ
+        |> Z.restructure
+            (\z renderedChildren ->
+                let
+                    nodeInfo =
+                        zToNodeInfo cursorId z
+                in
+                render nodeInfo
+                    (if nodeInfo.collapseState == CollapseState.Expanded then
+                        renderedChildren
 
-
-zRestructureWithContext : (Item -> List Item -> CollapseState -> List b -> b) -> ForestZipper Item -> List b
-zRestructureWithContext render =
-    Z.restructure
-        (\fiz children ->
-            let
-                item =
-                    Z.data fiz
-            in
-            render
-                item
-                (Z.ancestors fiz)
-                (if List.isEmpty children then
-                    CollapseState.NoChildren
-
-                 else if item.collapsed then
-                    CollapseState.Collapsed
-
-                 else
-                    CollapseState.Expanded
-                )
-                (if item.collapsed then
-                    []
-
-                 else
-                    children
-                )
-        )
-
-
-restructureCurrentNode render =
-    unwrap >> Z.treeAsZipper >> zRestructureWithContext (wrapRender render)
+                     else
+                        []
+                    )
+            )
 
 
 
