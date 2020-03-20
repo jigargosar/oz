@@ -615,12 +615,45 @@ viewZoomAncestors : List ZoomAncestor -> HM
 viewZoomAncestors =
     let
         viewZA za =
-            div [ class "flex-auto flex-grow-0 flex items-center" ]
+            div [ class "flex-auto flex-grow-0 f5 flex items-center" ]
                 [ div [ class "truncate pr1 dim pointer" ] [ text (itemDisplayTitle za) ]
-                , div [ class "code gray pr1 " ] [ text "/" ]
+                , div [ class "code gray pr1 " ] [ text ">" ]
                 ]
     in
-    List.reverse >> List.map viewZA >> div [ class "pv2 flex flex-wrap" ]
+    --List.reverse >> List.map viewZA >> div [ class "pv2 flex flex-wrap" ]
+    viewZoomAncestorsHelp
+
+
+viewZoomAncestorsHelp zas =
+    let
+        container =
+            div [ class "flex-auto flex-grow-0 flex items-center", style "max-width" "100px" ]
+
+        viewSeparator =
+            div [ class "pr1 f5 code gray  " ] [ text ">" ]
+
+        titleStyle =
+            class "pr1 f5 truncate dim pointer"
+
+        viewLink title =
+            container [ div [ titleStyle ] [ text title ] ]
+
+        viewHomeLink =
+            viewLink "Home"
+
+        viewAncestorLink ancestor =
+            viewLink (itemDisplayTitle ancestor)
+    in
+    case zas of
+        [] ->
+            text ""
+
+        last :: ancestors ->
+            div [ class "pv2 flex flex-wrap" ]
+                (viewHomeLink
+                    :: List.map viewAncestorLink (List.reverse ancestors)
+                    |> List.intersperse viewSeparator
+                )
 
 
 viewDraggedNode : State -> OutlineDoc -> HM
