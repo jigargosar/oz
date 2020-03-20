@@ -15,6 +15,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Random exposing (Generator)
+import Utils exposing (..)
 
 
 
@@ -69,11 +70,6 @@ decoder =
     Zipper.decoder itemDecoder
 
 
-required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
-required fieldName decoder_ =
-    JD.map2 (|>) (JD.field fieldName decoder_)
-
-
 emptyLeafGenerator : Generator (Tree Item)
 emptyLeafGenerator =
     let
@@ -86,8 +82,7 @@ emptyLeafGenerator =
 
 new : Generator FIZ
 new =
-    emptyLeafGenerator
-        |> Random.map Zipper.fromTree
+    emptyLeafGenerator |> Random.map Zipper.fromTree
 
 
 hasVisibleChildren : FIZ -> Bool
