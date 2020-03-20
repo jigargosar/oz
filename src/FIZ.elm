@@ -6,7 +6,6 @@ module FIZ exposing
     , goDown
     , goLeft
     , goRight
-    , goUp
     , new
     , restructureCursorWithContext
     , restructureWithContext
@@ -120,11 +119,6 @@ addNew fiz =
 
 
 -- CORE NAVIGATION
-
-
-goUp : FIZ -> Maybe FIZ
-goUp =
-    Zipper.up
 
 
 goDown : FIZ -> Maybe FIZ
