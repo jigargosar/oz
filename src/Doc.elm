@@ -70,6 +70,11 @@ type Doc
     = Doc Model
 
 
+map : (Model -> Model) -> Doc -> Doc
+map func (Doc model) =
+    Doc (func model)
+
+
 type alias Model =
     { byId : Dict String Line
     , focusedId : ItemId
@@ -112,6 +117,6 @@ new =
         |> Random.map (newHelp >> Doc)
 
 
-setTitle : String -> Doc
+setTitle : String -> Doc -> Doc
 setTitle title =
-    mapFocused (\l -> { l | title = title })
+    map (mapFocused (\l -> { l | title = title }))
