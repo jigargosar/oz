@@ -34,6 +34,7 @@ module Forest.Zipper exposing
     , rootForest
     , transferOneLevelTo
     , tree
+    , treeAsZipper
     , up
     )
 
@@ -113,6 +114,11 @@ rootForest =
 childrenAsZipper : ForestZipper a -> Maybe (ForestZipper a)
 childrenAsZipper =
     tree >> Tree.children >> fromForest
+
+
+treeAsZipper : ForestZipper a -> ForestZipper a
+treeAsZipper =
+    tree >> fromTree
 
 
 merge : ForestZipper a -> ForestZipper a -> ForestZipper a

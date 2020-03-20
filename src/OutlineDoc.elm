@@ -33,7 +33,8 @@ module OutlineDoc exposing
     , zoomOut
     )
 
-import FIZ as FIZ exposing (FIZ)
+import CollapseState exposing (CollapseState)
+import FIZ as FIZ exposing (FIZ, Item)
 import Forest.Zipper as Z exposing (ForestZipper, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
@@ -515,11 +516,40 @@ wrapRender render a b c =
 
 
 restructureWithContext render =
-    unwrap >> FIZ.restructureWithContext (wrapRender render)
+    unwrap >> zRestructureWithContext (wrapRender render)
+
+
+zRestructureWithContext : (Item -> List Item -> CollapseState -> List b -> b) -> ForestZipper Item -> List b
+zRestructureWithContext render =
+    Z.restructure
+        (\fiz children ->
+            let
+                item =
+                    Z.data fiz
+            in
+            render
+                item
+                (Z.ancestors fiz)
+                (if List.isEmpty children then
+                    CollapseState.NoChildren
+
+                 else if item.collapsed then
+                    CollapseState.Collapsed
+
+                 else
+                    CollapseState.Expanded
+                )
+                (if item.collapsed then
+                    []
+
+                 else
+                    children
+                )
+        )
 
 
 restructureCurrentNode render =
-    unwrap >> FIZ.restructureCursorWithContext (wrapRender render)
+    unwrap >> Z.treeAsZipper >> zRestructureWithContext (wrapRender render)
 
 
 
