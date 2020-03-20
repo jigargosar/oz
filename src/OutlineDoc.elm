@@ -480,13 +480,11 @@ zRelocate relativeLocation targetId zipper =
     let
         removedNode =
             Z.tree zipper
-
-        insertHelp =
-            Z.insertAndGoto relativeLocation removedNode
-                >> zExpandAncestors
     in
     Z.remove zipper
-        |> Maybe.andThen (zFindId targetId >> Maybe.map insertHelp)
+        |> Maybe.andThen (zFindId targetId)
+        |> Maybe.map
+            (Z.insertAndGoto relativeLocation removedNode >> zExpandAncestors)
 
 
 
