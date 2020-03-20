@@ -635,7 +635,7 @@ viewDraggedNode state doc =
                 ]
                 (Doc.viewCurrent
                     (\i ->
-                        viewNodeWithoutBeacons (viewItem NotDraggableItem) i
+                        viewNodeWithoutBeacons (viewItem NotDraggableLine) i
                     )
                     doc
                 )
@@ -653,14 +653,10 @@ viewDraggedNode state doc =
 
 viewBrowsingDoc : OutlineDoc -> LHM
 viewBrowsingDoc doc =
-    let
-        highlightedId =
-            Doc.currentId doc
-    in
     Doc.view
         (\item ->
             viewNodeWithBeacons
-                (DraggableItem (item.id == highlightedId))
+                (DraggableLine item.isAtCursor)
                 item
         )
         doc
@@ -671,10 +667,10 @@ viewDraggingDoc doc =
     Doc.view
         (\item ->
             if item.isAtCursorOrDescendentOfCursor then
-                viewNodeWithoutBeacons (viewItem FadedItem) item
+                viewNodeWithoutBeacons (viewItem FadedLine) item
 
             else
-                viewNodeWithBeacons NotDraggableItem item
+                viewNodeWithBeacons NotDraggableLine item
         )
         doc
 
@@ -682,16 +678,13 @@ viewDraggingDoc doc =
 viewEditingDoc : String -> OutlineDoc -> LHM
 viewEditingDoc title doc =
     let
-        editItemId =
-            Doc.currentId doc
-
         renderItem : LineInfo -> LHM -> HM
         renderItem item =
             if item.isAtCursor then
                 wrapWithoutBeacons (viewEditItem title)
 
             else
-                viewNodeWithBeacons (DraggableItem False) item
+                viewNodeWithBeacons (DraggableLine False) item
     in
     Doc.view (\i -> renderItem i) doc
 
@@ -708,7 +701,7 @@ viewNodeWithoutBeacons renderItemFunc item childrenHtml =
         ]
 
 
-viewNodeWithBeacons : ItemVariant -> LineInfo -> LHM -> HM
+viewNodeWithBeacons : LineVariant -> LineInfo -> LHM -> HM
 viewNodeWithBeacons itemView item =
     wrapWithBeacons (viewItem itemView item) item.id
 
@@ -826,24 +819,24 @@ attrIf bool attrFunc attrValue =
         class ""
 
 
-type ItemVariant
-    = DraggableItem Bool
-    | NotDraggableItem
-    | FadedItem
+type LineVariant
+    = DraggableLine Bool
+    | NotDraggableLine
+    | FadedLine
 
 
-viewItem : ItemVariant -> LineInfo -> HM
+viewItem : LineVariant -> LineInfo -> HM
 viewItem itemView item =
     let
         { isHighlighted, isDraggable, isFaded } =
             case itemView of
-                DraggableItem isHighlighted_ ->
+                DraggableLine isHighlighted_ ->
                     { isHighlighted = isHighlighted_, isDraggable = True, isFaded = False }
 
-                NotDraggableItem ->
+                NotDraggableLine ->
                     { isHighlighted = False, isDraggable = False, isFaded = False }
 
-                FadedItem ->
+                FadedLine ->
                     { isHighlighted = False, isDraggable = False, isFaded = True }
     in
     div
