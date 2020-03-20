@@ -161,23 +161,13 @@ cacheDocIfChanged old new =
     let
         cacheDoc : Model -> Cmd msg
         cacheDoc =
-            reconstructDoc >> Doc.encoder >> saveOZ
+            .doc >> Doc.encoder >> saveOZ
     in
     if neqBy .doc old new then
         cacheDoc new
 
     else
         Cmd.none
-
-
-reconstructDoc : Model -> OutlineDoc
-reconstructDoc model =
-    --case model.parent of
-    --    Just oldParent ->
-    --        Doc.zoomOut model.doc oldParent
-    --
-    --    Nothing ->
-    model.doc
 
 
 focusElOnDocCursorChange : Model -> Model -> Cmd Msg
@@ -467,7 +457,7 @@ updateWhenBrowsing message =
 
         BM_TitleClicked iid ->
             \model ->
-                if Doc.currentId model.doc == iid then
+                if Doc.isCurrent iid model.doc then
                     updateWhenBrowsing StartEdit model
 
                 else

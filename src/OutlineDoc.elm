@@ -10,7 +10,6 @@ module OutlineDoc exposing
     , candidateLocationDecoder
     , candidateLocationEncoder
     , collapse
-    , currentId
     , currentTitle
     , decoder
     , encoder
@@ -20,6 +19,7 @@ module OutlineDoc exposing
     , gotoId
     , gotoParent
     , indent
+    , isCurrent
     , moveDownwards
     , moveUpwards
     , new
@@ -237,9 +237,9 @@ ancestorIds =
     unwrap >> Z.ancestors >> List.map .id
 
 
-currentId : OutlineDoc -> ItemId
-currentId =
-    unwrap >> zId
+isCurrent : ItemId -> OutlineDoc -> Bool
+isCurrent itemId =
+    unwrap >> propEq zId itemId
 
 
 zId : FIZ -> ItemId
