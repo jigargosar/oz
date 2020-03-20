@@ -457,7 +457,7 @@ updateWhenBrowsing message =
 
         BM_TitleClicked iid ->
             \model ->
-                if Doc.isCurrent iid model.doc then
+                if Doc.currentIdEq iid model.doc then
                     updateWhenBrowsing StartEdit model
 
                 else

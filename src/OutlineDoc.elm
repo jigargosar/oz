@@ -11,6 +11,7 @@ module OutlineDoc exposing
     , candidateLocationDecoder
     , candidateLocationEncoder
     , collapse
+    , currentIdEq
     , currentTitle
     , decoder
     , encoder
@@ -20,7 +21,6 @@ module OutlineDoc exposing
     , gotoId
     , gotoParent
     , indent
-    , isCurrent
     , moveDownwards
     , moveUpwards
     , new
@@ -223,8 +223,8 @@ ancestorIds =
     getChildZipper >> Z.ancestors >> List.map .id
 
 
-isCurrent : ItemId -> OutlineDoc -> Bool
-isCurrent itemId =
+currentIdEq : ItemId -> OutlineDoc -> Bool
+currentIdEq itemId =
     getChildZipper >> propEq zId itemId
 
 
