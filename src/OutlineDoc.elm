@@ -146,25 +146,6 @@ zNew =
     FIZ.newLeaf |> Random.map Z.fromTree
 
 
-zoomIn : OutlineDoc -> Maybe OutlineDoc
-zoomIn doc =
-    case unwrap doc of
-        Doc z ->
-            Z.childrenAsZipper z |> Maybe.map (initZoomed z)
-
-        Zoomed pz z ->
-            Z.merge z pz
-                |> (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (initZoomed newPZ))
-
-
-zoomOut : OutlineDoc -> Maybe OutlineDoc
-zoomOut =
-    mapMaybe
-        (zoomOutUnwrapped
-            >> Maybe.map (mapUnwrappedChildZipper zGotoFirstVisibleAncestor)
-        )
-
-
 mapUnwrappedChildZipper : (FIZ -> FIZ) -> Unwrapped -> Unwrapped
 mapUnwrappedChildZipper func unwrapped =
     case unwrapped of
@@ -173,40 +154,6 @@ mapUnwrappedChildZipper func unwrapped =
 
         Zoomed pz z ->
             Zoomed pz (func z)
-
-
-zoomOutUnwrapped : Unwrapped -> Maybe Unwrapped
-zoomOutUnwrapped unwrapped =
-    case unwrapped of
-        Doc _ ->
-            Nothing
-
-        Zoomed pz z ->
-            case Z.transferOneLevelTo z pz of
-                ( newZ, Just newPZ ) ->
-                    Just (Zoomed newPZ newZ)
-
-                ( newZ, Nothing ) ->
-                    Just (Doc newZ)
-
-
-zGotoFirstVisibleAncestor : FIZ -> FIZ
-zGotoFirstVisibleAncestor z =
-    if isVisible z then
-        z
-
-    else
-        case Z.up z of
-            Just pz ->
-                zGotoFirstVisibleAncestor pz
-
-            Nothing ->
-                z
-
-
-isVisible : FIZ -> Bool
-isVisible =
-    Z.ancestors >> List.any .collapsed >> not
 
 
 encoder : OutlineDoc -> Value
@@ -284,6 +231,63 @@ isCurrent itemId =
 zId : FIZ -> ItemId
 zId =
     Z.data >> .id
+
+
+
+-- ZOOM
+
+
+zoomIn : OutlineDoc -> Maybe OutlineDoc
+zoomIn doc =
+    case unwrap doc of
+        Doc z ->
+            Z.childrenAsZipper z |> Maybe.map (initZoomed z)
+
+        Zoomed pz z ->
+            Z.merge z pz
+                |> (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (initZoomed newPZ))
+
+
+zoomOut : OutlineDoc -> Maybe OutlineDoc
+zoomOut =
+    mapMaybe
+        (zoomOutUnwrapped
+            >> Maybe.map (mapUnwrappedChildZipper zGotoFirstVisibleAncestor)
+        )
+
+
+zoomOutUnwrapped : Unwrapped -> Maybe Unwrapped
+zoomOutUnwrapped unwrapped =
+    case unwrapped of
+        Doc _ ->
+            Nothing
+
+        Zoomed pz z ->
+            case Z.transferOneLevelTo z pz of
+                ( newZ, Just newPZ ) ->
+                    Just (Zoomed newPZ newZ)
+
+                ( newZ, Nothing ) ->
+                    Just (Doc newZ)
+
+
+zGotoFirstVisibleAncestor : FIZ -> FIZ
+zGotoFirstVisibleAncestor z =
+    if zIsVisible z then
+        z
+
+    else
+        case Z.up z of
+            Just pz ->
+                zGotoFirstVisibleAncestor pz
+
+            Nothing ->
+                z
+
+
+zIsVisible : FIZ -> Bool
+zIsVisible =
+    Z.ancestors >> List.any .collapsed >> not
 
 
 
