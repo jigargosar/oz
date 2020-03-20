@@ -34,6 +34,7 @@ module OutlineDoc exposing
     , zoomAncestors
     , zoomIn
     , zoomOut
+    , zoomTitle
     )
 
 import CollapseState exposing (CollapseState)
@@ -593,6 +594,21 @@ zoomAncestors doc =
             Z.data pz
                 :: Z.ancestors pz
                 |> List.map itemToZoomAncestor
+
+
+zoomTitle : OutlineDoc -> Maybe String
+zoomTitle =
+    withParentZipper zTitle
+
+
+withParentZipper : (FIZ -> a) -> OutlineDoc -> Maybe a
+withParentZipper func doc =
+    case unwrap doc of
+        Zoomed pz _ ->
+            Just (func pz)
+
+        _ ->
+            Nothing
 
 
 zView : (LineInfo -> List a -> a) -> FIZ -> List a

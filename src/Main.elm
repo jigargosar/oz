@@ -593,11 +593,17 @@ type alias LHM =
     List (Html.Html Msg)
 
 
+htmlMaybe : (a -> Html.Html msg) -> Maybe a -> Html.Html msg
+htmlMaybe func =
+    Maybe.map func >> Maybe.withDefault (text "")
+
+
 viewOutline : State -> OutlineDoc -> HM
 viewOutline state doc =
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
         , viewZoomAncestors (Doc.zoomAncestors doc)
+        , htmlMaybe (\title -> div [ class "f2 lh-title" ] [ text title ]) (Doc.zoomTitle doc)
         , div [] <|
             case state of
                 Browsing ->
