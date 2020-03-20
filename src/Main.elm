@@ -612,19 +612,7 @@ viewOutline state doc =
 
 
 viewZoomAncestors : List ZoomAncestor -> HM
-viewZoomAncestors =
-    let
-        viewZA za =
-            div [ class "flex-auto flex-grow-0 f5 flex items-center" ]
-                [ div [ class "truncate pr1 dim pointer" ] [ text (itemDisplayTitle za) ]
-                , div [ class "code gray pr1 " ] [ text ">" ]
-                ]
-    in
-    --List.reverse >> List.map viewZA >> div [ class "pv2 flex flex-wrap" ]
-    viewZoomAncestorsHelp
-
-
-viewZoomAncestorsHelp zas =
+viewZoomAncestors zas =
     let
         container =
             div [ class "flex-auto flex-grow-0 flex items-center", style "max-width" "100px" ]
