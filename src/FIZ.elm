@@ -7,7 +7,6 @@ module FIZ exposing
     , goLeft
     , goRight
     , goUp
-    , gotoId
     , gotoNextVisible
     , new
     , restructureCursorWithContext
@@ -124,13 +123,6 @@ addNew fiz =
 -- CORE NAVIGATION
 
 
-gotoId : ItemId -> FIZ -> Maybe FIZ
-gotoId itemId =
-    Zipper.firstRoot
-        >> zFindByData (idEq itemId)
-            (firstOf [ goDown, goRight, gotoNextVisibleSiblingOfAncestor ])
-
-
 goUp : FIZ -> Maybe FIZ
 goUp =
     Zipper.up
@@ -226,12 +218,3 @@ restructureCursorWithContext render =
     Zipper.tree
         >> Zipper.fromTree
         >> restructureWithContext render
-
-
-
--- ForestZipper Extra
-
-
-zFindByData : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
-zFindByData pred =
-    findWithIterator (Zipper.data >> pred)

@@ -40,7 +40,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, open)
 import Random exposing (Generator)
-import Utils exposing (firstOf, ignoreNothing, nonBlank, required)
+import Utils exposing (..)
 
 
 
@@ -318,8 +318,9 @@ zCollapse fiz =
         Nothing
 
 
+zExpandAncestors : FIZ -> FIZ
 zExpandAncestors =
-    Z.mapAncestorData (setCollapsedUnsafe False)
+    Z.mapAncestors (setCollapsedUnsafe False)
 
 
 setCollapsedUnsafe collapsed model =
@@ -341,7 +342,13 @@ zDeleteEmpty z =
 
 gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 gotoId itemId =
-    mapMaybe (FIZ.gotoId itemId)
+    mapMaybe (gotoIdAndExpandAncestors itemId)
+
+
+gotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
+gotoIdAndExpandAncestors itemId =
+    Z.findFirst (idEq itemId)
+        >> Maybe.map zExpandAncestors
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
@@ -427,7 +434,7 @@ zRelocate relativeLocation targetId zipper =
                 >> zExpandAncestors
     in
     Z.remove zipper
-        |> Maybe.andThen (FIZ.gotoId targetId >> Maybe.map insertHelp)
+        |> Maybe.andThen (FIZ.gotoIdAndExpandAncestors targetId >> Maybe.map insertHelp)
 
 
 

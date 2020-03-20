@@ -10,6 +10,7 @@ module Forest.Zipper exposing
     , decoder
     , down
     , encoder
+    , findFirst
     , firstRoot
     , fromForest
     , fromTree
@@ -21,7 +22,7 @@ module Forest.Zipper exposing
     , isLeaf
     , lastChild
     , left
-    , mapAncestorData
+    , mapAncestors
     , mapData
     , mapTree
     , merge
@@ -39,6 +40,7 @@ module Forest.Zipper exposing
 import Forest.Tree as Tree exposing (Forest, Tree)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import Utils exposing (..)
 
 
 type Location
@@ -217,8 +219,8 @@ mapCrumbData func crumb =
     { crumb | datum = func crumb.datum }
 
 
-mapAncestorData : (a -> a) -> ForestZipper a -> ForestZipper a
-mapAncestorData func fz =
+mapAncestors : (a -> a) -> ForestZipper a -> ForestZipper a
+mapAncestors func fz =
     { fz | crumbs = List.map (mapCrumbData func) fz.crumbs }
 
 
@@ -509,6 +511,34 @@ insertAndGo insertFunc focusFunc node zipper =
 
 
 -- FIND
+
+
+find : (a -> Bool) -> (ForestZipper a -> Maybe (ForestZipper a)) -> ForestZipper a -> Maybe (ForestZipper a)
+find pred =
+    findWithIterator (data >> pred)
+
+
+findFirst : (a -> Bool) -> ForestZipper a -> Maybe (ForestZipper a)
+findFirst pred =
+    firstRoot >> find pred (firstOf [ down, right, nextSiblingOfAncestor ])
+
+
+nextSiblingOfAncestor : ForestZipper a -> Maybe (ForestZipper a)
+nextSiblingOfAncestor z =
+    case up z of
+        Just parentZ ->
+            case right parentZ of
+                Just ns ->
+                    Just ns
+
+                Nothing ->
+                    nextSiblingOfAncestor parentZ
+
+        Nothing ->
+            Nothing
+
+
+
 -- VISIT
 --
 --
