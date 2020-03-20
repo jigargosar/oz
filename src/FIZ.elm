@@ -1,5 +1,6 @@
 module FIZ exposing
     ( FIZ
+    , Item
     , decoder
     , encoder
     , newLeaf
