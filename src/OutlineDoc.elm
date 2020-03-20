@@ -350,11 +350,6 @@ zGotoIdAndExpandAncestors itemId =
     zFindId itemId >> Maybe.map zExpandAncestors
 
 
-zFindId : ItemId -> FIZ -> Maybe FIZ
-zFindId itemId =
-    Z.findFirst (idEq itemId)
-
-
 goBackward : OutlineDoc -> Maybe OutlineDoc
 goBackward =
     mapMaybe FIZ.goBackward
@@ -438,7 +433,7 @@ zRelocate relativeLocation targetId zipper =
                 >> zExpandAncestors
     in
     Z.remove zipper
-        |> Maybe.andThen (zGotoIdAndExpandAncestors targetId >> Maybe.map insertHelp)
+        |> Maybe.andThen (zFindId targetId >> Maybe.map insertHelp)
 
 
 
@@ -455,3 +450,12 @@ restructureWithContext render =
 
 restructureCurrentNode render =
     unwrap >> FIZ.restructureCursorWithContext (wrapRender render)
+
+
+
+-- Zipper Helpers
+
+
+zFindId : ItemId -> FIZ -> Maybe FIZ
+zFindId itemId =
+    Z.findFirst (idEq itemId)
