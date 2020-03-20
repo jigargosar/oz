@@ -28,7 +28,7 @@ type alias Item =
 
 itemGenerator : String -> Generator Item
 itemGenerator title =
-    ItemId.itemIdGenerator
+    ItemId.generator
         |> Random.map (\id -> { id = id, title = title, collapsed = False })
 
 

@@ -1,4 +1,4 @@
-module ItemId exposing (ItemId, itemIdDecoder, itemIdEncoder, itemIdGenerator, toString)
+module ItemId exposing (ItemId, generator, itemIdDecoder, itemIdEncoder, toString)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -9,8 +9,8 @@ type ItemId
     = ItemId String
 
 
-itemIdGenerator : Generator ItemId
-itemIdGenerator =
+generator : Generator ItemId
+generator =
     Random.int 10000 Random.maxInt
         |> Random.map (String.fromInt >> (++) "item-id-" >> ItemId)
 
