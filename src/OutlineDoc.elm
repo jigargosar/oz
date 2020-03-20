@@ -125,14 +125,6 @@ appendIn =
 
 
 
--- ITEM
-
-
-type alias Item =
-    FIZ.Item
-
-
-
 -- DOC MODEL
 
 

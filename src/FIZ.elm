@@ -1,6 +1,5 @@
 module FIZ exposing
     ( FIZ
-    , Item
     , addNew
     , decoder
     , encoder
