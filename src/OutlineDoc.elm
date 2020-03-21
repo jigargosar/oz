@@ -170,9 +170,10 @@ encoder doc =
 decoder : Decoder OutlineDoc
 decoder =
     JD.oneOf
-        [ FIZ.decoder |> JD.map initDoc
-        , JD.succeed initZoomed |> required "pz" FIZ.decoder |> required "z" FIZ.decoder
+        [ FIZ.decoder |> JD.map Doc
+        , JD.succeed Zoomed |> required "pz" FIZ.decoder |> required "z" FIZ.decoder
         ]
+        |> JD.map wrap
 
 
 mapChildZipper : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
@@ -234,8 +235,23 @@ zId =
     Z.data >> .id
 
 
+type alias ZoomInfo =
+    { ancestors : List ZoomAncestor
+    , current : ZoomAncestor
+    }
+
+
 type alias ZoomAncestor =
     { id : ItemId, title : String }
+
+
+zoomInfo : OutlineDoc -> Maybe ZoomInfo
+zoomInfo =
+    let
+        helper pz =
+            Nothing
+    in
+    getParentZipper >> helper
 
 
 zoomAncestors : OutlineDoc -> List ZoomAncestor
@@ -257,14 +273,14 @@ zoomAncestors doc =
 
 zoomTitle : OutlineDoc -> Maybe String
 zoomTitle =
-    withParentZipper zTitle
+    getParentZipper >> Maybe.map zTitle
 
 
-withParentZipper : (FIZ -> a) -> OutlineDoc -> Maybe a
-withParentZipper func doc =
+getParentZipper : OutlineDoc -> Maybe FIZ
+getParentZipper doc =
     case unwrap doc of
         Zoomed pz _ ->
-            Just (func pz)
+            Just pz
 
         _ ->
             Nothing
