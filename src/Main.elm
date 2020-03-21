@@ -340,11 +340,7 @@ setEditingState =
 initDragging : ItemId -> Pointer -> Model -> Maybe Model
 initDragging dragId pointer model =
     Doc.gotoId dragId model.doc
-        |> Maybe.map
-            (\nd ->
-                setDoc nd model
-                    |> setDraggingState pointer
-            )
+        |> Maybe.map (\nd -> setDoc nd model |> setDraggingState pointer)
 
 
 setDraggingState : Pointer -> Model -> Model
