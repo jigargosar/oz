@@ -394,10 +394,8 @@ updateWhenEditing msg editState =
                 identity
 
         EM_TitleClicked itemId ->
-            \model ->
-                model
-                    |> saveEditAndSwitchToBrowsing
-                    |> mapDocIgnoreNothing (Doc.gotoId itemId)
+            saveEditAndSwitchToBrowsing
+                >> updateWhenBrowsing (BM_TitleClicked itemId)
 
         EM_OnDragStart itemId pointer ->
             \model ->
