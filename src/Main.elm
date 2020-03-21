@@ -312,11 +312,6 @@ setDoc doc model =
     { model | doc = doc }
 
 
-mapDoc : (OutlineDoc -> OutlineDoc) -> Model -> Model
-mapDoc func model =
-    setDoc (func model.doc) model
-
-
 mapDocIgnoreNothing : (OutlineDoc -> Maybe OutlineDoc) -> Model -> Model
 mapDocIgnoreNothing maybeFunc model =
     case maybeFunc model.doc of
@@ -353,8 +348,34 @@ setBrowsingState =
     setState Browsing
 
 
+getEditingTitle (Edit _ title) =
+    title
+
+
+setEditingTitle title (Edit isAdding _) =
+    Edit isAdding title
+
+
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg ((Edit isAdding _) as editState) =
+    let
+        cancelEdit : OutlineDoc -> OutlineDoc
+        cancelEdit doc =
+            doc
+                |> Doc.removeIfBlankLeaf
+
+        saveEditAndSwitchToBrowsing model =
+            { model
+                | doc =
+                    model.doc
+                        |> Doc.setTitleUnlessBlank (getEditingTitle editState)
+                        |> Doc.removeIfBlankLeaf
+                , state = Browsing
+            }
+
+        cancelEditAndSwitchToBrowsing model =
+            { model | doc = cancelEdit model.doc, state = Browsing }
+    in
     case msg of
         OnTab ->
             mapDocIgnoreNothing Doc.indent
@@ -363,31 +384,28 @@ updateWhenEditing msg ((Edit isAdding _) as editState) =
             mapDocIgnoreNothing Doc.unIndent
 
         TitleChanged title ->
-            setEditingState (Edit isAdding title)
+            setEditingState (setEditingTitle title editState)
 
         EM_OnGlobalKeyDown ke ->
-            \model ->
-                if KE.hot "Enter" ke then
-                    { model | doc = endEdit editState model.doc, state = Browsing }
+            if KE.hot "Enter" ke then
+                saveEditAndSwitchToBrowsing
 
-                else if KE.hot "Escape" ke then
-                    { model | doc = cancelEdit model.doc, state = Browsing }
+            else if KE.hot "Escape" ke then
+                cancelEditAndSwitchToBrowsing
 
-                else
-                    model
+            else
+                identity
 
         EM_TitleClicked itemId ->
             \model ->
                 model
-                    |> mapDoc (endEdit editState)
-                    |> setBrowsingState
+                    |> saveEditAndSwitchToBrowsing
                     |> mapDocIgnoreNothing (Doc.gotoId itemId)
 
         EM_OnDragStart itemId pointer ->
             \model ->
                 model
-                    |> mapDoc (endEdit editState)
-                    |> setBrowsingState
+                    |> saveEditAndSwitchToBrowsing
                     |> initDragging itemId pointer
                     |> Maybe.withDefault model
 
@@ -532,19 +550,6 @@ addNewLine model =
 initEditNewState : Model -> Model
 initEditNewState model =
     { model | state = Editing (Edit True (Doc.currentTitle model.doc)) }
-
-
-endEdit : Edit -> OutlineDoc -> OutlineDoc
-endEdit (Edit _ title) doc =
-    doc
-        |> Doc.setTitleUnlessBlank title
-        |> Doc.removeIfBlankLeaf
-
-
-cancelEdit : OutlineDoc -> OutlineDoc
-cancelEdit doc =
-    doc
-        |> Doc.removeIfBlankLeaf
 
 
 generate : Generator a -> Model -> ( a, Model )
