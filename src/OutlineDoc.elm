@@ -304,8 +304,8 @@ zoomIn =
         zoomInParentPreserveFocus z =
             z
                 |> Z.up
-                >> Maybe.andThen zoomInCurrent
-                >> Maybe.andThen (findId_ (zId z))
+                |> Maybe.andThen zoomInCurrent
+                |> Maybe.andThen (findId_ (zId z))
 
         zoomInCurrentOrParent : ForestZipper Item -> Maybe Unwrapped
         zoomInCurrentOrParent =
