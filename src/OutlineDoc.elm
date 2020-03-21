@@ -301,18 +301,13 @@ zoomIn =
                 |> Z.childrenAsZipper
                 |> Maybe.map (Zoomed z)
 
+        zoomInParent =
+            Z.up >> Maybe.andThen zoomInCurrent
+
         zoomInParentPreserveFocus z =
             z
-                |> Z.up
-                |> Maybe.andThen zoomInCurrent
+                |> zoomInParent
                 |> Maybe.andThen (findId_ (zId z))
-
-        zoomInCurrentOrParent : ForestZipper Item -> Maybe Unwrapped
-        zoomInCurrentOrParent =
-            firstOf
-                [ zoomInCurrent
-                , zoomInParentPreserveFocus
-                ]
 
         toZipper doc =
             case doc of
@@ -322,7 +317,14 @@ zoomIn =
                 Zoomed pz z ->
                     Z.transferAllLevelsFrom pz z
     in
-    mapMaybe (toZipper >> zoomInCurrentOrParent >> Maybe.map gotoFirstVisibleAncestor_)
+    mapMaybe
+        (toZipper
+            >> firstOf
+                [ zoomInCurrent
+                , zoomInParentPreserveFocus
+                ]
+            >> Maybe.map gotoFirstVisibleAncestor_
+        )
 
 
 findId_ : ItemId -> Unwrapped -> Maybe Unwrapped
