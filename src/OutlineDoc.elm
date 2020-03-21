@@ -286,13 +286,29 @@ getParentZipper doc =
 zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn =
     let
+        gotoId_ id doc =
+            case doc of
+                Doc z ->
+                    zFindId id z |> Maybe.map Doc
+
+                Zoomed pz z ->
+                    zFindId id z |> Maybe.map (Zoomed pz)
+
+        zoomInCurrent : ForestZipper Item -> Maybe Unwrapped
         zoomInCurrent z =
             z
                 |> Z.childrenAsZipper
                 |> Maybe.map (Zoomed z >> gotoFirstVisibleAncestor_)
 
-        zoomInCurrentOrFirstAncestor =
-            firstOf [ zoomInCurrent, Z.up >> Maybe.andThen zoomInCurrent ]
+        zoomInCurrentOrFirstAncestor : ForestZipper Item -> Maybe Unwrapped
+        zoomInCurrentOrFirstAncestor z =
+            firstOf
+                [ zoomInCurrent
+                , Z.up
+                    >> Maybe.andThen zoomInCurrent
+                    >> Maybe.andThen (gotoId_ (zId z))
+                ]
+                z
     in
     mapMaybe
         (\doc ->
