@@ -259,7 +259,7 @@ zoomInfo =
             { id = id, title = title }
 
         helper pz =
-            { ancestors = Z.ancestors pz |> List.map itemToZoomAncestor
+            { ancestors = Z.ancestors pz |> List.reverse |> List.map itemToZoomAncestor
             , current = Z.data pz |> itemToZoomAncestor
             }
     in
