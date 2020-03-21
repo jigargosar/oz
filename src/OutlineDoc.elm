@@ -35,6 +35,7 @@ module OutlineDoc exposing
     , zoomIn
     , zoomInfo
     , zoomOut
+    , zoomOutToTop
     )
 
 import CollapseState exposing (CollapseState)
@@ -299,6 +300,19 @@ zoomOut =
     mapMaybe
         (zoomOutUnwrapped
             >> Maybe.map (mapUnwrappedChildZipper zGotoFirstVisibleAncestor)
+        )
+
+
+zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
+zoomOutToTop =
+    mapMaybe
+        (\doc ->
+            case doc of
+                Doc _ ->
+                    Nothing
+
+                Zoomed pz z ->
+                    Just (Doc (Z.merge z pz))
         )
 
 

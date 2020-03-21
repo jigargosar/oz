@@ -140,6 +140,7 @@ type Msg
       -- Valid for both editing & browsing
     | ItemTitleClicked ItemId
     | OnDragStart ItemId Pointer
+    | HomeClicked
       -- Only valid when browsing
     | AddNewClicked
 
@@ -267,6 +268,9 @@ update message model =
 
                 _ ->
                     Debug.todo "impl"
+
+        HomeClicked ->
+            { model | doc = model.doc |> Doc.zoomOutToTop |> Maybe.withDefault model.doc }
 
         ItemTitleClicked itemId ->
             case model.state of
@@ -630,11 +634,14 @@ viewZoomAncestors zi =
         titleStyle =
             class "pr1 f5 truncate dim pointer"
 
-        viewLink title =
-            container [ div [ titleStyle ] [ text title ] ]
+        viewLink =
+            viewLink2 NoOp
+
+        viewLink2 msg title =
+            container [ div [ titleStyle, onClick msg ] [ text title ] ]
 
         viewHomeLink =
-            viewLink "Home"
+            viewLink2 HomeClicked "Home"
 
         viewAncestorLink ancestor =
             viewLink (itemDisplayTitle ancestor)
