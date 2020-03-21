@@ -123,6 +123,7 @@ type WhenEditingMsg
     = TitleChanged String
     | OnTab
     | OnShiftTab
+    | EM_OnGlobalKeyDown KeyEvent
 
 
 type Msg
@@ -252,14 +253,7 @@ update message model =
                     updateWhenBrowsing (BM_OnGlobalKeyDown ke) model
 
                 Editing editState ->
-                    if KE.hot "Enter" ke then
-                        { model | doc = endEdit editState model.doc, state = Browsing }
-
-                    else if KE.hot "Escape" ke then
-                        { model | doc = cancelEdit model.doc, state = Browsing }
-
-                    else
-                        model
+                    updateWhenEditing (EM_OnGlobalKeyDown ke) editState model
 
                 Dragging _ ->
                     model
@@ -373,7 +367,7 @@ setBrowsingState =
 
 
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
-updateWhenEditing msg (Edit isAdding _) =
+updateWhenEditing msg ((Edit isAdding _) as editState) =
     case msg of
         OnTab ->
             mapDocIgnoreNothing Doc.indent
@@ -383,6 +377,17 @@ updateWhenEditing msg (Edit isAdding _) =
 
         TitleChanged title ->
             setEditingState (Edit isAdding title)
+
+        EM_OnGlobalKeyDown ke ->
+            \model ->
+                if KE.hot "Enter" ke then
+                    { model | doc = endEdit editState model.doc, state = Browsing }
+
+                else if KE.hot "Escape" ke then
+                    { model | doc = cancelEdit model.doc, state = Browsing }
+
+                else
+                    model
 
 
 updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> Model
