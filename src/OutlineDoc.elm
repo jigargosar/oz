@@ -290,7 +290,7 @@ zoomIn =
                     Z.childrenAsZipper z |> Maybe.map (Zoomed z)
 
                 Zoomed pz z ->
-                    Z.merge z pz
+                    Z.mergeChildIn pz z
                         |> (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (Zoomed newPZ))
         )
 
@@ -299,22 +299,45 @@ zoomOut : OutlineDoc -> Maybe OutlineDoc
 zoomOut =
     zoomOutHelper
         (\pz z ->
-            case Z.transferOneLevelTo z pz of
-                ( newZ, Just newPZ ) ->
+            case Z.transferOneLevelForm pz z of
+                ( Just newPZ, newZ ) ->
                     Zoomed newPZ newZ
 
-                ( newZ, Nothing ) ->
+                ( Nothing, newZ ) ->
                     Doc newZ
         )
 
 
 zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
 zoomOutToTop =
-    zoomOutHelper (\pz z -> Doc (Z.merge z pz))
+    zoomOutHelper (\pz z -> Doc (Z.mergeChildIn pz z))
+
+
+zoomOutToId : ItemId -> OutlineDoc -> Maybe OutlineDoc
+zoomOutToId itemId =
+    let
+        helper pz z =
+            case Z.transferOneLevelForm pz z of
+                ( Just newPZ, newZ ) ->
+                    if zId newPZ == itemId then
+                        Just (Zoomed newPZ newZ)
+
+                    else
+                        helper newPZ newZ
+
+                ( Nothing, _ ) ->
+                    Nothing
+    in
+    zoomOutHelperMaybe helper
 
 
 zoomOutHelper : (FIZ -> FIZ -> Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
 zoomOutHelper func =
+    zoomOutHelperMaybe (\pz z -> func pz z |> Just)
+
+
+zoomOutHelperMaybe : (FIZ -> FIZ -> Maybe Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
+zoomOutHelperMaybe func =
     mapMaybe
         (\doc ->
             case doc of
@@ -323,8 +346,7 @@ zoomOutHelper func =
 
                 Zoomed pz z ->
                     func pz z
-                        |> gotoFirstVisibleAncestor_
-                        |> Just
+                        |> Maybe.map gotoFirstVisibleAncestor_
         )
 
 

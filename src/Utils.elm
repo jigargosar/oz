@@ -132,3 +132,7 @@ attrIf bool attrFunc attrValue =
 
     else
         Html.Attributes.class ""
+
+
+swap ( a, b ) =
+    ( b, a )

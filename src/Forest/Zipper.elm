@@ -25,14 +25,14 @@ module Forest.Zipper exposing
     , mapAncestors
     , mapData
     , mapTree
-    , merge
+    , mergeChildIn
     , prependChild
     , prependChildGo
     , remove
     , restructure
     , right
     , rootForest
-    , transferOneLevelTo
+    , transferOneLevelForm
     , tree
     , treeAsZipper
     , up
@@ -121,8 +121,8 @@ treeAsZipper =
     tree >> fromTree
 
 
-merge : ForestZipper a -> ForestZipper a -> ForestZipper a
-merge cz zipper =
+mergeChild : ForestZipper a -> ForestZipper a -> ForestZipper a
+mergeChild cz zipper =
     let
         ret =
             mergeInternal cz zipper
@@ -135,6 +135,11 @@ merge cz zipper =
                 Debug.todo "invalid merge"
     in
     ret
+
+
+mergeChildIn : ForestZipper a -> ForestZipper a -> ForestZipper a
+mergeChildIn p c =
+    mergeChild c p
 
 
 mergeInternal : ForestZipper a -> ForestZipper a -> ForestZipper a
@@ -167,6 +172,10 @@ transferOneLevelTo cz zipper =
                 Debug.todo "invalid merge"
     in
     ret
+
+
+transferOneLevelForm zipper cz =
+    transferOneLevelTo cz zipper |> swap
 
 
 transferOneLevelLoop : ( ForestZipper a, Maybe (ForestZipper a) ) -> ForestZipper a
