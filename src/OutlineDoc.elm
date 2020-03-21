@@ -294,15 +294,20 @@ getParentZipper doc =
 
 zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn =
+    mapMaybe zoomIn_
+
+
+zoomIn_ : Unwrapped -> Maybe Unwrapped
+zoomIn_ =
     let
-        zoomInCurrent : ForestZipper Item -> Maybe Unwrapped
-        zoomInCurrent z =
+        zZoomIn : ForestZipper Item -> Maybe Unwrapped
+        zZoomIn z =
             z
                 |> Z.childrenAsZipper
                 |> Maybe.map (Zoomed z)
 
         zoomInParent =
-            Z.up >> Maybe.andThen zoomInCurrent
+            Z.up >> Maybe.andThen zZoomIn
 
         zoomInParentPreserveFocus z =
             z
@@ -317,14 +322,12 @@ zoomIn =
                 Zoomed pz z ->
                     Z.transferAllLevelsFrom pz z
     in
-    mapMaybe
-        (toZipper
-            >> firstOf
-                [ zoomInCurrent
-                , zoomInParentPreserveFocus
-                ]
-            >> Maybe.map gotoFirstVisibleAncestor_
-        )
+    toZipper
+        >> firstOf
+            [ zZoomIn
+            , zoomInParentPreserveFocus
+            ]
+        >> Maybe.map gotoFirstVisibleAncestor_
 
 
 findId_ : ItemId -> Unwrapped -> Maybe Unwrapped
