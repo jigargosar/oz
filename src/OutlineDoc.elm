@@ -43,7 +43,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, map, mapMaybe, unwrap, wrap)
+import OutlineDoc.Internal exposing (Unwrapped(..), map, mapMaybe, unwrap, wrap)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -357,15 +357,21 @@ zIsVisible =
 
 
 addNew : OutlineDoc -> Generator OutlineDoc
-addNew doc =
-    (case unwrap doc of
-        Doc z ->
-            z |> zAddNew >> Random.map Doc
+addNew =
+    let
+        addNewHelp func z =
+            Random.map func (zAddNew z)
+    in
+    unwrap
+        >> (\doc ->
+                case doc of
+                    Doc z ->
+                        addNewHelp Doc z
 
-        Zoomed pz z ->
-            z |> zAddNew >> Random.map (Zoomed pz)
-    )
-        |> Random.map wrap
+                    Zoomed pz z ->
+                        addNewHelp (Zoomed pz) z
+           )
+        >> Random.map wrap
 
 
 zAddNew : FIZ -> Generator FIZ
