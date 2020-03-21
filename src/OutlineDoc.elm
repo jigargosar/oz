@@ -300,8 +300,8 @@ zoomIn =
                 |> Z.childrenAsZipper
                 |> Maybe.map (Zoomed z >> gotoFirstVisibleAncestor_)
 
-        zoomInCurrentOrFirstAncestor : ForestZipper Item -> Maybe Unwrapped
-        zoomInCurrentOrFirstAncestor z =
+        zoomInCurrentOrParent : ForestZipper Item -> Maybe Unwrapped
+        zoomInCurrentOrParent z =
             firstOf
                 [ zoomInCurrent
                 , Z.up
@@ -314,10 +314,10 @@ zoomIn =
         (\doc ->
             case doc of
                 Doc z ->
-                    zoomInCurrentOrFirstAncestor z
+                    zoomInCurrentOrParent z
 
                 Zoomed pz z ->
-                    Z.transferAllLevelsFrom pz z |> zoomInCurrentOrFirstAncestor
+                    Z.transferAllLevelsFrom pz z |> zoomInCurrentOrParent
         )
 
 
