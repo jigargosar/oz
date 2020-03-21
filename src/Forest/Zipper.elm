@@ -25,13 +25,13 @@ module Forest.Zipper exposing
     , mapAncestors
     , mapData
     , mapTree
-    , mergeChildIn
     , prependChild
     , prependChildGo
     , remove
     , restructure
     , right
     , rootForest
+    , transferAllLevelsFrom
     , transferOneLevelForm
     , tree
     , treeAsZipper
@@ -137,9 +137,9 @@ mergeChild cz zipper =
     ret
 
 
-mergeChildIn : ForestZipper a -> ForestZipper a -> ForestZipper a
-mergeChildIn p c =
-    mergeChild c p
+transferAllLevelsFrom : ForestZipper a -> ForestZipper a -> ForestZipper a
+transferAllLevelsFrom parent child =
+    mergeChild child parent
 
 
 mergeInternal : ForestZipper a -> ForestZipper a -> ForestZipper a

@@ -290,7 +290,7 @@ zoomIn =
                     Z.childrenAsZipper z |> Maybe.map (Zoomed z)
 
                 Zoomed pz z ->
-                    Z.mergeChildIn pz z
+                    Z.transferAllLevelsFrom pz z
                         |> (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (Zoomed newPZ))
         )
 
@@ -310,7 +310,7 @@ zoomOut =
 
 zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
 zoomOutToTop =
-    zoomOutHelper (\pz z -> Doc (Z.mergeChildIn pz z))
+    zoomOutHelper (\pz z -> Doc (Z.transferAllLevelsFrom pz z))
 
 
 zoomOutToId : ItemId -> OutlineDoc -> Maybe OutlineDoc
