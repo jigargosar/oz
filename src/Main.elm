@@ -364,6 +364,7 @@ updateWhenEditing msg editState =
             doc
                 |> Doc.removeIfBlankLeaf
 
+        saveEditAndSwitchToBrowsing : Model -> Model
         saveEditAndSwitchToBrowsing model =
             { model
                 | doc =
