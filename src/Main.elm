@@ -125,6 +125,7 @@ type WhenEditingMsg
     | OnShiftTab
     | EM_OnGlobalKeyDown KeyEvent
     | EM_TitleClicked ItemId
+    | EM_OnDragStart ItemId Pointer
 
 
 type Msg
@@ -281,13 +282,10 @@ update message model =
         OnDragStart dragId cursor ->
             case model.state of
                 Browsing ->
-                    initDraggingIgnoreNothing dragId cursor model
+                    updateWhenBrowsing (BM_OnDragStart dragId cursor) model
 
                 Editing editState ->
-                    model
-                        |> mapDoc (endEdit editState)
-                        |> setBrowsingState
-                        |> initDraggingIgnoreNothing dragId cursor
+                    updateWhenEditing (EM_OnDragStart dragId cursor) editState model
 
                 Dragging _ ->
                     Debug.todo "impossible state"
@@ -394,6 +392,13 @@ updateWhenEditing msg ((Edit isAdding _) as editState) =
                     |> setBrowsingState
                     |> mapDocIgnoreNothing (Doc.gotoId itemId)
 
+        EM_OnDragStart itemId pointer ->
+            \model ->
+                model
+                    |> mapDoc (endEdit editState)
+                    |> setBrowsingState
+                    |> initDraggingIgnoreNothing itemId pointer
+
 
 updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> Model
 updateWhenDragging msg pointer model =
@@ -416,6 +421,7 @@ updateWhenDragging msg pointer model =
 type BrowsingMsg
     = BM_TitleClicked ItemId
     | BM_OnGlobalKeyDown KeyEvent
+    | BM_OnDragStart ItemId Pointer
     | StartEdit
       --| BM_DocMsg DocMsg
     | GoBackward
@@ -454,8 +460,9 @@ toBrowsingMsg =
 updateWhenBrowsing : BrowsingMsg -> Model -> Model
 updateWhenBrowsing message =
     case message of
-        --BM_DocMsg msg ->
-        --    updateDoc msg
+        BM_OnDragStart dragId pointer ->
+            initDraggingIgnoreNothing dragId pointer
+
         BM_OnGlobalKeyDown ke ->
             \model ->
                 toBrowsingMsg ke
