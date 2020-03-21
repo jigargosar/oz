@@ -356,23 +356,24 @@ setEditingTitle title (Edit isAdding _) =
     Edit isAdding title
 
 
+saveEditAndSwitchToBrowsing : Edit -> Model -> Model
+saveEditAndSwitchToBrowsing editState model =
+    { model
+        | doc =
+            model.doc
+                |> Doc.setTitleUnlessBlank (getEditingTitle editState)
+                |> Doc.removeIfBlankLeaf
+        , state = Browsing
+    }
+
+
+cancelEditAndSwitchToBrowsing : Model -> Model
+cancelEditAndSwitchToBrowsing model =
+    { model | doc = Doc.removeIfBlankLeaf model.doc, state = Browsing }
+
+
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg editState =
-    let
-        saveEditAndSwitchToBrowsing : Model -> Model
-        saveEditAndSwitchToBrowsing model =
-            { model
-                | doc =
-                    model.doc
-                        |> Doc.setTitleUnlessBlank (getEditingTitle editState)
-                        |> Doc.removeIfBlankLeaf
-                , state = Browsing
-            }
-
-        cancelEditAndSwitchToBrowsing : Model -> Model
-        cancelEditAndSwitchToBrowsing model =
-            { model | doc = Doc.removeIfBlankLeaf model.doc, state = Browsing }
-    in
     case msg of
         OnTab ->
             mapDocIgnoreNothing Doc.indent
@@ -385,7 +386,7 @@ updateWhenEditing msg editState =
 
         EM_OnGlobalKeyDown ke ->
             if KE.hot "Enter" ke then
-                saveEditAndSwitchToBrowsing
+                saveEditAndSwitchToBrowsing editState
 
             else if KE.hot "Escape" ke then
                 cancelEditAndSwitchToBrowsing
@@ -394,11 +395,11 @@ updateWhenEditing msg editState =
                 identity
 
         EM_TitleClicked itemId ->
-            saveEditAndSwitchToBrowsing
+            saveEditAndSwitchToBrowsing editState
                 >> updateWhenBrowsing (BM_TitleClicked itemId)
 
         EM_OnDragStart itemId pointer ->
-            saveEditAndSwitchToBrowsing
+            saveEditAndSwitchToBrowsing editState
                 >> updateWhenBrowsing (BM_OnDragStart itemId pointer)
 
 
