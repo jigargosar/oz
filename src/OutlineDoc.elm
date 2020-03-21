@@ -184,16 +184,6 @@ getCZ_ doc =
             z
 
 
-setCZ : FIZ -> OutlineDoc -> OutlineDoc
-setCZ =
-    setCZ_ >> map
-
-
-setCZ_ : FIZ -> Unwrapped -> Unwrapped
-setCZ_ =
-    always >> mapCZ_
-
-
 mapCZ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
 mapCZ =
     mapCZ_ >> map
