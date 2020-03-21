@@ -336,26 +336,25 @@ zoomOutToTop =
 
 gotoFirstVisibleAncestor_ : Unwrapped -> Unwrapped
 gotoFirstVisibleAncestor_ =
-    mapCZ_ zGotoFirstVisibleAncestor
+    let
+        zIsVisible : FIZ -> Bool
+        zIsVisible =
+            Z.ancestors >> List.any .collapsed >> not
 
-
-zGotoFirstVisibleAncestor : FIZ -> FIZ
-zGotoFirstVisibleAncestor z =
-    if zIsVisible z then
-        z
-
-    else
-        case Z.up z of
-            Just pz ->
-                zGotoFirstVisibleAncestor pz
-
-            Nothing ->
+        zGotoFirstVisibleAncestor : FIZ -> FIZ
+        zGotoFirstVisibleAncestor z =
+            if zIsVisible z then
                 z
 
+            else
+                case Z.up z of
+                    Just pz ->
+                        zGotoFirstVisibleAncestor pz
 
-zIsVisible : FIZ -> Bool
-zIsVisible =
-    Z.ancestors >> List.any .collapsed >> not
+                    Nothing ->
+                        z
+    in
+    mapCZ_ zGotoFirstVisibleAncestor
 
 
 
