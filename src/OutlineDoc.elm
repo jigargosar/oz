@@ -35,7 +35,7 @@ module OutlineDoc exposing
     , zoomIn
     , zoomInfo
     , zoomOut
-    , zoomOutToId
+    , zoomOutToAncestorId
     , zoomOutToTop
     )
 
@@ -314,8 +314,8 @@ zoomOutToTop =
     zoomOutHelper (\pz z -> Doc (Z.transferAllLevelsFrom pz z))
 
 
-zoomOutToId : ItemId -> OutlineDoc -> Maybe OutlineDoc
-zoomOutToId itemId =
+zoomOutToAncestorId : ItemId -> OutlineDoc -> Maybe OutlineDoc
+zoomOutToAncestorId itemId =
     let
         helper pz z =
             case Z.transferOneLevelForm pz z of
