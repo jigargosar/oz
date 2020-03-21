@@ -374,8 +374,8 @@ setEditingTitle title (Edit isAdding _) =
     Edit isAdding title
 
 
-endEditAndSwitchToBrowsing : Edit -> Model -> Model
-endEditAndSwitchToBrowsing editState model =
+endEditImplicitAndSwitchToBrowsing : Edit -> Model -> Model
+endEditImplicitAndSwitchToBrowsing editState model =
     { model
         | doc =
             model.doc
@@ -385,8 +385,8 @@ endEditAndSwitchToBrowsing editState model =
     }
 
 
-saveEditAndSwitchToBrowsing : Edit -> Model -> Model
-saveEditAndSwitchToBrowsing editState model =
+endEditExplicitAndSwitchToBrowsing : Edit -> Model -> Model
+endEditExplicitAndSwitchToBrowsing editState model =
     let
         newTitle =
             getEditingTitle editState
@@ -421,7 +421,7 @@ updateWhenEditing msg editState =
 
         EM_OnGlobalKeyDown ke ->
             if KE.hot "Enter" ke then
-                endEditAndSwitchToBrowsing editState
+                endEditExplicitAndSwitchToBrowsing editState
 
             else if KE.hot "Escape" ke then
                 cancelEditAndSwitchToBrowsing
@@ -430,11 +430,11 @@ updateWhenEditing msg editState =
                 identity
 
         EM_OnTitleClicked itemId ->
-            endEditAndSwitchToBrowsing editState
+            endEditImplicitAndSwitchToBrowsing editState
                 >> updateWhenBrowsing (BM_OnTitleClicked itemId)
 
         EM_OnDragStart itemId pointer ->
-            endEditAndSwitchToBrowsing editState
+            endEditImplicitAndSwitchToBrowsing editState
                 >> updateWhenBrowsing (BM_OnDragStart itemId pointer)
 
 
