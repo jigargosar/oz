@@ -148,8 +148,8 @@ zNew =
     FIZ.newLeaf |> Random.map Z.fromTree
 
 
-mapUnwrappedChildZipper : (FIZ -> FIZ) -> Unwrapped -> Unwrapped
-mapUnwrappedChildZipper func unwrapped =
+mapCZ_ : (FIZ -> FIZ) -> Unwrapped -> Unwrapped
+mapCZ_ func unwrapped =
     case unwrapped of
         Doc z ->
             Doc (func z)
@@ -177,8 +177,8 @@ decoder =
         |> JD.map wrap
 
 
-mapChildZipper : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
-mapChildZipper func =
+mapCZ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
+mapCZ func =
     map
         (\unwrapped ->
             case unwrapped of
@@ -297,14 +297,15 @@ zoomIn =
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
 zoomOut =
-    mapMaybe
-        (zoomOutUnwrapped
-            >> Maybe.map (mapUnwrappedChildZipper zGotoFirstVisibleAncestor)
-        )
+    let
+        helper pz z =
+            case Z.transferOneLevelTo z pz of
+                ( newZ, Just newPZ ) ->
+                    Zoomed newPZ (zGotoFirstVisibleAncestor newZ)
 
-
-zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
-zoomOutToTop =
+                ( newZ, Nothing ) ->
+                    Doc (zGotoFirstVisibleAncestor newZ)
+    in
     mapMaybe
         (\doc ->
             case doc of
@@ -312,23 +313,25 @@ zoomOutToTop =
                     Nothing
 
                 Zoomed pz z ->
-                    Just (Doc (Z.merge z pz))
+                    Just (helper pz z)
         )
 
 
-zoomOutUnwrapped : Unwrapped -> Maybe Unwrapped
-zoomOutUnwrapped unwrapped =
-    case unwrapped of
-        Doc _ ->
-            Nothing
+zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
+zoomOutToTop =
+    let
+        helper pz z =
+            Doc (Z.merge z pz |> zGotoFirstVisibleAncestor)
+    in
+    mapMaybe
+        (\doc ->
+            case doc of
+                Doc _ ->
+                    Nothing
 
-        Zoomed pz z ->
-            case Z.transferOneLevelTo z pz of
-                ( newZ, Just newPZ ) ->
-                    Just (Zoomed newPZ newZ)
-
-                ( newZ, Nothing ) ->
-                    Just (Doc newZ)
+                Zoomed pz z ->
+                    Just (helper pz z)
+        )
 
 
 zGotoFirstVisibleAncestor : FIZ -> FIZ
@@ -392,12 +395,12 @@ zAddNew z =
 
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
-    mapChildZipper (setTitle title |> ignoreNothing)
+    mapCZ (setTitle title |> ignoreNothing)
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
-    mapChildZipper (zDeleteEmpty |> ignoreNothing)
+    mapCZ (zDeleteEmpty |> ignoreNothing)
 
 
 expand : OutlineDoc -> Maybe OutlineDoc
