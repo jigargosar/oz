@@ -234,6 +234,42 @@ zId =
     Z.data >> .id
 
 
+type alias ZoomAncestor =
+    { id : ItemId, title : String }
+
+
+zoomAncestors : OutlineDoc -> List ZoomAncestor
+zoomAncestors doc =
+    let
+        itemToZoomAncestor : Item -> ZoomAncestor
+        itemToZoomAncestor { id, title } =
+            { id = id, title = title }
+    in
+    case unwrap doc of
+        Doc _ ->
+            []
+
+        Zoomed pz _ ->
+            Z.data pz
+                :: Z.ancestors pz
+                |> List.map itemToZoomAncestor
+
+
+zoomTitle : OutlineDoc -> Maybe String
+zoomTitle =
+    withParentZipper zTitle
+
+
+withParentZipper : (FIZ -> a) -> OutlineDoc -> Maybe a
+withParentZipper func doc =
+    case unwrap doc of
+        Zoomed pz _ ->
+            Just (func pz)
+
+        _ ->
+            Nothing
+
+
 
 -- ZOOM
 
@@ -573,42 +609,6 @@ view render =
 viewCurrent : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 viewCurrent render =
     getChildZipper >> Z.treeAsZipper >> zView render
-
-
-type alias ZoomAncestor =
-    { id : ItemId, title : String }
-
-
-zoomAncestors : OutlineDoc -> List ZoomAncestor
-zoomAncestors doc =
-    let
-        itemToZoomAncestor : Item -> ZoomAncestor
-        itemToZoomAncestor { id, title } =
-            { id = id, title = title }
-    in
-    case unwrap doc of
-        Doc _ ->
-            []
-
-        Zoomed pz _ ->
-            Z.data pz
-                :: Z.ancestors pz
-                |> List.map itemToZoomAncestor
-
-
-zoomTitle : OutlineDoc -> Maybe String
-zoomTitle =
-    withParentZipper zTitle
-
-
-withParentZipper : (FIZ -> a) -> OutlineDoc -> Maybe a
-withParentZipper func doc =
-    case unwrap doc of
-        Zoomed pz _ ->
-            Just (func pz)
-
-        _ ->
-            Nothing
 
 
 zView : (LineInfo -> List a -> a) -> FIZ -> List a
