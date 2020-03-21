@@ -254,10 +254,16 @@ type alias ZoomAncestor =
 zoomInfo : OutlineDoc -> Maybe ZoomInfo
 zoomInfo =
     let
+        itemToZoomAncestor : Item -> ZoomAncestor
+        itemToZoomAncestor { id, title } =
+            { id = id, title = title }
+
         helper pz =
-            Nothing
+            { ancestors = Z.ancestors pz |> List.map itemToZoomAncestor
+            , current = Z.data pz |> itemToZoomAncestor
+            }
     in
-    getParentZipper >> helper
+    getParentZipper >> Maybe.map helper
 
 
 zoomAncestors : OutlineDoc -> List ZoomAncestor
