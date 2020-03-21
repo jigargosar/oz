@@ -284,15 +284,18 @@ getParentZipper doc =
 
 zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn =
+    let
+        zoomInCurrentOrFirstAncestor z =
+            Z.childrenAsZipper z |> Maybe.map (Zoomed z)
+    in
     mapMaybe
         (\doc ->
             case doc of
                 Doc z ->
-                    Z.childrenAsZipper z |> Maybe.map (Zoomed z)
+                    zoomInCurrentOrFirstAncestor z
 
                 Zoomed pz z ->
-                    Z.transferAllLevelsFrom pz z
-                        |> (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (Zoomed newPZ))
+                    Z.transferAllLevelsFrom pz z |> zoomInCurrentOrFirstAncestor
         )
 
 
