@@ -43,7 +43,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, mapMaybe, unwrap, wrap)
+import OutlineDoc.Internal exposing (Unwrapped(..), initDoc, initZoomed, map, mapMaybe, unwrap, wrap)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -139,7 +139,7 @@ type alias OutlineDoc =
 
 new : Generator OutlineDoc
 new =
-    zNew |> Random.map initDoc
+    zNew |> Random.map (Doc >> wrap)
 
 
 zNew : Generator FIZ
@@ -177,23 +177,29 @@ decoder =
 
 
 mapChildZipper : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
-mapChildZipper func doc =
-    case unwrap doc of
-        Doc z ->
-            initDoc (func z)
+mapChildZipper func =
+    map
+        (\unwrapped ->
+            case unwrapped of
+                Doc z ->
+                    Doc (func z)
 
-        Zoomed pz z ->
-            func z |> initZoomed pz
+                Zoomed pz z ->
+                    Zoomed pz (func z)
+        )
 
 
 mapMaybeChildZipper : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-mapMaybeChildZipper func doc =
-    case unwrap doc of
-        Doc z ->
-            func z |> Maybe.map initDoc
+mapMaybeChildZipper func =
+    mapMaybe
+        (\unwrapped ->
+            case unwrapped of
+                Doc z ->
+                    func z |> Maybe.map Doc
 
-        Zoomed pz z ->
-            func z |> Maybe.map (initZoomed pz)
+                Zoomed pz z ->
+                    func z |> Maybe.map (Zoomed pz)
+        )
 
 
 getChildZipper : OutlineDoc -> FIZ
@@ -291,14 +297,17 @@ getParentZipper doc =
 
 
 zoomIn : OutlineDoc -> Maybe OutlineDoc
-zoomIn doc =
-    case unwrap doc of
-        Doc z ->
-            Z.childrenAsZipper z |> Maybe.map (initZoomed z)
+zoomIn =
+    mapMaybe
+        (\doc ->
+            case doc of
+                Doc z ->
+                    Z.childrenAsZipper z |> Maybe.map (Zoomed z)
 
-        Zoomed pz z ->
-            Z.merge z pz
-                |> (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (initZoomed newPZ))
+                Zoomed pz z ->
+                    Z.merge z pz
+                        |> (\newPZ -> Z.childrenAsZipper newPZ |> Maybe.map (Zoomed newPZ))
+        )
 
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
