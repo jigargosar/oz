@@ -191,15 +191,7 @@ mapCZMaybe_ func unwrapped =
 
 mapCZMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
 mapCZMaybe func =
-    mapMaybe
-        (\unwrapped ->
-            case unwrapped of
-                Doc z ->
-                    func z |> Maybe.map Doc
-
-                Zoomed pz z ->
-                    func z |> Maybe.map (Zoomed pz)
-        )
+    mapMaybe (mapCZMaybe_ func)
 
 
 getCZ : OutlineDoc -> FIZ
