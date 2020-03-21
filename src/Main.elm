@@ -347,11 +347,6 @@ initDragging dragId pointer model =
             )
 
 
-initDraggingIgnoreNothing : ItemId -> Pointer -> Model -> Model
-initDraggingIgnoreNothing itemId pointer model =
-    initDragging itemId pointer model |> Maybe.withDefault model
-
-
 setDraggingState : Pointer -> Model -> Model
 setDraggingState =
     Dragging >> setState
@@ -397,7 +392,8 @@ updateWhenEditing msg ((Edit isAdding _) as editState) =
                 model
                     |> mapDoc (endEdit editState)
                     |> setBrowsingState
-                    |> initDraggingIgnoreNothing itemId pointer
+                    |> initDragging itemId pointer
+                    |> Maybe.withDefault model
 
 
 updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> Model
@@ -460,8 +456,10 @@ toBrowsingMsg =
 updateWhenBrowsing : BrowsingMsg -> Model -> Model
 updateWhenBrowsing message =
     case message of
-        BM_OnDragStart dragId pointer ->
-            initDraggingIgnoreNothing dragId pointer
+        BM_OnDragStart itemId pointer ->
+            \model ->
+                initDragging itemId pointer model
+                    |> Maybe.withDefault model
 
         BM_OnGlobalKeyDown ke ->
             \model ->
