@@ -124,7 +124,7 @@ type WhenEditingMsg
     | OnTab
     | OnShiftTab
     | EM_OnGlobalKeyDown KeyEvent
-    | EM_TitleClicked ItemId
+    | EM_OnTitleClicked ItemId
     | EM_OnDragStart ItemId Pointer
 
 
@@ -271,10 +271,10 @@ update message model =
         ItemTitleClicked itemId ->
             case model.state of
                 Browsing ->
-                    updateWhenBrowsing (BM_TitleClicked itemId) model
+                    updateWhenBrowsing (BM_OnTitleClicked itemId) model
 
                 Editing editState ->
-                    updateWhenEditing (EM_TitleClicked itemId) editState model
+                    updateWhenEditing (EM_OnTitleClicked itemId) editState model
 
                 Dragging _ ->
                     Debug.todo "impossible state"
@@ -394,9 +394,9 @@ updateWhenEditing msg editState =
             else
                 identity
 
-        EM_TitleClicked itemId ->
+        EM_OnTitleClicked itemId ->
             saveEditAndSwitchToBrowsing editState
-                >> updateWhenBrowsing (BM_TitleClicked itemId)
+                >> updateWhenBrowsing (BM_OnTitleClicked itemId)
 
         EM_OnDragStart itemId pointer ->
             saveEditAndSwitchToBrowsing editState
@@ -422,7 +422,7 @@ updateWhenDragging msg pointer model =
 
 
 type BrowsingMsg
-    = BM_TitleClicked ItemId
+    = BM_OnTitleClicked ItemId
     | BM_OnGlobalKeyDown KeyEvent
     | BM_OnDragStart ItemId Pointer
     | StartEdit
@@ -473,7 +473,7 @@ updateWhenBrowsing message =
                     |> Maybe.map (Debug.log "bm" >> (\m -> updateWhenBrowsing m model))
                     |> Maybe.withDefault model
 
-        BM_TitleClicked iid ->
+        BM_OnTitleClicked iid ->
             \model ->
                 if Doc.currentIdEq iid model.doc then
                     updateWhenBrowsing StartEdit model
@@ -601,6 +601,22 @@ type alias LHM =
 htmlMaybe : (a -> Html.Html msg) -> Maybe a -> Html.Html msg
 htmlMaybe func =
     Maybe.map func >> Maybe.withDefault (text "")
+
+
+classIf bool classValue =
+    if bool then
+        class classValue
+
+    else
+        class ""
+
+
+attrIf bool attrFunc attrValue =
+    if bool then
+        attrFunc attrValue
+
+    else
+        class ""
 
 
 viewOutline : State -> OutlineDoc -> HM
@@ -840,22 +856,6 @@ itemDisplayTitle item =
             else
                 ""
            )
-
-
-classIf bool classValue =
-    if bool then
-        class classValue
-
-    else
-        class ""
-
-
-attrIf bool attrFunc attrValue =
-    if bool then
-        attrFunc attrValue
-
-    else
-        class ""
 
 
 type LineVariant
