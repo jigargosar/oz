@@ -398,11 +398,8 @@ updateWhenEditing msg editState =
                 >> updateWhenBrowsing (BM_TitleClicked itemId)
 
         EM_OnDragStart itemId pointer ->
-            \model ->
-                model
-                    |> saveEditAndSwitchToBrowsing
-                    |> initDragging itemId pointer
-                    |> Maybe.withDefault model
+            saveEditAndSwitchToBrowsing
+                >> updateWhenBrowsing (BM_OnDragStart itemId pointer)
 
 
 updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> Model
