@@ -74,9 +74,9 @@ ensureDocInvariants doc =
                         |> always (ensureAncestorsExpanded z)
 
                 Zoomed_ pz z ->
-                    ensureUniqueNodes z
+                    ensureUniqueNodesHelp z Dict.empty
+                        |> ensureUniqueNodesHelp pz
                         |> always (ensureAncestorsExpanded z)
-                        |> always ensureUniqueNodes pz
     in
     doc
 
@@ -97,23 +97,28 @@ ensureAncestorsExpanded fiz =
 ensureUniqueNodes : FIZ -> FIZ
 ensureUniqueNodes fiz =
     let
-        safeInsertItem item d =
-            let
-                strId =
-                    ItemId.toString item.id
-
-                _ =
-                    case Dict.get strId d of
-                        Just _ ->
-                            Debug.todo (Debug.toString ( "duplicate item found", item, d ))
-
-                        Nothing ->
-                            1
-            in
-            Dict.insert strId item d
-
         _ =
-            Z.rootForest fiz
-                |> List.foldl (\t d -> T.foldl safeInsertItem d t) Dict.empty
+            ensureUniqueNodesHelp fiz Dict.empty
     in
     fiz
+
+
+ensureUniqueNodesHelp fiz dict =
+    Z.rootForest fiz
+        |> List.foldl (\t d -> T.foldl safeInsertItem d t) dict
+
+
+safeInsertItem item d =
+    let
+        strId =
+            ItemId.toString item.id
+
+        _ =
+            case Dict.get strId d of
+                Just _ ->
+                    Debug.todo (Debug.toString ( "duplicate item found", item, d ))
+
+                Nothing ->
+                    1
+    in
+    Dict.insert strId item d
