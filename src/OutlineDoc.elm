@@ -321,6 +321,15 @@ zoomOut =
 
 zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
 zoomOutToTop =
+    zoomOutHelper
+        (\pz z ->
+            Doc (Z.merge z pz)
+                |> gotoFirstVisibleAncestor_
+        )
+
+
+zoomOutHelper : (FIZ -> FIZ -> Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
+zoomOutHelper func =
     mapMaybe
         (\doc ->
             case doc of
@@ -328,7 +337,7 @@ zoomOutToTop =
                     Nothing
 
                 Zoomed pz z ->
-                    Doc (Z.merge z pz)
+                    func pz z
                         |> gotoFirstVisibleAncestor_
                         |> Just
         )
