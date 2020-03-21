@@ -150,16 +150,6 @@ zNew =
     FIZ.newLeaf |> Random.map Z.fromTree
 
 
-mapCZ_ : (FIZ -> FIZ) -> Unwrapped -> Unwrapped
-mapCZ_ func unwrapped =
-    case unwrapped of
-        Doc z ->
-            Doc (func z)
-
-        Zoomed pz z ->
-            Zoomed pz (func z)
-
-
 encoder : OutlineDoc -> Value
 encoder doc =
     case unwrap doc of
@@ -179,6 +169,51 @@ decoder =
         |> JD.map wrap
 
 
+getCZ : OutlineDoc -> FIZ
+getCZ =
+    unwrap >> getCZ_
+
+
+getCZ_ : Unwrapped -> FIZ
+getCZ_ doc =
+    case doc of
+        Doc z ->
+            z
+
+        Zoomed _ z ->
+            z
+
+
+setCZ : FIZ -> OutlineDoc -> OutlineDoc
+setCZ =
+    setCZ_ >> map
+
+
+setCZ_ : FIZ -> Unwrapped -> Unwrapped
+setCZ_ =
+    always >> mapCZ_
+
+
+mapCZ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
+mapCZ =
+    mapCZ_ >> map
+
+
+mapCZMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+mapCZMaybe func =
+    mapMaybe (mapCZMaybe_ func)
+
+
+mapCZ_ : (FIZ -> FIZ) -> Unwrapped -> Unwrapped
+mapCZ_ func unwrapped =
+    case unwrapped of
+        Doc z ->
+            Doc (func z)
+
+        Zoomed pz z ->
+            Zoomed pz (func z)
+
+
 mapCZMaybe_ : (FIZ -> Maybe FIZ) -> Unwrapped -> Maybe Unwrapped
 mapCZMaybe_ func unwrapped =
     case unwrapped of
@@ -187,21 +222,6 @@ mapCZMaybe_ func unwrapped =
 
         Zoomed pz z ->
             func z |> Maybe.map (Zoomed pz)
-
-
-mapCZMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-mapCZMaybe func =
-    mapMaybe (mapCZMaybe_ func)
-
-
-getCZ : OutlineDoc -> FIZ
-getCZ doc =
-    case unwrap doc of
-        Doc z ->
-            z
-
-        Zoomed _ z ->
-            z
 
 
 
@@ -430,12 +450,12 @@ zAddNew z =
 
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
-    map (mapCZ_ (setTitle title |> ignoreNothing))
+    mapCZ (setTitle title |> ignoreNothing)
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
-    map (mapCZ_ (zDeleteBlankLeaf |> ignoreNothing))
+    mapCZ (zDeleteBlankLeaf |> ignoreNothing)
 
 
 removeLeaf : OutlineDoc -> Maybe OutlineDoc
