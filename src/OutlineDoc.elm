@@ -179,17 +179,14 @@ decoder =
         |> JD.map wrap
 
 
-mapCZ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
-mapCZ func =
-    map
-        (\unwrapped ->
-            case unwrapped of
-                Doc z ->
-                    Doc (func z)
+mapCZMaybe_ : (FIZ -> Maybe FIZ) -> Unwrapped -> Maybe Unwrapped
+mapCZMaybe_ func unwrapped =
+    case unwrapped of
+        Doc z ->
+            func z |> Maybe.map Doc
 
-                Zoomed pz z ->
-                    Zoomed pz (func z)
-        )
+        Zoomed pz z ->
+            func z |> Maybe.map (Zoomed pz)
 
 
 mapCZMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
@@ -441,12 +438,12 @@ zAddNew z =
 
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
-    mapCZ (setTitle title |> ignoreNothing)
+    map (mapCZ_ (setTitle title |> ignoreNothing))
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
-    mapCZ (zDeleteBlankLeaf |> ignoreNothing)
+    map (mapCZ_ (zDeleteBlankLeaf |> ignoreNothing))
 
 
 removeLeaf : OutlineDoc -> Maybe OutlineDoc
