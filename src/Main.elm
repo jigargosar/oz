@@ -426,7 +426,6 @@ type BrowsingMsg
     | BM_OnGlobalKeyDown KeyEvent
     | BM_OnDragStart ItemId Pointer
     | StartEdit
-      --| BM_DocMsg DocMsg
     | GoBackward
     | CollapseOrGotoParent
     | ExpandOrGotoNext
