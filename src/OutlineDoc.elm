@@ -297,35 +297,20 @@ zoomIn =
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
 zoomOut =
-    let
-        helper pz z =
+    zoomOutHelper
+        (\pz z ->
             case Z.transferOneLevelTo z pz of
                 ( newZ, Just newPZ ) ->
                     Zoomed newPZ newZ
 
                 ( newZ, Nothing ) ->
                     Doc newZ
-    in
-    mapMaybe
-        (\doc ->
-            case doc of
-                Doc _ ->
-                    Nothing
-
-                Zoomed pz z ->
-                    helper pz z
-                        |> gotoFirstVisibleAncestor_
-                        |> Just
         )
 
 
 zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
 zoomOutToTop =
-    zoomOutHelper
-        (\pz z ->
-            Doc (Z.merge z pz)
-                |> gotoFirstVisibleAncestor_
-        )
+    zoomOutHelper (\pz z -> Doc (Z.merge z pz))
 
 
 zoomOutHelper : (FIZ -> FIZ -> Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
