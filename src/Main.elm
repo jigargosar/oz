@@ -359,11 +359,6 @@ setEditingTitle title (Edit isAdding _) =
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
 updateWhenEditing msg editState =
     let
-        cancelEdit : OutlineDoc -> OutlineDoc
-        cancelEdit doc =
-            doc
-                |> Doc.removeIfBlankLeaf
-
         saveEditAndSwitchToBrowsing : Model -> Model
         saveEditAndSwitchToBrowsing model =
             { model
@@ -374,8 +369,9 @@ updateWhenEditing msg editState =
                 , state = Browsing
             }
 
+        cancelEditAndSwitchToBrowsing : Model -> Model
         cancelEditAndSwitchToBrowsing model =
-            { model | doc = cancelEdit model.doc, state = Browsing }
+            { model | doc = Doc.removeIfBlankLeaf model.doc, state = Browsing }
     in
     case msg of
         OnTab ->
