@@ -374,13 +374,30 @@ setEditingTitle title (Edit isAdding _) =
     Edit isAdding title
 
 
-saveEditAndSwitchToBrowsing : Edit -> Model -> Model
-saveEditAndSwitchToBrowsing editState model =
+endEditAndSwitchToBrowsing : Edit -> Model -> Model
+endEditAndSwitchToBrowsing editState model =
     { model
         | doc =
             model.doc
                 |> Doc.setTitleUnlessBlank (getEditingTitle editState)
                 |> Doc.removeIfBlankLeaf
+        , state = Browsing
+    }
+
+
+saveEditAndSwitchToBrowsing : Edit -> Model -> Model
+saveEditAndSwitchToBrowsing editState model =
+    let
+        newTitle =
+            getEditingTitle editState
+    in
+    { model
+        | doc =
+            if isBlank newTitle then
+                model.doc |> Doc.removeLeaf |> Maybe.withDefault model.doc
+
+            else
+                model.doc
         , state = Browsing
     }
 
@@ -404,7 +421,7 @@ updateWhenEditing msg editState =
 
         EM_OnGlobalKeyDown ke ->
             if KE.hot "Enter" ke then
-                saveEditAndSwitchToBrowsing editState
+                endEditAndSwitchToBrowsing editState
 
             else if KE.hot "Escape" ke then
                 cancelEditAndSwitchToBrowsing
@@ -413,11 +430,11 @@ updateWhenEditing msg editState =
                 identity
 
         EM_OnTitleClicked itemId ->
-            saveEditAndSwitchToBrowsing editState
+            endEditAndSwitchToBrowsing editState
                 >> updateWhenBrowsing (BM_OnTitleClicked itemId)
 
         EM_OnDragStart itemId pointer ->
-            saveEditAndSwitchToBrowsing editState
+            endEditAndSwitchToBrowsing editState
                 >> updateWhenBrowsing (BM_OnDragStart itemId pointer)
 
 

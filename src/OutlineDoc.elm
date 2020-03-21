@@ -28,6 +28,7 @@ module OutlineDoc exposing
     , prependIn
     , relocateTo
     , removeIfBlankLeaf
+    , removeLeaf
     , setTitleUnlessBlank
     , unIndent
     , view
@@ -191,8 +192,8 @@ mapCZ func =
         )
 
 
-mapMaybeChildZipper : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-mapMaybeChildZipper func =
+mapCZMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+mapCZMaybe func =
     mapMaybe
         (\unwrapped ->
             case unwrapped of
@@ -204,8 +205,8 @@ mapMaybeChildZipper func =
         )
 
 
-getChildZipper : OutlineDoc -> FIZ
-getChildZipper doc =
+getCZ : OutlineDoc -> FIZ
+getCZ doc =
     case unwrap doc of
         Doc z ->
             z
@@ -220,7 +221,7 @@ getChildZipper doc =
 
 currentTitle : OutlineDoc -> String
 currentTitle =
-    getChildZipper >> zTitle
+    getCZ >> zTitle
 
 
 zTitle : FIZ -> String
@@ -230,12 +231,12 @@ zTitle =
 
 ancestorIds : OutlineDoc -> List ItemId
 ancestorIds =
-    getChildZipper >> Z.ancestors >> List.map .id
+    getCZ >> Z.ancestors >> List.map .id
 
 
 currentIdEq : ItemId -> OutlineDoc -> Bool
 currentIdEq itemId =
-    getChildZipper >> propEq zId itemId
+    getCZ >> propEq zId itemId
 
 
 zId : FIZ -> ItemId
@@ -429,17 +430,22 @@ setTitleUnlessBlank title =
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
-    mapCZ (zDeleteEmpty |> ignoreNothing)
+    mapCZ (zDeleteBlankLeaf |> ignoreNothing)
+
+
+removeLeaf : OutlineDoc -> Maybe OutlineDoc
+removeLeaf =
+    mapCZMaybe zDeleteLeaf
 
 
 expand : OutlineDoc -> Maybe OutlineDoc
 expand =
-    mapMaybeChildZipper zExpand
+    mapCZMaybe zExpand
 
 
 collapse : OutlineDoc -> Maybe OutlineDoc
 collapse =
-    mapMaybeChildZipper zCollapse
+    mapCZMaybe zCollapse
 
 
 setTitle : String -> FIZ -> Maybe FIZ
@@ -491,9 +497,18 @@ setCollapsedUnsafe collapsed model =
     { model | collapsed = collapsed }
 
 
-zDeleteEmpty : FIZ -> Maybe FIZ
-zDeleteEmpty z =
+zDeleteBlankLeaf : FIZ -> Maybe FIZ
+zDeleteBlankLeaf z =
     if nonBlank (zTitle z) == Nothing && Z.isLeaf z then
+        Z.remove z
+
+    else
+        Nothing
+
+
+zDeleteLeaf : FIZ -> Maybe FIZ
+zDeleteLeaf z =
+    if Z.isLeaf z then
         Z.remove z
 
     else
@@ -506,22 +521,22 @@ zDeleteEmpty z =
 
 gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 gotoId itemId =
-    mapMaybeChildZipper (zGotoIdAndExpandAncestors itemId)
+    mapCZMaybe (zGotoIdAndExpandAncestors itemId)
 
 
 gotoParent : OutlineDoc -> Maybe OutlineDoc
 gotoParent =
-    mapMaybeChildZipper Z.up
+    mapCZMaybe Z.up
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    mapMaybeChildZipper zGoForwardToNextVisible
+    mapCZMaybe zGoForwardToNextVisible
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
 goBackward =
-    mapMaybeChildZipper zGoBackwardToPreviousVisible
+    mapCZMaybe zGoBackwardToPreviousVisible
 
 
 zGotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
@@ -588,25 +603,25 @@ zGotoNextVisibleSiblingOfAncestor z =
 
 relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 relocateTo (CandidateLocation loc itemId) =
-    mapMaybeChildZipper (zRelocate loc itemId)
+    mapCZMaybe (zRelocate loc itemId)
 
 
 unIndent : OutlineDoc -> Maybe OutlineDoc
 unIndent =
     -- moveAfterParent
-    mapMaybeChildZipper (zRelocateBy After Z.up)
+    mapCZMaybe (zRelocateBy After Z.up)
 
 
 indent : OutlineDoc -> Maybe OutlineDoc
 indent =
     -- appendInPreviousSibling
-    mapMaybeChildZipper (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
+    mapCZMaybe (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
 
 
 moveUpwards : OutlineDoc -> Maybe OutlineDoc
 moveUpwards =
     -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    mapMaybeChildZipper
+    mapCZMaybe
         (firstOf
             [ zRelocateBy Before zGotoPreviousVisibleSibling
             , zRelocateBy AppendChild (Z.up >> Maybe.andThen zGotoPreviousVisibleSibling)
@@ -617,7 +632,7 @@ moveUpwards =
 moveDownwards : OutlineDoc -> Maybe OutlineDoc
 moveDownwards =
     -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
-    mapMaybeChildZipper
+    mapCZMaybe
         (firstOf
             [ zRelocateBy After zGotoNextVisibleSibling
             , zRelocateBy PrependChild (Z.up >> Maybe.andThen zGotoNextVisibleSibling)
@@ -666,12 +681,12 @@ type alias LineInfo =
 
 view : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 view render =
-    getChildZipper >> zView render
+    getCZ >> zView render
 
 
 viewCurrent : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 viewCurrent render =
-    getChildZipper >> Z.treeAsZipper >> zView render
+    getCZ >> Z.treeAsZipper >> zView render
 
 
 zView : (LineInfo -> List a -> a) -> FIZ -> List a

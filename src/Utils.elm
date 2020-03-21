@@ -136,3 +136,7 @@ attrIf bool attrFunc attrValue =
 
 swap ( a, b ) =
     ( b, a )
+
+
+isBlank =
+    String.trim >> String.isEmpty
