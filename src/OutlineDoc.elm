@@ -363,7 +363,17 @@ zoomOutToAncestorId itemId =
 
 zoomOutHelper : (FIZ -> FIZ -> Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
 zoomOutHelper func =
-    zoomOutHelperMaybe (\pz z -> func pz z |> Just)
+    mapMaybe (zoomOutHelper_ (\pz z -> func pz z))
+
+
+zoomOutHelper_ : (FIZ -> FIZ -> Unwrapped) -> Unwrapped -> Maybe Unwrapped
+zoomOutHelper_ func doc =
+    case doc of
+        Doc _ ->
+            Nothing
+
+        Zoomed pz z ->
+            func pz z |> gotoFirstVisibleAncestor_ |> Just
 
 
 zoomOutHelperMaybe : (FIZ -> FIZ -> Maybe Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
