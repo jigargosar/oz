@@ -42,6 +42,7 @@ map func =
     unwrap >> func >> wrap
 
 
+createMap : ((Unwrapped -> OutlineDoc) -> b -> c) -> (Unwrapped -> b) -> OutlineDoc -> c
 createMap lift func =
     unwrap >> func >> lift wrap
 
