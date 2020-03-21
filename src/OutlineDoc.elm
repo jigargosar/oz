@@ -301,10 +301,10 @@ zoomOut =
         helper pz z =
             case Z.transferOneLevelTo z pz of
                 ( newZ, Just newPZ ) ->
-                    Zoomed newPZ (zGotoFirstVisibleAncestor newZ)
+                    Zoomed newPZ newZ
 
                 ( newZ, Nothing ) ->
-                    Doc (zGotoFirstVisibleAncestor newZ)
+                    Doc newZ
     in
     mapMaybe
         (\doc ->
@@ -313,16 +313,14 @@ zoomOut =
                     Nothing
 
                 Zoomed pz z ->
-                    Just (helper pz z)
+                    helper pz z
+                        |> gotoFirstVisibleAncestor_
+                        |> Just
         )
 
 
 zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
 zoomOutToTop =
-    let
-        helper pz z =
-            Doc (Z.merge z pz |> zGotoFirstVisibleAncestor)
-    in
     mapMaybe
         (\doc ->
             case doc of
@@ -330,8 +328,15 @@ zoomOutToTop =
                     Nothing
 
                 Zoomed pz z ->
-                    Just (helper pz z)
+                    Doc (Z.merge z pz)
+                        |> gotoFirstVisibleAncestor_
+                        |> Just
         )
+
+
+gotoFirstVisibleAncestor_ : Unwrapped -> Unwrapped
+gotoFirstVisibleAncestor_ =
+    mapCZ_ zGotoFirstVisibleAncestor
 
 
 zGotoFirstVisibleAncestor : FIZ -> FIZ
