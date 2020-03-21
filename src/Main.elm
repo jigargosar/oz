@@ -271,10 +271,20 @@ update message model =
                     Debug.todo "impl"
 
         HomeClicked ->
-            { model | doc = model.doc |> Doc.zoomOutToTop |> Maybe.withDefault model.doc }
+            { model
+                | doc =
+                    model.doc
+                        |> Doc.zoomOutToTop
+                        |> Maybe.withDefault model.doc
+            }
 
         ZoomAncestorClicked id ->
-            { model | doc = model.doc |> Doc.zoomOutToAncestorId id |> Maybe.withDefault model.doc }
+            { model
+                | doc =
+                    model.doc
+                        |> Doc.zoomOutToAncestorId id
+                        |> Maybe.withDefault model.doc
+            }
 
         ItemTitleClicked itemId ->
             case model.state of
