@@ -300,24 +300,22 @@ zoomIn =
 zoomIn_ : Unwrapped -> Maybe Unwrapped
 zoomIn_ =
     let
-        zZoomIn : ForestZipper Item -> Maybe Unwrapped
-        zZoomIn z =
+        zZoomIn_ : ForestZipper Item -> Maybe Unwrapped
+        zZoomIn_ z =
             z
                 |> Z.childrenAsZipper
                 |> Maybe.map (Zoomed z)
 
-        zoomInParent =
-            Z.up >> Maybe.andThen zZoomIn
-
-        zoomInParentPreserveFocus z =
+        zZoomInParentPreserveFocus_ : ForestZipper Item -> Maybe Unwrapped
+        zZoomInParentPreserveFocus_ z =
             z
-                |> zoomInParent
+                |> (Z.up >> Maybe.andThen zZoomIn_)
                 |> Maybe.andThen (findId_ (zId z))
     in
     toZipper_
         >> firstOf
-            [ zZoomIn
-            , zoomInParentPreserveFocus
+            [ zZoomIn_
+            , zZoomInParentPreserveFocus_
             ]
         >> Maybe.map gotoFirstVisibleAncestor_
 
