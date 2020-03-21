@@ -603,7 +603,8 @@ viewOutline state doc =
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
         , viewZoomAncestors (Doc.zoomAncestors doc)
-        , htmlMaybe (\title -> div [ class "f2 lh-title" ] [ text title ]) (Doc.zoomTitle doc)
+        , htmlMaybe (\zi -> div [ class "f2 lh-title" ] [ text (itemDisplayTitle zi.current) ])
+            (Doc.zoomInfo doc)
         , div [] <|
             case state of
                 Browsing ->
