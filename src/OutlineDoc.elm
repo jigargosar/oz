@@ -35,6 +35,7 @@ module OutlineDoc exposing
     , zoomIn
     , zoomInfo
     , zoomOut
+    , zoomOutToId
     , zoomOutToTop
     )
 
