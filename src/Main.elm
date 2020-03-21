@@ -357,7 +357,7 @@ setEditingTitle title (Edit isAdding _) =
 
 
 updateWhenEditing : WhenEditingMsg -> Edit -> Model -> Model
-updateWhenEditing msg ((Edit isAdding _) as editState) =
+updateWhenEditing msg editState =
     let
         cancelEdit : OutlineDoc -> OutlineDoc
         cancelEdit doc =
