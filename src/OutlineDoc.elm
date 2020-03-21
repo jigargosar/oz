@@ -32,7 +32,6 @@ module OutlineDoc exposing
     , unIndent
     , view
     , viewCurrent
-    , zoomAncestors
     , zoomIn
     , zoomInfo
     , zoomOut
@@ -265,23 +264,6 @@ zoomInfo =
             }
     in
     getParentZipper >> Maybe.map helper
-
-
-zoomAncestors : OutlineDoc -> List ZoomAncestor
-zoomAncestors doc =
-    let
-        itemToZoomAncestor : Item -> ZoomAncestor
-        itemToZoomAncestor { id, title } =
-            { id = id, title = title }
-    in
-    case unwrap doc of
-        Doc _ ->
-            []
-
-        Zoomed pz _ ->
-            Z.data pz
-                :: Z.ancestors pz
-                |> List.map itemToZoomAncestor
 
 
 getParentZipper : OutlineDoc -> Maybe FIZ
