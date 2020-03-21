@@ -285,8 +285,13 @@ getParentZipper doc =
 zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn =
     let
-        zoomInCurrentOrFirstAncestor z =
-            Z.childrenAsZipper z |> Maybe.map (Zoomed z)
+        zoomInCurrent z =
+            z
+                |> Z.childrenAsZipper
+                |> Maybe.map (Zoomed z >> gotoFirstVisibleAncestor_)
+
+        zoomInCurrentOrFirstAncestor =
+            firstOf [ zoomInCurrent, Z.up >> Maybe.andThen zoomInCurrent ]
     in
     mapMaybe
         (\doc ->
