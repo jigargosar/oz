@@ -1,5 +1,7 @@
 module Utils exposing (..)
 
+import Html
+import Html.Attributes
 import Json.Decode as JD exposing (Decoder)
 import List.Extra
 import Maybe.Extra
@@ -109,3 +111,24 @@ idEq =
 propEq : (c -> b) -> b -> c -> Bool
 propEq func val obj =
     func obj == val
+
+
+htmlMaybe : (a -> Html.Html msg) -> Maybe a -> Html.Html msg
+htmlMaybe func =
+    Maybe.map func >> Maybe.withDefault (Html.text "")
+
+
+classIf bool classValue =
+    if bool then
+        Html.Attributes.class classValue
+
+    else
+        Html.Attributes.class ""
+
+
+attrIf bool attrFunc attrValue =
+    if bool then
+        attrFunc attrValue
+
+    else
+        Html.Attributes.class ""

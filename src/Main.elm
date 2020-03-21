@@ -598,27 +598,6 @@ type alias LHM =
     List (Html.Html Msg)
 
 
-htmlMaybe : (a -> Html.Html msg) -> Maybe a -> Html.Html msg
-htmlMaybe func =
-    Maybe.map func >> Maybe.withDefault (text "")
-
-
-classIf bool classValue =
-    if bool then
-        class classValue
-
-    else
-        class ""
-
-
-attrIf bool attrFunc attrValue =
-    if bool then
-        attrFunc attrValue
-
-    else
-        class ""
-
-
 viewOutline : State -> OutlineDoc -> HM
 viewOutline state doc =
     div []
