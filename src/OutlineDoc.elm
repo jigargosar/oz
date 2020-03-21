@@ -3,6 +3,7 @@ module OutlineDoc exposing
     , LineInfo
     , OutlineDoc
     , ZoomAncestor
+    , ZoomInfo
     , addNew
     , after
     , ancestorIds

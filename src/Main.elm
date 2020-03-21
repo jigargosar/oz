@@ -12,7 +12,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode exposing (Value)
 import KeyEvent as KE exposing (KeyEvent)
-import OutlineDoc as Doc exposing (CandidateLocation(..), LineInfo, OutlineDoc, ZoomAncestor)
+import OutlineDoc as Doc exposing (CandidateLocation(..), LineInfo, OutlineDoc, ZoomAncestor, ZoomInfo)
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -602,7 +602,7 @@ viewOutline : State -> OutlineDoc -> HM
 viewOutline state doc =
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
-        , viewZoomAncestors (Doc.zoomAncestors doc)
+        , htmlMaybe viewZoomAncestors (Doc.zoomInfo doc)
         , htmlMaybe (\zi -> div [ class "f2 lh-title" ] [ text (itemDisplayTitle zi.current) ])
             (Doc.zoomInfo doc)
         , div [] <|
@@ -618,8 +618,8 @@ viewOutline state doc =
         ]
 
 
-viewZoomAncestors : List ZoomAncestor -> HM
-viewZoomAncestors zas =
+viewZoomAncestors : ZoomInfo -> HM
+viewZoomAncestors zi =
     let
         container =
             div [ class "flex-auto flex-grow-0 flex items-center", style "max-width" "100px" ]
@@ -642,17 +642,12 @@ viewZoomAncestors zas =
         viewLastAncestor ancestor =
             container [ div [ class "pr1 f5 truncate" ] [ text (itemDisplayTitle ancestor) ] ]
     in
-    case zas of
-        [] ->
-            text ""
-
-        last :: ancestors ->
-            div [ class "pv2 flex flex-wrap" ]
-                (viewHomeLink
-                    :: List.map viewAncestorLink (List.reverse ancestors)
-                    ++ [ viewLastAncestor last ]
-                    |> List.intersperse viewSeparator
-                )
+    div [ class "pv2 flex flex-wrap" ]
+        (viewHomeLink
+            :: List.map viewAncestorLink zi.ancestors
+            ++ [ viewLastAncestor zi.current ]
+            |> List.intersperse viewSeparator
+        )
 
 
 viewDraggedNode : State -> OutlineDoc -> HM
