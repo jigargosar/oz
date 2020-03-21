@@ -74,9 +74,11 @@ ensureDocInvariants doc =
                         |> always (ensureAncestorsExpanded z)
 
                 Zoomed_ pz z ->
-                    ensureUniqueNodesHelp z Dict.empty
-                        |> ensureUniqueNodesHelp pz
-                        |> always (ensureAncestorsExpanded z)
+                    {- ensureUniqueNodesHelp z Dict.empty
+                       |> ensureUniqueNodesHelp pz
+                       |> always
+                    -}
+                    ensureAncestorsExpanded z
     in
     doc
 
