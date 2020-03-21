@@ -124,6 +124,7 @@ type WhenEditingMsg
     | OnTab
     | OnShiftTab
     | EM_OnGlobalKeyDown KeyEvent
+    | EM_TitleClicked ItemId
 
 
 type Msg
@@ -272,10 +273,7 @@ update message model =
                     updateWhenBrowsing (BM_TitleClicked itemId) model
 
                 Editing editState ->
-                    model
-                        |> mapDoc (endEdit editState)
-                        |> setBrowsingState
-                        |> mapDocIgnoreNothing (Doc.gotoId itemId)
+                    updateWhenEditing (EM_TitleClicked itemId) editState model
 
                 Dragging _ ->
                     Debug.todo "impossible state"
@@ -388,6 +386,13 @@ updateWhenEditing msg ((Edit isAdding _) as editState) =
 
                 else
                     model
+
+        EM_TitleClicked itemId ->
+            \model ->
+                model
+                    |> mapDoc (endEdit editState)
+                    |> setBrowsingState
+                    |> mapDocIgnoreNothing (Doc.gotoId itemId)
 
 
 updateWhenDragging : WhenDraggingMsg -> Pointer -> Model -> Model
