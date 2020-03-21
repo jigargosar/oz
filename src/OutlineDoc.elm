@@ -358,12 +358,14 @@ zIsVisible =
 
 addNew : OutlineDoc -> Generator OutlineDoc
 addNew doc =
-    case unwrap doc of
+    (case unwrap doc of
         Doc z ->
-            z |> zAddNew >> Random.map initDoc
+            z |> zAddNew >> Random.map Doc
 
         Zoomed pz z ->
-            z |> zAddNew >> Random.map (initZoomed pz)
+            z |> zAddNew >> Random.map (Zoomed pz)
+    )
+        |> Random.map wrap
 
 
 zAddNew : FIZ -> Generator FIZ
