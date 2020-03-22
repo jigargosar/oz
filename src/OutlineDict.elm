@@ -17,3 +17,12 @@ type alias Line =
 
 type OutlineZipper
     = OutlineZipper (Zipper Line)
+
+
+type Error
+    = Error
+
+
+validateOZ : OutlineZipper -> Result Error OutlineZipper
+validateOZ =
+    Debug.todo "impl"
