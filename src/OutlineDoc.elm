@@ -50,7 +50,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), map, mapMaybe, unwrap, wrap)
+import OutlineDoc.Internal exposing (Unwrapped(..), map, mapMaybe, unwrap, unwrap2, wrap)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -156,11 +156,11 @@ zNew =
 
 encoder : OutlineDoc -> Value
 encoder doc =
-    case unwrap doc of
-        Doc z ->
+    case unwrap2 doc of
+        ( Nothing, z ) ->
             FIZ.encoder z
 
-        Zoomed pz z ->
+        ( Just pz, z ) ->
             JE.object [ ( "tag", JE.string "Zoomed" ), ( "pz", FIZ.encoder pz ), ( "z", FIZ.encoder z ) ]
 
 
