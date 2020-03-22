@@ -2,18 +2,18 @@ module OutlineDict exposing (OutlineDict)
 
 import Dict exposing (Dict)
 import ItemId exposing (ItemId)
+import Tree.Zipper exposing (Zipper)
 
 
 type OutlineDict
-    = OutlineDict Model
-
-
-type alias Model =
-    { dict : Dict String Line }
+    = OutlineDict (Dict String ( Maybe ItemId, Line ))
 
 
 type alias Line =
     { id : ItemId
     , title : String
-    , parentId : Maybe ItemId
     }
+
+
+type OutlineFZ
+    = OutlineFZ (Zipper Line)
