@@ -142,6 +142,7 @@ addNew =
     unwrap >> addNew_
 
 
+addNew_ : ForestZipper Item -> Generator LineZipper
 addNew_ z =
     let
         addNewHelp node =
