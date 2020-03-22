@@ -5,6 +5,10 @@ import ItemId exposing (ItemId)
 import Tree.Zipper exposing (Zipper)
 
 
+type Doc
+    = Doc (OutlineZipper Valid)
+
+
 type Valid
     = Valid
 
