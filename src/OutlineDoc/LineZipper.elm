@@ -137,6 +137,10 @@ new =
     newBlankItem |> Random.map Z.fromLeaf |> Random.map wrap
 
 
+
+-- QUERIES
+
+
 getId : LineZipper -> ItemId
 getId =
     unwrap >> id_
