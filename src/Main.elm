@@ -528,7 +528,13 @@ updateWhenBrowsing message =
             mapDocIgnoreNothing Doc.zoomOut
 
         CollapseOrGotoParentOrPreviousSibling ->
-            mapDocIgnoreNothing (firstOf [ Doc.collapse, Doc.gotoParent, Doc.gotoPreviousSibling ])
+            mapDocIgnoreNothing
+                (firstOf
+                    [ Doc.collapse
+                    , Doc.gotoParent
+                    , Doc.gotoPreviousSibling
+                    ]
+                )
 
         ExpandOrGotoNext ->
             mapDocIgnoreNothing (firstOf [ Doc.expand, Doc.goForward ])
