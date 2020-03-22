@@ -137,8 +137,33 @@ new =
     newBlankItem |> Random.map Z.fromLeaf |> Random.map wrap
 
 
+addNew : LineZipper -> Generator LineZipper
+addNew =
+    unwrap
+        >> (\z ->
+                let
+                    addNewHelp line =
+                        if hasVisibleChildren_ z then
+                            Z.prependChildGo line z
+
+                        else
+                            Z.insertRightGo line z
+                in
+                newBlankItem
+                    |> Random.map (T.singleton >> addNewHelp >> wrap)
+           )
+
+
+hasVisibleChildren_ z =
+    not (Z.isLeaf z || collapsed_ z)
+
+
 
 -- QUERIES
+
+
+collapsed_ =
+    Z.data >> .collapsed
 
 
 getId : LineZipper -> ItemId
