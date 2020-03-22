@@ -71,39 +71,30 @@ type LineZipper
 
 
 checkInvariants =
-    False
+    True
 
 
 unwrap : LineZipper -> ForestZipper Item
 unwrap (LineZipper z) =
-    let
-        _ =
-            validate z
-                |> Result.mapError
-                    (if checkInvariants then
-                        Debug.todo
-
-                     else
-                        Debug.log "invariant failed"
-                    )
-    in
-    z
+    ensureInvariants z
 
 
 wrap : ForestZipper Item -> LineZipper
 wrap z =
-    let
-        _ =
-            validate z
-                |> Result.mapError
-                    (if checkInvariants then
-                        Debug.todo
+    LineZipper (ensureInvariants z)
 
-                     else
-                        Debug.log "invariant failed"
-                    )
-    in
-    LineZipper z
+
+ensureInvariants : ForestZipper Item -> ForestZipper Item
+ensureInvariants z =
+    validate z
+        |> Result.mapError
+            (if checkInvariants then
+                Debug.todo
+
+             else
+                Debug.log "invariant failed"
+            )
+        |> Result.withDefault z
 
 
 validate : ForestZipper Item -> Result String (ForestZipper Item)
