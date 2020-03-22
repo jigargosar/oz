@@ -50,7 +50,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), map, mapMaybe, unwrap, unwrap2, wrap, wrap2)
+import OutlineDoc.Internal exposing (Unwrapped(..), Unwrapped2, map, mapMaybe, unwrap, unwrap2, wrap, wrap2)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -294,45 +294,75 @@ getParentZipper doc =
 
 zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn =
-    mapMaybe zoomIn_
+    unwrap2 >> zoomIn_ >> Maybe.map wrap2
 
 
-zoomIn_ : Unwrapped -> Maybe Unwrapped
+zoomIn_ : Unwrapped2 -> Maybe Unwrapped2
 zoomIn_ =
     let
-        zZoomIn_ : ForestZipper Item -> Maybe Unwrapped
+        zZoomIn_ : ForestZipper Item -> Maybe Unwrapped2
         zZoomIn_ z =
             z
                 |> Z.childrenAsZipper
-                |> Maybe.map (Zoomed z)
+                |> Maybe.map (Tuple.pair (Just z))
 
-        zZoomInParentPreserveFocus_ : ForestZipper Item -> Maybe Unwrapped
+        zZoomInParentPreserveFocus_ : ForestZipper Item -> Maybe Unwrapped2
         zZoomInParentPreserveFocus_ z =
             z
                 |> (Z.up >> Maybe.andThen zZoomIn_)
-                |> Maybe.andThen (findId_ (zId z))
+                |> Maybe.andThen (\( pz, newZ ) -> zFindId (zId z) newZ |> Maybe.map (Tuple.pair pz))
     in
     toZipper_
         >> firstOf
             [ zZoomIn_
             , zZoomInParentPreserveFocus_
             ]
-        >> Maybe.map gotoFirstVisibleAncestor_
+        >> Maybe.map (Tuple.mapSecond zGotoFirstVisibleAncestor)
 
 
-toZipper_ : Unwrapped -> FIZ
-toZipper_ doc =
-    case doc of
-        Doc z ->
-            z
-
-        Zoomed pz z ->
-            Z.transferAllLevelsFrom pz z
+toZipper_ : Unwrapped2 -> FIZ
+toZipper_ ( mpz, z ) =
+    mpz |> Maybe.map (Z.mergeChild z) |> Maybe.withDefault z
 
 
-findId_ : ItemId -> Unwrapped -> Maybe Unwrapped
-findId_ =
-    zFindId >> mapCZMaybe_
+
+--zoomIn_ : Unwrapped -> Maybe Unwrapped
+--zoomIn_ =
+--    let
+--        zZoomIn_ : ForestZipper Item -> Maybe Unwrapped
+--        zZoomIn_ z =
+--            z
+--                |> Z.childrenAsZipper
+--                |> Maybe.map (Zoomed z)
+--
+--        zZoomInParentPreserveFocus_ : ForestZipper Item -> Maybe Unwrapped
+--        zZoomInParentPreserveFocus_ z =
+--            z
+--                |> (Z.up >> Maybe.andThen zZoomIn_)
+--                |> Maybe.andThen (findId_ (zId z))
+--    in
+--    toZipper_
+--        >> firstOf
+--            [ zZoomIn_
+--            , zZoomInParentPreserveFocus_
+--            ]
+--        >> Maybe.map gotoFirstVisibleAncestor_
+--
+--
+--toZipper_ : Unwrapped -> FIZ
+--toZipper_ doc =
+--    case doc of
+--        Doc z ->
+--            z
+--
+--        Zoomed pz z ->
+--            Z.transferAllLevelsFrom pz z
+--
+--
+--findId_ : ItemId -> Unwrapped -> Maybe Unwrapped
+--findId_ =
+--    zFindId >> mapCZMaybe_
+--
 
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc

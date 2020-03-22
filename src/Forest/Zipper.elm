@@ -25,6 +25,7 @@ module Forest.Zipper exposing
     , mapAncestors
     , mapData
     , mapTree
+    , mergeChild
     , prependChild
     , prependChildGo
     , remove
