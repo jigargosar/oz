@@ -204,7 +204,7 @@ focusElOnDocCursorChange old new =
                                 NoOp
                     )
     in
-    if neqBy .state old new || neqBy (.doc >> Doc.ancestorIds) old new then
+    if neqBy .state old new || Doc.cursorChanged old.doc new.doc then
         case new.state of
             Editing _ ->
                 focusTitleEditor

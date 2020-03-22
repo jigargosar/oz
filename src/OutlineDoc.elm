@@ -6,7 +6,6 @@ module OutlineDoc exposing
     , ZoomInfo
     , addNew
     , after
-    , ancestorIds
     , appendIn
     , before
     , candidateLocationDecoder
@@ -15,6 +14,7 @@ module OutlineDoc exposing
     , collapseAll
     , currentIdEq
     , currentTitle
+    , cursorChanged
     , decoder
     , encoder
     , expand
@@ -237,9 +237,19 @@ ancestorIds =
     getCZ >> Z.ancestors >> List.map .id
 
 
+cursorChanged : OutlineDoc -> OutlineDoc -> Bool
+cursorChanged doc1 doc2 =
+    neqBy getId doc1 doc2 || neqBy ancestorIds doc1 doc2
+
+
 currentIdEq : ItemId -> OutlineDoc -> Bool
 currentIdEq itemId =
     getCZ >> propEq zId itemId
+
+
+getId : OutlineDoc -> ItemId
+getId =
+    getCZ >> zId
 
 
 zId : FIZ -> ItemId
