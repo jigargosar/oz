@@ -14,6 +14,7 @@ module Forest.Zipper exposing
     , firstRoot
     , foldl
     , fromForest
+    , fromLeaf
     , fromTree
     , insertAndGoto
     , insertLeft
@@ -91,6 +92,11 @@ type alias Crumb a =
 fromTree : Tree a -> ForestZipper a
 fromTree t =
     { leftReversed = [], center = t, right_ = [], crumbs = [] }
+
+
+fromLeaf : a -> ForestZipper a
+fromLeaf t =
+    fromTree (Tree.singleton t)
 
 
 fromForest : Forest a -> Maybe (ForestZipper a)

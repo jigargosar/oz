@@ -8,6 +8,7 @@ module Forest.Tree exposing
     , mapChildren
     , mapData
     , restructure
+    , singleton
     , tree
     )
 
@@ -25,6 +26,11 @@ type alias Forest a =
 tree : a -> List (Tree a) -> Tree a
 tree =
     Tree.tree
+
+
+singleton : a -> Tree a
+singleton =
+    Tree.singleton
 
 
 mapData : (a -> a) -> Tree a -> Tree a

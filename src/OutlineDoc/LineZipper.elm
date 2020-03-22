@@ -1,4 +1,4 @@
-module OutlineDoc.LineZipper exposing (LineZipper, decoder, encoder)
+module OutlineDoc.LineZipper exposing (LineZipper, decoder, encoder, new)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Forest.Zipper as Z exposing (ForestZipper, Location)
@@ -31,6 +31,11 @@ itemGenerator title =
         |> Random.map (\id -> { id = id, title = title, collapsed = False })
 
 
+newBlankItem : Generator Item
+newBlankItem =
+    itemGenerator ""
+
+
 itemEncoder : Item -> Value
 itemEncoder item =
     JE.object
@@ -46,16 +51,6 @@ itemDecoder =
         |> required "id" ItemId.itemIdDecoder
         |> required "title" JD.string
         |> JD.map2 (|>) (JD.oneOf [ JD.field "collapsed" JD.bool, JD.succeed False ])
-
-
-newLeaf : Generator (Tree Item)
-newLeaf =
-    let
-        itemToTree : Item -> Tree Item
-        itemToTree item =
-            T.tree item []
-    in
-    itemGenerator "" |> Random.map itemToTree
 
 
 
@@ -131,3 +126,12 @@ encoder =
 decoder : Decoder LineZipper
 decoder =
     Z.decoder itemDecoder |> JD.map wrap
+
+
+
+-- Generators
+
+
+new : Generator LineZipper
+new =
+    newBlankItem |> Random.map Z.fromLeaf |> Random.map wrap
