@@ -1,4 +1,4 @@
-module OutlineDoc.LineZipper exposing (LineZipper, cursorChanged, decoder, encoder, getId, getTitle, new)
+module OutlineDoc.LineZipper exposing (LineZipper, addNew, cursorChanged, decoder, encoder, getId, getTitle, new)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Forest.Zipper as Z exposing (ForestZipper, Location)
