@@ -42,14 +42,9 @@ map func =
     unwrap >> func >> wrap
 
 
-createMap : ((Unwrapped -> OutlineDoc) -> b -> c) -> (Unwrapped -> b) -> OutlineDoc -> c
-createMap lift func =
-    unwrap >> func >> lift wrap
-
-
 mapMaybe : (Unwrapped -> Maybe Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
 mapMaybe func =
-    createMap Maybe.map func
+    unwrap >> func >> Maybe.map wrap
 
 
 initZoomed : FIZ -> FIZ -> OutlineDoc
