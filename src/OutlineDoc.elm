@@ -248,11 +248,6 @@ currentIdEq itemId =
     getCZ >> propEq zId itemId
 
 
-getId : OutlineDoc -> ItemId
-getId =
-    getCZ >> zId
-
-
 zId : FIZ -> ItemId
 zId =
     Z.data >> .id
