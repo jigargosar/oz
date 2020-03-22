@@ -510,7 +510,7 @@ updateWhenBrowsing message =
         BM_OnGlobalKeyDown ke ->
             \model ->
                 toBrowsingMsg ke
-                    |> Maybe.map (Debug.log "bm" >> (\m -> updateWhenBrowsing m model))
+                    |> Maybe.map (\m -> updateWhenBrowsing m model)
                     |> Maybe.withDefault model
 
         BM_OnTitleClicked iid ->
