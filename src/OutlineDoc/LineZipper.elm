@@ -1,4 +1,4 @@
-module OutlineDoc.LineZipper exposing (LineZipper, decoder, encoder, new)
+module OutlineDoc.LineZipper exposing (LineZipper, decoder, encoder, getTitle, new)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Forest.Zipper as Z exposing (ForestZipper, Location)
@@ -135,3 +135,8 @@ decoder =
 new : Generator LineZipper
 new =
     newBlankItem |> Random.map Z.fromLeaf |> Random.map wrap
+
+
+getTitle : LineZipper -> String
+getTitle =
+    unwrap >> Z.data >> .title
