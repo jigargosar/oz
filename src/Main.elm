@@ -483,8 +483,9 @@ type BrowsingMsg
 
 toBrowsingMsg : KeyEvent -> Maybe BrowsingMsg
 toBrowsingMsg =
-    [ ( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], StartEdit )
-    , ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], AddNew )
+    [ --( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], StartEdit )
+      --, ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], AddNew )
+      ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], StartEdit )
     , ( KE.hot "ArrowUp", GoBackward )
     , ( KE.hot "ArrowDown", GoForward )
     , ( KE.hot "ArrowLeft", CollapseOrGotoParent )
