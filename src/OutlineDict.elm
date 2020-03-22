@@ -10,7 +10,7 @@ type Valid
 
 
 type OutlineDict valid
-    = OutlineDict (Dict String ( Maybe ItemId, Line ))
+    = OutlineDict ( Maybe ItemId, Line ) (Dict String ( Maybe ItemId, Line ))
 
 
 type alias Line =
