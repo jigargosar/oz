@@ -192,10 +192,10 @@ cursorChanged doc1 doc2 =
 
 
 cursorChanged_ z1 z2 =
-    neqBy id_ z1 z2 || neqBy ancestorIds_ z1 z2
+    neqBy id_ z1 z2 || neqBy ancestorIds z1 z2
 
 
-ancestorIds_ =
+ancestorIds =
     Z.ancestors >> List.map .id
 
 
@@ -252,7 +252,7 @@ restoreCursor z =
 
 gotoFirstVisibleAncestor : ForestZipper Item -> ForestZipper Item
 gotoFirstVisibleAncestor z =
-    if isVisible_ z then
+    if isVisible z then
         z
 
     else
@@ -264,6 +264,6 @@ gotoFirstVisibleAncestor z =
                 z
 
 
-isVisible_ : ForestZipper Item -> Bool
-isVisible_ =
+isVisible : ForestZipper Item -> Bool
+isVisible =
     Z.ancestors >> List.any .collapsed >> not
