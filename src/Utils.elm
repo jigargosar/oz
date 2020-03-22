@@ -140,3 +140,7 @@ swap ( a, b ) =
 
 isBlank =
     String.trim >> String.isEmpty
+
+
+noHtml =
+    Html.text ""

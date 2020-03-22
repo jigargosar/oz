@@ -913,7 +913,7 @@ viewItem itemView item =
             , onClick (ItemTitleClicked item.id)
             ]
             [ text (itemDisplayTitle item) ]
-        , viewAddNewButton isHighlighted
+        , viewAddNewButton isHighlighted |> always noHtml
         ]
 
 
