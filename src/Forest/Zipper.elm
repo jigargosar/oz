@@ -12,6 +12,7 @@ module Forest.Zipper exposing
     , encoder
     , findFirst
     , firstRoot
+    , foldl
     , fromForest
     , fromTree
     , insertAndGoto
@@ -120,6 +121,11 @@ childrenAsZipper =
 treeAsZipper : ForestZipper a -> ForestZipper a
 treeAsZipper =
     tree >> fromTree
+
+
+foldl : (a -> b -> b) -> b -> ForestZipper a -> b
+foldl func acc =
+    rootForest >> List.foldl (flip (Tree.foldl func)) acc
 
 
 mergeChild : ForestZipper a -> ForestZipper a -> ForestZipper a

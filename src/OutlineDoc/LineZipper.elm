@@ -1,12 +1,16 @@
 module OutlineDoc.LineZipper exposing (LineZipper, decoder, encoder)
 
-import Forest.Tree as Tree exposing (Forest, Tree)
+import Forest.Tree as T exposing (Forest, Tree)
 import Forest.Zipper as Z exposing (ForestZipper, Location)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Random exposing (Generator)
 import Utils exposing (..)
+
+
+
+-- ITEM
 
 
 type alias Item =
@@ -44,13 +48,49 @@ newLeaf =
     let
         itemToTree : Item -> Tree Item
         itemToTree item =
-            Tree.tree item []
+            T.tree item []
     in
     itemGenerator "" |> Random.map itemToTree
 
 
+
+-- MODEL
+
+
 type LineZipper
     = LineZipper (ForestZipper Item)
+
+
+wrap : ForestZipper Item -> LineZipper
+wrap z =
+    let
+        _ =
+            validate z
+                |> Result.mapError Debug.todo
+    in
+    LineZipper z
+
+
+validate : ForestZipper Item -> Result String (ForestZipper Item)
+validate z =
+    if hasCollapsedAncestors z then
+        Err "hasCollapsedAncestors"
+
+    else if hasDuplicateItemIds z then
+        Err "hasDuplicateItemIds"
+
+    else
+        Ok z
+
+
+hasCollapsedAncestors : ForestZipper Item -> Bool
+hasCollapsedAncestors =
+    Z.ancestors >> List.map .collapsed >> List.any identity
+
+
+hasDuplicateItemIds : ForestZipper Item -> Bool
+hasDuplicateItemIds =
+    Z.rootForest >> List.map (T.foldl (.id >> (::)))
 
 
 encoder : LineZipper -> Value
@@ -60,4 +100,4 @@ encoder (LineZipper lz) =
 
 decoder : Decoder LineZipper
 decoder =
-    Z.decoder itemDecoder |> JD.map LineZipper
+    Z.decoder itemDecoder |> JD.map wrap

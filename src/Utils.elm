@@ -144,3 +144,7 @@ isBlank =
 
 noHtml =
     Html.text ""
+
+
+flip func a b =
+    func b a
