@@ -23,6 +23,7 @@ module OutlineDoc exposing
     , goForward
     , gotoId
     , gotoParent
+    , gotoPreviousSibling
     , indent
     , moveDownwards
     , moveUpwards
@@ -604,6 +605,11 @@ gotoId itemId =
 gotoParent : OutlineDoc -> Maybe OutlineDoc
 gotoParent =
     mapCZMaybe Z.up
+
+
+gotoPreviousSibling : OutlineDoc -> Maybe OutlineDoc
+gotoPreviousSibling =
+    mapCZMaybe zGotoPreviousVisibleSibling
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
