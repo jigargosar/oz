@@ -70,6 +70,16 @@ type LineZipper
 -- Check for invariants before wrapping
 
 
+unwrap : LineZipper -> ForestZipper Item
+unwrap (LineZipper z) =
+    let
+        _ =
+            validate z
+                |> Result.mapError Debug.todo
+    in
+    z
+
+
 wrap : ForestZipper Item -> LineZipper
 wrap z =
     let
@@ -107,8 +117,8 @@ hasDuplicateItemIds =
 
 
 encoder : LineZipper -> Value
-encoder (LineZipper lz) =
-    Z.encoder itemEncoder lz
+encoder =
+    unwrap >> Z.encoder itemEncoder
 
 
 decoder : Decoder LineZipper
