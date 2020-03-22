@@ -12,11 +12,13 @@ module OutlineDoc exposing
     , candidateLocationDecoder
     , candidateLocationEncoder
     , collapse
+    , collapseAll
     , currentIdEq
     , currentTitle
     , decoder
     , encoder
     , expand
+    , expandAll
     , goBackward
     , goForward
     , gotoId
@@ -472,6 +474,16 @@ removeIfBlankLeaf =
 removeLeaf : OutlineDoc -> Maybe OutlineDoc
 removeLeaf =
     mapCZMaybe zDeleteLeaf
+
+
+expandAll : OutlineDoc -> Maybe OutlineDoc
+expandAll =
+    always Nothing
+
+
+collapseAll : OutlineDoc -> Maybe OutlineDoc
+collapseAll =
+    always Nothing
 
 
 expand : OutlineDoc -> Maybe OutlineDoc

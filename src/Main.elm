@@ -465,6 +465,8 @@ type BrowsingMsg
     = BM_OnTitleClicked ItemId
     | BM_OnGlobalKeyDown KeyEvent
     | BM_OnDragStart ItemId Pointer
+    | BM_ExpandAll
+    | BM_CollapseAll
     | StartEdit
     | GoBackward
     | CollapseOrGotoParent
@@ -521,6 +523,12 @@ updateWhenBrowsing message =
 
                 else
                     mapDocIgnoreNothing (Doc.gotoId iid) model
+
+        BM_ExpandAll ->
+            mapDocIgnoreNothing Doc.expandAll
+
+        BM_CollapseAll ->
+            mapDocIgnoreNothing Doc.collapseAll
 
         Collapse ->
             mapDocIgnoreNothing Doc.collapse
