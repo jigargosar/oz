@@ -26,3 +26,8 @@ type Error
 validateOZ : OutlineZipper -> Result Error OutlineZipper
 validateOZ =
     Debug.todo "impl"
+
+
+validateOD : OutlineDict -> Result Error OutlineDict
+validateOD =
+    Debug.todo "impl"
