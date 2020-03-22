@@ -5,16 +5,8 @@ import ItemId exposing (ItemId)
 import Tree.Zipper exposing (Zipper)
 
 
-type Doc
-    = Doc (OutlineZipper Valid)
-
-
-type Valid
-    = Valid
-
-
-type OutlineDict valid
-    = OutlineDict ( Maybe ItemId, Line ) (Dict String ( Maybe ItemId, Line ))
+type OutlineDict
+    = OutlineDict (Dict String ( Maybe ItemId, Line ))
 
 
 type alias Line =
@@ -23,7 +15,7 @@ type alias Line =
     }
 
 
-type OutlineZipper valid
+type OutlineZipper
     = OutlineZipper (Zipper Line)
 
 
@@ -31,21 +23,11 @@ type Error
     = Error
 
 
-validateOZ : OutlineZipper a -> Result Error (OutlineZipper Valid)
+validateOZ : OutlineZipper -> Result Error OutlineZipper
 validateOZ =
     Debug.todo "impl"
 
 
-validateOD : OutlineDict a -> Result Error (OutlineDict Valid)
+validateOD : OutlineDict -> Result Error OutlineDict
 validateOD =
-    Debug.todo "impl"
-
-
-toDict : OutlineZipper Valid -> OutlineDict Valid
-toDict =
-    Debug.todo "impl"
-
-
-fromDict : OutlineDict Valid -> OutlineZipper Valid
-fromDict =
     Debug.todo "impl"
