@@ -387,10 +387,6 @@ endEditImplicitAndSwitchToBrowsing editState model =
 
 endEditExplicitAndSwitchToBrowsing : Edit -> Model -> Model
 endEditExplicitAndSwitchToBrowsing editState model =
-    let
-        newTitle =
-            getEditingTitle editState
-    in
     { model
         | doc =
             model.doc
