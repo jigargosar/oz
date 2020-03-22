@@ -178,23 +178,9 @@ cacheDocIfChanged old new =
 focusElOnDocCursorChange : Model -> Model -> Cmd Msg
 focusElOnDocCursorChange old new =
     let
-        focusTitleEditor : Cmd Msg
-        focusTitleEditor =
-            Dom.focus "item-title-editor"
-                |> Task.attempt
-                    (\result ->
-                        case result of
-                            Err (Dom.NotFound domId) ->
-                                DomFocusFailed domId
-
-                            Ok () ->
-                                NoOp
-                    )
-
-        focusItemAtCursor : Cmd Msg
-        focusItemAtCursor =
-            Dom.focus "item-title-at-cursor"
-                |> Task.attempt
+        focusHelper =
+            Dom.focus
+                >> Task.attempt
                     (\result ->
                         case result of
                             Err (Dom.NotFound domId) ->
@@ -207,10 +193,10 @@ focusElOnDocCursorChange old new =
     if neqBy .state old new || Doc.cursorChanged old.doc new.doc then
         case new.state of
             Editing _ ->
-                focusTitleEditor
+                focusHelper "item-title-editor"
 
             Browsing ->
-                focusItemAtCursor
+                focusHelper "item-title-at-cursor"
 
             Dragging _ ->
                 Cmd.none
