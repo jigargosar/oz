@@ -490,7 +490,10 @@ removeLeaf =
 
 expandAll : OutlineDoc -> Maybe OutlineDoc
 expandAll =
-    always Nothing
+    mapCZMaybe
+        (zMap (\model -> { model | collapsed = False })
+            >> Maybe.map zGotoFirstVisibleAncestor
+        )
 
 
 collapseAll : OutlineDoc -> Maybe OutlineDoc
