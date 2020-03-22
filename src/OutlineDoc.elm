@@ -161,7 +161,11 @@ encoder doc =
             FIZ.encoder z
 
         ( Just pz, z ) ->
-            JE.object [ ( "tag", JE.string "Zoomed" ), ( "pz", FIZ.encoder pz ), ( "z", FIZ.encoder z ) ]
+            JE.object
+                [ ( "tag", JE.string "Zoomed" )
+                , ( "pz", FIZ.encoder pz )
+                , ( "z", FIZ.encoder z )
+                ]
 
 
 decoder : Decoder OutlineDoc
