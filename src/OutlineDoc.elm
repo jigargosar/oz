@@ -50,7 +50,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), map, mapMaybe, unwrap, unwrap2, wrap)
+import OutlineDoc.Internal exposing (Unwrapped(..), map, mapMaybe, unwrap, unwrap2, wrap, wrap2)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -171,10 +171,12 @@ encoder doc =
 decoder : Decoder OutlineDoc
 decoder =
     JD.oneOf
-        [ FIZ.decoder |> JD.map Doc
-        , JD.succeed Zoomed |> required "pz" FIZ.decoder |> required "z" FIZ.decoder
+        [ FIZ.decoder |> JD.map (Tuple.pair Nothing)
+        , JD.succeed Tuple.pair
+            |> required "pz" (FIZ.decoder |> JD.map Just)
+            |> required "z" FIZ.decoder
         ]
-        |> JD.map wrap
+        |> JD.map wrap2
 
 
 getCZ : OutlineDoc -> FIZ
