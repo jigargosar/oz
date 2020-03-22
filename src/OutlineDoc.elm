@@ -181,17 +181,7 @@ decoder =
 
 getCZ : OutlineDoc -> FIZ
 getCZ =
-    unwrap >> getCZ_
-
-
-getCZ_ : Unwrapped -> FIZ
-getCZ_ doc =
-    case doc of
-        Doc z ->
-            z
-
-        Zoomed _ z ->
-            z
+    unwrap2 >> Tuple.second
 
 
 mapCZ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
@@ -238,14 +228,19 @@ zTitle =
     Z.data >> .title
 
 
-ancestorIds : OutlineDoc -> List ItemId
-ancestorIds =
-    getCZ >> Z.ancestors >> List.map .id
+zAncestorIds : FIZ -> List ItemId
+zAncestorIds =
+    Z.ancestors >> List.map .id
 
 
 cursorChanged : OutlineDoc -> OutlineDoc -> Bool
 cursorChanged doc1 doc2 =
-    neqBy getId doc1 doc2 || neqBy ancestorIds doc1 doc2
+    zCursorChanged (getCZ doc1) (getCZ doc2)
+
+
+zCursorChanged : FIZ -> FIZ -> Bool
+zCursorChanged z1 z2 =
+    neqBy zId z1 z2 || neqBy zAncestorIds z1 z2
 
 
 currentIdEq : ItemId -> OutlineDoc -> Bool
