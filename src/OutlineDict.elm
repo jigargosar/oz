@@ -6,7 +6,13 @@ import Tree.Zipper exposing (Zipper)
 
 
 type OutlineDict
-    = OutlineDict (Dict String ( Maybe ItemId, Line ))
+    = OutlineDict ODM
+
+
+type alias ODM =
+    { current : ( Maybe ItemId, Line )
+    , dict : Dict String ( Maybe ItemId, Line )
+    }
 
 
 type alias Line =
@@ -16,18 +22,22 @@ type alias Line =
 
 
 type OutlineZipper
-    = OutlineZipper (Zipper Line)
+    = OutlineZipper OZM
+
+
+type alias OZM =
+    Zipper Line
 
 
 type Error
     = Error
 
 
-validateOZ : OutlineZipper -> Result Error OutlineZipper
-validateOZ =
+fromOZM : OZM -> Result Error OutlineZipper
+fromOZM =
     Debug.todo "impl"
 
 
-validateOD : OutlineDict -> Result Error OutlineDict
-validateOD =
+validateODM : ODM -> Result Error OutlineDict
+validateODM =
     Debug.todo "impl"
