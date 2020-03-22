@@ -44,6 +44,7 @@ module OutlineDoc exposing
     )
 
 import CollapseState exposing (CollapseState)
+import Forest.Tree as Tree
 import Forest.Zipper as Z exposing (ForestZipper, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
@@ -395,25 +396,26 @@ zoomOutHelperMaybe func =
 
 gotoFirstVisibleAncestor_ : Unwrapped -> Unwrapped
 gotoFirstVisibleAncestor_ =
-    let
-        zIsVisible : FIZ -> Bool
-        zIsVisible =
-            Z.ancestors >> List.any .collapsed >> not
-
-        zGotoFirstVisibleAncestor : FIZ -> FIZ
-        zGotoFirstVisibleAncestor z =
-            if zIsVisible z then
-                z
-
-            else
-                case Z.up z of
-                    Just pz ->
-                        zGotoFirstVisibleAncestor pz
-
-                    Nothing ->
-                        z
-    in
     mapCZ_ zGotoFirstVisibleAncestor
+
+
+zIsVisible : FIZ -> Bool
+zIsVisible =
+    Z.ancestors >> List.any .collapsed >> not
+
+
+zGotoFirstVisibleAncestor : FIZ -> FIZ
+zGotoFirstVisibleAncestor z =
+    if zIsVisible z then
+        z
+
+    else
+        case Z.up z of
+            Just pz ->
+                zGotoFirstVisibleAncestor pz
+
+            Nothing ->
+                z
 
 
 
@@ -483,7 +485,18 @@ expandAll =
 
 collapseAll : OutlineDoc -> Maybe OutlineDoc
 collapseAll =
-    always Nothing
+    mapCZMaybe
+        (zMap (\model -> { model | collapsed = True })
+            >> Maybe.map zGotoFirstVisibleAncestor
+        )
+
+
+zMap : (Item -> Item) -> FIZ -> Maybe FIZ
+zMap func z =
+    Z.rootForest z
+        |> List.map (Tree.map func)
+        |> Z.fromForest
+        |> Maybe.andThen (zFindId (zId z))
 
 
 expand : OutlineDoc -> Maybe OutlineDoc

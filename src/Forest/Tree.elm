@@ -3,6 +3,7 @@ module Forest.Tree exposing
     , Tree
     , children
     , data
+    , map
     , mapChildren
     , mapData
     , restructure
@@ -48,3 +49,8 @@ children =
 restructure : (a -> b) -> (b -> List c -> c) -> Tree a -> c
 restructure =
     Tree.restructure
+
+
+map : (a -> b) -> Tree a -> Tree b
+map =
+    Tree.map
