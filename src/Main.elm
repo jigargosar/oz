@@ -488,6 +488,8 @@ toBrowsingMsg =
     [ --( allPass [ KE.hot " ", KE.targetInputOrButton >> not ], StartEdit )
       --, ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], AddNew )
       ( allPass [ KE.hot "Enter", KE.targetInputOrButton >> not ], StartEdit )
+    , ( KE.hot "c", BM_CollapseAll )
+    , ( KE.hot "x", BM_ExpandAll )
     , ( KE.hot "ArrowUp", GoBackward )
     , ( KE.hot "ArrowDown", GoForward )
     , ( KE.hot "ArrowLeft", CollapseOrGotoParent )
@@ -915,7 +917,7 @@ viewItem itemView item =
         [ viewChildStateIndicator item.collapseState
         , div
             [ class "flex-auto lh-title "
-            , classIf isHighlighted "bg-blue white"
+            , classIf isHighlighted "bg-lightest-blue black"
             , attrIf isHighlighted tabindex 0
             , attrIf isHighlighted A.id "item-title-at-cursor"
             , onClick (ItemTitleClicked item.id)
