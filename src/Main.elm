@@ -385,15 +385,26 @@ endEditImplicitAndSwitchToBrowsing editState model =
     }
 
 
-endEditExplicitAndSwitchToBrowsing : Edit -> Model -> Model
-endEditExplicitAndSwitchToBrowsing editState model =
-    { model
-        | doc =
-            model.doc
-                |> Doc.setTitle (getEditingTitle editState)
-                |> Doc.removeIfBlankLeaf
-        , state = Browsing
-    }
+updateEditOnEnter : Edit -> Model -> Model
+updateEditOnEnter editState model =
+    let
+        title =
+            getEditingTitle editState
+
+        newModel =
+            { model
+                | doc =
+                    model.doc
+                        |> Doc.setTitle title
+                        |> Doc.removeIfBlankLeaf
+                , state = Browsing
+            }
+    in
+    if isBlank title then
+        newModel
+
+    else
+        newModel
 
 
 cancelEditAndSwitchToBrowsing : Model -> Model
@@ -415,7 +426,7 @@ updateWhenEditing msg editState =
 
         EM_OnGlobalKeyDown ke ->
             if KE.hot "Enter" ke then
-                endEditExplicitAndSwitchToBrowsing editState
+                updateEditOnEnter editState
 
             else if KE.hot "Escape" ke then
                 cancelEditAndSwitchToBrowsing
