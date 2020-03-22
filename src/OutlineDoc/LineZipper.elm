@@ -141,17 +141,17 @@ addNew : LineZipper -> Generator LineZipper
 addNew =
     unwrap
         >> (\z ->
-                let
-                    addNewHelp line =
-                        if hasVisibleChildren_ z then
-                            Z.prependChildGo line z
-
-                        else
-                            Z.insertRightGo line z
-                in
                 newBlankItem
-                    |> Random.map (T.singleton >> addNewHelp >> wrap)
+                    |> Random.map (T.singleton >> flip addNew_ z >> wrap)
            )
+
+
+addNew_ line z =
+    if hasVisibleChildren_ z then
+        Z.prependChildGo line z
+
+    else
+        Z.insertRightGo line z
 
 
 hasVisibleChildren_ z =
