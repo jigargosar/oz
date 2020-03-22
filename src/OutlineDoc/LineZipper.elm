@@ -1,4 +1,4 @@
-module OutlineDoc.LineZipper exposing (LineZipper, decoder, encoder, getTitle, new)
+module OutlineDoc.LineZipper exposing (LineZipper, cursorChanged, decoder, encoder, getId, getTitle, new)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Forest.Zipper as Z exposing (ForestZipper, Location)
@@ -137,6 +137,32 @@ new =
     newBlankItem |> Random.map Z.fromLeaf |> Random.map wrap
 
 
+getId : LineZipper -> ItemId
+getId =
+    unwrap >> id_
+
+
+id_ =
+    Z.data >> .id
+
+
 getTitle : LineZipper -> String
 getTitle =
-    unwrap >> Z.data >> .title
+    unwrap >> title_
+
+
+title_ =
+    Z.data >> .title
+
+
+cursorChanged : LineZipper -> LineZipper -> Bool
+cursorChanged doc1 doc2 =
+    cursorChanged_ (unwrap doc1) (unwrap doc2)
+
+
+cursorChanged_ z1 z2 =
+    neqBy id_ z1 z2 || neqBy ancestorIds_ z1 z2
+
+
+ancestorIds_ =
+    Z.ancestors >> List.map .id
