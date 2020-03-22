@@ -404,7 +404,7 @@ updateEditOnEnter editState model =
         newModel
 
     else
-        newModel
+        updateWhenBrowsing AddNew newModel
 
 
 cancelEditAndSwitchToBrowsing : Model -> Model
