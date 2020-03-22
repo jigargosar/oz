@@ -70,12 +70,22 @@ type LineZipper
 -- Check for invariants before wrapping
 
 
+checkInvariants =
+    False
+
+
 unwrap : LineZipper -> ForestZipper Item
 unwrap (LineZipper z) =
     let
         _ =
             validate z
-                |> Result.mapError Debug.todo
+                |> Result.mapError
+                    (if checkInvariants then
+                        Debug.todo
+
+                     else
+                        Debug.log "invariant failed"
+                    )
     in
     z
 
@@ -85,7 +95,13 @@ wrap z =
     let
         _ =
             validate z
-                |> Result.mapError Debug.todo
+                |> Result.mapError
+                    (if checkInvariants then
+                        Debug.todo
+
+                     else
+                        Debug.log "invariant failed"
+                    )
     in
     LineZipper z
 
