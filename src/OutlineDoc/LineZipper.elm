@@ -139,20 +139,20 @@ new =
 
 addNew : LineZipper -> Generator LineZipper
 addNew =
-    unwrap >> addNewGenerator_
+    unwrap >> addNew_
 
 
-addNewGenerator_ z =
+addNew_ z =
+    let
+        addNewHelp node =
+            if hasVisibleChildren_ z then
+                Z.prependChildGo node z
+
+            else
+                Z.insertRightGo node z
+    in
     newBlankItem
-        |> Random.map (T.singleton >> flip addNew_ z >> wrap)
-
-
-addNew_ node z =
-    if hasVisibleChildren_ z then
-        Z.prependChildGo node z
-
-    else
-        Z.insertRightGo node z
+        |> Random.map (T.singleton >> addNewHelp >> wrap)
 
 
 hasVisibleChildren_ z =
