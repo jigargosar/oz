@@ -5,6 +5,7 @@ import Forest.Zipper as Z exposing (ForestZipper, Location)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import List.Extra
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -18,6 +19,10 @@ type alias Item =
     , title : String
     , collapsed : Bool
     }
+
+
+strId =
+    .id >> ItemId.toString
 
 
 itemGenerator : String -> Generator Item
@@ -61,6 +66,10 @@ type LineZipper
     = LineZipper (ForestZipper Item)
 
 
+
+-- Check for invariants before wrapping
+
+
 wrap : ForestZipper Item -> LineZipper
 wrap z =
     let
@@ -88,9 +97,13 @@ hasCollapsedAncestors =
     Z.ancestors >> List.map .collapsed >> List.any identity
 
 
-hasDuplicateItemIds : ForestZipper Item -> Bool
+hasDuplicateItemIds : ForestZipper { a | id : ItemId } -> Bool
 hasDuplicateItemIds =
-    Z.rootForest >> List.map (T.foldl (.id >> (::)))
+    Z.foldl (::) [] >> List.Extra.allDifferentBy strId >> not
+
+
+
+-- JSON
 
 
 encoder : LineZipper -> Value
