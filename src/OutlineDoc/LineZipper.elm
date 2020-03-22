@@ -139,8 +139,7 @@ new =
 
 addNew : LineZipper -> Generator LineZipper
 addNew =
-    unwrap
-        >> addNewGenerator_
+    unwrap >> addNewGenerator_
 
 
 addNewGenerator_ z =
