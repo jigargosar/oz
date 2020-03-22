@@ -393,11 +393,9 @@ endEditExplicitAndSwitchToBrowsing editState model =
     in
     { model
         | doc =
-            if isBlank newTitle then
-                model.doc |> Doc.removeLeaf |> Maybe.withDefault model.doc
-
-            else
-                model.doc
+            model.doc
+                |> Doc.setTitle (getEditingTitle editState)
+                |> Doc.removeIfBlankLeaf
         , state = Browsing
     }
 

@@ -29,6 +29,7 @@ module OutlineDoc exposing
     , relocateTo
     , removeIfBlankLeaf
     , removeLeaf
+    , setTitle
     , setTitleUnlessBlank
     , unIndent
     , view
@@ -455,7 +456,12 @@ zAddNew z =
 
 setTitleUnlessBlank : String -> OutlineDoc -> OutlineDoc
 setTitleUnlessBlank title =
-    mapCZ (setTitle title |> ignoreNothing)
+    mapCZ (setNonBlankTitle title |> ignoreNothing)
+
+
+setTitle : String -> OutlineDoc -> OutlineDoc
+setTitle newTitle =
+    mapCZ (Z.mapData (\model -> { model | title = newTitle }))
 
 
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
@@ -478,8 +484,8 @@ collapse =
     mapCZMaybe zCollapse
 
 
-setTitle : String -> FIZ -> Maybe FIZ
-setTitle rawTitle fiz =
+setNonBlankTitle : String -> FIZ -> Maybe FIZ
+setNonBlankTitle rawTitle fiz =
     let
         setTitleUnsafe title_ model =
             { model | title = title_ }
