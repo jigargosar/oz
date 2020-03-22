@@ -15,5 +15,5 @@ type alias Line =
     }
 
 
-type OutlineFZ
-    = OutlineFZ (Zipper Line)
+type OutlineZipper
+    = OutlineZipper (Zipper Line)
