@@ -1,4 +1,4 @@
-module OutlineDoc.LineZipper exposing (LineZipper, addNew, cursorChanged, decoder, encoder, getId, getTitle, new, remove, setTitle)
+module OutlineDoc.LineZipper exposing (LineZipper, addNew, collapseAll, cursorChanged, decoder, encoder, expandAll, getId, getTitle, new, remove, setTitle)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Forest.Zipper as Z exposing (ForestZipper, Location)
@@ -106,7 +106,7 @@ validate z =
 
 hasCollapsedAncestors : ForestZipper Item -> Bool
 hasCollapsedAncestors =
-    Z.ancestors >> List.map .collapsed >> List.any identity
+    Z.ancestors >> List.any .collapsed
 
 
 hasDuplicateItemIds : ForestZipper { a | id : ItemId } -> Bool
@@ -226,48 +226,44 @@ remove =
 expandAll : LineZipper -> Maybe LineZipper
 expandAll =
     unwrap
-        >> map_ (\model -> { model | collapsed = False })
-        >> Maybe.map (gotoFirstVisibleAncestor_ >> wrap)
+        >> mapAll (\model -> { model | collapsed = False })
+        >> Maybe.map (gotoFirstVisibleAncestor >> wrap)
 
 
 collapseAll : LineZipper -> Maybe LineZipper
 collapseAll =
     unwrap
-        >> map_ (\model -> { model | collapsed = True })
-        >> Maybe.map (gotoFirstVisibleAncestor_ >> wrap)
+        >> mapAll (\model -> { model | collapsed = True })
+        >> Maybe.map (gotoFirstVisibleAncestor >> wrap)
 
 
-type alias FIZ =
-    ForestZipper Item
-
-
-map_ : (Item -> Item) -> FIZ -> Maybe FIZ
-map_ func z =
+mapAll : (Item -> Item) -> ForestZipper Item -> Maybe (ForestZipper Item)
+mapAll func z =
     Z.rootForest z
         |> List.map (T.map func)
         |> Z.fromForest
-        |> Maybe.andThen (restoreCursor_ z)
+        |> Maybe.andThen (restoreCursor z)
 
 
-restoreCursor_ : FIZ -> FIZ -> Maybe FIZ
-restoreCursor_ z =
+restoreCursor : ForestZipper Item -> ForestZipper Item -> Maybe (ForestZipper Item)
+restoreCursor z =
     Z.findFirst (idEq (id_ z))
 
 
-gotoFirstVisibleAncestor_ : FIZ -> FIZ
-gotoFirstVisibleAncestor_ z =
+gotoFirstVisibleAncestor : ForestZipper Item -> ForestZipper Item
+gotoFirstVisibleAncestor z =
     if isVisible_ z then
         z
 
     else
         case Z.up z of
             Just pz ->
-                gotoFirstVisibleAncestor_ pz
+                gotoFirstVisibleAncestor pz
 
             Nothing ->
                 z
 
 
-isVisible_ : FIZ -> Bool
+isVisible_ : ForestZipper Item -> Bool
 isVisible_ =
     Z.ancestors >> List.any .collapsed >> not
