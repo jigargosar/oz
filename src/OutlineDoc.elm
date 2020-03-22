@@ -328,46 +328,6 @@ toZipper_ ( mpz, z ) =
     mpz |> Maybe.map (Z.mergeChild z) |> Maybe.withDefault z
 
 
-
---zoomIn_ : Unwrapped -> Maybe Unwrapped
---zoomIn_ =
---    let
---        zZoomIn_ : ForestZipper Item -> Maybe Unwrapped
---        zZoomIn_ z =
---            z
---                |> Z.childrenAsZipper
---                |> Maybe.map (Zoomed z)
---
---        zZoomInParentPreserveFocus_ : ForestZipper Item -> Maybe Unwrapped
---        zZoomInParentPreserveFocus_ z =
---            z
---                |> (Z.up >> Maybe.andThen zZoomIn_)
---                |> Maybe.andThen (findId_ (zId z))
---    in
---    toZipper_
---        >> firstOf
---            [ zZoomIn_
---            , zZoomInParentPreserveFocus_
---            ]
---        >> Maybe.map gotoFirstVisibleAncestor_
---
---
---toZipper_ : Unwrapped -> FIZ
---toZipper_ doc =
---    case doc of
---        Doc z ->
---            z
---
---        Zoomed pz z ->
---            Z.transferAllLevelsFrom pz z
---
---
---findId_ : ItemId -> Unwrapped -> Maybe Unwrapped
---findId_ =
---    zFindId >> mapCZMaybe_
---
-
-
 zoomOut : OutlineDoc -> Maybe OutlineDoc
 zoomOut =
     zoomOutHelper
