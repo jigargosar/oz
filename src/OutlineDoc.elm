@@ -310,7 +310,10 @@ zoomIn_ =
         zZoomInParentPreserveFocus_ z =
             z
                 |> (Z.up >> Maybe.andThen zZoomIn_)
-                |> Maybe.andThen (\( pz, newZ ) -> zFindId (zId z) newZ |> Maybe.map (Tuple.pair pz))
+                |> Maybe.andThen
+                    (\( pz, newZ ) ->
+                        zFindId (zId z) newZ |> Maybe.map (Tuple.pair pz)
+                    )
     in
     toZipper_
         >> firstOf
