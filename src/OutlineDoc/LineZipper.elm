@@ -217,3 +217,57 @@ setTitle newTitle =
 remove : LineZipper -> Maybe LineZipper
 remove =
     unwrap >> Z.remove >> Maybe.map wrap
+
+
+
+-- UPDATE
+
+
+expandAll : LineZipper -> Maybe LineZipper
+expandAll =
+    unwrap
+        >> map_ (\model -> { model | collapsed = False })
+        >> Maybe.map (gotoFirstVisibleAncestor_ >> wrap)
+
+
+collapseAll : LineZipper -> Maybe LineZipper
+collapseAll =
+    unwrap
+        >> map_ (\model -> { model | collapsed = True })
+        >> Maybe.map (gotoFirstVisibleAncestor_ >> wrap)
+
+
+type alias FIZ =
+    ForestZipper Item
+
+
+map_ : (Item -> Item) -> FIZ -> Maybe FIZ
+map_ func z =
+    Z.rootForest z
+        |> List.map (T.map func)
+        |> Z.fromForest
+        |> Maybe.andThen (restoreCursor_ z)
+
+
+restoreCursor_ : FIZ -> FIZ -> Maybe FIZ
+restoreCursor_ z =
+    Z.findFirst (idEq (id_ z))
+
+
+gotoFirstVisibleAncestor_ : FIZ -> FIZ
+gotoFirstVisibleAncestor_ z =
+    if isVisible_ z then
+        z
+
+    else
+        case Z.up z of
+            Just pz ->
+                gotoFirstVisibleAncestor_ pz
+
+            Nothing ->
+                z
+
+
+isVisible_ : FIZ -> Bool
+isVisible_ =
+    Z.ancestors >> List.any .collapsed >> not
