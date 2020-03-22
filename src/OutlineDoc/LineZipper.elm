@@ -1,4 +1,4 @@
-module OutlineDoc.LineZipper exposing (LineZipper, addNew, cursorChanged, decoder, encoder, getId, getTitle, new)
+module OutlineDoc.LineZipper exposing (LineZipper, addNew, cursorChanged, decoder, encoder, getId, getTitle, new, remove, setTitle)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Forest.Zipper as Z exposing (ForestZipper, Location)
@@ -139,10 +139,10 @@ new =
 
 addNew : LineZipper -> Generator LineZipper
 addNew =
-    unwrap >> addNew_
+    unwrap >> addNew_ >> Random.map wrap
 
 
-addNew_ : ForestZipper Item -> Generator LineZipper
+addNew_ : ForestZipper Item -> Generator (ForestZipper Item)
 addNew_ z =
     let
         addNewHelp node =
@@ -153,7 +153,7 @@ addNew_ z =
                 Z.insertRightGo node z
     in
     newBlankItem
-        |> Random.map (T.singleton >> addNewHelp >> wrap)
+        |> Random.map (T.singleton >> addNewHelp)
 
 
 hasVisibleChildren_ z =
@@ -197,3 +197,23 @@ cursorChanged_ z1 z2 =
 
 ancestorIds_ =
     Z.ancestors >> List.map .id
+
+
+
+-- ITEM SETTERS
+
+
+setTitle : String -> LineZipper -> LineZipper
+setTitle newTitle =
+    unwrap
+        >> Z.mapData (\model -> { model | title = newTitle })
+        >> wrap
+
+
+
+-- Remove
+
+
+remove : LineZipper -> Maybe LineZipper
+remove =
+    unwrap >> Z.remove >> Maybe.map wrap
