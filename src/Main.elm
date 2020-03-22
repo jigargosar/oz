@@ -455,7 +455,7 @@ type BrowsingMsg
     | BM_CollapseAll
     | StartEdit
     | GoBackward
-    | CollapseOrGotoParent
+    | CollapseOrGotoParentOrPreviousSibling
     | ExpandOrGotoNext
     | GoForward
     | UnIndent
@@ -478,7 +478,7 @@ toBrowsingMsg =
     , ( KE.hot "x", BM_ExpandAll )
     , ( KE.hot "ArrowUp", GoBackward )
     , ( KE.hot "ArrowDown", GoForward )
-    , ( KE.hot "ArrowLeft", CollapseOrGotoParent )
+    , ( KE.hot "ArrowLeft", CollapseOrGotoParentOrPreviousSibling )
     , ( KE.hot "ArrowRight", ExpandOrGotoNext )
     , ( KE.ctrl "ArrowUp", MoveUp )
     , ( KE.ctrl "ArrowDown", MoveDown )
@@ -527,7 +527,7 @@ updateWhenBrowsing message =
         ZoomOut ->
             mapDocIgnoreNothing Doc.zoomOut
 
-        CollapseOrGotoParent ->
+        CollapseOrGotoParentOrPreviousSibling ->
             mapDocIgnoreNothing (firstOf [ Doc.collapse, Doc.gotoParent ])
 
         ExpandOrGotoNext ->
