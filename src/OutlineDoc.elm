@@ -30,7 +30,6 @@ module OutlineDoc exposing
     , prependIn
     , relocateTo
     , removeIfBlankLeaf
-    , removeLeaf
     , setTitle
     , setTitleUnlessBlank
     , unIndent
@@ -481,6 +480,10 @@ setTitle newTitle =
 removeIfBlankLeaf : OutlineDoc -> OutlineDoc
 removeIfBlankLeaf =
     mapCZ (zDeleteBlankLeaf |> ignoreNothing)
+
+
+
+--noinspection ElmUnusedSymbol
 
 
 removeLeaf : OutlineDoc -> Maybe OutlineDoc
