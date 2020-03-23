@@ -47,14 +47,6 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal
-    exposing
-        ( Unwrapped(..)
-        , map
-        , mapMaybe
-        , unwrap
-        , wrap
-        )
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -144,8 +136,41 @@ appendIn =
 -- DOC MODEL
 
 
-type alias OutlineDoc =
-    OutlineDoc.Internal.OutlineDoc
+type OutlineDoc
+    = Doc FIZ
+
+
+type alias Unwrapped =
+    OutlineDoc
+
+
+unwrap : OutlineDoc -> Unwrapped
+unwrap doc =
+    case doc of
+        Doc z ->
+            Doc z
+
+
+wrap : Unwrapped -> OutlineDoc
+wrap unwrapped =
+    case unwrapped of
+        Doc z ->
+            initDoc z
+
+
+map : (Unwrapped -> Unwrapped) -> OutlineDoc -> OutlineDoc
+map func =
+    unwrap >> func >> wrap
+
+
+mapMaybe : (Unwrapped -> Maybe Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
+mapMaybe func =
+    unwrap >> func >> Maybe.map wrap
+
+
+initDoc : FIZ -> OutlineDoc
+initDoc z =
+    Doc z
 
 
 new : Generator OutlineDoc
