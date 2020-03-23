@@ -34,8 +34,17 @@ right (ZoomZipper pcs cs lfr c rf) =
             Nothing
 
         first :: rest ->
-            Just
-                (ZoomZipper pcs cs (c :: lfr) first rest)
+            Just (ZoomZipper pcs cs (c :: lfr) first rest)
+
+
+left : ZoomZipper a -> Maybe (ZoomZipper a)
+left (ZoomZipper pcs cs lfr c rf) =
+    case lfr of
+        [] ->
+            Nothing
+
+        first :: rest ->
+            Just (ZoomZipper pcs cs rest first (c :: rf))
 
 
 
