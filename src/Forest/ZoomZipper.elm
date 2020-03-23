@@ -47,6 +47,21 @@ left (ZoomZipper pcs cs lfr c rf) =
             Just (ZoomZipper pcs cs rest first (c :: rf))
 
 
+up : ZoomZipper a -> Maybe (ZoomZipper a)
+up (ZoomZipper pcs cs lfr c rf) =
+    case cs of
+        [] ->
+            Nothing
+
+        (Crumb crumbLFR crumbData crumbRF) :: rest ->
+            Just (ZoomZipper pcs rest crumbLFR (reconstruct crumbData lfr c rf) crumbRF)
+
+
+reconstruct : a -> Forest a -> Tree a -> Forest a -> Tree a
+reconstruct crumbData lfr c rf =
+    T.tree crumbData (List.reverse lfr ++ c :: rf)
+
+
 
 -- ADD NEW
 
