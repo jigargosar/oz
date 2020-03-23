@@ -55,7 +55,16 @@ unwrapZZ : OutlineDoc -> ZZ
 unwrapZZ doc =
     case doc of
         Doc_ z ->
-            Z.rootForestTuple z |> uncurry ZZ.fromCons
+            case
+                Z.rootForestTuple z
+                    |> uncurry ZZ.fromCons
+                    |> ZZ.findFirst (eqById (Z.data z))
+            of
+                Just zz ->
+                    zz
+
+                Nothing ->
+                    Debug.todo "impl"
 
         Zoomed_ pz z ->
             Z.transferAllLevelsFrom pz z |> toZZPreserveFocusAndZoom (Z.data pz) (Z.data z)
