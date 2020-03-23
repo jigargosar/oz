@@ -148,3 +148,7 @@ noHtml =
 
 flip func a b =
     func b a
+
+
+isGreaterThan target src =
+    src > target

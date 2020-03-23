@@ -1,4 +1,15 @@
-module Forest.Zipper exposing (ZoomZipper, appendChildGo, down, fromData, insertLeftGo, insertRightGo, left, prependChildGo, right, up)
+module Forest.Zipper exposing
+    ( ZoomZipper
+    , appendChildGo
+    , down
+    , fromData
+    , insertLeftGo
+    , insertRightGo
+    , left
+    , prependChildGo
+    , right
+    , up
+    )
 
 import Forest.Tree as T exposing (Forest, Tree)
 
