@@ -131,13 +131,14 @@ unwrap : OutlineDoc -> Unwrapped
 unwrap doc =
     let
         _ =
-            if wrapZZ (unwrapZZ doc) == doc then
-                ""
+            case ( doc, wrapZZ (unwrapZZ doc) ) of
+                ( Zoomed_ p1 c1, Zoomed_ p2 c2 ) ->
+                    Debug.log "peq" (p1 == p2)
+                        |> always (Debug.log "ceq" (c1 == c2))
+                        |> always ""
 
-            else
-                Debug.log "doc" doc
-                    |> always (Debug.log "zzDoc" (wrapZZ (unwrapZZ doc)))
-                    |> always ""
+                _ ->
+                    ""
 
         zzRF =
             unwrapZZ doc |> ZZ.rootForest
@@ -160,8 +161,7 @@ unwrap doc =
                     |> always never
 
             else
-                Debug.log "equal" True
-                    |> always never
+                always never
     in
     case doc of
         Doc_ z ->
