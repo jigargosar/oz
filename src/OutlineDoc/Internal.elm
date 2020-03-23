@@ -127,9 +127,28 @@ type Unwrapped
     | Zoomed FIZ FIZ
 
 
+zoomData : OutlineDoc -> Maybe Item
+zoomData doc =
+    case doc of
+        Doc_ _ ->
+            Nothing
+
+        Zoomed_ pz _ ->
+            Just (Z.data pz)
+
+
 unwrap : OutlineDoc -> Unwrapped
 unwrap doc =
     let
+        _ =
+            Debug.log "debug" (zoomData doc)
+
+        _ =
+            Debug.log "debug" (ZZ.zoomData (unwrapZZ doc))
+
+        _ =
+            Debug.log "debug" (zoomData (wrapZZ (unwrapZZ doc)))
+
         _ =
             case ( doc, wrapZZ (unwrapZZ doc) ) of
                 ( Zoomed_ p1 c1, Zoomed_ p2 c2 ) ->
