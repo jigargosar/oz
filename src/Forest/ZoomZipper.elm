@@ -12,6 +12,7 @@ module Forest.ZoomZipper exposing
     , prependChildGo
     , right
     , up
+    , zoomIn
     )
 
 import Forest.Tree as T exposing (Forest, Tree)
@@ -155,7 +156,11 @@ findFirst pred =
     applyWhileJust up >> applyWhileJust left >> find pred forward
 
 
-find : (a -> Bool) -> (ZoomZipper a -> Maybe (ZoomZipper a)) -> ZoomZipper a -> Maybe (ZoomZipper a)
+find :
+    (a -> Bool)
+    -> (ZoomZipper a -> Maybe (ZoomZipper a))
+    -> ZoomZipper a
+    -> Maybe (ZoomZipper a)
 find pred nextFunc z =
     if pred (data z) then
         Just z
@@ -167,6 +172,15 @@ find pred nextFunc z =
 
             Nothing ->
                 Nothing
+
+
+
+-- ZOOM
+
+
+zoomIn : ZoomZipper a -> Maybe (ZoomZipper a)
+zoomIn =
+    down >> Maybe.map (\(ZoomZipper pcs cs tlz) -> ZoomZipper (pcs ++ cs) [] tlz)
 
 
 

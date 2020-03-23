@@ -2,12 +2,14 @@ module OutlineDoc.Internal exposing
     ( OutlineDoc
     , Unwrapped(..)
     , Unwrapped2
+    , ZZ
     , initDoc
     , initZoomed
     , map
     , mapMaybe
     , unwrap
     , unwrap2
+    , unwrapZZ
     , wrap
     , wrap2
     )
@@ -49,21 +51,24 @@ type alias ZZ =
     ZoomZipper Item
 
 
+unwrapZZ : OutlineDoc -> ZZ
 unwrapZZ doc =
     case doc of
         Doc_ z ->
             Z.rootForestTuple z |> uncurry ZZ.fromCons
 
         Zoomed_ pz z ->
-            Z.mergeChild z pz |> toZZPreserveFocus
+            Z.mergeChild z pz |> toZZPreserveFocusAndZoom (Z.data pz)
 
 
-toZZPreserveFocus fiz =
+toZZPreserveFocusAndZoom zoomItem fiz =
     case
         fiz
             |> Z.rootForestTuple
             |> uncurry ZZ.fromCons
-            |> ZZ.findFirst (eqById (Z.data fiz))
+            |> ZZ.findFirst (eqById zoomItem)
+            |> Maybe.andThen ZZ.zoomIn
+            |> Maybe.andThen (ZZ.findFirst (eqById (Z.data fiz)))
     of
         Just zz ->
             zz
