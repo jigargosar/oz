@@ -46,11 +46,12 @@ module OutlineDoc exposing
 import CollapseState exposing (CollapseState)
 import Forest.Tree as Tree
 import Forest.Zipper as Z exposing (ForestZipper, Location(..))
+import Forest.ZoomZipper as ZZ
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), Unwrapped2, map, mapMaybe, unwrap, unwrap2, wrap, wrap2)
+import OutlineDoc.Internal exposing (Unwrapped(..), Unwrapped2, map, mapMaybe, unwrap, unwrap2, unwrapZZ, wrap, wrap2)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -220,7 +221,7 @@ mapCZMaybe_ func unwrapped =
 
 currentTitle : OutlineDoc -> String
 currentTitle =
-    getCZ >> zTitle
+    unwrapZZ >> ZZ.data >> .title
 
 
 zTitle : FIZ -> String
