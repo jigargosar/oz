@@ -44,22 +44,21 @@ treeHasExpandedChildren (T item ts) =
 new : Generator OD
 new =
     ItemId.generator
-        |> Random.map newFromId
+        |> Random.map newHelp
 
 
-newFromId : ItemId -> OD
-newFromId id =
+newHelp : ItemId -> OD
+newHelp id =
     OD [] [] (LTR [] (treeFromId id) [])
 
 
 addNew : OD -> Generator OD
 addNew od =
-    ItemId.generator
-        |> Random.map (flip addNewWithId od)
+    ItemId.generator |> Random.map (flip addNewHelp od)
 
 
-addNewWithId : ItemId -> OD -> OD
-addNewWithId id (OD pcs cs (LTR l t r)) =
+addNewHelp : ItemId -> OD -> OD
+addNewHelp id (OD pcs cs (LTR l t r)) =
     let
         newT =
             treeFromId id
