@@ -49,7 +49,7 @@ right (DictZipper dict data ancestors) =
 
 
 up : DictZipper a -> Maybe (DictZipper a)
-up (DictZipper dict c cs) =
+up (DictZipper dict _ cs) =
     case cs of
         first :: rest ->
             DictZipper dict first rest
@@ -63,7 +63,7 @@ down : DictZipper a -> Maybe (DictZipper a)
 down (DictZipper dict c cs) =
     case childrenOf c.id dict of
         first :: _ ->
-            DictZipper (dict |> add first |> delete first.id) first (c :: cs)
+            DictZipper dict first (c :: cs)
                 |> Just
 
         _ ->
