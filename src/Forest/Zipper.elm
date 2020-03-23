@@ -5,7 +5,6 @@ module Forest.Zipper exposing
     , ancestors
     , appendChild
     , appendChildGo
-    , childrenAsZipper
     , data
     , decoder
     , down
@@ -28,16 +27,12 @@ module Forest.Zipper exposing
     , mapAncestors
     , mapData
     , mapTree
-    , mergeChild
     , prependChild
     , prependChildGo
     , remove
     , restructure
     , right
     , rootForest
-    , rootForestTuple
-    , transferAllLevelsFrom
-    , transferOneLevelForm
     , tree
     , treeAsZipper
     , up
@@ -116,29 +111,9 @@ forest fz =
     List.reverse fz.leftReversed ++ fz.center :: fz.right_
 
 
-forestTuple : ForestZipper a -> ( Tree a, Forest a )
-forestTuple fz =
-    case List.reverse fz.leftReversed of
-        [] ->
-            ( fz.center, fz.right_ )
-
-        f :: r ->
-            ( f, r ++ fz.center :: fz.right_ )
-
-
 rootForest : ForestZipper a -> Forest a
 rootForest =
     firstRoot >> forest
-
-
-rootForestTuple : ForestZipper a -> ( Tree a, Forest a )
-rootForestTuple =
-    firstRoot >> forestTuple
-
-
-childrenAsZipper : ForestZipper a -> Maybe (ForestZipper a)
-childrenAsZipper =
-    tree >> Tree.children >> fromForest
 
 
 treeAsZipper : ForestZipper a -> ForestZipper a
@@ -166,63 +141,6 @@ mapCrumb func crumb =
     , datum = func crumb.datum
     , right_ = List.map (Tree.map func) crumb.right_
     }
-
-
-mergeChild : ForestZipper a -> ForestZipper a -> ForestZipper a
-mergeChild cz zipper =
-    let
-        ret =
-            mergeInternal cz zipper
-
-        _ =
-            if rootForest ret == rootForest (replaceChildrenWithZipper cz zipper) then
-                "All is well"
-
-            else
-                Debug.todo "invalid merge"
-    in
-    ret
-
-
-transferAllLevelsFrom : ForestZipper a -> ForestZipper a -> ForestZipper a
-transferAllLevelsFrom parent child =
-    mergeChild child parent
-
-
-mergeInternal : ForestZipper a -> ForestZipper a -> ForestZipper a
-mergeInternal cz zipper =
-    { zipper
-        | leftReversed = cz.leftReversed
-        , center = cz.center
-        , right_ = cz.right_
-        , crumbs =
-            cz.crumbs
-                ++ { leftReversed = zipper.leftReversed
-                   , datum = Tree.data zipper.center
-                   , right_ = zipper.right_
-                   }
-                :: zipper.crumbs
-    }
-
-
-transferOneLevelTo : ForestZipper a -> ForestZipper a -> ( ForestZipper a, Maybe (ForestZipper a) )
-transferOneLevelTo cz zipper =
-    let
-        ret =
-            transferOneLevelToInternal cz zipper
-
-        _ =
-            if rootForest (mergeInternal cz zipper) == rootForest (transferOneLevelLoop ret) then
-                "All is well"
-
-            else
-                Debug.todo "invalid merge"
-    in
-    ret
-
-
-transferOneLevelForm zipper cz =
-    transferOneLevelTo cz zipper |> swap
 
 
 transferOneLevelLoop : ( ForestZipper a, Maybe (ForestZipper a) ) -> ForestZipper a
@@ -259,11 +177,6 @@ transferOneLevelToInternal cz zipper =
                     , crumbs = rest
                 }
             )
-
-
-replaceChildrenWithZipper : ForestZipper a -> ForestZipper a -> ForestZipper a
-replaceChildrenWithZipper newFiz fiz =
-    { fiz | center = Tree.mapChildren (always (rootForest newFiz)) fiz.center }
 
 
 mapTree : (Tree a -> Tree a) -> ForestZipper a -> ForestZipper a
