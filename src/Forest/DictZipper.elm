@@ -42,13 +42,6 @@ nextSiblingsOf data dict =
 
 right : DictZipper a -> Maybe (DictZipper a)
 right (DictZipper dict data ancestors) =
-    let
-        maybeRight =
-            Dict.values dict
-                |> List.Extra.find (allPass [ .idx >> isGreaterThan data.idx, eqBy .parentId data ])
-                |> List.sortBy .idx
-                |> List.head
-    in
     case nextSiblingsOf data dict of
         newData :: _ ->
             DictZipper (dict |> add data |> delete newData.id) newData ancestors
