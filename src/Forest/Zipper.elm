@@ -24,6 +24,7 @@ module Forest.Zipper exposing
     , isLeaf
     , lastChild
     , left
+    , map
     , mapAncestors
     , mapData
     , mapTree
@@ -132,6 +133,23 @@ treeAsZipper =
 foldl : (a -> b -> b) -> b -> ForestZipper a -> b
 foldl func acc =
     rootForest >> List.foldl (flip (Tree.foldl func)) acc
+
+
+map : (a -> b) -> ForestZipper a -> ForestZipper b
+map func z =
+    { leftReversed = List.map (Tree.map func) z.leftReversed
+    , center = Tree.map func z.center
+    , right_ = List.map (Tree.map func) z.right_
+    , crumbs = List.map (mapCrumb func) z.crumbs
+    }
+
+
+mapCrumb : (a -> b) -> Crumb a -> Crumb b
+mapCrumb func crumb =
+    { leftReversed = List.map (Tree.map func) crumb.leftReversed
+    , datum = func crumb.datum
+    , right_ = List.map (Tree.map func) crumb.right_
+    }
 
 
 mergeChild : ForestZipper a -> ForestZipper a -> ForestZipper a

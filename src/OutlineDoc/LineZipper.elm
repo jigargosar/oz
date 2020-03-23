@@ -228,46 +228,10 @@ remove (LineZipper z) =
 
 
 expandAll : LineZipper -> Maybe LineZipper
-expandAll =
-    unwrap
-        >> mapAll (setItemCollapsed False)
-        >> Maybe.map (gotoFirstVisibleAncestor >> wrap)
+expandAll (LineZipper z) =
+    z |> Z.map (setItemCollapsed False) |> wrap |> Just
 
 
 collapseAll : LineZipper -> Maybe LineZipper
-collapseAll =
-    unwrap
-        >> mapAll (setItemCollapsed True)
-        >> Maybe.map (gotoFirstVisibleAncestor >> wrap)
-
-
-mapAll : (Item -> Item) -> ForestZipper Item -> Maybe (ForestZipper Item)
-mapAll func z =
-    Z.rootForest z
-        |> List.map (T.map func)
-        |> Z.fromForest
-        |> Maybe.andThen (restoreCursor z)
-
-
-restoreCursor : ForestZipper Item -> ForestZipper Item -> Maybe (ForestZipper Item)
-restoreCursor z =
-    Z.findFirst (idEq (id_ z))
-
-
-gotoFirstVisibleAncestor : ForestZipper Item -> ForestZipper Item
-gotoFirstVisibleAncestor z =
-    if isVisible z then
-        z
-
-    else
-        case Z.up z of
-            Just pz ->
-                gotoFirstVisibleAncestor pz
-
-            Nothing ->
-                z
-
-
-isVisible : ForestZipper Item -> Bool
-isVisible =
-    Z.ancestors >> List.any .collapsed >> not
+collapseAll (LineZipper z) =
+    z |> Z.map (setItemCollapsed True) |> wrap |> Just
