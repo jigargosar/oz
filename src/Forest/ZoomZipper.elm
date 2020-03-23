@@ -1,4 +1,4 @@
-module Forest.Zipper exposing (ZoomZipper, appendChildGo, fromData, insertLeftGo, insertRightGo, prependChildGo, right)
+module Forest.Zipper exposing (ZoomZipper, appendChildGo, fromData, insertLeftGo, insertRightGo, left, prependChildGo, right)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Json.Decode as JD exposing (Decoder)
