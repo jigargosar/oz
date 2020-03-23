@@ -1,17 +1,14 @@
 module OutlineDoc.Internal exposing
     ( OutlineDoc
     , Unwrapped(..)
-    , Unwrapped2
     , ZZ
     , initDoc
     , initZoomed
     , map
     , mapMaybe
     , unwrap
-    , unwrap2
     , unwrapZZ
     , wrap
-    , wrap2
     , wrapZZ
     )
 
@@ -22,30 +19,6 @@ import ItemId
 import OutlineDoc.FIZ exposing (FIZ, Item)
 import Tree as T
 import Utils exposing (..)
-
-
-type alias Unwrapped2 =
-    ( Maybe FIZ, FIZ )
-
-
-unwrap2 : OutlineDoc -> Unwrapped2
-unwrap2 doc =
-    case doc of
-        Doc_ z ->
-            ( Nothing, z )
-
-        Zoomed_ pz z ->
-            ( Just pz, z )
-
-
-wrap2 : Unwrapped2 -> OutlineDoc
-wrap2 ( mpz, z ) =
-    case mpz of
-        Just pz ->
-            initZoomed pz z
-
-        Nothing ->
-            initDoc z
 
 
 type alias ZZ =

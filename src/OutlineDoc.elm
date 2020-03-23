@@ -50,7 +50,14 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
-import OutlineDoc.Internal exposing (Unwrapped(..), Unwrapped2, map, mapMaybe, unwrap, unwrap2, wrap, wrap2)
+import OutlineDoc.Internal
+    exposing
+        ( Unwrapped(..)
+        , map
+        , mapMaybe
+        , unwrap
+        , wrap
+        )
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -156,11 +163,11 @@ zNew =
 
 encoder : OutlineDoc -> Value
 encoder doc =
-    case unwrap2 doc of
-        ( Nothing, z ) ->
+    case unwrap doc of
+        Doc z ->
             FIZ.encoder z
 
-        ( Just pz, z ) ->
+        Zoomed pz z ->
             JE.object
                 [ ( "tag", JE.string "Zoomed" )
                 , ( "pz", FIZ.encoder pz )
@@ -171,17 +178,22 @@ encoder doc =
 decoder : Decoder OutlineDoc
 decoder =
     JD.oneOf
-        [ FIZ.decoder |> JD.map (Tuple.pair Nothing)
-        , JD.succeed Tuple.pair
-            |> required "pz" (FIZ.decoder |> JD.map Just)
+        [ FIZ.decoder |> JD.map Doc
+        , JD.succeed Zoomed
+            |> required "pz" FIZ.decoder
             |> required "z" FIZ.decoder
         ]
-        |> JD.map wrap2
+        |> JD.map wrap
 
 
 getCZ : OutlineDoc -> FIZ
-getCZ =
-    unwrap2 >> Tuple.second
+getCZ doc =
+    case unwrap doc of
+        Doc z ->
+            z
+
+        Zoomed _ z ->
+            z
 
 
 mapCZ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
@@ -294,108 +306,22 @@ getParentZipper doc =
 
 zoomIn : OutlineDoc -> Maybe OutlineDoc
 zoomIn =
-    unwrap2 >> zoomIn_ >> Maybe.map wrap2
-
-
-zoomIn_ : Unwrapped2 -> Maybe Unwrapped2
-zoomIn_ =
-    let
-        zZoomIn_ : ForestZipper Item -> Maybe Unwrapped2
-        zZoomIn_ z =
-            z
-                |> Z.childrenAsZipper
-                |> Maybe.map (Tuple.pair (Just z))
-
-        zZoomInParentPreserveFocus_ : ForestZipper Item -> Maybe Unwrapped2
-        zZoomInParentPreserveFocus_ z =
-            z
-                |> (Z.up >> Maybe.andThen zZoomIn_)
-                |> Maybe.andThen
-                    (\( pz, newZ ) ->
-                        zFindId (zId z) newZ |> Maybe.map (Tuple.pair pz)
-                    )
-    in
-    toZipper_
-        >> firstOf
-            [ zZoomIn_
-            , zZoomInParentPreserveFocus_
-            ]
-        >> Maybe.map (Tuple.mapSecond zGotoFirstVisibleAncestor)
-
-
-toZipper_ : Unwrapped2 -> FIZ
-toZipper_ ( mpz, z ) =
-    mpz |> Maybe.map (Z.mergeChild z) |> Maybe.withDefault z
+    always Nothing
 
 
 zoomOut : OutlineDoc -> Maybe OutlineDoc
 zoomOut =
-    zoomOutHelper
-        (\pz z ->
-            case Z.transferOneLevelForm pz z of
-                ( Just newPZ, newZ ) ->
-                    Zoomed newPZ newZ
-
-                ( Nothing, newZ ) ->
-                    Doc newZ
-        )
+    always Nothing
 
 
 zoomOutToTop : OutlineDoc -> Maybe OutlineDoc
 zoomOutToTop =
-    zoomOutHelper (\pz z -> Doc (Z.transferAllLevelsFrom pz z))
+    always Nothing
 
 
 zoomOutToAncestorId : ItemId -> OutlineDoc -> Maybe OutlineDoc
-zoomOutToAncestorId itemId =
-    let
-        helper pz z =
-            case Z.transferOneLevelForm pz z of
-                ( Just newPZ, newZ ) ->
-                    if zId newPZ == itemId then
-                        Just (Zoomed newPZ newZ)
-
-                    else
-                        helper newPZ newZ
-
-                ( Nothing, _ ) ->
-                    Nothing
-    in
-    zoomOutHelperMaybe helper
-
-
-zoomOutHelper : (FIZ -> FIZ -> Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
-zoomOutHelper func =
-    mapMaybe (zZoomOut_ (\pz z -> func pz z))
-
-
-zZoomOut_ : (FIZ -> FIZ -> Unwrapped) -> Unwrapped -> Maybe Unwrapped
-zZoomOut_ func doc =
-    case doc of
-        Doc _ ->
-            Nothing
-
-        Zoomed pz z ->
-            func pz z |> gotoFirstVisibleAncestor_ |> Just
-
-
-zoomOutHelperMaybe : (FIZ -> FIZ -> Maybe Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
-zoomOutHelperMaybe func =
-    mapMaybe
-        (\doc ->
-            case doc of
-                Doc _ ->
-                    Nothing
-
-                Zoomed pz z ->
-                    func pz z
-                        |> Maybe.map gotoFirstVisibleAncestor_
-        )
-
-
-gotoFirstVisibleAncestor_ : Unwrapped -> Unwrapped
-gotoFirstVisibleAncestor_ =
-    mapCZ_ zGotoFirstVisibleAncestor
+zoomOutToAncestorId _ =
+    always Nothing
 
 
 zIsVisible : FIZ -> Bool
