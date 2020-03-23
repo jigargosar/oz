@@ -584,67 +584,6 @@ nextSiblingOfAncestor z =
             Nothing
 
 
-
--- VISIT
---
---
---fzVisit :
---    { enter : ForestZipper a -> acc -> acc
---    , exit : ForestZipper a -> acc -> acc
---    }
---    -> acc
---    -> ForestZipper a
---    -> acc
---fzVisit { enter, exit } =
---    let
---        step : VisitMsg -> acc -> ForestZipper a -> acc
---        step msg acc oz =
---            case msg of
---                Enter ->
---                    step Entered (enter oz acc) oz
---
---                Entered ->
---                    case down oz of
---                        Just childOZ ->
---                            step Enter acc childOZ
---
---                        Nothing ->
---                            step Exit acc oz
---
---                Exit ->
---                    step Exited (exit oz acc) oz
---
---                Exited ->
---                    case right oz of
---                        Just rightOZ ->
---                            step Enter acc rightOZ
---
---                        Nothing ->
---                            step Up acc oz
---
---                Up ->
---                    case up oz of
---                        Just parentOZ ->
---                            step Exit acc parentOZ
---
---                        Nothing ->
---                            acc
---
---        enterFirstRoot : acc -> ForestZipper a -> acc
---        enterFirstRoot acc fz =
---            step Enter acc (firstRoot fz)
---    in
---    enterFirstRoot
---
---
---type VisitMsg
---    = Enter
---    | Entered
---    | Exit
---    | Exited
---    | Up
-
-
 restructure : (ForestZipper a -> List b -> b) -> ForestZipper a -> List b
 restructure render zipper =
     restructureHelp render ReGoDown { leftReversed = [], crumbs = [], fiz = firstRoot zipper }
