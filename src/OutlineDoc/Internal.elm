@@ -63,7 +63,42 @@ unwrapZZ doc =
 
 wrapZZ : ZZ -> OutlineDoc
 wrapZZ zz =
-    Debug.todo "impl"
+    case ZZ.zoomData zz of
+        Just item ->
+            case
+                ZZ.forest zz
+                    |> Z.fromForest
+                    |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
+            of
+                Just fiz ->
+                    initZoomed
+                        (case
+                            ZZ.rootForest zz
+                                |> Z.fromForest
+                                |> Maybe.andThen (Z.findFirst (eqById item))
+                         of
+                            Just z ->
+                                z
+
+                            Nothing ->
+                                Debug.todo "impl"
+                        )
+                        fiz
+
+                Nothing ->
+                    Debug.todo "impl"
+
+        Nothing ->
+            case
+                ZZ.rootForest zz
+                    |> Z.fromForest
+                    |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
+            of
+                Just fiz ->
+                    initDoc fiz
+
+                Nothing ->
+                    Debug.todo "impl"
 
 
 toZZPreserveFocusAndZoom zoomItem fiz =
@@ -97,6 +132,14 @@ unwrap doc =
     let
         zzRF =
             unwrapZZ doc |> ZZ.rootForest
+
+        _ =
+            if wrapZZ (unwrapZZ doc) == doc then
+                ""
+
+            else
+                Debug.log "" ( doc, wrapZZ (unwrapZZ doc) )
+                    |> always ""
 
         fizRF =
             unwrap2 doc

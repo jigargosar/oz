@@ -1,8 +1,10 @@
 module Forest.ZoomZipper exposing
     ( ZoomZipper
     , appendChildGo
+    , data
     , down
     , findFirst
+    , forest
     , fromCons
     , fromData
     , fromForest
@@ -15,6 +17,7 @@ module Forest.ZoomZipper exposing
     , rootForest
     , unConsRoot
     , up
+    , zoomData
     , zoomIn
     )
 
@@ -109,12 +112,23 @@ resetZoom (ZoomZipper pcs cs tlz) =
     ZoomZipper [] (cs ++ pcs) tlz
 
 
+zoomData : ZoomZipper a -> Maybe a
+zoomData (ZoomZipper pcs _ _) =
+    List.head pcs |> Maybe.map (\(Crumb _ d _) -> d)
+
+
 
 -- ACCESS
 
 
+data : ZoomZipper a -> a
 data (ZoomZipper _ _ (TLZ _ c _)) =
     T.data c
+
+
+forest : ZoomZipper a -> Forest a
+forest =
+    unCons >> uncurry (::)
 
 
 
