@@ -12,6 +12,7 @@ module OutlineDoc.Internal exposing
     , unwrapZZ
     , wrap
     , wrap2
+    , wrapZZ
     )
 
 import Dict
@@ -53,63 +54,82 @@ type alias ZZ =
 
 unwrapZZ : OutlineDoc -> ZZ
 unwrapZZ doc =
-    case doc of
-        Doc_ z ->
-            case
-                Z.rootForestTuple z
-                    |> uncurry ZZ.fromCons
-                    |> ZZ.findFirst (eqById (Z.data z))
-            of
-                Just zz ->
-                    zz
+    checkWrapZZ doc <|
+        case doc of
+            Doc_ z ->
+                case
+                    Z.rootForestTuple z
+                        |> uncurry ZZ.fromCons
+                        |> ZZ.findFirst (eqById (Z.data z))
+                of
+                    Just zz ->
+                        zz
 
-                Nothing ->
-                    Debug.todo "impl"
+                    Nothing ->
+                        Debug.todo "impl"
 
-        Zoomed_ pz z ->
-            Z.transferAllLevelsFrom pz z |> toZZPreserveFocusAndZoom (Z.data pz) (Z.data z)
+            Zoomed_ pz z ->
+                Z.transferAllLevelsFrom pz z |> toZZPreserveFocusAndZoom (Z.data pz) (Z.data z)
+
+
+checkWrapZZ : OutlineDoc -> ZZ -> ZZ
+checkWrapZZ doc zz =
+    if wrapZZ zz == doc then
+        zz
+
+    else
+        Debug.todo "impl"
+
+
+checkUnwrapZZ zz doc =
+    if unwrapZZ doc == zz then
+        doc
+
+    else
+        Debug.todo "impl"
 
 
 wrapZZ : ZZ -> OutlineDoc
 wrapZZ zz =
-    case ZZ.zoomData zz of
-        Just item ->
-            case
-                zz
-                    |> applyWhileJust ZZ.up
-                    |> ZZ.forest
-                    |> Z.fromForest
-                    |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
-            of
-                Just fiz ->
-                    initZoomed
-                        (case
-                            ZZ.rootForest zz
-                                |> Z.fromForest
-                                |> Maybe.andThen (Z.findFirst (eqById item))
-                         of
-                            Just z ->
-                                z
+    checkUnwrapZZ zz <|
+        case ZZ.zoomData zz of
+            Just item ->
+                case
+                    zz
+                        |> applyWhileJust ZZ.up
+                        |> ZZ.forest
+                        |> Z.fromForest
+                        |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
+                of
+                    Just fiz ->
+                        initZoomed
+                            (case
+                                ZZ.rootForest zz
+                                    |> Z.fromForest
+                                    |> Maybe.andThen (Z.findFirst (eqById item))
+                             of
+                                Just z ->
+                                    z
 
-                            Nothing ->
-                                Debug.todo "impl"
-                        )
-                        fiz
+                                Nothing ->
+                                    Debug.todo "impl"
+                            )
+                            fiz
 
-                Nothing ->
-                    Debug.todo "impl"
+                    Nothing ->
+                        Debug.todo "impl"
 
-        Nothing ->
-            case
-                ZZ.rootForest zz
-                    |> Z.fromForest
-                    |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
-            of
-                Just fiz ->
-                    initDoc fiz
+            Nothing ->
+                case
+                    ZZ.rootForest zz
+                        |> Z.fromForest
+                        |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
+                of
+                    Just fiz ->
+                        initDoc fiz
 
-                Nothing ->
-                    Debug.todo "impl"
+                    Nothing ->
+                        Debug.todo "impl"
 
 
 toZZPreserveFocusAndZoom zoomItem focusItem fiz =
@@ -140,14 +160,6 @@ type Unwrapped
 
 unwrap : OutlineDoc -> Unwrapped
 unwrap doc =
-    let
-        _ =
-            if doc /= wrapZZ (unwrapZZ doc) then
-                Debug.log "neq" (wrapZZ (unwrapZZ doc))
-
-            else
-                doc
-    in
     case doc of
         Doc_ z ->
             Doc z
