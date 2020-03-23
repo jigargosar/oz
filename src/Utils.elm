@@ -152,3 +152,7 @@ flip func a b =
 
 isGreaterThan target src =
     src > target
+
+
+isLessThanOrEq target src =
+    src <= target

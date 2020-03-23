@@ -30,6 +30,25 @@ nextSiblingsOf data dict =
         |> List.sortBy .idx
 
 
+previousSiblingsOf : Data a -> IDDict a -> List (Data a)
+previousSiblingsOf data dict =
+    Dict.values dict
+        |> List.Extra.find (allPass [ .idx >> isLessThanOrEq data.idx, eqBy .parentId data ])
+        |> List.sortBy .idx
+
+
+siblingsZipperOf : Data a -> IDDict a -> ( List (Data a), Data a, List (Data a) )
+siblingsZipperOf c dict =
+    ( previousSiblingsOf c dict, c, nextSiblingsOf c dict )
+
+
+withParentId : Maybe ItemId -> IDDict a -> List (Data a)
+withParentId parentId dict =
+    Dict.values dict
+        |> List.Extra.find (allPass [ propEq .parentId parentId ])
+        |> List.sortBy .idx
+
+
 childrenOf : ItemId -> IDDict a -> List (Data a)
 childrenOf itemId dict =
     Dict.values dict
@@ -68,3 +87,21 @@ down (DictZipper dict c cs) =
 
         _ ->
             Nothing
+
+
+
+--insertRightGo newData (DictZipper dict c cs) =
+--    let
+--         updatedData =
+--             {newData| parentId = c.parentId}
+--
+--         (l,ac, r) = siblingsZipperOf c dict
+--
+--         newSiblings = (l++ ac :: r)
+--            |> List.indexedMap (\idx d -> {d| idx = idx})
+--
+--
+--
+--    in
+--
+--
