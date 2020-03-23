@@ -11,6 +11,7 @@ module Forest.ZoomZipper exposing
     , left
     , prependChildGo
     , right
+    , unConsRoot
     , up
     , zoomIn
     )
@@ -68,6 +69,37 @@ fromForest ls =
 fromCons : Tree a -> Forest a -> ZoomZipper a
 fromCons f r =
     fromCR f r |> ZoomZipper [] []
+
+
+unConsRoot : ZoomZipper a -> ( Tree a, Forest a )
+unConsRoot (ZoomZipper ps cs tlz) =
+    ZoomZipper [] (ps ++ cs) tlz
+        |> applyWhileJust up
+        |> unCons
+
+
+unCons : ZoomZipper a -> ( Tree a, Forest a )
+unCons (ZoomZipper _ _ ((TLZ _ c _) as tlz)) =
+    case toList tlz of
+        [] ->
+            ( c, [] )
+
+        f :: r ->
+            ( f, r )
+
+
+
+-- ZOOM
+
+
+zoomIn : ZoomZipper a -> Maybe (ZoomZipper a)
+zoomIn =
+    down >> Maybe.map (\(ZoomZipper pcs cs tlz) -> ZoomZipper (pcs ++ cs) [] tlz)
+
+
+resetZoom : ZoomZipper a -> ZoomZipper a
+resetZoom (ZoomZipper ps cs tlz) =
+    ZoomZipper [] (ps ++ cs) tlz
 
 
 
@@ -172,15 +204,6 @@ find pred nextFunc z =
 
             Nothing ->
                 Nothing
-
-
-
--- ZOOM
-
-
-zoomIn : ZoomZipper a -> Maybe (ZoomZipper a)
-zoomIn =
-    down >> Maybe.map (\(ZoomZipper pcs cs tlz) -> ZoomZipper (pcs ++ cs) [] tlz)
 
 
 
