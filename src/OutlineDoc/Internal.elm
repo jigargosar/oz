@@ -64,18 +64,32 @@ wrapZZ zz =
 
 checkWrapZZ : OutlineDoc -> ZZ -> ZZ
 checkWrapZZ doc zz =
-    if wrapZZ zz == doc then
+    if wrapZZ_ zz == doc then
         zz
 
     else
-        Debug.todo "impl"
+        let
+            _ =
+                wrapZZ_ zz |> Debug.log "debug"
+
+            _ =
+                doc |> Debug.log "debug"
+        in
+        Debug.todo "checkWrapZZ failed during unwrapZZ"
 
 
 checkUnwrapZZ zz doc =
-    if unwrapZZ doc == zz then
+    if unwrapZZ_ doc == zz then
         doc
 
     else
+        let
+            _ =
+                unwrapZZ_ doc |> Debug.log "debug"
+
+            _ =
+                zz |> Debug.log "debug"
+        in
         Debug.todo "impl"
 
 
