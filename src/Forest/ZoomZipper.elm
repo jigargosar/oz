@@ -60,7 +60,9 @@ left (ZoomZipper pcs cs (TLZ lfr c rf)) =
             Nothing
 
         first :: rest ->
-            Just (ZoomZipper pcs cs (TLZ rest first (c :: rf)))
+            TLZ rest first (c :: rf)
+                |> ZoomZipper pcs cs
+                |> Just
 
 
 up : ZoomZipper a -> Maybe (ZoomZipper a)
