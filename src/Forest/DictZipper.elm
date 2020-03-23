@@ -49,3 +49,14 @@ right (DictZipper dict data ancestors) =
 
         _ ->
             Nothing
+
+
+up : DictZipper a -> Maybe (DictZipper a)
+up (DictZipper dict c cs) =
+    case cs of
+        first :: rest ->
+            DictZipper (dict |> add first |> delete c.id) first rest
+                |> Just
+
+        _ ->
+            Nothing
