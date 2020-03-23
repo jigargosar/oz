@@ -130,9 +130,6 @@ type Unwrapped
 unwrap : OutlineDoc -> Unwrapped
 unwrap doc =
     let
-        zzRF =
-            unwrapZZ doc |> ZZ.rootForest
-
         _ =
             if wrapZZ (unwrapZZ doc) == doc then
                 ""
@@ -141,6 +138,9 @@ unwrap doc =
                 Debug.log "doc" doc
                     |> always (Debug.log "zzDoc" (wrapZZ (unwrapZZ doc)))
                     |> always ""
+
+        zzRF =
+            unwrapZZ doc |> ZZ.rootForest
 
         fizRF =
             unwrap2 doc
