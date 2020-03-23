@@ -10,6 +10,7 @@ module Forest.ZoomZipper exposing
     , insertRightGo
     , left
     , prependChildGo
+    , resetZoom
     , right
     , unConsRoot
     , up
