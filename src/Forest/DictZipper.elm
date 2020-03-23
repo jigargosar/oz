@@ -14,16 +14,6 @@ type alias IDDict a =
     Dict String (Data a)
 
 
-add : Data a -> IDDict a -> IDDict a
-add data =
-    Dict.insert (ItemId.toString data.id) data
-
-
-delete : ItemId -> IDDict a -> IDDict a
-delete itemId =
-    Dict.remove (ItemId.toString itemId)
-
-
 type alias Data a =
     { a | id : ItemId, parentId : Maybe ItemId, idx : Int }
 
@@ -51,7 +41,7 @@ right : DictZipper a -> Maybe (DictZipper a)
 right (DictZipper dict data ancestors) =
     case nextSiblingsOf data dict of
         newData :: _ ->
-            DictZipper (dict |> add data |> delete newData.id) newData ancestors
+            DictZipper dict newData ancestors
                 |> Just
 
         _ ->
@@ -62,7 +52,7 @@ up : DictZipper a -> Maybe (DictZipper a)
 up (DictZipper dict c cs) =
     case cs of
         first :: rest ->
-            DictZipper (dict |> add first |> delete c.id) first rest
+            DictZipper dict first rest
                 |> Just
 
         _ ->
