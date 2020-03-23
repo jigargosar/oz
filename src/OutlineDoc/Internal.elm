@@ -58,7 +58,7 @@ unwrapZZ doc =
             Z.rootForestTuple z |> uncurry ZZ.fromCons
 
         Zoomed_ pz z ->
-            Z.mergeChild z pz |> toZZPreserveFocusAndZoom (Z.data pz)
+            Z.mergeChild z pz |> toZZPreserveFocusAndZoom (Z.data pz) (Z.data z)
 
 
 wrapZZ : ZZ -> OutlineDoc
@@ -101,14 +101,14 @@ wrapZZ zz =
                     Debug.todo "impl"
 
 
-toZZPreserveFocusAndZoom zoomItem fiz =
+toZZPreserveFocusAndZoom zoomItem focusItem fiz =
     case
         fiz
             |> Z.rootForestTuple
             |> uncurry ZZ.fromCons
             |> ZZ.findFirst (eqById zoomItem)
             |> Maybe.andThen ZZ.zoomIn
-            |> Maybe.andThen (ZZ.findFirst (eqById (Z.data fiz)))
+            |> Maybe.andThen (ZZ.findFirst (eqById focusItem))
     of
         Just zz ->
             zz
