@@ -140,24 +140,14 @@ type OutlineDoc
     = Doc FIZ
 
 
-map : (OutlineDoc -> OutlineDoc) -> OutlineDoc -> OutlineDoc
-map func =
-    func
-
-
-mapMaybe : (OutlineDoc -> Maybe OutlineDoc) -> OutlineDoc -> Maybe OutlineDoc
-mapMaybe func =
-    func
-
-
-initDoc : FIZ -> OutlineDoc
-initDoc z =
+wrap : FIZ -> OutlineDoc
+wrap z =
     Doc z
 
 
 new : Generator OutlineDoc
 new =
-    zNew |> Random.map initDoc
+    zNew |> Random.map wrap
 
 
 zNew : Generator FIZ
@@ -174,7 +164,7 @@ encoder doc =
 
 decoder : Decoder OutlineDoc
 decoder =
-    FIZ.decoder |> JD.map initDoc
+    FIZ.decoder |> JD.map wrap
 
 
 unwrap : OutlineDoc -> FIZ
@@ -184,12 +174,12 @@ unwrap (Doc z) =
 
 mapCZ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
 mapCZ =
-    mapCZ_ >> map
+    mapCZ_
 
 
 mapCZMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
 mapCZMaybe func =
-    mapMaybe (mapCZMaybe_ func)
+    mapCZMaybe_ func
 
 
 mapCZ_ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
@@ -294,7 +284,7 @@ zGotoFirstVisibleAncestor z =
 
 addNew : OutlineDoc -> Generator OutlineDoc
 addNew (Doc z) =
-    zAddNew z |> Random.map initDoc
+    zAddNew z |> Random.map wrap
 
 
 zAddNew : FIZ -> Generator FIZ
