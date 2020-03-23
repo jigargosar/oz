@@ -12,6 +12,7 @@ module Forest.ZoomZipper exposing
     , prependChildGo
     , resetZoom
     , right
+    , rootForest
     , unConsRoot
     , up
     , zoomIn
@@ -89,18 +90,23 @@ unCons (ZoomZipper _ _ ((TLZ _ c _) as tlz)) =
             ( f, r )
 
 
+rootForest : ZoomZipper a -> Forest a
+rootForest =
+    unConsRoot >> uncurry (::)
+
+
 
 -- ZOOM
 
 
 zoomIn : ZoomZipper a -> Maybe (ZoomZipper a)
 zoomIn =
-    down >> Maybe.map (\(ZoomZipper pcs cs tlz) -> ZoomZipper (pcs ++ cs) [] tlz)
+    down >> Maybe.map (\(ZoomZipper pcs cs tlz) -> ZoomZipper (cs ++ pcs) [] tlz)
 
 
 resetZoom : ZoomZipper a -> ZoomZipper a
-resetZoom (ZoomZipper ps cs tlz) =
-    ZoomZipper [] (ps ++ cs) tlz
+resetZoom (ZoomZipper pcs cs tlz) =
+    ZoomZipper [] (cs ++ pcs) tlz
 
 
 
