@@ -133,8 +133,9 @@ unwrap doc =
         _ =
             case ( doc, wrapZZ (unwrapZZ doc) ) of
                 ( Zoomed_ p1 c1, Zoomed_ p2 c2 ) ->
-                    Debug.log "peq" (p1 == p2)
-                        |> always (Debug.log "ceq" (c1 == c2))
+                    --Debug.log "peq" (p1 == p2)
+                    --    |> always
+                    Debug.log "ceq" (c1 == c2)
                         |> always ""
 
                 _ ->
