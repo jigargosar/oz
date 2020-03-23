@@ -19,6 +19,9 @@ tlzSingleton : a -> TreeListZipper a
 tlzSingleton a =
     T.singleton a |> tlzFromTree
 
+tlzFromCR: Tree a -> List (Tree a) -> TreeListZipper a
+tlzFromCR c r =
+    TLZ [] c r
 
 tlzFromList : List (Tree a) -> Maybe (TreeListZipper a)
 tlzFromList ls =
@@ -27,7 +30,7 @@ tlzFromList ls =
             Nothing
 
         f :: r ->
-            Just (TLZ [] f r)
+            Just (tlzFromCR f r)
 
 
 tlzFromChildrenOf : Tree a -> Maybe (TreeListZipper a)
@@ -121,6 +124,10 @@ construct : Crumb a -> TreeListZipper a -> TreeListZipper a
 construct (Crumb l d r) tlz =
     TLZ l (tlzToTree d tlz) r
 
+deconstruct: TreeListZipper a -> Maybe (Crumb a, TreeListZipper a)
+deconstruct (TLZ lfr c rf) =
+    tlzFromList (T.children c)
+        |> Maybe.
 
 
 -- ADD NEW
