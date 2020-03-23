@@ -63,34 +63,26 @@ left (ZoomZipper pcs cs (TLZ lfr c rf)) =
 
 
 up : ZoomZipper a -> Maybe (ZoomZipper a)
-up (ZoomZipper pcs cs tlz) =
-    case cs of
+up (ZoomZipper pcs crumbs tlz) =
+    case crumbs of
         [] ->
             Nothing
 
-        first :: rest ->
-            Just (ZoomZipper pcs rest (construct first tlz))
+        (Crumb l data r) :: rest ->
+            TLZ l (T.tree data (toList tlz)) r
+                |> ZoomZipper pcs rest
+                |> Just
 
 
 down : ZoomZipper a -> Maybe (ZoomZipper a)
 down (ZoomZipper pcs cs (TLZ l c r)) =
-    case treeToTuple c of
+    case ( T.data c, T.children c ) of
         ( data, firstChild :: rest ) ->
             ZoomZipper pcs (Crumb l data r :: cs) (fromCR firstChild rest)
                 |> Just
 
         _ ->
             Nothing
-
-
-treeToTuple : Tree a -> ( a, Forest a )
-treeToTuple t =
-    ( T.data t, T.children t )
-
-
-construct : Crumb a -> TreeListZipper a -> TreeListZipper a
-construct (Crumb l data r) tlz =
-    TLZ l (T.tree data (toList tlz)) r
 
 
 
