@@ -12,6 +12,7 @@ fromCR c r =
     TLZ [] c r
 
 
+fromCL : Tree a -> List (Tree a) -> TreeListZipper a
 fromCL c l =
     TLZ (List.reverse l) c []
 
