@@ -187,11 +187,9 @@ decoder =
         |> JD.map wrap
 
 
-getCZ : OutlineDoc -> FIZ
-getCZ doc =
-    case doc of
-        Doc z ->
-            z
+unwrap : OutlineDoc -> FIZ
+unwrap (Doc z) =
+    z
 
 
 mapCZ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
@@ -224,7 +222,7 @@ mapCZMaybe_ func ped =
 
 currentTitle : OutlineDoc -> String
 currentTitle =
-    getCZ >> zTitle
+    unwrap >> zTitle
 
 
 zTitle : FIZ -> String
@@ -234,7 +232,7 @@ zTitle =
 
 cursorChanged : OutlineDoc -> OutlineDoc -> Bool
 cursorChanged doc1 doc2 =
-    zCursorChanged (getCZ doc1) (getCZ doc2)
+    zCursorChanged (unwrap doc1) (unwrap doc2)
 
 
 zCursorChanged : FIZ -> FIZ -> Bool
@@ -249,7 +247,7 @@ zAncestorIds =
 
 currentIdEq : ItemId -> OutlineDoc -> Bool
 currentIdEq itemId =
-    getCZ >> propEq zId itemId
+    unwrap >> propEq zId itemId
 
 
 zId : FIZ -> ItemId
@@ -632,12 +630,12 @@ type alias LineInfo =
 
 view : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 view render =
-    getCZ >> zView render
+    unwrap >> zView render
 
 
 viewCurrent : (LineInfo -> List a -> a) -> OutlineDoc -> List a
 viewCurrent render =
-    getCZ >> Z.treeAsZipper >> zView render
+    unwrap >> Z.treeAsZipper >> zView render
 
 
 zView : (LineInfo -> List a -> a) -> FIZ -> List a
