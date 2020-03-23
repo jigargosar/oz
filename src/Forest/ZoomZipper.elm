@@ -6,21 +6,75 @@ import Json.Encode as JE exposing (Value)
 import Utils exposing (..)
 
 
+type TreeListZipper a
+    = TLZ (List (Tree a)) (Tree a) (List (Tree a))
+
+
+tlzFromTree : Tree a -> TreeListZipper a
+tlzFromTree t =
+    TLZ [] t []
+
+
+tlzSingleton : a -> TreeListZipper a
+tlzSingleton a =
+    T.singleton a |> tlzFromTree
+
+
+tlzFromList : List (Tree a) -> Maybe (TreeListZipper a)
+tlzFromList ls =
+    case ls of
+        [] ->
+            Nothing
+
+        f :: r ->
+            Just (TLZ [] f r)
+
+
+tlzFromChildrenOf : Tree a -> Maybe (TreeListZipper a)
+tlzFromChildrenOf t =
+    tlzFromList (T.children t)
+
+
+tlzToList : TreeListZipper a -> List (Tree a)
+tlzToList (TLZ lfr c rf) =
+    List.reverse lfr ++ c :: rf
+
+
+tlzToTree : a -> TreeListZipper a -> Tree a
+tlzToTree data tlz =
+    T.tree data (tlzToList tlz)
+
+
+tlzAddRightGo : Tree a -> TreeListZipper a -> TreeListZipper a
+tlzAddRightGo t (TLZ l c r) =
+    TLZ (c :: l) t r
+
+
+tlzAddLeftGo : Tree a -> TreeListZipper a -> TreeListZipper a
+tlzAddLeftGo t (TLZ l c r) =
+    TLZ l t (c :: r)
+
+
 
 -- FOREST ZIPPER MODEL
 
 
 type ZoomZipper a
-    = ZoomZipper (List (Crumb a)) (List (Crumb a)) (Forest a) (Tree a) (Forest a)
+    = ZoomZipper (List (Crumb a)) (List (Crumb a)) (TreeListZipper a)
 
 
 type Crumb a
     = Crumb (Forest a) a (Forest a)
 
 
+crumbFromTLZ : TreeListZipper a -> Crumb a
+crumbFromTLZ (TLZ l c r) =
+    Crumb l (T.data c) r
+
+
 fromData : a -> ZoomZipper a
 fromData a =
-    ZoomZipper [] [] [] (T.singleton a) []
+    ZoomZipper [] [] (tlzSingleton a)
 
 
 
@@ -28,48 +82,39 @@ fromData a =
 
 
 right : ZoomZipper a -> Maybe (ZoomZipper a)
-right (ZoomZipper pcs cs lfr c rf) =
+right (ZoomZipper pcs cs (TLZ lfr c rf)) =
     case rf of
         [] ->
             Nothing
 
         first :: rest ->
-            Just (ZoomZipper pcs cs (c :: lfr) first rest)
+            Just (ZoomZipper pcs cs (TLZ (c :: lfr) first rest))
 
 
 left : ZoomZipper a -> Maybe (ZoomZipper a)
-left (ZoomZipper pcs cs lfr c rf) =
+left (ZoomZipper pcs cs (TLZ lfr c rf)) =
     case lfr of
         [] ->
             Nothing
 
         first :: rest ->
-            Just (ZoomZipper pcs cs rest first (c :: rf))
+            Just (ZoomZipper pcs cs (TLZ rest first (c :: rf)))
 
 
 up : ZoomZipper a -> Maybe (ZoomZipper a)
-up (ZoomZipper pcs cs lfr c rf) =
+up (ZoomZipper pcs cs tlz) =
     case cs of
         [] ->
             Nothing
 
         (Crumb crumbLFR crumbData crumbRF) :: rest ->
-            Just (ZoomZipper pcs rest crumbLFR (reconstruct crumbData lfr c rf) crumbRF)
-
-
-reconstruct : a -> Forest a -> Tree a -> Forest a -> Tree a
-reconstruct crumbData lfr c rf =
-    T.tree crumbData (List.reverse lfr ++ c :: rf)
+            Just (ZoomZipper pcs rest (TLZ crumbLFR (tlzToTree crumbData tlz) crumbRF))
 
 
 down : ZoomZipper a -> Maybe (ZoomZipper a)
-down (ZoomZipper pcs cs lfr c rf) =
-    case T.children c of
-        [] ->
-            Nothing
-
-        first :: rest ->
-            Just (ZoomZipper pcs (Crumb lfr (T.data c) rf :: cs) [] first rest)
+down (ZoomZipper pcs cs (TLZ lfr c rf)) =
+    tlzFromChildrenOf c
+        |> Maybe.map (ZoomZipper pcs (Crumb lfr (T.data c) rf :: cs))
 
 
 
@@ -77,28 +122,30 @@ down (ZoomZipper pcs cs lfr c rf) =
 
 
 insertRightGo : Tree a -> ZoomZipper a -> ZoomZipper a
-insertRightGo node (ZoomZipper pcs cs lfr c rf) =
-    ZoomZipper pcs cs (c :: lfr) node rf
+insertRightGo node (ZoomZipper pcs cs tlz) =
+    ZoomZipper pcs cs (tlzAddRightGo node tlz)
 
 
 insertLeftGo : Tree a -> ZoomZipper a -> ZoomZipper a
-insertLeftGo node (ZoomZipper pcs cs lfr c rf) =
-    ZoomZipper pcs cs lfr node (c :: rf)
+insertLeftGo node (ZoomZipper pcs cs tlz) =
+    ZoomZipper pcs cs (tlzAddLeftGo node tlz)
 
 
 appendChildGo : Tree a -> ZoomZipper a -> ZoomZipper a
-appendChildGo node (ZoomZipper pcs cs lfr c rf) =
+appendChildGo node (ZoomZipper pcs cs ((TLZ lfr c rf) as tlz)) =
     ZoomZipper pcs
-        (Crumb lfr (T.data c) rf :: cs)
-        (T.children c |> List.reverse)
-        node
-        []
+        (crumbFromTLZ tlz :: cs)
+        (TLZ (T.children c |> List.reverse)
+            node
+            []
+        )
 
 
 prependChildGo : Tree a -> ZoomZipper a -> ZoomZipper a
-prependChildGo node (ZoomZipper pcs cs lfr c rf) =
+prependChildGo node (ZoomZipper pcs cs ((TLZ lfr c rf) as tlz)) =
     ZoomZipper pcs
-        (Crumb lfr (T.data c) rf :: cs)
-        []
-        node
-        (T.children c)
+        (crumbFromTLZ tlz :: cs)
+        (TLZ []
+            node
+            (T.children c)
+        )
