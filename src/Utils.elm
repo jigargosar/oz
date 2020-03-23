@@ -58,6 +58,7 @@ effect func ( m, c ) =
     ( m, Cmd.batch [ c, func m ] )
 
 
+firstOf : List (a -> Maybe b) -> a -> Maybe b
 firstOf =
     Maybe.Extra.oneOf
 
@@ -156,3 +157,11 @@ isGreaterThan target src =
 
 isLessThanOrEq target src =
     src <= target
+
+
+uncurry f ( a, b ) =
+    f a b
+
+
+eqById a b =
+    a.id == b.id

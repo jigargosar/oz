@@ -1,8 +1,11 @@
-module Forest.Zipper exposing
+module Forest.ZoomZipper exposing
     ( ZoomZipper
     , appendChildGo
     , down
+    , findFirst
+    , fromCons
     , fromData
+    , fromForest
     , insertLeftGo
     , insertRightGo
     , left
@@ -12,6 +15,7 @@ module Forest.Zipper exposing
     )
 
 import Forest.Tree as T exposing (Forest, Tree)
+import Utils exposing (..)
 
 
 type TreeListZipper a
@@ -50,6 +54,29 @@ fromData a =
     ZoomZipper [] [] (TLZ [] (T.singleton a) [])
 
 
+fromForest : Forest a -> Maybe (ZoomZipper a)
+fromForest ls =
+    case ls of
+        [] ->
+            Nothing
+
+        f :: r ->
+            fromCons f r |> Just
+
+
+fromCons : Tree a -> Forest a -> ZoomZipper a
+fromCons f r =
+    fromCR f r |> ZoomZipper [] []
+
+
+
+-- ACCESS
+
+
+data (ZoomZipper _ _ (TLZ _ c _)) =
+    T.data c
+
+
 
 -- Nav
 
@@ -82,8 +109,8 @@ up (ZoomZipper pcs crumbs tlz) =
         [] ->
             Nothing
 
-        (Crumb l data r) :: rest ->
-            TLZ l (T.tree data (toList tlz)) r
+        (Crumb l data_ r) :: rest ->
+            TLZ l (T.tree data_ (toList tlz)) r
                 |> ZoomZipper pcs rest
                 |> Just
 
@@ -91,12 +118,55 @@ up (ZoomZipper pcs crumbs tlz) =
 down : ZoomZipper a -> Maybe (ZoomZipper a)
 down (ZoomZipper pcs cs (TLZ l c r)) =
     case ( T.data c, T.children c ) of
-        ( data, firstChild :: rest ) ->
-            ZoomZipper pcs (Crumb l data r :: cs) (fromCR firstChild rest)
+        ( data_, firstChild :: rest ) ->
+            ZoomZipper pcs (Crumb l data_ r :: cs) (fromCR firstChild rest)
                 |> Just
 
         _ ->
             Nothing
+
+
+forward : ZoomZipper a -> Maybe (ZoomZipper a)
+forward =
+    firstOf [ down, right, rightOfAncestor ]
+
+
+rightOfAncestor : ZoomZipper a -> Maybe (ZoomZipper a)
+rightOfAncestor z =
+    case up z of
+        Nothing ->
+            Nothing
+
+        Just pz ->
+            case right pz of
+                Just rpz ->
+                    Just rpz
+
+                Nothing ->
+                    rightOfAncestor pz
+
+
+
+-- FIND
+
+
+findFirst : (a -> Bool) -> ZoomZipper a -> Maybe (ZoomZipper a)
+findFirst pred =
+    applyWhileJust up >> applyWhileJust left >> find pred forward
+
+
+find : (a -> Bool) -> (ZoomZipper a -> Maybe (ZoomZipper a)) -> ZoomZipper a -> Maybe (ZoomZipper a)
+find pred nextFunc z =
+    if pred (data z) then
+        Just z
+
+    else
+        case nextFunc z of
+            Just nz ->
+                find pred nextFunc nz
+
+            Nothing ->
+                Nothing
 
 
 

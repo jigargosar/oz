@@ -35,6 +35,7 @@ module Forest.Zipper exposing
     , restructure
     , right
     , rootForest
+    , rootForestTuple
     , transferAllLevelsFrom
     , transferOneLevelForm
     , tree
@@ -115,9 +116,24 @@ forest fz =
     List.reverse fz.leftReversed ++ fz.center :: fz.right_
 
 
+forestTuple : ForestZipper a -> ( Tree a, Forest a )
+forestTuple fz =
+    case List.reverse fz.leftReversed of
+        [] ->
+            ( fz.center, fz.right_ )
+
+        f :: r ->
+            ( f, r ++ fz.center :: fz.right_ )
+
+
 rootForest : ForestZipper a -> Forest a
 rootForest =
     firstRoot >> forest
+
+
+rootForestTuple : ForestZipper a -> ( Tree a, Forest a )
+rootForestTuple =
+    firstRoot >> forestTuple
 
 
 childrenAsZipper : ForestZipper a -> Maybe (ForestZipper a)

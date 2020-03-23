@@ -14,9 +14,11 @@ module OutlineDoc.Internal exposing
 
 import Dict
 import Forest.Zipper as Z
+import Forest.ZoomZipper as ZZ exposing (ZoomZipper)
 import ItemId
-import OutlineDoc.FIZ exposing (FIZ)
+import OutlineDoc.FIZ exposing (FIZ, Item)
 import Tree as T
+import Utils exposing (..)
 
 
 type alias Unwrapped2 =
@@ -41,6 +43,33 @@ wrap2 ( mpz, z ) =
 
         Nothing ->
             initDoc z
+
+
+type alias ZZ =
+    ZoomZipper Item
+
+
+unwrapZZ doc =
+    case doc of
+        Doc_ z ->
+            Z.rootForestTuple z |> uncurry ZZ.fromCons
+
+        Zoomed_ pz z ->
+            Z.mergeChild z pz |> toZZPreserveFocus
+
+
+toZZPreserveFocus fiz =
+    case
+        fiz
+            |> Z.rootForestTuple
+            |> uncurry ZZ.fromCons
+            |> ZZ.findFirst (eqById (Z.data fiz))
+    of
+        Just zz ->
+            zz
+
+        Nothing ->
+            Debug.todo "impl"
 
 
 type OutlineDoc
