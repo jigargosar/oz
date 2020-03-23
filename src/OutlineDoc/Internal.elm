@@ -58,7 +58,7 @@ unwrapZZ doc =
             Z.rootForestTuple z |> uncurry ZZ.fromCons
 
         Zoomed_ pz z ->
-            Z.mergeChild z pz |> toZZPreserveFocusAndZoom (Z.data pz) (Z.data z)
+            Z.transferAllLevelsFrom pz z |> toZZPreserveFocusAndZoom (Z.data pz) (Z.data z)
 
 
 wrapZZ : ZZ -> OutlineDoc
