@@ -140,32 +140,21 @@ type OutlineDoc
     = Doc FIZ
 
 
-type alias Unwrapped =
-    OutlineDoc
-
-
-unwrap : OutlineDoc -> Unwrapped
-unwrap doc =
-    case doc of
-        Doc z ->
-            Doc z
-
-
-wrap : Unwrapped -> OutlineDoc
-wrap unwrapped =
-    case unwrapped of
+wrap : OutlineDoc -> OutlineDoc
+wrap ped =
+    case ped of
         Doc z ->
             initDoc z
 
 
-map : (Unwrapped -> Unwrapped) -> OutlineDoc -> OutlineDoc
+map : (OutlineDoc -> OutlineDoc) -> OutlineDoc -> OutlineDoc
 map func =
-    unwrap >> func >> wrap
+    func >> wrap
 
 
-mapMaybe : (Unwrapped -> Maybe Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
+mapMaybe : (OutlineDoc -> Maybe OutlineDoc) -> OutlineDoc -> Maybe OutlineDoc
 mapMaybe func =
-    unwrap >> func >> Maybe.map wrap
+    func >> Maybe.map wrap
 
 
 initDoc : FIZ -> OutlineDoc
@@ -185,7 +174,7 @@ zNew =
 
 encoder : OutlineDoc -> Value
 encoder doc =
-    case unwrap doc of
+    case doc of
         Doc z ->
             FIZ.encoder z
 
@@ -200,7 +189,7 @@ decoder =
 
 getCZ : OutlineDoc -> FIZ
 getCZ doc =
-    case unwrap doc of
+    case doc of
         Doc z ->
             z
 
@@ -215,16 +204,16 @@ mapCZMaybe func =
     mapMaybe (mapCZMaybe_ func)
 
 
-mapCZ_ : (FIZ -> FIZ) -> Unwrapped -> Unwrapped
-mapCZ_ func unwrapped =
-    case unwrapped of
+mapCZ_ : (FIZ -> FIZ) -> OutlineDoc -> OutlineDoc
+mapCZ_ func ped =
+    case ped of
         Doc z ->
             Doc (func z)
 
 
-mapCZMaybe_ : (FIZ -> Maybe FIZ) -> Unwrapped -> Maybe Unwrapped
-mapCZMaybe_ func unwrapped =
-    case unwrapped of
+mapCZMaybe_ : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+mapCZMaybe_ func ped =
+    case ped of
         Doc z ->
             func z |> Maybe.map Doc
 
@@ -321,12 +310,11 @@ addNew =
         addNewHelp func z =
             Random.map func (zAddNew z)
     in
-    unwrap
-        >> (\doc ->
-                case doc of
-                    Doc z ->
-                        addNewHelp Doc z
-           )
+    (\doc ->
+        case doc of
+            Doc z ->
+                addNewHelp Doc z
+    )
         >> Random.map wrap
 
 
