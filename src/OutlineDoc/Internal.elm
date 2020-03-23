@@ -1,146 +1,19 @@
 module OutlineDoc.Internal exposing
     ( OutlineDoc
     , Unwrapped(..)
-    , ZZ
     , initDoc
     , initZoomed
     , map
     , mapMaybe
     , unwrap
-    , unwrapZZ
     , wrap
-    , wrapZZ
     )
 
 import Dict
 import Forest.Zipper as Z
-import Forest.ZoomZipper as ZZ exposing (ZoomZipper)
 import ItemId
 import OutlineDoc.FIZ exposing (FIZ, Item)
 import Tree as T
-import Utils exposing (..)
-
-
-type alias ZZ =
-    ZoomZipper Item
-
-
-unwrapZZ : OutlineDoc -> ZZ
-unwrapZZ doc =
-    checkWrapZZ doc <| unwrapZZ_ doc
-
-
-wrapZZ : ZZ -> OutlineDoc
-wrapZZ zz =
-    checkUnwrapZZ zz <| wrapZZ_ zz
-
-
-checkWrapZZ : OutlineDoc -> ZZ -> ZZ
-checkWrapZZ doc zz =
-    if wrapZZ_ zz == doc then
-        zz
-
-    else
-        let
-            _ =
-                wrapZZ_ zz |> Debug.log "debug"
-
-            _ =
-                doc |> Debug.log "debug"
-        in
-        Debug.todo "checkWrapZZ failed during unwrapZZ"
-
-
-checkUnwrapZZ zz doc =
-    if unwrapZZ_ doc == zz then
-        doc
-
-    else
-        let
-            _ =
-                unwrapZZ_ doc |> Debug.log "debug"
-
-            _ =
-                zz |> Debug.log "debug"
-        in
-        Debug.todo "impl"
-
-
-unwrapZZ_ : OutlineDoc -> ZZ
-unwrapZZ_ doc =
-    case doc of
-        Doc_ z ->
-            case
-                Z.rootForestTuple z
-                    |> uncurry ZZ.fromCons
-                    |> ZZ.findFirst (eqById (Z.data z))
-            of
-                Just zz ->
-                    zz
-
-                Nothing ->
-                    Debug.todo "impl"
-
-        Zoomed_ pz z ->
-            Z.transferAllLevelsFrom pz z |> toZZPreserveFocusAndZoom (Z.data pz) (Z.data z)
-
-
-wrapZZ_ : ZZ -> OutlineDoc
-wrapZZ_ zz =
-    case ZZ.zoomData zz of
-        Just item ->
-            case
-                zz
-                    |> applyWhileJust ZZ.up
-                    |> ZZ.forest
-                    |> Z.fromForest
-                    |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
-            of
-                Just fiz ->
-                    initZoomed
-                        (case
-                            ZZ.rootForest zz
-                                |> Z.fromForest
-                                |> Maybe.andThen (Z.findFirst (eqById item))
-                         of
-                            Just z ->
-                                z
-
-                            Nothing ->
-                                Debug.todo "impl"
-                        )
-                        fiz
-
-                Nothing ->
-                    Debug.todo "impl"
-
-        Nothing ->
-            case
-                ZZ.rootForest zz
-                    |> Z.fromForest
-                    |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
-            of
-                Just fiz ->
-                    initDoc fiz
-
-                Nothing ->
-                    Debug.todo "impl"
-
-
-toZZPreserveFocusAndZoom zoomItem focusItem fiz =
-    case
-        fiz
-            |> Z.rootForestTuple
-            |> uncurry ZZ.fromCons
-            |> ZZ.findFirst (eqById zoomItem)
-            |> Maybe.andThen ZZ.zoomIn
-            |> Maybe.andThen (ZZ.findFirst (eqById focusItem))
-    of
-        Just zz ->
-            zz
-
-        Nothing ->
-            Debug.todo "impl"
 
 
 type OutlineDoc
