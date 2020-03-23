@@ -138,16 +138,6 @@ type Unwrapped
     | Zoomed FIZ FIZ
 
 
-zoomData : OutlineDoc -> Maybe Item
-zoomData doc =
-    case doc of
-        Doc_ _ ->
-            Nothing
-
-        Zoomed_ pz _ ->
-            Just (Z.data pz)
-
-
 unwrap : OutlineDoc -> Unwrapped
 unwrap doc =
     let
@@ -157,40 +147,6 @@ unwrap doc =
 
             else
                 doc
-
-        _ =
-            case ( doc, wrapZZ (unwrapZZ doc) ) of
-                ( Zoomed_ p1 c1, Zoomed_ p2 c2 ) ->
-                    --Debug.log "peq" (p1 == p2)
-                    --    |> always
-                    Debug.log "ceq" (c1 == c2)
-                        |> always ""
-
-                _ ->
-                    ""
-
-        zzRF =
-            unwrapZZ doc |> ZZ.rootForest
-
-        fizRF =
-            unwrap2 doc
-                |> (\( mpz, z ) ->
-                        case mpz of
-                            Just pz ->
-                                Z.mergeChild z pz
-
-                            Nothing ->
-                                z
-                   )
-                |> Z.rootForest
-
-        _ =
-            if zzRF /= fizRF then
-                Debug.log "neq" ( zzRF, fizRF )
-                    |> always never
-
-            else
-                always never
     in
     case doc of
         Doc_ z ->
