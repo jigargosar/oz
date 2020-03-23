@@ -38,6 +38,10 @@ right (ZoomZipper pcs cs lfr c rf) =
                 (ZoomZipper pcs cs (c :: lfr) first rest)
 
 
+
+-- ADD NEW
+
+
 insertRightGo : Tree a -> ZoomZipper a -> ZoomZipper a
 insertRightGo node (ZoomZipper pcs cs lfr c rf) =
     ZoomZipper pcs cs (c :: lfr) node rf
@@ -64,15 +68,3 @@ prependChildGo node (ZoomZipper pcs cs lfr c rf) =
         []
         node
         (T.children c)
-
-
-insertAndGo :
-    (Tree a -> ZoomZipper a -> ZoomZipper a)
-    -> (ZoomZipper a -> Maybe (ZoomZipper a))
-    -> Tree a
-    -> ZoomZipper a
-    -> ZoomZipper a
-insertAndGo insertFunc focusFunc node zipper =
-    insertFunc node zipper
-        |> focusFunc
-        |> Maybe.withDefault zipper
