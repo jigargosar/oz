@@ -61,6 +61,11 @@ unwrapZZ doc =
             Z.mergeChild z pz |> toZZPreserveFocusAndZoom (Z.data pz)
 
 
+wrapZZ : ZZ -> OutlineDoc
+wrapZZ zz =
+    Debug.todo "impl"
+
+
 toZZPreserveFocusAndZoom zoomItem fiz =
     case
         fiz
@@ -90,8 +95,23 @@ type Unwrapped
 unwrap : OutlineDoc -> Unwrapped
 unwrap doc =
     let
+        zz =
+            unwrapZZ doc |> ZZ.unConsRoot
+
+        fiz =
+            unwrap2 doc
+                |> (\( mpz, z ) ->
+                        case mpz of
+                            Just pz ->
+                                Z.mergeChild z pz
+
+                            Nothing ->
+                                z
+                   )
+                |> Z.rootForestTuple
+
         _ =
-            unwrapZZ doc
+            Debug.log "debug" (fiz == zz)
     in
     case doc of
         Doc_ z ->
