@@ -49,10 +49,10 @@ right (DictZipper dict data ancestors) =
                 |> List.sortBy .idx
                 |> List.head
     in
-    case maybeRight of
-        Just newData ->
+    case nextSiblingsOf data dict of
+        newData :: _ ->
             DictZipper (dict |> add data |> delete newData.id) newData ancestors
                 |> Just
 
-        Nothing ->
+        _ ->
             Nothing
