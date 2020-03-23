@@ -164,21 +164,11 @@ encoder doc =
         Doc z ->
             FIZ.encoder z
 
-        Zoomed pz z ->
-            JE.object
-                [ ( "tag", JE.string "Zoomed" )
-                , ( "pz", FIZ.encoder pz )
-                , ( "z", FIZ.encoder z )
-                ]
-
 
 decoder : Decoder OutlineDoc
 decoder =
     JD.oneOf
         [ FIZ.decoder |> JD.map Doc
-        , JD.succeed Zoomed
-            |> required "pz" FIZ.decoder
-            |> required "z" FIZ.decoder
         ]
         |> JD.map wrap
 
@@ -187,9 +177,6 @@ getCZ : OutlineDoc -> FIZ
 getCZ doc =
     case unwrap doc of
         Doc z ->
-            z
-
-        Zoomed _ z ->
             z
 
 
@@ -209,18 +196,12 @@ mapCZ_ func unwrapped =
         Doc z ->
             Doc (func z)
 
-        Zoomed pz z ->
-            Zoomed pz (func z)
-
 
 mapCZMaybe_ : (FIZ -> Maybe FIZ) -> Unwrapped -> Maybe Unwrapped
 mapCZMaybe_ func unwrapped =
     case unwrapped of
         Doc z ->
             func z |> Maybe.map Doc
-
-        Zoomed pz z ->
-            func z |> Maybe.map (Zoomed pz)
 
 
 
@@ -320,9 +301,6 @@ addNew =
                 case doc of
                     Doc z ->
                         addNewHelp Doc z
-
-                    Zoomed pz z ->
-                        addNewHelp (Zoomed pz) z
            )
         >> Random.map wrap
 

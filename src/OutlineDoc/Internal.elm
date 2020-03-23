@@ -2,7 +2,6 @@ module OutlineDoc.Internal exposing
     ( OutlineDoc
     , Unwrapped(..)
     , initDoc
-    , initZoomed
     , map
     , mapMaybe
     , unwrap
@@ -18,12 +17,10 @@ import Tree as T
 
 type OutlineDoc
     = Doc_ FIZ
-    | Zoomed_ FIZ FIZ
 
 
 type Unwrapped
     = Doc FIZ
-    | Zoomed FIZ FIZ
 
 
 unwrap : OutlineDoc -> Unwrapped
@@ -32,18 +29,12 @@ unwrap doc =
         Doc_ z ->
             Doc z
 
-        Zoomed_ pz z ->
-            Zoomed pz z
-
 
 wrap : Unwrapped -> OutlineDoc
 wrap unwrapped =
     case unwrapped of
         Doc z ->
             initDoc z
-
-        Zoomed pz z ->
-            initZoomed pz z
 
 
 map : (Unwrapped -> Unwrapped) -> OutlineDoc -> OutlineDoc
@@ -54,12 +45,6 @@ map func =
 mapMaybe : (Unwrapped -> Maybe Unwrapped) -> OutlineDoc -> Maybe OutlineDoc
 mapMaybe func =
     unwrap >> func >> Maybe.map wrap
-
-
-initZoomed : FIZ -> FIZ -> OutlineDoc
-initZoomed pz z =
-    Zoomed_ pz z
-        |> ensureDocInvariants
 
 
 initDoc : FIZ -> OutlineDoc
@@ -76,12 +61,6 @@ ensureDocInvariants doc =
                 Doc_ z ->
                     ensureUniqueNodes z
                         |> always (ensureAncestorsExpanded z)
-
-                Zoomed_ pz z ->
-                    ensureUniqueNodes z
-                        |> always (ensureUniqueNodesHelp pz)
-                        |> always (ensureAncestorsExpanded z)
-                        |> always (Z.transferAllLevelsFrom pz z |> ensureUniqueNodes)
     in
     doc
 
