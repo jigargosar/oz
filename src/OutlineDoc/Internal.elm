@@ -95,10 +95,10 @@ type Unwrapped
 unwrap : OutlineDoc -> Unwrapped
 unwrap doc =
     let
-        zz =
+        ( zzF, zzR ) =
             unwrapZZ doc |> ZZ.unConsRoot
 
-        fiz =
+        ( fizF, fizR ) =
             unwrap2 doc
                 |> (\( mpz, z ) ->
                         case mpz of
@@ -111,7 +111,13 @@ unwrap doc =
                 |> Z.rootForestTuple
 
         _ =
-            Debug.log "debug" (fiz == zz)
+            Debug.log "debug" zzF
+
+        _ =
+            Debug.log "debug" fizF
+
+        _ =
+            Debug.log "debug" (zzF == fizF)
     in
     case doc of
         Doc_ z ->

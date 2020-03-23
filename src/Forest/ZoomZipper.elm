@@ -73,10 +73,10 @@ fromCons f r =
 
 
 unConsRoot : ZoomZipper a -> ( Tree a, Forest a )
-unConsRoot (ZoomZipper ps cs tlz) =
-    ZoomZipper [] (ps ++ cs) tlz
-        |> applyWhileJust up
-        |> unCons
+unConsRoot =
+    resetZoom
+        >> applyWhileJust up
+        >> unCons
 
 
 unCons : ZoomZipper a -> ( Tree a, Forest a )
