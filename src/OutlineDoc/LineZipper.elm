@@ -198,10 +198,10 @@ ancestorIds =
 
 
 setTitle : String -> LineZipper -> LineZipper
-setTitle newTitle =
-    unwrap
-        >> Z.mapData (\model -> { model | title = newTitle })
-        >> wrap
+setTitle newTitle (LineZipper z) =
+    z
+        |> Z.mapData (\model -> { model | title = newTitle })
+        |> wrap
 
 
 
@@ -209,8 +209,8 @@ setTitle newTitle =
 
 
 remove : LineZipper -> Maybe LineZipper
-remove =
-    unwrap >> Z.remove >> Maybe.map wrap
+remove (LineZipper z) =
+    z |> Z.remove |> Maybe.map wrap
 
 
 
