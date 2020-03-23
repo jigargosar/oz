@@ -40,6 +40,13 @@ nextSiblingsOf data dict =
         |> List.sortBy .idx
 
 
+childrenOf : ItemId -> IDDict a -> List (Data a)
+childrenOf itemId dict =
+    Dict.values dict
+        |> List.Extra.find (allPass [ propEq .parentId (Just itemId) ])
+        |> List.sortBy .idx
+
+
 right : DictZipper a -> Maybe (DictZipper a)
 right (DictZipper dict data ancestors) =
     case nextSiblingsOf data dict of
@@ -56,6 +63,17 @@ up (DictZipper dict c cs) =
     case cs of
         first :: rest ->
             DictZipper (dict |> add first |> delete c.id) first rest
+                |> Just
+
+        _ ->
+            Nothing
+
+
+down : DictZipper a -> Maybe (DictZipper a)
+down (DictZipper dict c cs) =
+    case childrenOf c.id dict of
+        first :: _ ->
+            DictZipper (dict |> add first |> delete first.id) first (c :: cs)
                 |> Just
 
         _ ->
