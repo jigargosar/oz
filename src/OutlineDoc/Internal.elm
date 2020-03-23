@@ -138,7 +138,8 @@ unwrap doc =
                 ""
 
             else
-                Debug.log "" ( doc, wrapZZ (unwrapZZ doc) )
+                Debug.log "doc" doc
+                    |> always (Debug.log "zzDoc" (wrapZZ (unwrapZZ doc)))
                     |> always ""
 
         fizRF =
