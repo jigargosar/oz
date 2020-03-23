@@ -134,29 +134,27 @@ decoder =
 
 new : Generator LineZipper
 new =
-    newBlankItem |> Random.map Z.fromLeaf |> Random.map wrap
+    newBlankItem |> Random.map (Z.fromLeaf >> wrap)
 
 
 addNew : LineZipper -> Generator LineZipper
-addNew =
-    unwrap >> addNew_ >> Random.map wrap
-
-
-addNew_ : ForestZipper Item -> Generator (ForestZipper Item)
-addNew_ z =
+addNew (LineZipper z) =
     let
-        addNewHelp node =
-            if hasVisibleChildren_ z then
-                Z.prependChildGo node z
+        addFunc =
+            if hasVisibleChildren z then
+                Z.prependChildGo
 
             else
-                Z.insertRightGo node z
+                Z.insertRightGo
+
+        insertNew newItem =
+            addFunc (T.singleton newItem) z
     in
     newBlankItem
-        |> Random.map (T.singleton >> addNewHelp)
+        |> Random.map (insertNew >> wrap)
 
 
-hasVisibleChildren_ z =
+hasVisibleChildren z =
     not (Z.isLeaf z || collapsed_ z)
 
 
