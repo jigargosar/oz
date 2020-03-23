@@ -2,8 +2,6 @@ module OutlineDoc exposing
     ( CandidateLocation
     , LineInfo
     , OutlineDoc
-    , ZoomAncestor
-    , ZoomInfo
     , addNew
     , after
     , appendIn
@@ -37,7 +35,6 @@ module OutlineDoc exposing
     , view
     , viewCurrent
     , zoomIn
-    , zoomInfo
     , zoomOut
     , zoomOutToAncestorId
     , zoomOutToTop
@@ -263,41 +260,6 @@ currentIdEq itemId =
 zId : FIZ -> ItemId
 zId =
     Z.data >> .id
-
-
-type alias ZoomInfo =
-    { ancestors : List ZoomAncestor
-    , current : ZoomAncestor
-    }
-
-
-type alias ZoomAncestor =
-    { id : ItemId, title : String }
-
-
-zoomInfo : OutlineDoc -> Maybe ZoomInfo
-zoomInfo =
-    let
-        itemToZoomAncestor : Item -> ZoomAncestor
-        itemToZoomAncestor { id, title } =
-            { id = id, title = title }
-
-        helper pz =
-            { ancestors = Z.ancestors pz |> List.reverse |> List.map itemToZoomAncestor
-            , current = Z.data pz |> itemToZoomAncestor
-            }
-    in
-    getParentZipper >> Maybe.map helper
-
-
-getParentZipper : OutlineDoc -> Maybe FIZ
-getParentZipper doc =
-    case unwrap doc of
-        Zoomed pz _ ->
-            Just pz
-
-        _ ->
-            Nothing
 
 
 

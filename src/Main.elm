@@ -12,7 +12,12 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode exposing (Value)
 import KeyEvent as KE exposing (KeyEvent)
-import OutlineDoc as Doc exposing (CandidateLocation(..), LineInfo, OutlineDoc, ZoomAncestor, ZoomInfo)
+import OutlineDoc as Doc
+    exposing
+        ( CandidateLocation(..)
+        , LineInfo
+        , OutlineDoc
+        )
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -645,9 +650,10 @@ viewOutline : State -> OutlineDoc -> HM
 viewOutline state doc =
     div []
         [ div [ class "f1" ] [ text "OZ Outlining" ]
-        , htmlMaybe viewZoomAncestors (Doc.zoomInfo doc)
-        , htmlMaybe (\zi -> div [ class "f2 lh-title" ] [ text (itemDisplayTitle zi.current) ])
-            (Doc.zoomInfo doc)
+
+        --, htmlMaybe viewZoomAncestors (Doc.zoomInfo doc)
+        --, htmlMaybe (\zi -> div [ class "f2 lh-title" ] [ text (itemDisplayTitle zi.current) ])
+        --    (Doc.zoomInfo doc)
         , div [] <|
             case state of
                 Browsing ->
@@ -661,36 +667,38 @@ viewOutline state doc =
         ]
 
 
-viewZoomAncestors : ZoomInfo -> HM
-viewZoomAncestors zi =
-    let
-        container =
-            div [ class "flex-auto flex-grow-0 flex items-center", style "max-width" "100px" ]
 
-        viewSeparator =
-            div [ class "pr1 f5 code gray  " ] [ text ">" ]
-
-        titleStyle =
-            class "pr1 f5 truncate dim pointer"
-
-        viewLink msg title =
-            container [ div [ titleStyle, onClick msg ] [ text title ] ]
-
-        viewHomeLink =
-            viewLink HomeClicked "Home"
-
-        viewAncestorLink ancestor =
-            viewLink (ZoomAncestorClicked ancestor.id) (itemDisplayTitle ancestor)
-
-        viewLastAncestor ancestor =
-            container [ div [ class "pr1 f5 truncate" ] [ text (itemDisplayTitle ancestor) ] ]
-    in
-    div [ class "pv2 flex flex-wrap" ]
-        (viewHomeLink
-            :: List.map viewAncestorLink zi.ancestors
-            ++ [ viewLastAncestor zi.current ]
-            |> List.intersperse viewSeparator
-        )
+--viewZoomAncestors : ZoomInfo -> HM
+--viewZoomAncestors zi =
+--    let
+--        container =
+--            div [ class "flex-auto flex-grow-0 flex items-center", style "max-width" "100px" ]
+--
+--        viewSeparator =
+--            div [ class "pr1 f5 code gray  " ] [ text ">" ]
+--
+--        titleStyle =
+--            class "pr1 f5 truncate dim pointer"
+--
+--        viewLink msg title =
+--            container [ div [ titleStyle, onClick msg ] [ text title ] ]
+--
+--        viewHomeLink =
+--            viewLink HomeClicked "Home"
+--
+--        viewAncestorLink ancestor =
+--            viewLink (ZoomAncestorClicked ancestor.id) (itemDisplayTitle ancestor)
+--
+--        viewLastAncestor ancestor =
+--            container [ div [ class "pr1 f5 truncate" ] [ text (itemDisplayTitle ancestor) ] ]
+--    in
+--    div [ class "pv2 flex flex-wrap" ]
+--        (viewHomeLink
+--            :: List.map viewAncestorLink zi.ancestors
+--            ++ [ viewLastAncestor zi.current ]
+--            |> List.intersperse viewSeparator
+--        )
+--
 
 
 viewDraggedNode : State -> OutlineDoc -> HM
