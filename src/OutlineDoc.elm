@@ -225,8 +225,8 @@ map func ped =
             Doc (func z)
 
 
-mapCZMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-mapCZMaybe func ped =
+mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+mapMaybe func ped =
     case ped of
         Doc z ->
             func z |> Maybe.map Doc
@@ -362,12 +362,12 @@ removeIfBlankLeaf =
 
 removeLeaf : OutlineDoc -> Maybe OutlineDoc
 removeLeaf =
-    mapCZMaybe zDeleteLeaf
+    mapMaybe zDeleteLeaf
 
 
 expandAll : OutlineDoc -> Maybe OutlineDoc
 expandAll =
-    mapCZMaybe
+    mapMaybe
         (zMap (\model -> { model | collapsed = False })
             >> Maybe.map zGotoFirstVisibleAncestor
         )
@@ -375,7 +375,7 @@ expandAll =
 
 collapseAll : OutlineDoc -> Maybe OutlineDoc
 collapseAll =
-    mapCZMaybe
+    mapMaybe
         (zMap (\model -> { model | collapsed = True })
             >> Maybe.map zGotoFirstVisibleAncestor
         )
@@ -391,12 +391,12 @@ zMap func z =
 
 expand : OutlineDoc -> Maybe OutlineDoc
 expand =
-    mapCZMaybe zExpand
+    mapMaybe zExpand
 
 
 collapse : OutlineDoc -> Maybe OutlineDoc
 collapse =
-    mapCZMaybe zCollapse
+    mapMaybe zCollapse
 
 
 setNonBlankTitle : String -> FIZ -> Maybe FIZ
@@ -472,27 +472,27 @@ zDeleteLeaf z =
 
 gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 gotoId itemId =
-    mapCZMaybe (zGotoIdAndExpandAncestors itemId)
+    mapMaybe (zGotoIdAndExpandAncestors itemId)
 
 
 gotoParent : OutlineDoc -> Maybe OutlineDoc
 gotoParent =
-    mapCZMaybe Z.up
+    mapMaybe Z.up
 
 
 gotoPreviousSibling : OutlineDoc -> Maybe OutlineDoc
 gotoPreviousSibling =
-    mapCZMaybe zGotoPreviousVisibleSibling
+    mapMaybe zGotoPreviousVisibleSibling
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    mapCZMaybe zGoForwardToNextVisible
+    mapMaybe zGoForwardToNextVisible
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
 goBackward =
-    mapCZMaybe zGoBackwardToPreviousVisible
+    mapMaybe zGoBackwardToPreviousVisible
 
 
 zGotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
@@ -559,25 +559,25 @@ zGotoNextVisibleSiblingOfAncestor z =
 
 relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 relocateTo (CandidateLocation loc itemId) =
-    mapCZMaybe (zRelocate loc itemId)
+    mapMaybe (zRelocate loc itemId)
 
 
 unIndent : OutlineDoc -> Maybe OutlineDoc
 unIndent =
     -- moveAfterParent
-    mapCZMaybe (zRelocateBy After Z.up)
+    mapMaybe (zRelocateBy After Z.up)
 
 
 indent : OutlineDoc -> Maybe OutlineDoc
 indent =
     -- appendInPreviousSibling
-    mapCZMaybe (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
+    mapMaybe (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
 
 
 moveUpwards : OutlineDoc -> Maybe OutlineDoc
 moveUpwards =
     -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    mapCZMaybe
+    mapMaybe
         (firstOf
             [ zRelocateBy Before zGotoPreviousVisibleSibling
             , zRelocateBy AppendChild (Z.up >> Maybe.andThen zGotoPreviousVisibleSibling)
@@ -588,7 +588,7 @@ moveUpwards =
 moveDownwards : OutlineDoc -> Maybe OutlineDoc
 moveDownwards =
     -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
-    mapCZMaybe
+    mapMaybe
         (firstOf
             [ zRelocateBy After zGotoNextVisibleSibling
             , zRelocateBy PrependChild (Z.up >> Maybe.andThen zGotoNextVisibleSibling)
