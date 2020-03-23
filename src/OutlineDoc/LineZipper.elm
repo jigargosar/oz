@@ -53,6 +53,11 @@ itemDecoder =
         |> JD.map2 (|>) (JD.oneOf [ JD.field "collapsed" JD.bool, JD.succeed False ])
 
 
+setItemTitle : String -> Item -> Item
+setItemTitle title model =
+    { model | title = title }
+
+
 
 -- MODEL
 
@@ -200,7 +205,7 @@ ancestorIds =
 setTitle : String -> LineZipper -> LineZipper
 setTitle newTitle (LineZipper z) =
     z
-        |> Z.mapData (\model -> { model | title = newTitle })
+        |> Z.mapData (setItemTitle newTitle)
         |> wrap
 
 
