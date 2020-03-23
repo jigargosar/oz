@@ -7,23 +7,18 @@ type TreeListZipper a
     = TLZ (List (Tree a)) (Tree a) (List (Tree a))
 
 
-tlzFromCR : Tree a -> List (Tree a) -> TreeListZipper a
-tlzFromCR c r =
+fromCR : Tree a -> List (Tree a) -> TreeListZipper a
+fromCR c r =
     TLZ [] c r
 
 
-tlzFromCL c l =
+fromCL c l =
     TLZ (List.reverse l) c []
 
 
-tlzToList : TreeListZipper a -> List (Tree a)
-tlzToList (TLZ lfr c rf) =
+toList : TreeListZipper a -> List (Tree a)
+toList (TLZ lfr c rf) =
     List.reverse lfr ++ c :: rf
-
-
-tlzToTree : a -> TreeListZipper a -> Tree a
-tlzToTree data tlz =
-    T.tree data (tlzToList tlz)
 
 
 
@@ -78,28 +73,24 @@ up (ZoomZipper pcs cs tlz) =
 
 
 down : ZoomZipper a -> Maybe (ZoomZipper a)
-down (ZoomZipper pcs cs tlz) =
-    case deconstruct tlz of
-        Just ( crumb, newTLZ ) ->
-            Just (ZoomZipper pcs (crumb :: cs) newTLZ)
+down (ZoomZipper pcs cs (TLZ l c r)) =
+    case treeToTuple c of
+        ( data, firstChild :: rest ) ->
+            ZoomZipper pcs (Crumb l data r :: cs) (fromCR firstChild rest)
+                |> Just
 
-        Nothing ->
+        _ ->
             Nothing
+
+
+treeToTuple : Tree a -> ( a, Forest a )
+treeToTuple t =
+    ( T.data t, T.children t )
 
 
 construct : Crumb a -> TreeListZipper a -> TreeListZipper a
-construct (Crumb l d r) tlz =
-    TLZ l (tlzToTree d tlz) r
-
-
-deconstruct : TreeListZipper a -> Maybe ( Crumb a, TreeListZipper a )
-deconstruct (TLZ lfr c rf) =
-    case T.children c of
-        [] ->
-            Nothing
-
-        first :: rest ->
-            Just ( Crumb lfr (T.data c) rf, tlzFromCR first rest )
+construct (Crumb l data r) tlz =
+    TLZ l (T.tree data (toList tlz)) r
 
 
 
@@ -123,7 +114,7 @@ appendChildGo node (ZoomZipper pcs cs (TLZ lfr c rf)) =
             Crumb lfr (T.data c) rf
 
         tlz =
-            tlzFromCL node (T.children c)
+            fromCL node (T.children c)
     in
     ZoomZipper pcs (crumb :: cs) tlz
 
@@ -135,6 +126,6 @@ prependChildGo node (ZoomZipper pcs cs (TLZ lfr c rf)) =
             Crumb lfr (T.data c) rf
 
         tlz =
-            tlzFromCR node (T.children c)
+            fromCR node (T.children c)
     in
     ZoomZipper pcs (crumb :: cs) tlz
