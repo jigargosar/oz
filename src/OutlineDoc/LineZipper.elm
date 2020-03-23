@@ -185,11 +185,7 @@ title_ =
 
 
 cursorChanged : LineZipper -> LineZipper -> Bool
-cursorChanged doc1 doc2 =
-    cursorChanged_ (unwrap doc1) (unwrap doc2)
-
-
-cursorChanged_ z1 z2 =
+cursorChanged (LineZipper z1) (LineZipper z2) =
     neqBy id_ z1 z2 || neqBy ancestorIds z1 z2
 
 
