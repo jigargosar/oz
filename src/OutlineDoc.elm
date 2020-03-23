@@ -41,12 +41,11 @@ module OutlineDoc exposing
     )
 
 import CollapseState exposing (CollapseState)
-import Forest.Tree as Tree
+import Forest.Tree as Tree exposing (Tree)
 import Forest.Zipper as Z exposing (ForestZipper, Location(..))
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import OutlineDoc.FIZ as FIZ exposing (FIZ, Item)
 import Random exposing (Generator)
 import Utils exposing (..)
 
@@ -133,11 +132,60 @@ appendIn =
 
 
 
+-- ITEM
+-- ITEM
+
+
+type alias Item =
+    { id : ItemId
+    , title : String
+    , collapsed : Bool
+    }
+
+
+itemGenerator : String -> Generator Item
+itemGenerator title =
+    ItemId.generator
+        |> Random.map (\id -> { id = id, title = title, collapsed = False })
+
+
+itemEncoder : Item -> Value
+itemEncoder item =
+    JE.object
+        [ ( "id", ItemId.itemIdEncoder item.id )
+        , ( "title", JE.string item.title )
+        , ( "collapsed", JE.bool item.collapsed )
+        ]
+
+
+itemDecoder : Decoder Item
+itemDecoder =
+    JD.succeed Item
+        |> required "id" ItemId.itemIdDecoder
+        |> required "title" JD.string
+        |> JD.map2 (|>) (JD.oneOf [ JD.field "collapsed" JD.bool, JD.succeed False ])
+
+
+
 -- DOC MODEL
 
 
 type OutlineDoc
     = Doc FIZ
+
+
+type alias FIZ =
+    ForestZipper Item
+
+
+newLeaf : Generator (Tree Item)
+newLeaf =
+    let
+        itemToTree : Item -> Tree Item
+        itemToTree item =
+            Tree.tree item []
+    in
+    itemGenerator "" |> Random.map itemToTree
 
 
 wrap : FIZ -> OutlineDoc
@@ -152,19 +200,17 @@ new =
 
 zNew : Generator FIZ
 zNew =
-    FIZ.newLeaf |> Random.map Z.fromTree
+    newLeaf |> Random.map Z.fromTree
 
 
 encoder : OutlineDoc -> Value
-encoder doc =
-    case doc of
-        Doc z ->
-            FIZ.encoder z
+encoder (Doc z) =
+    Z.encoder itemEncoder z
 
 
 decoder : Decoder OutlineDoc
 decoder =
-    FIZ.decoder |> JD.map wrap
+    Z.decoder itemDecoder |> JD.map wrap
 
 
 unwrap : OutlineDoc -> FIZ
@@ -179,8 +225,8 @@ map func ped =
             Doc (func z)
 
 
-mapMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
-mapMaybe func ped =
+mapCZMaybe : (FIZ -> Maybe FIZ) -> OutlineDoc -> Maybe OutlineDoc
+mapCZMaybe func ped =
     case ped of
         Doc z ->
             func z |> Maybe.map Doc
@@ -287,7 +333,7 @@ zAddNew z =
             else
                 Z.insertRightGo node z
     in
-    FIZ.newLeaf
+    newLeaf
         |> Random.map insertNewHelper
 
 
@@ -316,12 +362,12 @@ removeIfBlankLeaf =
 
 removeLeaf : OutlineDoc -> Maybe OutlineDoc
 removeLeaf =
-    mapMaybe zDeleteLeaf
+    mapCZMaybe zDeleteLeaf
 
 
 expandAll : OutlineDoc -> Maybe OutlineDoc
 expandAll =
-    mapMaybe
+    mapCZMaybe
         (zMap (\model -> { model | collapsed = False })
             >> Maybe.map zGotoFirstVisibleAncestor
         )
@@ -329,7 +375,7 @@ expandAll =
 
 collapseAll : OutlineDoc -> Maybe OutlineDoc
 collapseAll =
-    mapMaybe
+    mapCZMaybe
         (zMap (\model -> { model | collapsed = True })
             >> Maybe.map zGotoFirstVisibleAncestor
         )
@@ -345,12 +391,12 @@ zMap func z =
 
 expand : OutlineDoc -> Maybe OutlineDoc
 expand =
-    mapMaybe zExpand
+    mapCZMaybe zExpand
 
 
 collapse : OutlineDoc -> Maybe OutlineDoc
 collapse =
-    mapMaybe zCollapse
+    mapCZMaybe zCollapse
 
 
 setNonBlankTitle : String -> FIZ -> Maybe FIZ
@@ -426,27 +472,27 @@ zDeleteLeaf z =
 
 gotoId : ItemId -> OutlineDoc -> Maybe OutlineDoc
 gotoId itemId =
-    mapMaybe (zGotoIdAndExpandAncestors itemId)
+    mapCZMaybe (zGotoIdAndExpandAncestors itemId)
 
 
 gotoParent : OutlineDoc -> Maybe OutlineDoc
 gotoParent =
-    mapMaybe Z.up
+    mapCZMaybe Z.up
 
 
 gotoPreviousSibling : OutlineDoc -> Maybe OutlineDoc
 gotoPreviousSibling =
-    mapMaybe zGotoPreviousVisibleSibling
+    mapCZMaybe zGotoPreviousVisibleSibling
 
 
 goForward : OutlineDoc -> Maybe OutlineDoc
 goForward =
-    mapMaybe zGoForwardToNextVisible
+    mapCZMaybe zGoForwardToNextVisible
 
 
 goBackward : OutlineDoc -> Maybe OutlineDoc
 goBackward =
-    mapMaybe zGoBackwardToPreviousVisible
+    mapCZMaybe zGoBackwardToPreviousVisible
 
 
 zGotoIdAndExpandAncestors : ItemId -> FIZ -> Maybe FIZ
@@ -513,25 +559,25 @@ zGotoNextVisibleSiblingOfAncestor z =
 
 relocateTo : CandidateLocation -> OutlineDoc -> Maybe OutlineDoc
 relocateTo (CandidateLocation loc itemId) =
-    mapMaybe (zRelocate loc itemId)
+    mapCZMaybe (zRelocate loc itemId)
 
 
 unIndent : OutlineDoc -> Maybe OutlineDoc
 unIndent =
     -- moveAfterParent
-    mapMaybe (zRelocateBy After Z.up)
+    mapCZMaybe (zRelocateBy After Z.up)
 
 
 indent : OutlineDoc -> Maybe OutlineDoc
 indent =
     -- appendInPreviousSibling
-    mapMaybe (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
+    mapCZMaybe (zRelocateBy AppendChild zGotoPreviousVisibleSibling)
 
 
 moveUpwards : OutlineDoc -> Maybe OutlineDoc
 moveUpwards =
     -- moveBeforePreviousSiblingOrAppendInPreviousSiblingOfParent
-    mapMaybe
+    mapCZMaybe
         (firstOf
             [ zRelocateBy Before zGotoPreviousVisibleSibling
             , zRelocateBy AppendChild (Z.up >> Maybe.andThen zGotoPreviousVisibleSibling)
@@ -542,7 +588,7 @@ moveUpwards =
 moveDownwards : OutlineDoc -> Maybe OutlineDoc
 moveDownwards =
     -- moveAfterNextSiblingOrPrependInNextSiblingOfParent
-    mapMaybe
+    mapCZMaybe
         (firstOf
             [ zRelocateBy After zGotoNextVisibleSibling
             , zRelocateBy PrependChild (Z.up >> Maybe.andThen zGotoNextVisibleSibling)
