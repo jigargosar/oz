@@ -71,7 +71,7 @@ checkInvariants =
 
 unwrap : LineZipper -> ForestZipper Item
 unwrap (LineZipper z) =
-    ensureInvariants z
+    z
 
 
 wrap : ForestZipper Item -> LineZipper
