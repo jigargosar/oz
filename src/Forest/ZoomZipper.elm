@@ -12,6 +12,10 @@ tlzFromCR c r =
     TLZ [] c r
 
 
+tlzFromCL c l =
+    TLZ (List.reverse l) c []
+
+
 tlzToList : TreeListZipper a -> List (Tree a)
 tlzToList (TLZ lfr c rf) =
     List.reverse lfr ++ c :: rf
@@ -122,10 +126,6 @@ appendChildGo node (ZoomZipper pcs cs (TLZ lfr c rf)) =
             tlzFromCL node (T.children c)
     in
     ZoomZipper pcs (crumb :: cs) tlz
-
-
-tlzFromCL c l =
-    TLZ (List.reverse l) c []
 
 
 prependChildGo : Tree a -> ZoomZipper a -> ZoomZipper a
