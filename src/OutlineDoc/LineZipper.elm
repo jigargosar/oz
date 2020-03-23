@@ -58,6 +58,11 @@ setItemTitle title model =
     { model | title = title }
 
 
+setItemCollapsed : Bool -> Item -> Item
+setItemCollapsed collapsed model =
+    { model | collapsed = collapsed }
+
+
 
 -- MODEL
 
@@ -225,14 +230,14 @@ remove (LineZipper z) =
 expandAll : LineZipper -> Maybe LineZipper
 expandAll =
     unwrap
-        >> mapAll (\model -> { model | collapsed = False })
+        >> mapAll (setItemCollapsed False)
         >> Maybe.map (gotoFirstVisibleAncestor >> wrap)
 
 
 collapseAll : LineZipper -> Maybe LineZipper
 collapseAll =
     unwrap
-        >> mapAll (\model -> { model | collapsed = True })
+        >> mapAll (setItemCollapsed True)
         >> Maybe.map (gotoFirstVisibleAncestor >> wrap)
 
 
