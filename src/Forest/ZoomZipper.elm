@@ -119,22 +119,22 @@ appendChildGo node (ZoomZipper pcs cs (TLZ lfr c rf)) =
             Crumb lfr (T.data c) rf
 
         tlz =
-            tlzFromLC (T.children c) node
+            tlzFromCL node (T.children c)
     in
     ZoomZipper pcs (crumb :: cs) tlz
 
 
-tlzFromLC l c =
+tlzFromCL c l =
     TLZ (List.reverse l) c []
 
 
 prependChildGo : Tree a -> ZoomZipper a -> ZoomZipper a
-prependChildGo node (ZoomZipper pcs cs tlz) =
-    case deconstructAndPrepend node tlz of
-        ( crumb, newTLZ ) ->
-            ZoomZipper pcs (crumb :: cs) newTLZ
+prependChildGo node (ZoomZipper pcs cs (TLZ lfr c rf)) =
+    let
+        crumb =
+            Crumb lfr (T.data c) rf
 
-
-deconstructAndPrepend : Tree a -> TreeListZipper a -> ( Crumb a, TreeListZipper a )
-deconstructAndPrepend node (TLZ lfr c rf) =
-    ( Crumb lfr (T.data c) rf, tlzFromCR node (T.children c) )
+        tlz =
+            tlzFromCR node (T.children c)
+    in
+    ZoomZipper pcs (crumb :: cs) tlz
