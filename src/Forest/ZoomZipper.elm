@@ -1,4 +1,4 @@
-module Forest.Zipper exposing (ZoomZipper, appendChildGo, fromData, insertLeftGo, insertRightGo, left, prependChildGo, right)
+module Forest.Zipper exposing (ZoomZipper, appendChildGo, down, fromData, insertLeftGo, insertRightGo, left, prependChildGo, right)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Json.Decode as JD exposing (Decoder)
@@ -60,6 +60,16 @@ up (ZoomZipper pcs cs lfr c rf) =
 reconstruct : a -> Forest a -> Tree a -> Forest a -> Tree a
 reconstruct crumbData lfr c rf =
     T.tree crumbData (List.reverse lfr ++ c :: rf)
+
+
+down : ZoomZipper a -> Maybe (ZoomZipper a)
+down (ZoomZipper pcs cs lfr c rf) =
+    case T.children c of
+        [] ->
+            Nothing
+
+        first :: rest ->
+            Just (ZoomZipper pcs (Crumb lfr (T.data c) rf :: cs) [] first rest)
 
 
 
