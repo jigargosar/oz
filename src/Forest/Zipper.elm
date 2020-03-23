@@ -143,42 +143,6 @@ mapCrumb func crumb =
     }
 
 
-transferOneLevelLoop : ( ForestZipper a, Maybe (ForestZipper a) ) -> ForestZipper a
-transferOneLevelLoop ( cz, maybeZipper ) =
-    case maybeZipper of
-        Nothing ->
-            cz
-
-        Just zipper ->
-            transferOneLevelLoop (transferOneLevelToInternal cz zipper)
-
-
-transferOneLevelToInternal : ForestZipper a -> ForestZipper a -> ( ForestZipper a, Maybe (ForestZipper a) )
-transferOneLevelToInternal cz zipper =
-    let
-        newChildZipper =
-            { cz
-                | crumbs = cz.crumbs ++ [ { leftReversed = zipper.leftReversed, datum = Tree.data zipper.center, right_ = zipper.right_ } ]
-            }
-    in
-    case zipper.crumbs of
-        [] ->
-            ( newChildZipper
-            , Nothing
-            )
-
-        first :: rest ->
-            ( newChildZipper
-            , Just
-                { zipper
-                    | leftReversed = first.leftReversed
-                    , center = Tree.tree first.datum (List.reverse zipper.leftReversed ++ zipper.center :: zipper.right_)
-                    , right_ = first.right_
-                    , crumbs = rest
-                }
-            )
-
-
 mapTree : (Tree a -> Tree a) -> ForestZipper a -> ForestZipper a
 mapTree func fz =
     { fz | center = func fz.center }
