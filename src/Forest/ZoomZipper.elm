@@ -107,14 +107,19 @@ up (ZoomZipper pcs cs tlz) =
         [] ->
             Nothing
 
-        (Crumb crumbLFR crumbData crumbRF) :: rest ->
-            Just (ZoomZipper pcs rest (TLZ crumbLFR (tlzToTree crumbData tlz) crumbRF))
+        first :: rest ->
+            Just (ZoomZipper pcs rest (construct first tlz))
 
 
 down : ZoomZipper a -> Maybe (ZoomZipper a)
 down (ZoomZipper pcs cs (TLZ lfr c rf)) =
     tlzFromChildrenOf c
         |> Maybe.map (ZoomZipper pcs (Crumb lfr (T.data c) rf :: cs))
+
+
+construct : Crumb a -> TreeListZipper a -> TreeListZipper a
+construct (Crumb l d r) tlz =
+    TLZ l (tlzToTree d tlz) r
 
 
 
