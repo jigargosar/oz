@@ -89,6 +89,10 @@ type Unwrapped
 
 unwrap : OutlineDoc -> Unwrapped
 unwrap doc =
+    let
+        _ =
+            unwrapZZ doc
+    in
     case doc of
         Doc_ z ->
             Doc z
