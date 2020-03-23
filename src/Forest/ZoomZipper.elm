@@ -1,9 +1,6 @@
-module Forest.Zipper exposing (ZoomZipper, appendChildGo, down, fromData, insertLeftGo, insertRightGo, left, prependChildGo, right)
+module Forest.Zipper exposing (ZoomZipper, appendChildGo, down, fromData, insertLeftGo, insertRightGo, left, prependChildGo, right, up)
 
 import Forest.Tree as T exposing (Forest, Tree)
-import Json.Decode as JD exposing (Decoder)
-import Json.Encode as JE exposing (Value)
-import Utils exposing (..)
 
 
 type TreeListZipper a
@@ -19,23 +16,10 @@ tlzSingleton : a -> TreeListZipper a
 tlzSingleton a =
     T.singleton a |> tlzFromTree
 
-tlzFromCR: Tree a -> List (Tree a) -> TreeListZipper a
+
+tlzFromCR : Tree a -> List (Tree a) -> TreeListZipper a
 tlzFromCR c r =
     TLZ [] c r
-
-tlzFromList : List (Tree a) -> Maybe (TreeListZipper a)
-tlzFromList ls =
-    case ls of
-        [] ->
-            Nothing
-
-        f :: r ->
-            Just (tlzFromCR f r)
-
-
-tlzFromChildrenOf : Tree a -> Maybe (TreeListZipper a)
-tlzFromChildrenOf t =
-    tlzFromList (T.children t)
 
 
 tlzToList : TreeListZipper a -> List (Tree a)
@@ -115,19 +99,29 @@ up (ZoomZipper pcs cs tlz) =
 
 
 down : ZoomZipper a -> Maybe (ZoomZipper a)
-down (ZoomZipper pcs cs (TLZ lfr c rf)) =
-    tlzFromChildrenOf c
-        |> Maybe.map (ZoomZipper pcs (Crumb lfr (T.data c) rf :: cs))
+down (ZoomZipper pcs cs tlz) =
+    case deconstruct tlz of
+        Just ( crumb, newTLZ ) ->
+            Just (ZoomZipper pcs (crumb :: cs) newTLZ)
+
+        Nothing ->
+            Nothing
 
 
 construct : Crumb a -> TreeListZipper a -> TreeListZipper a
 construct (Crumb l d r) tlz =
     TLZ l (tlzToTree d tlz) r
 
-deconstruct: TreeListZipper a -> Maybe (Crumb a, TreeListZipper a)
+
+deconstruct : TreeListZipper a -> Maybe ( Crumb a, TreeListZipper a )
 deconstruct (TLZ lfr c rf) =
-    tlzFromList (T.children c)
-        |> Maybe.
+    case T.children c of
+        [] ->
+            Nothing
+
+        first :: rest ->
+            Just ( Crumb lfr (T.data c) rf, tlzFromCR first rest )
+
 
 
 -- ADD NEW
