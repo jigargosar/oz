@@ -66,7 +66,9 @@ wrapZZ zz =
     case ZZ.zoomData zz of
         Just item ->
             case
-                ZZ.forest zz
+                zz
+                    |> applyWhileJust ZZ.up
+                    |> ZZ.forest
                     |> Z.fromForest
                     |> Maybe.andThen (Z.findFirst (eqById (ZZ.data zz)))
             of
