@@ -1,4 +1,4 @@
-module Forest.Zipper exposing (ZoomZipper, fromData, insertRightGo, right)
+module Forest.Zipper exposing (ZoomZipper, appendChildGo, fromData, insertLeftGo, insertRightGo, prependChildGo, right)
 
 import Forest.Tree as T exposing (Forest, Tree)
 import Json.Decode as JD exposing (Decoder)
@@ -57,10 +57,13 @@ appendChildGo node (ZoomZipper pcs cs lfr c rf) =
         []
 
 
-
---prependChildGo : Tree a -> ZoomZipper a -> ZoomZipper a
---prependChildGo =
---    insertAndGo prependChild down
+prependChildGo : Tree a -> ZoomZipper a -> ZoomZipper a
+prependChildGo node (ZoomZipper pcs cs lfr c rf) =
+    ZoomZipper pcs
+        (Crumb lfr (T.data c) rf :: cs)
+        []
+        node
+        (T.children c)
 
 
 insertAndGo :
