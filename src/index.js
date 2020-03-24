@@ -15,6 +15,7 @@ require('tachyons')
           window.innerHeight - document.body.clientHeight,
         ],
         oz: JSON.parse(localStorage.getItem('oz')) || null,
+        od: JSON.parse(localStorage.getItem('od')) || null,
         logDict: JSON.parse(localStorage.getItem('logDict') || '{}'),
         projectDict: JSON.parse(
           localStorage.getItem('projectDict') || '{}',
