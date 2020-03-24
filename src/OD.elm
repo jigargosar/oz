@@ -9,13 +9,8 @@ import Random exposing (Generator)
 import Utils exposing (..)
 
 
-type alias Id =
-    ItemId
 
-
-idGen : Generator Id
-idGen =
-    ItemId.generator
+-- OUTLINE DOC
 
 
 type OD
@@ -44,6 +39,50 @@ decoder =
                 |> required "t" treeDecoder
                 |> requiredList "r" treeDecoder
             )
+
+
+new : Generator OD
+new =
+    idGen |> Random.map newHelp
+
+
+newHelp : ItemId -> OD
+newHelp id =
+    OD [] [] (LTR [] (treeFromId id) [])
+
+
+addNew : OD -> Generator OD
+addNew od =
+    idGen |> Random.map (flip addNewHelp od)
+
+
+addNewHelp : ItemId -> OD -> OD
+addNewHelp id (OD pcs cs (LTR l t r)) =
+    let
+        newT =
+            treeFromId id
+    in
+    if treeHasExpandedChildren t then
+        -- insertAfter
+        OD pcs cs (LTR (t :: l) newT r)
+
+    else
+        -- prepend child
+        let
+            (T item children) =
+                t
+
+            newCrumb =
+                Crumb l item r
+
+            newLTR =
+                LTR [] newT children
+        in
+        OD pcs (newCrumb :: cs) newLTR
+
+
+
+-- CRUMB
 
 
 type Crumb
@@ -137,44 +176,21 @@ itemDisplayTitle (Item _ _ ti) =
             "Untitled"
 
 
-new : Generator OD
-new =
-    idGen |> Random.map newHelp
+
+-- Id
 
 
-newHelp : ItemId -> OD
-newHelp id =
-    OD [] [] (LTR [] (treeFromId id) [])
+type alias Id =
+    ItemId
 
 
-addNew : OD -> Generator OD
-addNew od =
-    idGen |> Random.map (flip addNewHelp od)
+idGen : Generator Id
+idGen =
+    ItemId.generator
 
 
-addNewHelp : ItemId -> OD -> OD
-addNewHelp id (OD pcs cs (LTR l t r)) =
-    let
-        newT =
-            treeFromId id
-    in
-    if treeHasExpandedChildren t then
-        -- insertAfter
-        OD pcs cs (LTR (t :: l) newT r)
 
-    else
-        -- prepend child
-        let
-            (T item children) =
-                t
-
-            newCrumb =
-                Crumb l item r
-
-            newLTR =
-                LTR [] newT children
-        in
-        OD pcs (newCrumb :: cs) newLTR
+-- VIEW
 
 
 view : OD -> Html msg
