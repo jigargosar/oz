@@ -209,10 +209,10 @@ subscriptions _ =
 
 
 view : Model -> Html Msg
-view (Model od st _) =
+view (Model state _) =
     div []
         [ div [] [ text "OZ OUTLINING V2" ]
-        , viewOD st od
+        , viewOD state
         ]
 
 
@@ -292,29 +292,29 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 -- OUTLINE DOC VIEW
 
 
-viewOD : State -> OD -> Html Msg
-viewOD st (OD _ _ (LTR l t r)) =
+viewOD : State -> Html Msg
+viewOD state =
+    case state of
+        Edit title (OD _ _ (LTR l t r)) ->
+            div []
+                (List.map (viewTree False) (List.reverse l)
+                    ++ viewTree True t
+                    :: List.map (viewTree False) r
+                )
+
+        NoEdit (OD _ _ (LTR l t r)) ->
+            div []
+                (List.map (viewTree False) (List.reverse l)
+                    ++ viewTree True t
+                    :: List.map (viewTree False) r
+                )
+
+
+viewTree : Bool -> T -> Html Msg
+viewTree isHighlighted (T item ts) =
     div []
-        (List.map (viewTree st False) (List.reverse l)
-            ++ viewTree st True t
-            :: List.map (viewTree st False) r
-        )
-
-
-viewTree : State -> Bool -> T -> Html Msg
-viewTree st isHighlighted (T item ts) =
-    div []
-        [ case st of
-            Edit editId editTitle ->
-                if isHighlighted && editId == idOf item then
-                    viewTitleEditor editTitle
-
-                else
-                    viewTitle isHighlighted item
-
-            NoEdit ->
-                viewTitle isHighlighted item
-        , div [ class "pr3" ] (List.map (viewTree st False) ts)
+        [ viewTitle isHighlighted item
+        , div [ class "pr3" ] (List.map (viewTree False) ts)
         ]
 
 
