@@ -1,4 +1,4 @@
-module OD exposing (Item, OD, addNew, new)
+module OD exposing (Item, OD, addNew, new, view)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
