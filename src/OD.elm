@@ -223,7 +223,7 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 
 
 viewOD : Maybe ES -> OD -> Html Msg
-viewOD _ (OD _ _ (LTR l t r)) =
+viewOD st (OD _ _ (LTR l t r)) =
     div []
         (List.map (viewTree False) (List.reverse l)
             ++ viewTree True t
