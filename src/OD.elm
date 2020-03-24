@@ -39,12 +39,9 @@ type Model
     = Model OD State Seed
 
 
-type alias State =
-    Maybe ES
-
-
-type ES
+type State
     = ES Id String
+    | NS
 
 
 type alias Flags =
@@ -59,12 +56,12 @@ init flags =
                 ( newOD, seed ) =
                     Random.step new (Random.initialSeed flags.now)
             in
-            ( Model newOD Nothing seed
+            ( Model newOD NS seed
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Ok (Just od) ->
-            ( Model od Nothing (Random.initialSeed flags.now)
+            ( Model od NS (Random.initialSeed flags.now)
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
@@ -98,10 +95,8 @@ aroundUpdate msg ((Model oldOd oldState _) as model) =
             oldOd /= newOd
 
         stateSwitched =
-            oldState
-                /= newState
-                && (oldState == Nothing || newState == Nothing)
-                |> Debug.log "debug"
+            (oldState /= newState)
+                && (oldState == NS || newState == NS)
     in
     ( newModel
     , Cmd.batch
@@ -135,21 +130,21 @@ update message ((Model od st seed) as model) =
 
         StartEditTitle ->
             case ( st, itemOf od ) of
-                ( Nothing, Item id _ title ) ->
-                    Model od (Just (ES id title)) seed
+                ( NS, Item id _ title ) ->
+                    Model od (ES id title) seed
 
                 _ ->
                     model
 
         TitleChanged changedTitle ->
             case st of
-                Just (ES editId _) ->
+                ES editId _ ->
                     Model od
                         (if idOfOd od == editId then
-                            Just (ES editId changedTitle)
+                            ES editId changedTitle
 
                          else
-                            Nothing
+                            NS
                         )
                         seed
 
@@ -157,7 +152,7 @@ update message ((Model od st seed) as model) =
                     model
 
         SaveEditTitle ->
-            Model od Nothing seed
+            Model od NS seed
 
 
 itemOf : OD -> Item
@@ -263,7 +258,7 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 -- OUTLINE DOC VIEW
 
 
-viewOD : Maybe ES -> OD -> Html Msg
+viewOD : State -> OD -> Html Msg
 viewOD st (OD _ _ (LTR l t r)) =
     div []
         (List.map (viewTree st False) (List.reverse l)
@@ -276,21 +271,21 @@ viewTree : State -> Bool -> T -> Html Msg
 viewTree st isHighlighted (T item ts) =
     div []
         [ case st of
-            Just es ->
-                if isHighlighted then
-                    viewTitleEditor es
+            ES editId editTitle ->
+                if isHighlighted && editId == idOf item then
+                    viewTitleEditor editTitle
 
                 else
                     viewTitle isHighlighted item
 
-            Nothing ->
+            NS ->
                 viewTitle isHighlighted item
         , div [ class "pr3" ] (List.map (viewTree st False) ts)
         ]
 
 
-viewTitleEditor : ES -> Html Msg
-viewTitleEditor (ES _ title) =
+viewTitleEditor : String -> Html Msg
+viewTitleEditor title =
     div []
         [ input
             [ Html.Attributes.id "primary-focus-node"
