@@ -75,11 +75,11 @@ init flags =
 
 type Msg
     = NoOp
+    | OnFocusResult (Result Dom.Error ())
     | AddNew
     | StartEditTitle
     | TitleChanged String
     | SaveEditTitle
-    | OnFocusResult (Result Dom.Error ())
 
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
@@ -118,15 +118,15 @@ update message ((Model od st seed) as model) =
         NoOp ->
             model
 
-        AddNew ->
-            Random.step (addNew od) seed
-                |> uncurry (\newOd -> Model newOd st)
-
         OnFocusResult (Ok ()) ->
             model
 
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
+
+        AddNew ->
+            Random.step (addNew od) seed
+                |> uncurry (\newOd -> Model newOd st)
 
         StartEditTitle ->
             case ( st, itemOf od ) of
