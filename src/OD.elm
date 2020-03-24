@@ -332,7 +332,7 @@ viewFocusedTitle title =
 viewBasicTree : T -> Html Msg
 viewBasicTree (T (Item _ _ title) ts) =
     div []
-        [ viewBasicTitle title
+        [ div [] [ text (displayTitle title) ]
         , div [ class "pr3" ] (List.map viewBasicTree ts)
         ]
 
@@ -350,11 +350,6 @@ viewTitleEditor title =
             ]
             []
         ]
-
-
-viewBasicTitle : String -> Html Msg
-viewBasicTitle title =
-    div [] [ text (displayTitle title) ]
 
 
 displayTitle : String -> String
