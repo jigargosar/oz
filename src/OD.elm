@@ -2,9 +2,9 @@ port module OD exposing (main)
 
 import Browser
 import Browser.Dom as Dom
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class, tabindex)
-import Html.Events
+import Html exposing (Html, div, input, text)
+import Html.Attributes exposing (class, tabindex, value)
+import Html.Events exposing (onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -80,6 +80,7 @@ type Msg
     = NoOp
     | AddNew
     | StartEditTitle
+    | TitleChanged String
     | SaveEditTitle
     | OnFocusResult (Result Dom.Error ())
 
@@ -133,6 +134,14 @@ update message ((Model od st seed) as model) =
 
                 _ ->
                     model
+
+        TitleChanged title ->
+            case st of
+                Nothing ->
+                    model
+
+                Just (ES id _) ->
+                    Model od (Just (ES id title)) seed
 
         SaveEditTitle ->
             model
@@ -250,7 +259,11 @@ viewTree st isHighlighted (T item ts) =
     div []
         [ case st of
             Just es ->
-                viewTitleEditor es
+                if isHighlighted then
+                    viewTitleEditor es
+
+                else
+                    viewTitle isHighlighted item
 
             Nothing ->
                 viewTitle isHighlighted item
@@ -260,13 +273,15 @@ viewTree st isHighlighted (T item ts) =
 
 viewTitleEditor : ES -> Html Msg
 viewTitleEditor (ES _ title) =
-    div
+    input
         [ Html.Attributes.id "primary-focus-node"
         , tabindex 0
+        , value title
+        , onInput TitleChanged
         , onKeyDownHelp
             [ ( KeyEvent.hot "Enter", SaveEditTitle ) ]
         ]
-        [ text title ]
+        []
 
 
 viewTitle isHighlighted item =
