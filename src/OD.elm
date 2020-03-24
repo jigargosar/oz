@@ -75,19 +75,23 @@ type Msg
 
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
-aroundUpdate msg model =
+aroundUpdate msg ((Model oldOd _) as model) =
     let
         newModel =
             update msg model
 
-        (Model od _) =
+        (Model newOd _) =
             newModel
     in
     ( newModel
-    , Cmd.batch
-        [ Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
-        , cacheODCmd od
-        ]
+    , if oldOd /= newOd then
+        Cmd.batch
+            [ Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
+            , cacheODCmd newOd
+            ]
+
+      else
+        Cmd.none
     )
 
 
