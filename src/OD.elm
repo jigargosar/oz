@@ -104,14 +104,11 @@ aroundUpdate msg ((Model oldOd oldState _) as model) =
                 |> Debug.log "debug"
     in
     ( newModel
-    , if odChanged then
-        Cmd.batch
-            [ cmdIf (odChanged || stateSwitched) (Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult)
-            , cmdIf odChanged (cacheODCmd newOd)
-            ]
-
-      else
-        Cmd.none
+    , Cmd.batch
+        [ cmdIf (odChanged || stateSwitched)
+            (Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult)
+        , cmdIf odChanged (cacheODCmd newOd)
+        ]
     )
 
 
@@ -153,7 +150,7 @@ update message ((Model od st seed) as model) =
                     Model od (updateStateOnTitleChange od title es) seed
 
         SaveEditTitle ->
-            model
+            Model od Nothing seed
 
 
 initES : OD -> ES
