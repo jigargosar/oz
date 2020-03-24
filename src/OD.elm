@@ -139,14 +139,15 @@ update message ((Model od state seed) as model) =
         TitleChanged changedTitle ->
             case state of
                 Edit editId _ ->
-                    Model od
-                        (if idOfOd od == editId then
-                            Edit editId changedTitle
+                    let
+                        newState =
+                            if idOfOd od == editId then
+                                Edit editId changedTitle
 
-                         else
-                            NoEdit
-                        )
-                        seed
+                            else
+                                NoEdit
+                    in
+                    Model od newState seed
 
                 NoEdit ->
                     model
