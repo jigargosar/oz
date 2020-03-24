@@ -311,9 +311,9 @@ viewOD state =
 
 
 viewTree : Bool -> T -> Html Msg
-viewTree isHighlighted (T item ts) =
+viewTree isHighlighted (T (Item _ _ title) ts) =
     div []
-        [ viewTitle isHighlighted item
+        [ viewBasicTitle title
         , div [ class "pr3" ] (List.map (viewTree False) ts)
         ]
 
@@ -333,20 +333,25 @@ viewTitleEditor title =
         ]
 
 
-viewTitle : Bool -> Item -> Html Msg
-viewTitle isHighlighted item =
+viewFocusedTitle : String -> Html Msg
+viewFocusedTitle title =
     div
-        (if isHighlighted then
-            [ Html.Attributes.id "primary-focus-node"
-            , tabindex 0
-            , onKeyDownHelp
-                [ ( KeyEvent.hot "Enter", StartEditTitle ) ]
-            ]
+        [ Html.Attributes.id "primary-focus-node"
+        , tabindex 0
+        , onKeyDownHelp
+            [ ( KeyEvent.hot "Enter", StartEditTitle ) ]
+        ]
+        [ text (displayTitle title) ]
 
-         else
-            []
-        )
-        [ text (itemDisplayTitle item) ]
+
+viewBasicTitle : String -> Html Msg
+viewBasicTitle title =
+    div [] [ text (displayTitle title) ]
+
+
+displayTitle : String -> String
+displayTitle =
+    nonBlank >> Maybe.withDefault "Untitled"
 
 
 onKeyDownHelp conditions =
