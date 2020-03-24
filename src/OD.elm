@@ -152,7 +152,20 @@ update message ((Model od state seed) as model) =
                     model
 
         SaveEditTitle ->
-            Model od NoEdit seed
+            case state of
+                Edit editId title ->
+                    Model
+                        (if idOfOd od == editId then
+                            odSetTitle title od
+
+                         else
+                            od
+                        )
+                        NoEdit
+                        seed
+
+                NoEdit ->
+                    model
 
 
 itemOf : OD -> Item
