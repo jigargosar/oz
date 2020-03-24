@@ -85,6 +85,7 @@ type Msg
     | StartEditTitle
     | TitleChanged String
     | SaveEditTitle
+    | OnCursorUp
 
 
 odOf : State -> OD
@@ -181,6 +182,30 @@ update message ((Model state seed) as model) =
                     Model (NoEdit (odSetTitle title od)) seed
 
                 NoEdit _ ->
+                    model
+
+        OnCursorUp ->
+            case state of
+                NoEdit od ->
+                    let
+                        tryLeft (OD pcs cs (LTR l t r)) =
+                            case l of
+                                first :: rest ->
+                                    LTR rest first (t :: r)
+                                        |> OD pcs cs
+                                        |> Just
+
+                                [] ->
+                                    Nothing
+                    in
+                    case firstOf [ tryLeft ] od of
+                        Just newOD ->
+                            Model (NoEdit newOD) seed
+
+                        Nothing ->
+                            model
+
+                _ ->
                     model
 
 
@@ -324,7 +349,9 @@ viewFocusedTitle title =
         [ Html.Attributes.id "primary-focus-node"
         , tabindex 0
         , onKeyDownHelp
-            [ ( KeyEvent.hot "Enter", StartEditTitle ) ]
+            [ ( KeyEvent.hot "Enter", StartEditTitle )
+            , ( KeyEvent.hot "ArrowUp", OnCursorUp )
+            ]
         ]
         [ text (displayTitle title) ]
 
