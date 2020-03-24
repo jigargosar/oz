@@ -36,12 +36,17 @@ main =
 
 
 type Model
-    = Model OD State Seed
+    = Model State Seed
 
 
 type State
-    = Edit Id String
-    | NoEdit
+    = Edit String OD
+    | NoEdit OD
+
+
+type StateType
+    = EditType
+    | NoEditType
 
 
 type alias Flags =
@@ -56,12 +61,12 @@ init flags =
                 ( newOD, seed ) =
                     Random.step new (Random.initialSeed flags.now)
             in
-            ( Model newOD NoEdit seed
+            ( Model (NoEdit newOD) seed
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Ok (Just od) ->
-            ( Model od NoEdit (Random.initialSeed flags.now)
+            ( Model (NoEdit od) (Random.initialSeed flags.now)
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
@@ -82,27 +87,46 @@ type Msg
     | SaveEditTitle
 
 
+odOf : State -> OD
+odOf state =
+    case state of
+        Edit _ od ->
+            od
+
+        NoEdit od ->
+            od
+
+
+typeOf : State -> StateType
+typeOf state =
+    case state of
+        Edit _ _ ->
+            EditType
+
+        NoEdit _ ->
+            NoEditType
+
+
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
-aroundUpdate msg ((Model oldOd oldState _) as model) =
+aroundUpdate msg ((Model oldState _) as model) =
     let
         newModel =
             update msg model
 
-        (Model newOd newState _) =
+        (Model newState _) =
             newModel
 
-        odChanged =
-            oldOd /= newOd
+        docChanged =
+            neqBy odOf oldState newState
 
         stateSwitched =
-            (oldState /= newState)
-                && (oldState == NoEdit || newState == NoEdit)
+            neqBy typeOf oldState newState
     in
     ( newModel
     , Cmd.batch
-        [ cmdIf (odChanged || stateSwitched)
+        [ cmdIf (docChanged || stateSwitched)
             (Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult)
-        , cmdIf odChanged (cacheODCmd newOd)
+        , cmdIf docChanged (cacheODCmd (odOf newState))
         ]
     )
 
