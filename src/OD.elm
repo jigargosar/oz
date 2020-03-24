@@ -80,7 +80,7 @@ type Msg
     = NoOp
     | AddNew
     | StartEditTitle Id
-    | SaveEditTitle Id
+    | SaveEditTitle
     | OnFocusResult (Result Dom.Error ())
 
 
@@ -129,7 +129,7 @@ update message ((Model od st seed) as model) =
         StartEditTitle id ->
             model
 
-        SaveEditTitle id ->
+        SaveEditTitle ->
             model
 
 
@@ -249,12 +249,12 @@ viewTree st isHighlighted (T item ts) =
 
 
 viewTitleEditor : ES -> Html Msg
-viewTitleEditor (ES id title) =
+viewTitleEditor (ES _ title) =
     div
         [ Html.Attributes.id "primary-focus-node"
         , tabindex 0
         , onKeyDownHelp
-            [ ( KeyEvent.hot "Enter", SaveEditTitle id ) ]
+            [ ( KeyEvent.hot "Enter", SaveEditTitle ) ]
         ]
         [ text title ]
 
