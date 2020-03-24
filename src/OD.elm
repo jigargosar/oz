@@ -133,10 +133,12 @@ treeDecoder =
         |> requiredList "ts" (JD.lazy (\_ -> treeDecoder))
 
 
+treeFromId : Id -> T
 treeFromId id =
     T (itemFromId id) []
 
 
+treeHasExpandedChildren : T -> Bool
 treeHasExpandedChildren (T item ts) =
     List.isEmpty ts || itemCollapsed item
 
