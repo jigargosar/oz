@@ -140,8 +140,8 @@ update message ((Model od st seed) as model) =
                 Nothing ->
                     model
 
-                Just (ES id _) ->
-                    Model od (Just (ES id title)) seed
+                Just es ->
+                    Model od (updateStateOnTitleChange od title es) seed
 
         SaveEditTitle ->
             model
@@ -150,6 +150,15 @@ update message ((Model od st seed) as model) =
 initES : OD -> ES
 initES (OD _ _ (LTR _ (T (Item id _ title) _) _)) =
     ES id title
+
+
+updateStateOnTitleChange : OD -> String -> ES -> State
+updateStateOnTitleChange (OD _ _ (LTR _ (T (Item id _ _) _) _)) changedTitle (ES editId _) =
+    if id == editId then
+        Just (ES editId changedTitle)
+
+    else
+        Nothing
 
 
 subscriptions : Model -> Sub Msg
