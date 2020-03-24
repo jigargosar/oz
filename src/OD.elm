@@ -169,7 +169,7 @@ update message ((Model state seed) as model) =
                     case nonBlank title of
                         Just nbTitle ->
                             Random.step (addNew (odSetTitle nbTitle od)) seed
-                                |> uncurry (NoEdit >> Model)
+                                |> uncurry (Edit "" >> Model)
 
                         Nothing ->
                             case removeLeaf od of
