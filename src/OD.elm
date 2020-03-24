@@ -1,4 +1,4 @@
-module OD exposing (Item, OD, addNew, new, viewOD)
+module OD exposing (main)
 
 import Browser
 import Html exposing (Html, div, text)
@@ -73,7 +73,10 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view (Model od _) =
-    viewOD od
+    div []
+        [ div [] [ text "OZ OUTLINING V2" ]
+        , viewOD od
+        ]
 
 
 
