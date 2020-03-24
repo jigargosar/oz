@@ -223,8 +223,7 @@ viewTree : Bool -> T -> Html Msg
 viewTree isHighlighted (T item ts) =
     div []
         [ div
-            ([ tabindex 0
-             , Html.Events.preventDefaultOn "keydown"
+            ([ Html.Events.preventDefaultOn "keydown"
                 (KeyEvent.decoder
                     |> JD.andThen
                         (\ke ->
@@ -235,7 +234,9 @@ viewTree isHighlighted (T item ts) =
                 )
              ]
                 ++ (if isHighlighted then
-                        [ Html.Attributes.id "primary-focus-node" ]
+                        [ Html.Attributes.id "primary-focus-node"
+                        , tabindex 0
+                        ]
 
                     else
                         []
