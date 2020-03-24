@@ -33,6 +33,10 @@ require('tachyons')
     app.ports.gotBeacons.send(beacons)
   })
 
+  subscribe('cacheKV', function([k,v]) {
+    localStorage.setItem(k, JSON.stringify(v))
+  })
+
   subscribe('saveOZ', function(oz) {
     localStorage.setItem("oz", JSON.stringify(oz))
   })
