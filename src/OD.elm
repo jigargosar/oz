@@ -195,18 +195,18 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 viewOD : OD -> Html Msg
 viewOD (OD _ _ (LTR l t r)) =
     div []
-        (List.map viewTree (List.reverse l)
-            ++ viewTree t
-            :: List.map viewTree r
+        (List.map (viewTree False) (List.reverse l)
+            ++ viewTree True t
+            :: List.map (viewTree False) r
         )
 
 
-viewTree : T -> Html Msg
-viewTree (T item ts) =
+viewTree : Bool -> T -> Html Msg
+viewTree isHighlighted (T item ts) =
     div []
         [ div
-            [ tabindex 0
-            , Html.Events.preventDefaultOn "keydown"
+            ([ tabindex 0
+             , Html.Events.preventDefaultOn "keydown"
                 (KeyEvent.decoder
                     |> JD.andThen
                         (\ke ->
@@ -215,9 +215,16 @@ viewTree (T item ts) =
                                 |> Maybe.withDefault (JD.fail "Not interested")
                         )
                 )
-            ]
+             ]
+                ++ (if isHighlighted then
+                        [ Html.Attributes.id "should-have-dom-focus" ]
+
+                    else
+                        []
+                   )
+            )
             [ text (itemDisplayTitle item) ]
-        , div [ class "pr3" ] (List.map viewTree ts)
+        , div [ class "pr3" ] (List.map (viewTree False) ts)
         ]
 
 
