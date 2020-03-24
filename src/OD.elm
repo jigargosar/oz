@@ -297,25 +297,36 @@ viewOD state =
     case state of
         Edit title (OD _ _ (LTR l t r)) ->
             div []
-                (List.map (viewTree False) (List.reverse l)
-                    ++ viewTree True t
-                    :: List.map (viewTree False) r
+                (List.map viewBasicTree (List.reverse l)
+                    ++ viewFocusedTree t
+                    :: List.map viewBasicTree r
                 )
 
         NoEdit (OD _ _ (LTR l t r)) ->
             div []
-                (List.map (viewTree False) (List.reverse l)
-                    ++ viewTree True t
-                    :: List.map (viewTree False) r
+                (List.map viewBasicTree (List.reverse l)
+                    ++ viewFocusedTree t
+                    :: List.map viewBasicTree r
                 )
 
 
-viewTree : Bool -> T -> Html Msg
-viewTree isHighlighted (T (Item _ _ title) ts) =
+viewFocusedTree : T -> Html Msg
+viewFocusedTree (T (Item _ _ title) ts) =
     div []
-        [ viewBasicTitle title
-        , div [ class "pr3" ] (List.map (viewTree False) ts)
+        [ viewFocusedTitle title
+        , div [ class "pr3" ] (List.map viewBasicTree ts)
         ]
+
+
+viewFocusedTitle : String -> Html Msg
+viewFocusedTitle title =
+    div
+        [ Html.Attributes.id "primary-focus-node"
+        , tabindex 0
+        , onKeyDownHelp
+            [ ( KeyEvent.hot "Enter", StartEditTitle ) ]
+        ]
+        [ text (displayTitle title) ]
 
 
 viewBasicTree : T -> Html Msg
@@ -339,17 +350,6 @@ viewTitleEditor title =
             ]
             []
         ]
-
-
-viewFocusedTitle : String -> Html Msg
-viewFocusedTitle title =
-    div
-        [ Html.Attributes.id "primary-focus-node"
-        , tabindex 0
-        , onKeyDownHelp
-            [ ( KeyEvent.hot "Enter", StartEditTitle ) ]
-        ]
-        [ text (displayTitle title) ]
 
 
 viewBasicTitle : String -> Html Msg
