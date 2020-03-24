@@ -82,6 +82,27 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 
 
 
+-- VIEW
+
+
+view : OD -> Html msg
+view (OD _ _ (LTR l t r)) =
+    div []
+        (List.map viewTree (List.reverse l)
+            ++ viewTree t
+            :: List.map viewTree r
+        )
+
+
+viewTree : T -> Html msg
+viewTree (T item ts) =
+    div []
+        [ div [] [ text (itemDisplayTitle item) ]
+        , div [ class "pr3" ] (List.map viewTree ts)
+        ]
+
+
+
 -- CRUMB
 
 
@@ -199,24 +220,3 @@ type alias Id =
 idGen : Generator Id
 idGen =
     ItemId.generator
-
-
-
--- VIEW
-
-
-view : OD -> Html msg
-view (OD _ _ (LTR l t r)) =
-    div []
-        (List.map viewTree (List.reverse l)
-            ++ viewTree t
-            :: List.map viewTree r
-        )
-
-
-viewTree : T -> Html msg
-viewTree (T item ts) =
-    div []
-        [ div [] [ text (itemDisplayTitle item) ]
-        , div [ class "pr3" ] (List.map viewTree ts)
-        ]
