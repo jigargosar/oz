@@ -234,22 +234,24 @@ viewOD st (OD _ _ (LTR l t r)) =
 viewTree : State -> Bool -> T -> Html Msg
 viewTree st isHighlighted (T item ts) =
     div []
-        [ div
-            ([]
-                ++ (if isHighlighted then
-                        [ Html.Attributes.id "primary-focus-node"
-                        , tabindex 0
-                        , onKeyDownHelp
-                            [ ( KeyEvent.hot "Enter", StartEditTitle (idOf item) ) ]
-                        ]
-
-                    else
-                        []
-                   )
-            )
-            [ text (itemDisplayTitle item) ]
+        [ viewTitle isHighlighted item
         , div [ class "pr3" ] (List.map (viewTree st False) ts)
         ]
+
+
+viewTitle isHighlighted item =
+    div
+        (if isHighlighted then
+            [ Html.Attributes.id "primary-focus-node"
+            , tabindex 0
+            , onKeyDownHelp
+                [ ( KeyEvent.hot "Enter", StartEditTitle (idOf item) ) ]
+            ]
+
+         else
+            []
+        )
+        [ text (itemDisplayTitle item) ]
 
 
 onKeyDownHelp conditions =
