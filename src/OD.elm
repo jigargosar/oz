@@ -52,8 +52,7 @@ treeHasExpandedChildren (T item ts) =
 
 new : Generator OD
 new =
-    idGen
-        |> Random.map newHelp
+    idGen |> Random.map newHelp
 
 
 newHelp : ItemId -> OD
