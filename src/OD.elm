@@ -225,14 +225,14 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 viewOD : Maybe ES -> OD -> Html Msg
 viewOD st (OD _ _ (LTR l t r)) =
     div []
-        (List.map (viewTree False) (List.reverse l)
-            ++ viewTree True t
-            :: List.map (viewTree False) r
+        (List.map (viewTree st False) (List.reverse l)
+            ++ viewTree st True t
+            :: List.map (viewTree st False) r
         )
 
 
-viewTree : Bool -> T -> Html Msg
-viewTree isHighlighted (T item ts) =
+viewTree : State -> Bool -> T -> Html Msg
+viewTree st isHighlighted (T item ts) =
     div []
         [ div
             ([]
@@ -255,7 +255,7 @@ viewTree isHighlighted (T item ts) =
                    )
             )
             [ text (itemDisplayTitle item) ]
-        , div [ class "pr3" ] (List.map (viewTree False) ts)
+        , div [ class "pr3" ] (List.map (viewTree st False) ts)
         ]
 
 
