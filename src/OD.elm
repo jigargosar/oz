@@ -67,11 +67,11 @@ aroundUpdate msg model =
         (Model od _) =
             newModel
     in
-    ( newModel, cacheOD od )
+    ( newModel, cacheODCmd od )
 
 
-cacheOD : OD -> Cmd msg
-cacheOD od =
+cacheODCmd : OD -> Cmd msg
+cacheODCmd od =
     cacheKV ( "od", odEncoder od )
 
 
