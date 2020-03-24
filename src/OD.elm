@@ -403,6 +403,8 @@ viewFocusedTitle title =
             [ ( KeyEvent.hot "Enter", OnEnter )
             , ( KeyEvent.hot "ArrowUp", OnCursorUp )
             , ( KeyEvent.hot "ArrowDown", OnCursorDown )
+            , ( KeyEvent.hot "Tab", Indent )
+            , ( KeyEvent.shift "Tab", UnIndent )
             ]
         ]
         [ text (displayTitle title) ]
@@ -425,7 +427,10 @@ viewTitleEditor title =
             , value title
             , onInput TitleChanged
             , onKeyDownHelp
-                [ ( KeyEvent.hot "Enter", OnEnter ) ]
+                [ ( KeyEvent.hot "Enter", OnEnter )
+                , ( KeyEvent.hot "Tab", Indent )
+                , ( KeyEvent.shift "Tab", UnIndent )
+                ]
             ]
             []
         ]
