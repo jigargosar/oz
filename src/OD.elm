@@ -2,7 +2,7 @@ port module OD exposing (main)
 
 import Browser
 import Html exposing (Html, div, text)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, tabindex)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -197,7 +197,7 @@ viewOD (OD _ _ (LTR l t r)) =
 viewTree : T -> Html Msg
 viewTree (T item ts) =
     div []
-        [ div [] [ text (itemDisplayTitle item) ]
+        [ div [ tabindex 0 ] [ text (itemDisplayTitle item) ]
         , div [ class "pr3" ] (List.map viewTree ts)
         ]
 
