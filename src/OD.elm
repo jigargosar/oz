@@ -113,7 +113,7 @@ cacheODCmd od =
 
 
 update : Msg -> Model -> Model
-update message ((Model od st seed) as model) =
+update message ((Model od state seed) as model) =
     case message of
         NoOp ->
             model
@@ -126,10 +126,10 @@ update message ((Model od st seed) as model) =
 
         AddNew ->
             Random.step (addNew od) seed
-                |> uncurry (\newOd -> Model newOd st)
+                |> uncurry (\newOd -> Model newOd state)
 
         StartEditTitle ->
-            case ( st, itemOf od ) of
+            case ( state, itemOf od ) of
                 ( NS, Item id _ title ) ->
                     Model od (ES id title) seed
 
@@ -137,7 +137,7 @@ update message ((Model od st seed) as model) =
                     model
 
         TitleChanged changedTitle ->
-            case st of
+            case state of
                 ES editId _ ->
                     Model od
                         (if idOfOd od == editId then
