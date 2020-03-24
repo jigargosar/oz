@@ -72,8 +72,8 @@ subscriptions _ =
 
 
 view : Model -> Html Msg
-view model =
-    viewOD model.od
+view (Model od _) =
+    viewOD od
 
 
 
