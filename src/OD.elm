@@ -82,7 +82,7 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 
 
 
--- VIEW
+-- OUTLINE DOC VIEW
 
 
 view : OD -> Html msg
