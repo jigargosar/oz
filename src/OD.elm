@@ -36,18 +36,28 @@ type Model
 
 
 type alias Flags =
-    { now : Int }
+    { now : Int, od : Value }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    let
-        ( newOD, seed ) =
-            Random.step new (Random.initialSeed flags.now)
-    in
-    ( Model newOD seed
-    , Cmd.none
-    )
+    case JD.decodeValue (JD.nullable odDecoder) flags.od of
+        Ok Nothing ->
+            let
+                ( newOD, seed ) =
+                    Random.step new (Random.initialSeed flags.now)
+            in
+            ( Model newOD seed
+            , Cmd.none
+            )
+
+        Ok (Just od) ->
+            ( Model od (Random.initialSeed flags.now)
+            , Cmd.none
+            )
+
+        Err err ->
+            Debug.todo (JD.errorToString err)
 
 
 
@@ -118,8 +128,8 @@ odEncoder (OD pcs cs (LTR l t r)) =
         ]
 
 
-decoder : Decoder OD
-decoder =
+odDecoder : Decoder OD
+odDecoder =
     JD.succeed OD
         |> requiredList "pcs" crumbDecoder
         |> requiredList "cs" crumbDecoder
