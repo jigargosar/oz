@@ -166,8 +166,19 @@ update message ((Model state seed) as model) =
                         Item _ _ title ->
                             Model (Edit title od) seed
 
-                Edit _ _ ->
-                    model
+                Edit title od ->
+                    case nonBlank title of
+                        Just nbTitle ->
+                            Random.step (addNew (odSetTitle nbTitle od)) seed
+                                |> uncurry (NoEdit >> Model)
+
+                        Nothing ->
+                            case removeLeaf od of
+                                Just newOd ->
+                                    Model (NoEdit newOd) seed
+
+                                Nothing ->
+                                    model
 
         TitleChanged changedTitle ->
             case state of
@@ -337,6 +348,31 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
     else
         -- insertAfter
         OD pcs cs (LTR (t :: l) newT r)
+
+
+removeLeaf : OD -> Maybe OD
+removeLeaf ((OD _ _ (LTR _ t _)) as od) =
+    if hasChildren t then
+        Nothing
+
+    else
+        removeGoLeftRightOrUp od
+
+
+removeGoLeftRightOrUp : OD -> Maybe OD
+removeGoLeftRightOrUp (OD pcs cs (LTR l _ r)) =
+    case ( l, r, cs ) of
+        ( first :: rest, _, _ ) ->
+            Just (OD pcs cs (LTR rest first r))
+
+        ( _, first :: rest, _ ) ->
+            Just (OD pcs cs (LTR l first rest))
+
+        ( _, _, (Crumb crL item crR) :: rest ) ->
+            Just (OD pcs rest (LTR crL (T item []) crR))
+
+        _ ->
+            Nothing
 
 
 
