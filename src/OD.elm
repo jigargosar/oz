@@ -36,7 +36,15 @@ main =
 
 
 type Model
-    = Model OD Seed
+    = Model OD State Seed
+
+
+type alias State =
+    Maybe ES
+
+
+type ES
+    = ES Id String
 
 
 type alias Flags =
@@ -51,12 +59,12 @@ init flags =
                 ( newOD, seed ) =
                     Random.step new (Random.initialSeed flags.now)
             in
-            ( Model newOD seed
+            ( Model newOD Nothing seed
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Ok (Just od) ->
-            ( Model od (Random.initialSeed flags.now)
+            ( Model od Nothing (Random.initialSeed flags.now)
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
@@ -76,12 +84,12 @@ type Msg
 
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
-aroundUpdate msg ((Model oldOd _) as model) =
+aroundUpdate msg ((Model oldOd _ _) as model) =
     let
         newModel =
             update msg model
 
-        (Model newOd _) =
+        (Model newOd _ _) =
             newModel
     in
     ( newModel
@@ -102,14 +110,14 @@ cacheODCmd od =
 
 
 update : Msg -> Model -> Model
-update message ((Model od seed) as model) =
+update message ((Model od st seed) as model) =
     case message of
         NoOp ->
             model
 
         AddNew ->
             Random.step (addNew od) seed
-                |> uncurry Model
+                |> uncurry (\newOd -> Model newOd st)
 
         OnFocusResult (Ok ()) ->
             model
@@ -131,10 +139,10 @@ subscriptions _ =
 
 
 view : Model -> Html Msg
-view (Model od _) =
+view (Model od st _) =
     div []
         [ div [] [ text "OZ OUTLINING V2" ]
-        , viewOD od
+        , viewOD st od
         ]
 
 
@@ -214,8 +222,8 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 -- OUTLINE DOC VIEW
 
 
-viewOD : OD -> Html Msg
-viewOD (OD _ _ (LTR l t r)) =
+viewOD : Maybe ES -> OD -> Html Msg
+viewOD _ (OD _ _ (LTR l t r)) =
     div []
         (List.map (viewTree False) (List.reverse l)
             ++ viewTree True t
