@@ -137,7 +137,7 @@ cacheODCmd od =
 
 
 update : Msg -> Model -> Model
-update message ((Model od state seed) as model) =
+update message ((Model state seed) as model) =
     case message of
         NoOp ->
             model
@@ -149,47 +149,38 @@ update message ((Model od state seed) as model) =
             Debug.todo ("focus failed on: " ++ domId)
 
         AddNew ->
-            Random.step (addNew od) seed
-                |> uncurry (\newOd -> Model newOd state)
+            case state of
+                Edit _ _ ->
+                    model
+
+                NoEdit od ->
+                    Random.step (addNew od) seed
+                        |> uncurry (\newOd -> Model (NoEdit newOd))
 
         StartEditTitle ->
-            case ( state, itemOf od ) of
-                ( NoEdit, Item id _ title ) ->
-                    Model od (Edit id title) seed
+            case state of
+                NoEdit od ->
+                    case itemOf od of
+                        Item _ _ title ->
+                            Model (Edit title od) seed
 
-                ( Edit _ _, _ ) ->
+                Edit _ _ ->
                     model
 
         TitleChanged changedTitle ->
             case state of
-                Edit editId _ ->
-                    let
-                        newState =
-                            if idOfOd od == editId then
-                                Edit editId changedTitle
+                Edit _ od ->
+                    Model (Edit changedTitle od) seed
 
-                            else
-                                NoEdit
-                    in
-                    Model od newState seed
-
-                NoEdit ->
+                NoEdit _ ->
                     model
 
         SaveEditTitle ->
             case state of
-                Edit editId title ->
-                    Model
-                        (if idOfOd od == editId then
-                            odSetTitle title od
+                Edit title od ->
+                    Model (NoEdit (odSetTitle title od)) seed
 
-                         else
-                            od
-                        )
-                        NoEdit
-                        seed
-
-                NoEdit ->
+                NoEdit _ ->
                     model
 
 
