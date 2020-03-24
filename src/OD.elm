@@ -31,7 +31,7 @@ type T
 
 
 type Item
-    = Item ItemId Bool
+    = Item Id Bool
 
 
 itemFromId id =
