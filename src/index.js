@@ -22,7 +22,8 @@ require('tachyons')
         changes: JSON.parse(localStorage.getItem('changes') || null),
       },
     },
-    require('./Main.elm'),
+    // require('./Main.elm'),
+    require('./OD.elm'),
   )
 
   subscribe('getBeacons', function() {
