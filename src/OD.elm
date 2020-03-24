@@ -42,10 +42,10 @@ type alias Flags =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
-        ( od, seed ) =
+        ( newOD, seed ) =
             Random.step new (Random.initialSeed flags.now)
     in
-    ( Model od seed
+    ( Model newOD seed
     , Cmd.none
     )
 
