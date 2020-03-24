@@ -171,10 +171,12 @@ itemFromId id =
     Item id False ""
 
 
+itemCollapsed : Item -> Bool
 itemCollapsed (Item _ c _) =
     c
 
 
+itemDisplayTitle : Item -> String
 itemDisplayTitle (Item _ _ ti) =
     case nonBlank ti of
         Just title ->
