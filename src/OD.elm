@@ -81,7 +81,6 @@ init flags =
 type Msg
     = NoOp
     | OnFocusResult (Result Dom.Error ())
-    | AddNew
     | OnEnter
     | TitleChanged String
     | OnCursorUp
@@ -148,15 +147,6 @@ update message ((Model state seed) as model) =
 
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
-
-        AddNew ->
-            case state of
-                Edit _ _ ->
-                    model
-
-                NoEdit od ->
-                    Random.step (addNew od) seed
-                        |> uncurry (\newOd -> Model (NoEdit newOd))
 
         OnEnter ->
             case state of
