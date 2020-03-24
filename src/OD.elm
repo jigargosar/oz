@@ -228,7 +228,21 @@ update message ((Model state seed) as model) =
                     model
 
         Indent ->
-            model
+            let
+                maybeNewState =
+                    case state of
+                        NoEdit od ->
+                            indent od |> Maybe.map NoEdit
+
+                        Edit t od ->
+                            indent od |> Maybe.map (Edit t)
+            in
+            case maybeNewState of
+                Just newState ->
+                    Model newState seed
+
+                Nothing ->
+                    model
 
         UnIndent ->
             model
