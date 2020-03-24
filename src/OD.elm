@@ -1,4 +1,4 @@
-module OD exposing (main)
+port module OD exposing (main)
 
 import Browser
 import Html exposing (Html, div, text)
@@ -10,6 +10,9 @@ import Random exposing (Generator, Seed)
 import Utils exposing (..)
 
 
+port cacheKV : ( String, Value ) -> Cmd msg
+
+
 
 -- Main
 
@@ -19,7 +22,7 @@ main =
     Browser.element
         { init = init
         , view = view
-        , update = update
+        , update = aroundUpdate
         , subscriptions = subscriptions
         }
 
@@ -55,11 +58,28 @@ type Msg
     = NoOp
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
+aroundUpdate msg model =
+    let
+        newModel =
+            update msg model
+
+        (Model od _) =
+            newModel
+    in
+    ( newModel, cacheOD od )
+
+
+cacheOD : OD -> Cmd msg
+cacheOD od =
+    cacheKV ( "od", odEncoder od )
+
+
+update : Msg -> Model -> Model
 update message model =
     case message of
         NoOp ->
-            ( model, Cmd.none )
+            model
 
 
 subscriptions : Model -> Sub Msg
@@ -87,8 +107,8 @@ type OD
     = OD (List Crumb) (List Crumb) LTR
 
 
-encoder : OD -> Value
-encoder (OD pcs cs (LTR l t r)) =
+odEncoder : OD -> Value
+odEncoder (OD pcs cs (LTR l t r)) =
     JE.object
         [ ( "pcs", JE.list crumbEncoder pcs )
         , ( "cs", JE.list crumbEncoder cs )
