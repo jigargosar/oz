@@ -40,7 +40,7 @@ type Model
 
 
 type State
-    = ES Id String
+    = Edit Id String
     | NS
 
 
@@ -131,17 +131,17 @@ update message ((Model od state seed) as model) =
         StartEditTitle ->
             case ( state, itemOf od ) of
                 ( NS, Item id _ title ) ->
-                    Model od (ES id title) seed
+                    Model od (Edit id title) seed
 
                 _ ->
                     model
 
         TitleChanged changedTitle ->
             case state of
-                ES editId _ ->
+                Edit editId _ ->
                     Model od
                         (if idOfOd od == editId then
-                            ES editId changedTitle
+                            Edit editId changedTitle
 
                          else
                             NS
@@ -271,7 +271,7 @@ viewTree : State -> Bool -> T -> Html Msg
 viewTree st isHighlighted (T item ts) =
     div []
         [ case st of
-            ES editId editTitle ->
+            Edit editId editTitle ->
                 if isHighlighted && editId == idOf item then
                     viewTitleEditor editTitle
 
