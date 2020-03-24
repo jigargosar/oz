@@ -86,6 +86,7 @@ type Msg
     | TitleChanged String
     | SaveEditTitle
     | OnCursorUp
+    | OnCursorDown
 
 
 odOf : State -> OD
@@ -208,15 +209,40 @@ update message ((Model state seed) as model) =
                 _ ->
                     model
 
+        OnCursorDown ->
+            case state of
+                NoEdit od ->
+                    let
+                        tryRight (OD pcs cs (LTR l t r)) =
+                            case r of
+                                first :: rest ->
+                                    LTR (t :: l) first rest
+                                        |> OD pcs cs
+                                        |> Just
+
+                                [] ->
+                                    Nothing
+                    in
+                    case firstOf [ tryRight ] od of
+                        Just newOD ->
+                            Model (NoEdit newOD) seed
+
+                        Nothing ->
+                            model
+
+                _ ->
+                    model
+
 
 itemOf : OD -> Item
 itemOf (OD _ _ (LTR _ (T item _) _)) =
     item
 
 
-idOfOd : OD -> Id
-idOfOd =
-    itemOf >> idOf
+
+--idOfOd : OD -> Id
+--idOfOd =
+--    itemOf >> idOf
 
 
 odSetTitle : String -> OD -> OD
@@ -351,6 +377,7 @@ viewFocusedTitle title =
         , onKeyDownHelp
             [ ( KeyEvent.hot "Enter", StartEditTitle )
             , ( KeyEvent.hot "ArrowUp", OnCursorUp )
+            , ( KeyEvent.hot "ArrowDown", OnCursorDown )
             ]
         ]
         [ text (displayTitle title) ]
@@ -496,9 +523,10 @@ itemDecoder =
         |> requiredString "title"
 
 
-idOf : Item -> Id
-idOf (Item id _ _) =
-    id
+
+--idOf : Item -> Id
+--idOf (Item id _ _) =
+--    id
 
 
 itemFromId : Id -> Item
@@ -516,17 +544,16 @@ itemExpanded =
     itemCollapsed >> not
 
 
-itemDisplayTitle : Item -> String
-itemDisplayTitle (Item _ _ ti) =
-    case nonBlank ti of
-        Just title ->
-            title
 
-        Nothing ->
-            "Untitled"
-
-
-
+--itemDisplayTitle : Item -> String
+--itemDisplayTitle (Item _ _ ti) =
+--    case nonBlank ti of
+--        Just title ->
+--            title
+--
+--        Nothing ->
+--            "Untitled"
+--
 -- Id
 
 
