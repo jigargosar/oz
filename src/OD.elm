@@ -82,7 +82,7 @@ type Msg
     = NoOp
     | OnFocusResult (Result Dom.Error ())
     | AddNew
-    | StartEditTitle
+    | OnEnter
     | TitleChanged String
     | SaveEditTitle
     | OnCursorUp
@@ -159,7 +159,7 @@ update message ((Model state seed) as model) =
                     Random.step (addNew od) seed
                         |> uncurry (\newOd -> Model (NoEdit newOd))
 
-        StartEditTitle ->
+        OnEnter ->
             case state of
                 NoEdit od ->
                     case itemOf od of
@@ -375,7 +375,7 @@ viewFocusedTitle title =
         [ Html.Attributes.id "primary-focus-node"
         , tabindex 0
         , onKeyDownHelp
-            [ ( KeyEvent.hot "Enter", StartEditTitle )
+            [ ( KeyEvent.hot "Enter", OnEnter )
             , ( KeyEvent.hot "ArrowUp", OnCursorUp )
             , ( KeyEvent.hot "ArrowDown", OnCursorDown )
             ]
