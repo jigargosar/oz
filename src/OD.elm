@@ -52,12 +52,12 @@ init flags =
                     Random.step new (Random.initialSeed flags.now)
             in
             ( Model newOD seed
-            , Cmd.none
+            , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Ok (Just od) ->
             ( Model od (Random.initialSeed flags.now)
-            , Cmd.none
+            , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Err err ->
@@ -85,8 +85,7 @@ aroundUpdate msg model =
     in
     ( newModel
     , Cmd.batch
-        [ Dom.focus "primary-focus-node"
-            |> Task.attempt OnFocusResult
+        [ Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
         , cacheODCmd od
         ]
     )
