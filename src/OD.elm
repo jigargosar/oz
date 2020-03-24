@@ -3,9 +3,11 @@ port module OD exposing (main)
 import Browser
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, tabindex)
+import Html.Events
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
+import KeyEvent
 import Random exposing (Generator, Seed)
 import Utils exposing (..)
 
@@ -66,6 +68,7 @@ init flags =
 
 type Msg
     = NoOp
+    | AddNew
 
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
@@ -86,10 +89,14 @@ cacheODCmd od =
 
 
 update : Msg -> Model -> Model
-update message model =
+update message ((Model od seed) as model) =
     case message of
         NoOp ->
             model
+
+        AddNew ->
+            Random.step (addNew od) seed
+                |> uncurry Model
 
 
 subscriptions : Model -> Sub Msg
@@ -197,7 +204,19 @@ viewOD (OD _ _ (LTR l t r)) =
 viewTree : T -> Html Msg
 viewTree (T item ts) =
     div []
-        [ div [ tabindex 0 ] [ text (itemDisplayTitle item) ]
+        [ div
+            [ tabindex 0
+            , Html.Events.preventDefaultOn "keydown"
+                (KeyEvent.decoder
+                    |> JD.andThen
+                        (\ke ->
+                            condAlways [ ( KeyEvent.hot "Enter", AddNew ) ] ke
+                                |> Maybe.map (\msg -> JD.succeed ( msg, True ))
+                                |> Maybe.withDefault (JD.fail "Not interested")
+                        )
+                )
+            ]
+            [ text (itemDisplayTitle item) ]
         , div [ class "pr3" ] (List.map viewTree ts)
         ]
 
