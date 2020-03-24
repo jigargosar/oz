@@ -142,10 +142,10 @@ update message ((Model od st seed) as model) =
                     model
 
         TitleChanged changedTitle ->
-            case ( st, itemOf od ) of
-                ( Just (ES editId _), Item id _ _ ) ->
+            case st of
+                Just (ES editId _) ->
                     Model od
-                        (if id == editId then
+                        (if idOfOd od == editId then
                             Just (ES editId changedTitle)
 
                          else
