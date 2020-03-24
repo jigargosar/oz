@@ -1,12 +1,79 @@
-module OD exposing (Item, OD, addNew, new, view)
+module OD exposing (Item, OD, addNew, new, viewOD)
 
+import Browser
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Random exposing (Generator)
+import Random exposing (Generator, Seed)
 import Utils exposing (..)
+
+
+
+-- Main
+
+
+main : Program Flags Model Msg
+main =
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
+
+
+
+-- Model
+
+
+type Model
+    = Model OD Seed
+
+
+type alias Flags =
+    { now : Int }
+
+
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    let
+        ( od, seed ) =
+            Random.step new (Random.initialSeed flags.now)
+    in
+    ( Model od seed
+    , Cmd.none
+    )
+
+
+
+-- Update
+
+
+type Msg
+    = NoOp
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update message model =
+    case message of
+        NoOp ->
+            ( model, Cmd.none )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.batch []
+
+
+
+-- VIEW
+
+
+view : Model -> Html Msg
+view model =
+    viewOD model.od
 
 
 
@@ -85,8 +152,8 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 -- OUTLINE DOC VIEW
 
 
-view : OD -> Html msg
-view (OD _ _ (LTR l t r)) =
+viewOD : OD -> Html Msg
+viewOD (OD _ _ (LTR l t r)) =
     div []
         (List.map viewTree (List.reverse l)
             ++ viewTree t
@@ -94,7 +161,7 @@ view (OD _ _ (LTR l t r)) =
         )
 
 
-viewTree : T -> Html msg
+viewTree : T -> Html Msg
 viewTree (T item ts) =
     div []
         [ div [] [ text (itemDisplayTitle item) ]
