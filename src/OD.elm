@@ -165,6 +165,11 @@ idOfOd =
     itemOf >> idOf
 
 
+odSetTitle : String -> OD -> OD
+odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
+    OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
+
+
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch []
