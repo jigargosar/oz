@@ -141,6 +141,10 @@ treeHasExpandedChildren (T item ts) =
     List.isEmpty ts || itemCollapsed item
 
 
+
+-- ITEM
+
+
 type Item
     = Item Id Bool String
 
