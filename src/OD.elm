@@ -41,7 +41,7 @@ type Model
 
 type State
     = Edit Id String
-    | NS
+    | NoState
 
 
 type alias Flags =
@@ -56,12 +56,12 @@ init flags =
                 ( newOD, seed ) =
                     Random.step new (Random.initialSeed flags.now)
             in
-            ( Model newOD NS seed
+            ( Model newOD NoState seed
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Ok (Just od) ->
-            ( Model od NS (Random.initialSeed flags.now)
+            ( Model od NoState (Random.initialSeed flags.now)
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
@@ -96,7 +96,7 @@ aroundUpdate msg ((Model oldOd oldState _) as model) =
 
         stateSwitched =
             (oldState /= newState)
-                && (oldState == NS || newState == NS)
+                && (oldState == NoState || newState == NoState)
     in
     ( newModel
     , Cmd.batch
@@ -130,7 +130,7 @@ update message ((Model od state seed) as model) =
 
         StartEditTitle ->
             case ( state, itemOf od ) of
-                ( NS, Item id _ title ) ->
+                ( NoState, Item id _ title ) ->
                     Model od (Edit id title) seed
 
                 _ ->
@@ -144,7 +144,7 @@ update message ((Model od state seed) as model) =
                             Edit editId changedTitle
 
                          else
-                            NS
+                            NoState
                         )
                         seed
 
@@ -152,7 +152,7 @@ update message ((Model od state seed) as model) =
                     model
 
         SaveEditTitle ->
-            Model od NS seed
+            Model od NoState seed
 
 
 itemOf : OD -> Item
@@ -278,7 +278,7 @@ viewTree st isHighlighted (T item ts) =
                 else
                     viewTitle isHighlighted item
 
-            NS ->
+            NoState ->
                 viewTitle isHighlighted item
         , div [ class "pr3" ] (List.map (viewTree st False) ts)
         ]
