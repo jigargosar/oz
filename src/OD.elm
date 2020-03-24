@@ -5,6 +5,15 @@ import Random exposing (Generator)
 import Utils exposing (flip)
 
 
+type alias Id =
+    ItemId
+
+
+idGen : Generator Id
+idGen =
+    ItemId.generator
+
+
 type OD
     = OD (List Crumb) (List Crumb) LTR
 
@@ -43,7 +52,7 @@ treeHasExpandedChildren (T item ts) =
 
 new : Generator OD
 new =
-    ItemId.generator
+    idGen
         |> Random.map newHelp
 
 
@@ -54,7 +63,7 @@ newHelp id =
 
 addNew : OD -> Generator OD
 addNew od =
-    ItemId.generator |> Random.map (flip addNewHelp od)
+    idGen |> Random.map (flip addNewHelp od)
 
 
 addNewHelp : ItemId -> OD -> OD
