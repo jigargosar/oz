@@ -239,15 +239,8 @@ viewTree st isHighlighted (T item ts) =
                 ++ (if isHighlighted then
                         [ Html.Attributes.id "primary-focus-node"
                         , tabindex 0
-                        , Html.Events.preventDefaultOn "keydown"
-                            (KeyEvent.decoder
-                                |> JD.andThen
-                                    (\ke ->
-                                        condAlways [ ( KeyEvent.hot "Enter", StartEditTitle (idOf item) ) ] ke
-                                            |> Maybe.map (\msg -> JD.succeed ( msg, True ))
-                                            |> Maybe.withDefault (JD.fail "Not interested")
-                                    )
-                            )
+                        , onKeyDownHelp
+                            [ ( KeyEvent.hot "Enter", StartEditTitle (idOf item) ) ]
                         ]
 
                     else
@@ -257,6 +250,18 @@ viewTree st isHighlighted (T item ts) =
             [ text (itemDisplayTitle item) ]
         , div [ class "pr3" ] (List.map (viewTree st False) ts)
         ]
+
+
+onKeyDownHelp conditions =
+    Html.Events.preventDefaultOn "keydown"
+        (KeyEvent.decoder
+            |> JD.andThen
+                (\ke ->
+                    condAlways conditions ke
+                        |> Maybe.map (\msg -> JD.succeed ( msg, True ))
+                        |> Maybe.withDefault (JD.fail "Not interested")
+                )
+        )
 
 
 
