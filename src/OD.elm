@@ -134,7 +134,7 @@ update message ((Model od st seed) as model) =
             Debug.todo ("focus failed on: " ++ domId)
 
         StartEditTitle ->
-            case ( st, odItem od ) of
+            case ( st, itemOf od ) of
                 ( Nothing, Item id _ title ) ->
                     Model od (Just (ES id title)) seed
 
@@ -142,7 +142,7 @@ update message ((Model od st seed) as model) =
                     model
 
         TitleChanged changedTitle ->
-            case ( st, odItem od ) of
+            case ( st, itemOf od ) of
                 ( Just (ES editId _), Item id _ _ ) ->
                     Model od
                         (if id == editId then
@@ -160,9 +160,14 @@ update message ((Model od st seed) as model) =
             Model od Nothing seed
 
 
-odItem : OD -> Item
-odItem (OD _ _ (LTR _ (T item _) _)) =
+itemOf : OD -> Item
+itemOf (OD _ _ (LTR _ (T item _) _)) =
     item
+
+
+idOfOd : OD -> Id
+idOfOd =
+    itemOf >> idOf
 
 
 subscriptions : Model -> Sub Msg
@@ -419,10 +424,9 @@ itemDecoder =
         |> requiredString "title"
 
 
-
---idOf : Item -> Id
---idOf (Item id _ _) =
---    id
+idOf : Item -> Id
+idOf (Item id _ _) =
+    id
 
 
 itemFromId : Id -> Item
