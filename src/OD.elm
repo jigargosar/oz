@@ -169,11 +169,7 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
         newT =
             treeFromId id
     in
-    if treeHasExpandedChildren t then
-        -- insertAfter
-        OD pcs cs (LTR (t :: l) newT r)
-
-    else
+    if hasVisibleChildren t then
         -- prepend child
         let
             (T item children) =
@@ -186,6 +182,10 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
                 LTR [] newT children
         in
         OD pcs (newCrumb :: cs) newLTR
+
+    else
+        -- insertAfter
+        OD pcs cs (LTR (t :: l) newT r)
 
 
 
@@ -278,9 +278,14 @@ treeFromId id =
     T (itemFromId id) []
 
 
-treeHasExpandedChildren : T -> Bool
-treeHasExpandedChildren (T item ts) =
-    List.isEmpty ts || itemCollapsed item
+hasChildren : T -> Bool
+hasChildren (T _ ts) =
+    not (List.isEmpty ts)
+
+
+hasVisibleChildren : T -> Bool
+hasVisibleChildren ((T item _) as t) =
+    hasChildren t && itemExpanded item
 
 
 
@@ -316,6 +321,11 @@ itemFromId id =
 itemCollapsed : Item -> Bool
 itemCollapsed (Item _ c _) =
     c
+
+
+itemExpanded : Item -> Bool
+itemExpanded =
+    itemCollapsed >> not
 
 
 itemDisplayTitle : Item -> String
