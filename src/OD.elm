@@ -119,11 +119,12 @@ itemDecoder =
         |> requiredString "title"
 
 
+itemFromId : Id -> Item
 itemFromId id =
-    Item id False
+    Item id False ""
 
 
-itemCollapsed (Item _ c) =
+itemCollapsed (Item _ c _) =
     c
 
 
