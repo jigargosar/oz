@@ -71,7 +71,7 @@ init flags =
 type Msg
     = NoOp
     | AddNew
-    | EditTitle Id
+    | StartEditTitle Id
     | OnFocusResult (Result Dom.Error ())
 
 
@@ -117,7 +117,7 @@ update message ((Model od seed) as model) =
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
 
-        EditTitle id ->
+        StartEditTitle id ->
             model
 
 
@@ -235,7 +235,7 @@ viewTree isHighlighted (T item ts) =
                             (KeyEvent.decoder
                                 |> JD.andThen
                                     (\ke ->
-                                        condAlways [ ( KeyEvent.hot "Enter", EditTitle (idOf item) ) ] ke
+                                        condAlways [ ( KeyEvent.hot "Enter", StartEditTitle (idOf item) ) ] ke
                                             |> Maybe.map (\msg -> JD.succeed ( msg, True ))
                                             |> Maybe.withDefault (JD.fail "Not interested")
                                     )
