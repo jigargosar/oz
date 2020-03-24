@@ -53,6 +53,14 @@ condAlways conditions =
     cond (List.map (Tuple.mapSecond always) conditions)
 
 
+cmdIf bool cmd =
+    if bool then
+        cmd
+
+    else
+        Cmd.none
+
+
 apply : a -> (a -> b) -> b
 apply =
     (|>)

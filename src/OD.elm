@@ -86,19 +86,25 @@ type Msg
 
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
-aroundUpdate msg ((Model oldOd _ _) as model) =
+aroundUpdate msg ((Model oldOd oldState _) as model) =
     let
         newModel =
             update msg model
 
-        (Model newOd _ _) =
+        (Model newOd newState _) =
             newModel
+
+        odChanged =
+            oldOd /= newOd
+
+        stateSwitched =
+            oldState /= newState && (oldState == Nothing || newState == Nothing)
     in
     ( newModel
-    , if oldOd /= newOd then
+    , if odChanged then
         Cmd.batch
-            [ Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
-            , cacheODCmd newOd
+            [ cmdIf (odChanged || stateSwitched) (Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult)
+            , cmdIf odChanged (cacheODCmd newOd)
             ]
 
       else
@@ -282,17 +288,20 @@ viewTree st isHighlighted (T item ts) =
 
 viewTitleEditor : ES -> Html Msg
 viewTitleEditor (ES _ title) =
-    input
-        [ Html.Attributes.id "primary-focus-node"
-        , tabindex 0
-        , value title
-        , onInput TitleChanged
-        , onKeyDownHelp
-            [ ( KeyEvent.hot "Enter", SaveEditTitle ) ]
+    div []
+        [ input
+            [ Html.Attributes.id "primary-focus-node"
+            , tabindex 0
+            , value title
+            , onInput TitleChanged
+            , onKeyDownHelp
+                [ ( KeyEvent.hot "Enter", SaveEditTitle ) ]
+            ]
+            []
         ]
-        []
 
 
+viewTitle : Bool -> Item -> Html Msg
 viewTitle isHighlighted item =
     div
         (if isHighlighted then
