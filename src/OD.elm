@@ -318,6 +318,14 @@ viewTree isHighlighted (T (Item _ _ title) ts) =
         ]
 
 
+viewBasicTree : T -> Html Msg
+viewBasicTree (T (Item _ _ title) ts) =
+    div []
+        [ viewBasicTitle title
+        , div [ class "pr3" ] (List.map viewBasicTree ts)
+        ]
+
+
 viewTitleEditor : String -> Html Msg
 viewTitleEditor title =
     div []
