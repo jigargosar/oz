@@ -1,5 +1,7 @@
 module OD exposing (Item, OD, addNew, new)
 
+import Html exposing (Html, div, text)
+import Html.Attributes exposing (class)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -88,15 +90,24 @@ treeDecoder =
         |> requiredList "ts" (JD.lazy (\_ -> treeDecoder))
 
 
+treeFromId id =
+    T (itemFromId id) []
+
+
+treeHasExpandedChildren (T item ts) =
+    List.isEmpty ts || itemCollapsed item
+
+
 type Item
-    = Item Id Bool
+    = Item Id Bool String
 
 
 itemEncoder : Item -> Value
-itemEncoder (Item id collapsed) =
+itemEncoder (Item id collapsed title) =
     JE.object
         [ ( "id", ItemId.itemIdEncoder id )
         , ( "collapsed", JE.bool collapsed )
+        , ( "title", JE.string title )
         ]
 
 
@@ -105,6 +116,7 @@ itemDecoder =
     JD.succeed Item
         |> required "id" ItemId.itemIdDecoder
         |> requiredBool "collapsed"
+        |> requiredString "title"
 
 
 itemFromId id =
@@ -115,12 +127,13 @@ itemCollapsed (Item _ c) =
     c
 
 
-treeFromId id =
-    T (itemFromId id) []
+itemDisplayTitle (Item _ _ ti) =
+    case nonBlank ti of
+        Just title ->
+            title
 
-
-treeHasExpandedChildren (T item ts) =
-    List.isEmpty ts || itemCollapsed item
+        Nothing ->
+            "Untitled"
 
 
 new : Generator OD
@@ -161,3 +174,20 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
                 LTR [] newT children
         in
         OD pcs (newCrumb :: cs) newLTR
+
+
+view : OD -> Html msg
+view (OD _ _ (LTR l t r)) =
+    div []
+        (List.map viewTree (List.reverse l)
+            ++ viewTree t
+            :: List.map viewTree r
+        )
+
+
+viewTree : T -> Html msg
+viewTree (T item ts) =
+    div []
+        [ div [] [ text (itemDisplayTitle item) ]
+        , div [ class "pr3" ] (List.map viewTree ts)
+        ]
