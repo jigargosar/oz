@@ -41,7 +41,7 @@ type Model
 
 type State
     = Edit Id String
-    | NoState
+    | NoEdit
 
 
 type alias Flags =
@@ -56,12 +56,12 @@ init flags =
                 ( newOD, seed ) =
                     Random.step new (Random.initialSeed flags.now)
             in
-            ( Model newOD NoState seed
+            ( Model newOD NoEdit seed
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Ok (Just od) ->
-            ( Model od NoState (Random.initialSeed flags.now)
+            ( Model od NoEdit (Random.initialSeed flags.now)
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
@@ -96,7 +96,7 @@ aroundUpdate msg ((Model oldOd oldState _) as model) =
 
         stateSwitched =
             (oldState /= newState)
-                && (oldState == NoState || newState == NoState)
+                && (oldState == NoEdit || newState == NoEdit)
     in
     ( newModel
     , Cmd.batch
@@ -130,10 +130,10 @@ update message ((Model od state seed) as model) =
 
         StartEditTitle ->
             case ( state, itemOf od ) of
-                ( NoState, Item id _ title ) ->
+                ( NoEdit, Item id _ title ) ->
                     Model od (Edit id title) seed
 
-                _ ->
+                ( Edit _ _, _ ) ->
                     model
 
         TitleChanged changedTitle ->
@@ -144,15 +144,15 @@ update message ((Model od state seed) as model) =
                             Edit editId changedTitle
 
                          else
-                            NoState
+                            NoEdit
                         )
                         seed
 
-                _ ->
+                NoEdit ->
                     model
 
         SaveEditTitle ->
-            Model od NoState seed
+            Model od NoEdit seed
 
 
 itemOf : OD -> Item
@@ -278,7 +278,7 @@ viewTree st isHighlighted (T item ts) =
                 else
                     viewTitle isHighlighted item
 
-            NoState ->
+            NoEdit ->
                 viewTitle isHighlighted item
         , div [ class "pr3" ] (List.map (viewTree st False) ts)
         ]
