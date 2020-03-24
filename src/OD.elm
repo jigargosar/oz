@@ -80,6 +80,7 @@ type Msg
     = NoOp
     | AddNew
     | StartEditTitle Id
+    | SaveEditTitle Id
     | OnFocusResult (Result Dom.Error ())
 
 
@@ -126,6 +127,9 @@ update message ((Model od st seed) as model) =
             Debug.todo ("focus failed on: " ++ domId)
 
         StartEditTitle id ->
+            model
+
+        SaveEditTitle id ->
             model
 
 
@@ -234,9 +238,29 @@ viewOD st (OD _ _ (LTR l t r)) =
 viewTree : State -> Bool -> T -> Html Msg
 viewTree st isHighlighted (T item ts) =
     div []
-        [ viewTitle isHighlighted item
+        [ case st of
+            Just ((ES id _) as es) ->
+                if isHighlighted && id /= idOf item then
+                    Debug.todo "invalid edit state"
+
+                else
+                    viewTitleEditor es
+
+            Nothing ->
+                viewTitle isHighlighted item
         , div [ class "pr3" ] (List.map (viewTree st False) ts)
         ]
+
+
+viewTitleEditor : ES -> Html Msg
+viewTitleEditor (ES id title) =
+    div
+        [ Html.Attributes.id "primary-focus-node"
+        , tabindex 0
+        , onKeyDownHelp
+            [ ( KeyEvent.hot "Enter", SaveEditTitle id ) ]
+        ]
+        [ text title ]
 
 
 viewTitle isHighlighted item =
