@@ -1,6 +1,7 @@
 port module OD exposing (main)
 
 import Browser
+import Browser.Dom as Dom
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, tabindex)
 import Html.Events
@@ -9,6 +10,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import KeyEvent
 import Random exposing (Generator, Seed)
+import Task
 import Utils exposing (..)
 
 
@@ -69,6 +71,7 @@ init flags =
 type Msg
     = NoOp
     | AddNew
+    | OnFocusResult (Result Dom.Error ())
 
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,7 +83,13 @@ aroundUpdate msg model =
         (Model od _) =
             newModel
     in
-    ( newModel, cacheODCmd od )
+    ( newModel
+    , Cmd.batch
+        [ Dom.focus "primary-focus-node"
+            |> Task.attempt OnFocusResult
+        , cacheODCmd od
+        ]
+    )
 
 
 cacheODCmd : OD -> Cmd msg
@@ -97,6 +106,12 @@ update message ((Model od seed) as model) =
         AddNew ->
             Random.step (addNew od) seed
                 |> uncurry Model
+
+        OnFocusResult (Ok ()) ->
+            model
+
+        OnFocusResult (Err (Dom.NotFound domId)) ->
+            Debug.todo ("focus failed on: " ++ domId)
 
 
 subscriptions : Model -> Sub Msg
@@ -217,7 +232,7 @@ viewTree isHighlighted (T item ts) =
                 )
              ]
                 ++ (if isHighlighted then
-                        [ Html.Attributes.id "should-have-dom-focus" ]
+                        [ Html.Attributes.id "primary-focus-node" ]
 
                     else
                         []
