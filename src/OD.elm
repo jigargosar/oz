@@ -1,6 +1,7 @@
 module OD exposing (Item, OD, addNew, new)
 
 import ItemId exposing (ItemId)
+import Json.Encode as JE exposing (Value)
 import Random exposing (Generator)
 import Utils exposing (flip)
 
@@ -18,9 +19,28 @@ type OD
     = OD (List Crumb) (List Crumb) LTR
 
 
+encoder : OD -> Value
+encoder (OD pcs cs (LTR l t r)) =
+    JE.object
+        [ ( "pcs", JE.list crumbEncoder pcs )
+        , ( "cs", JE.list crumbEncoder cs )
+        , ( "l", JE.list treeEncoder l )
+        , ( "t", treeEncoder t )
+        , ( "r", JE.list treeEncoder r )
+        ]
+
+
+
 type Crumb
     = Crumb (List T) Item (List T)
 
+crumbEncoder : Crumb -> Value
+crumbEncoder (Crumb l item r) =
+    JE.object [
+    ("l",JE.list treeEncoder l)
+    ,("item",itemEncoder item)
+    ,("r",JE.list treeEncoder r)
+    ]
 
 type LTR
     = LTR (List T) T (List T)
@@ -29,10 +49,23 @@ type LTR
 type T
     = T Item (List T)
 
+treeEncoder : T -> Value
+treeEncoder (T item ts) =
+    JE.object[
+    ("item", itemEncoder item )
+    ,("ts", JE.list treeEncoder ts
+    ]
+
 
 type Item
     = Item Id Bool
 
+itemEncoder: Item -> Value
+itemEncoder (Item id collapsed) =
+    JE.object [
+    ("id", ItemId.itemIdEncoder id)
+    ,("collapsed", JE.bool collapsed)
+    ]
 
 itemFromId id =
     Item id False
