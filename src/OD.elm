@@ -239,12 +239,8 @@ viewTree : State -> Bool -> T -> Html Msg
 viewTree st isHighlighted (T item ts) =
     div []
         [ case st of
-            Just ((ES id _) as es) ->
-                if isHighlighted && id /= idOf item then
-                    Debug.todo "invalid edit state"
-
-                else
-                    viewTitleEditor es
+            Just es ->
+                viewTitleEditor es
 
             Nothing ->
                 viewTitle isHighlighted item
