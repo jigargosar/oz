@@ -131,7 +131,7 @@ update message ((Model od st seed) as model) =
                 Nothing ->
                     Model od (Just (initES od)) seed
 
-                Just (ES _ _) ->
+                _ ->
                     model
 
         SaveEditTitle ->
