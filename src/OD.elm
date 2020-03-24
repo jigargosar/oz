@@ -1,9 +1,10 @@
 module OD exposing (Item, OD, addNew, new)
 
 import ItemId exposing (ItemId)
+import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Random exposing (Generator)
-import Utils exposing (flip)
+import Utils exposing (..)
 
 
 type alias Id =
@@ -30,17 +31,39 @@ encoder (OD pcs cs (LTR l t r)) =
         ]
 
 
+decoder : Decoder OD
+decoder =
+    JD.succeed OD
+        |> requiredList "pcs" crumbDecoder
+        |> requiredList "cs" crumbDecoder
+        |> JD.map2 (|>)
+            (JD.succeed LTR
+                |> requiredList "l" treeDecoder
+                |> required "t" treeDecoder
+                |> requiredList "r" treeDecoder
+            )
+
 
 type Crumb
     = Crumb (List T) Item (List T)
 
+
 crumbEncoder : Crumb -> Value
 crumbEncoder (Crumb l item r) =
-    JE.object [
-    ("l",JE.list treeEncoder l)
-    ,("item",itemEncoder item)
-    ,("r",JE.list treeEncoder r)
-    ]
+    JE.object
+        [ ( "l", JE.list treeEncoder l )
+        , ( "item", itemEncoder item )
+        , ( "r", JE.list treeEncoder r )
+        ]
+
+
+crumbDecoder : Decoder Crumb
+crumbDecoder =
+    JD.succeed Crumb
+        |> requiredList "l" treeDecoder
+        |> required "item" itemDecoder
+        |> requiredList "r" treeDecoder
+
 
 type LTR
     = LTR (List T) T (List T)
@@ -49,23 +72,40 @@ type LTR
 type T
     = T Item (List T)
 
+
 treeEncoder : T -> Value
 treeEncoder (T item ts) =
-    JE.object[
-    ("item", itemEncoder item )
-    ,("ts", JE.list treeEncoder ts
-    ]
+    JE.object
+        [ ( "item", itemEncoder item )
+        , ( "ts", JE.list treeEncoder ts )
+        ]
+
+
+treeDecoder : Decoder T
+treeDecoder =
+    JD.succeed T
+        |> required "item" itemDecoder
+        |> requiredList "ts" (JD.lazy (\_ -> treeDecoder))
 
 
 type Item
     = Item Id Bool
 
-itemEncoder: Item -> Value
+
+itemEncoder : Item -> Value
 itemEncoder (Item id collapsed) =
-    JE.object [
-    ("id", ItemId.itemIdEncoder id)
-    ,("collapsed", JE.bool collapsed)
-    ]
+    JE.object
+        [ ( "id", ItemId.itemIdEncoder id )
+        , ( "collapsed", JE.bool collapsed )
+        ]
+
+
+itemDecoder : Decoder Item
+itemDecoder =
+    JD.succeed Item
+        |> required "id" ItemId.itemIdDecoder
+        |> requiredBool "collapsed"
+
 
 itemFromId id =
     Item id False

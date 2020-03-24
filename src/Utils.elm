@@ -33,6 +33,10 @@ requiredString name =
     required name JD.string
 
 
+requiredList name liDecoder =
+    required name (JD.list liDecoder)
+
+
 allPass : List (b -> Bool) -> b -> Bool
 allPass fs val =
     List.all ((|>) val) fs
