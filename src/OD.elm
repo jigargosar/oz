@@ -223,19 +223,19 @@ viewTree : Bool -> T -> Html Msg
 viewTree isHighlighted (T item ts) =
     div []
         [ div
-            ([ Html.Events.preventDefaultOn "keydown"
-                (KeyEvent.decoder
-                    |> JD.andThen
-                        (\ke ->
-                            condAlways [ ( KeyEvent.hot "Enter", AddNew ) ] ke
-                                |> Maybe.map (\msg -> JD.succeed ( msg, True ))
-                                |> Maybe.withDefault (JD.fail "Not interested")
-                        )
-                )
-             ]
+            ([]
                 ++ (if isHighlighted then
                         [ Html.Attributes.id "primary-focus-node"
                         , tabindex 0
+                        , Html.Events.preventDefaultOn "keydown"
+                            (KeyEvent.decoder
+                                |> JD.andThen
+                                    (\ke ->
+                                        condAlways [ ( KeyEvent.hot "Enter", AddNew ) ] ke
+                                            |> Maybe.map (\msg -> JD.succeed ( msg, True ))
+                                            |> Maybe.withDefault (JD.fail "Not interested")
+                                    )
+                            )
                         ]
 
                     else
