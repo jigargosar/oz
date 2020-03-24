@@ -79,7 +79,7 @@ init flags =
 type Msg
     = NoOp
     | AddNew
-    | StartEditTitle Id
+    | StartEditTitle
     | SaveEditTitle
     | OnFocusResult (Result Dom.Error ())
 
@@ -126,11 +126,21 @@ update message ((Model od st seed) as model) =
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
 
-        StartEditTitle id ->
-            model
+        StartEditTitle ->
+            case st of
+                Nothing ->
+                    Model od (Just (initES od)) seed
+
+                Just (ES _ _) ->
+                    model
 
         SaveEditTitle ->
             model
+
+
+initES : OD -> ES
+initES (OD _ _ (LTR _ (T (Item id _ title) _) _)) =
+    ES id title
 
 
 subscriptions : Model -> Sub Msg
@@ -265,7 +275,7 @@ viewTitle isHighlighted item =
             [ Html.Attributes.id "primary-focus-node"
             , tabindex 0
             , onKeyDownHelp
-                [ ( KeyEvent.hot "Enter", StartEditTitle (idOf item) ) ]
+                [ ( KeyEvent.hot "Enter", StartEditTitle ) ]
             ]
 
          else
