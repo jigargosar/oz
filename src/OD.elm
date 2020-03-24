@@ -298,7 +298,7 @@ viewOD state =
         Edit title (OD _ _ (LTR l t r)) ->
             div []
                 (List.map viewBasicTree (List.reverse l)
-                    ++ viewFocusedTree t
+                    ++ viewTitleEditorTree title t
                     :: List.map viewBasicTree r
                 )
 
@@ -329,10 +329,10 @@ viewFocusedTitle title =
         [ text (displayTitle title) ]
 
 
-viewBasicTree : T -> Html Msg
-viewBasicTree (T (Item _ _ title) ts) =
+viewTitleEditorTree : String -> T -> Html Msg
+viewTitleEditorTree title (T _ ts) =
     div []
-        [ div [] [ text (displayTitle title) ]
+        [ viewTitleEditor title
         , div [ class "pr3" ] (List.map viewBasicTree ts)
         ]
 
@@ -349,6 +349,14 @@ viewTitleEditor title =
                 [ ( KeyEvent.hot "Enter", SaveEditTitle ) ]
             ]
             []
+        ]
+
+
+viewBasicTree : T -> Html Msg
+viewBasicTree (T (Item _ _ title) ts) =
+    div []
+        [ div [] [ text (displayTitle title) ]
+        , div [ class "pr3" ] (List.map viewBasicTree ts)
         ]
 
 
