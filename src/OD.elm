@@ -85,6 +85,8 @@ type Msg
     | TitleChanged String
     | OnCursorUp
     | OnCursorDown
+    | Indent
+    | UnIndent
 
 
 odOf : State -> OD
@@ -224,6 +226,12 @@ update message ((Model state seed) as model) =
 
                 _ ->
                     model
+
+        Indent ->
+            model
+
+        UnIndent ->
+            model
 
 
 itemOf : OD -> Item
