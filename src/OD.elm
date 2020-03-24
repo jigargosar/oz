@@ -98,7 +98,10 @@ aroundUpdate msg ((Model oldOd oldState _) as model) =
             oldOd /= newOd
 
         stateSwitched =
-            oldState /= newState && (oldState == Nothing || newState == Nothing)
+            oldState
+                /= newState
+                && (oldState == Nothing || newState == Nothing)
+                |> Debug.log "debug"
     in
     ( newModel
     , if odChanged then
