@@ -339,6 +339,16 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
         OD pcs cs (LTR (t :: l) newT r)
 
 
+indent : OD -> Maybe OD
+indent (OD pcs cs (LTR l t r)) =
+    case l of
+        [] ->
+            Nothing
+
+        (T item ts) :: rest ->
+            Just (OD pcs (Crumb rest item r :: cs) (LTR (List.reverse ts) t []))
+
+
 removeLeaf : OD -> Maybe OD
 removeLeaf ((OD _ _ (LTR _ t _)) as od) =
     if hasChildren t then
