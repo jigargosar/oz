@@ -84,7 +84,6 @@ type Msg
     | AddNew
     | OnEnter
     | TitleChanged String
-    | SaveEditTitle
     | OnCursorUp
     | OnCursorDown
 
@@ -184,14 +183,6 @@ update message ((Model state seed) as model) =
             case state of
                 Edit _ od ->
                     Model (Edit changedTitle od) seed
-
-                NoEdit _ ->
-                    model
-
-        SaveEditTitle ->
-            case state of
-                Edit title od ->
-                    Model (NoEdit (odSetTitle title od)) seed
 
                 NoEdit _ ->
                     model
@@ -436,7 +427,7 @@ viewTitleEditor title =
             , value title
             , onInput TitleChanged
             , onKeyDownHelp
-                [ ( KeyEvent.hot "Enter", SaveEditTitle ) ]
+                [ ( KeyEvent.hot "Enter", OnEnter ) ]
             ]
             []
         ]
