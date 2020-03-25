@@ -633,14 +633,14 @@ collapsedStateIconName =
     expand_more
 
 
-expandedStateIconName =
-    chevron_right
-
-
-viewLine : String -> IV -> HM
-viewLine iconName iv =
+viewLine : Bool -> String -> IV -> HM
+viewLine hideIcon iconName iv =
     div [ class "flex" ]
-        [ i [ class "self-start pa2 material-icons md-24  light-silver" ] [ text iconName ]
+        [ i
+            [ class "self-start pv2 ph1 material-icons md-24 light-silver"
+            , classIf hideIcon "o-0"
+            ]
+            [ text iconName ]
         , div [ class "flex-auto flex f4 lh-copy" ] [ viewIV iv ]
         ]
 
@@ -650,13 +650,13 @@ viewTV tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
-                [ viewLine collapsedStateIconName iv ]
+                [ viewLine True "chevron_right" iv ]
 
             TVCollapsed iv ->
-                [ viewLine collapsedStateIconName iv ]
+                [ viewLine False "chevron_right" iv ]
 
             TVExpanded iv tvs ->
-                [ viewLine expandedStateIconName iv
+                [ viewLine False "expand_more" iv
                 , treeChildrenContainer <|
                     List.map viewTV tvs
                 ]
