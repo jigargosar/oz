@@ -2,7 +2,6 @@ port module OD exposing (main)
 
 import Browser
 import Browser.Dom as Dom
-import CollapseState exposing (CollapseState)
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (class, tabindex, value)
 import Html.Events exposing (onInput)
@@ -523,7 +522,7 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 
 
 
--- OUTLINE DOC VIEW
+-- OD VM
 
 
 type IV
@@ -586,6 +585,41 @@ toTV (T (Item _ collapsed title) ts) =
             TVExpanded (IVShow title) (List.map toTV ts)
 
 
+
+-- OD VM View
+
+
+viewTV : TV -> HM
+viewTV tv =
+    treeContainer <|
+        case tv of
+            TVLeaf iv ->
+                [ viewIV iv ]
+
+            TVCollapsed iv ->
+                [ viewIV iv ]
+
+            TVExpanded iv tvs ->
+                [ viewIV iv, treeChildrenContainer (List.map viewTV tvs) ]
+
+
+viewIV : IV -> HM
+viewIV iv =
+    case iv of
+        IVEdit title ->
+            viewTitleEditor title
+
+        IVShow title ->
+            viewBasicTitle title
+
+        IVShowFocused title ->
+            viewFocusedTitle title
+
+
+
+-- OUTLINE DOC VIEW
+
+
 viewOD : State -> Html Msg
 viewOD state =
     case state of
@@ -613,7 +647,7 @@ viewCrumbs cs lhm =
         (Crumb l item r) :: rest ->
             viewCrumbs rest
                 (List.map viewBasicTree (List.reverse l)
-                    ++ treeContainer [ viewBasicTitle item, treeChildrenContainer lhm ]
+                    ++ treeContainer [ viewBasicTitleOfItem item, treeChildrenContainer lhm ]
                     :: List.map viewBasicTree r
                 )
 
@@ -691,13 +725,18 @@ viewTitleEditor title =
 viewBasicTree : T -> Html Msg
 viewBasicTree (T item ts) =
     treeContainer
-        [ viewBasicTitle item
+        [ viewBasicTitleOfItem item
         , treeChildrenContainer (List.map viewBasicTree ts)
         ]
 
 
-viewBasicTitle : Item -> HM
-viewBasicTitle (Item _ _ title) =
+viewBasicTitle : String -> HM
+viewBasicTitle title =
+    div [] [ text (displayTitle title) ]
+
+
+viewBasicTitleOfItem : Item -> HM
+viewBasicTitleOfItem (Item _ _ title) =
     div [] [ text (displayTitle title) ]
 
 
