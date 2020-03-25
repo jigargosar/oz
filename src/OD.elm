@@ -629,10 +629,21 @@ viewIV : IV -> HM
 viewIV iv =
     case iv of
         IVEdit title ->
-            viewTitleEditor title
+            input
+                [ Html.Attributes.id "primary-focus-node"
+                , tabindex 0
+                , value title
+                , onInput TitleChanged
+                , onKeyDownHelp
+                    [ ( KeyEvent.hot "Enter", OnEnter )
+                    , ( KeyEvent.hot "Tab", Indent )
+                    , ( KeyEvent.shift "Tab", UnIndent )
+                    ]
+                ]
+                []
 
         IVShow title ->
-            viewBasicTitle title
+            div [] [ text (displayTitle title) ]
 
         IVShowFocused title ->
             viewFocusedTitle title
@@ -716,25 +727,20 @@ viewFocusedTitle title =
 --        [ viewTitleEditor title
 --        , treeChildrenContainer (List.map viewBasicTree ts)
 --        ]
-
-
-viewTitleEditor : String -> Html Msg
-viewTitleEditor title =
-    input
-        [ Html.Attributes.id "primary-focus-node"
-        , tabindex 0
-        , value title
-        , onInput TitleChanged
-        , onKeyDownHelp
-            [ ( KeyEvent.hot "Enter", OnEnter )
-            , ( KeyEvent.hot "Tab", Indent )
-            , ( KeyEvent.shift "Tab", UnIndent )
-            ]
-        ]
-        []
-
-
-
+--viewTitleEditor : String -> Html Msg
+--viewTitleEditor title =
+--    input
+--        [ Html.Attributes.id "primary-focus-node"
+--        , tabindex 0
+--        , value title
+--        , onInput TitleChanged
+--        , onKeyDownHelp
+--            [ ( KeyEvent.hot "Enter", OnEnter )
+--            , ( KeyEvent.hot "Tab", Indent )
+--            , ( KeyEvent.shift "Tab", UnIndent )
+--            ]
+--        ]
+--        []
 --viewBasicTree : T -> Html Msg
 --viewBasicTree (T item ts) =
 --    treeContainer
@@ -746,11 +752,9 @@ viewTitleEditor title =
 --viewBasicTitleOfItem : Item -> HM
 --viewBasicTitleOfItem (Item _ _ title) =
 --    div [] [ text (displayTitle title) ]
-
-
-viewBasicTitle : String -> HM
-viewBasicTitle title =
-    div [] [ text (displayTitle title) ]
+--viewBasicTitle : String -> HM
+--viewBasicTitle title =
+--    div [] [ text (displayTitle title) ]
 
 
 displayTitle : String -> String
