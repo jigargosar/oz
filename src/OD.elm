@@ -560,6 +560,26 @@ odToTVL (OD _ _ (LTR l (T (Item _ collapsed title) ts) r)) =
     lv ++ tv :: rv
 
 
+crumbToTVL : Crumb -> List TV -> List TV
+crumbToTVL (Crumb l (Item _ _ title) r) tvs =
+    let
+        lv =
+            l |> List.reverse |> List.map toTV
+
+        tv =
+            case tvs of
+                [] ->
+                    TVEmpty (IVShow title)
+
+                _ ->
+                    TVExpanded (IVShow title) tvs
+
+        rv =
+            r |> List.map toTV
+    in
+    lv ++ tv :: rv
+
+
 toTV : T -> TV
 toTV (T (Item _ collapsed title) ts) =
     case ( ts, collapsed ) of
