@@ -611,27 +611,31 @@ viewOD2 state =
                 (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
 
 
+viewIndicatorIcon str =
+    div [ class "code pa1 f5" ] [ text str ]
+
+
 viewTV : TV -> HM
 viewTV tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
                 [ div [ class "flex" ]
-                    [ div [ class "code" ] [ text "." ]
+                    [ viewIndicatorIcon "."
                     , viewIV iv
                     ]
                 ]
 
             TVCollapsed iv ->
                 [ div [ class "flex" ]
-                    [ div [ class "code" ] [ text "." ]
+                    [ viewIndicatorIcon "+"
                     , viewIV iv
                     ]
                 ]
 
             TVExpanded iv tvs ->
                 [ div [ class "flex" ]
-                    [ div [ class "code" ] [ text "." ]
+                    [ viewIndicatorIcon "-"
                     , viewIV iv
                     ]
                 , treeChildrenContainer <|
