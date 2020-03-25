@@ -2,7 +2,7 @@ port module OD exposing (main)
 
 import Browser
 import Browser.Dom as Dom
-import Html exposing (Html, div, i, input, span, text)
+import Html exposing (Html, div, i, input, text)
 import Html.Attributes exposing (class, tabindex, value)
 import Html.Events exposing (onInput)
 import ItemId exposing (ItemId)
@@ -611,18 +611,9 @@ viewOD2 state =
                 (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
 
 
-viewIndicatorIcon : String -> Html msg
-viewIndicatorIcon str =
-    div [ class "w1 mr1 mt1 code f3 lh-solid" ] [ text str ]
 
-
-matIcon : String -> Html msg
-matIcon iconName =
-    i [ class "material-icons" ] [ text iconName ]
-
-
-chevron_left =
-    "chevron_left"
+--chevron_left =
+--    "chevron_left"
 
 
 chevron_right =
@@ -633,23 +624,24 @@ expand_more =
     "expand_more"
 
 
-expand_less =
-    "expand_less"
+
+--expand_less =
+--    "expand_less"
 
 
-collapsedStateIcon =
-    matIcon expand_more
+collapsedStateIconName =
+    expand_more
 
 
-expandedStateIcon =
-    matIcon chevron_right
+expandedStateIconName =
+    chevron_right
 
 
-viewLineItem : HM -> IV -> HM
-viewLineItem icon iv =
+viewLine : String -> IV -> HM
+viewLine iconName iv =
     div [ class "flex" ]
-        [ icon
-        , div [ class "flex-auto flex lh-copy" ] [ viewIV iv ]
+        [ i [ class "self-start pa2 material-icons md-24  light-silver" ] [ text iconName ]
+        , div [ class "flex-auto flex f4 lh-copy" ] [ viewIV iv ]
         ]
 
 
@@ -658,13 +650,13 @@ viewTV tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
-                [ viewLineItem collapsedStateIcon iv ]
+                [ viewLine collapsedStateIconName iv ]
 
             TVCollapsed iv ->
-                [ viewLineItem collapsedStateIcon iv ]
+                [ viewLine collapsedStateIconName iv ]
 
             TVExpanded iv tvs ->
-                [ viewLineItem expandedStateIcon iv
+                [ viewLine expandedStateIconName iv
                 , treeChildrenContainer <|
                     List.map viewTV tvs
                 ]
