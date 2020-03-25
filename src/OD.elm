@@ -616,13 +616,24 @@ viewTV tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
-                [ div [ class "flex" ] [ viewIV iv ] ]
+                [ div [ class "flex" ]
+                    [ div [ class "code" ] [ text "." ]
+                    , viewIV iv
+                    ]
+                ]
 
             TVCollapsed iv ->
-                [ div [ class "flex" ] [ viewIV iv ] ]
+                [ div [ class "flex" ]
+                    [ div [ class "code" ] [ text "." ]
+                    , viewIV iv
+                    ]
+                ]
 
             TVExpanded iv tvs ->
-                [ div [ class "flex" ] [ viewIV iv ]
+                [ div [ class "flex" ]
+                    [ div [ class "code" ] [ text "." ]
+                    , viewIV iv
+                    ]
                 , treeChildrenContainer <|
                     List.map viewTV tvs
                 ]
