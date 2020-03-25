@@ -595,10 +595,12 @@ viewOD2 : State -> HM
 viewOD2 state =
     case state of
         Edit title od ->
-            treeChildrenContainer (List.map viewTV (odToTVL od))
+            treeChildrenContainer
+                (List.map viewTV (odToTVL od))
 
         NoEdit od ->
-            treeChildrenContainer (List.map viewTV (odToTVL od))
+            treeChildrenContainer
+                (List.map viewTV (odToTVL od))
 
 
 viewTV : TV -> HM
