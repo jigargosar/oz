@@ -417,11 +417,11 @@ removeLeaf ((OD _ _ (LTR _ t _)) as od) =
         Nothing
 
     else
-        removeGoLeftRightOrUp od
+        removeGoLeftOrRightOrUp od
 
 
-removeGoLeftRightOrUp : OD -> Maybe OD
-removeGoLeftRightOrUp (OD pcs cs (LTR l _ r)) =
+removeGoLeftOrRightOrUp : OD -> Maybe OD
+removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
     case ( l, r, cs ) of
         ( first :: rest, _, _ ) ->
             LTR rest first r
