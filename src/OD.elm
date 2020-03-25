@@ -618,7 +618,7 @@ viewLine : Bool -> String -> IV -> HM
 viewLine hideIcon iconName iv =
     div [ class "flex" ]
         [ i
-            [ class "self-start pv2 ph1 material-icons md-24 light-silver"
+            [ class "self-start pt2 ph1 material-icons md-24 light-silver"
             , classIf hideIcon "o-0"
             ]
             [ text iconName ]
