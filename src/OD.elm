@@ -529,6 +529,7 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 type IV
     = IVEdit String
     | IVShow String
+    | IVShowFocused String
 
 
 type TV
@@ -546,13 +547,13 @@ odToTVL (OD _ cs (LTR l (T (Item _ collapsed title) ts) r)) =
         tv =
             case ( ts, collapsed ) of
                 ( [], _ ) ->
-                    TVLeaf (IVShow title)
+                    TVLeaf (IVShowFocused title)
 
                 ( _, True ) ->
-                    TVCollapsed (IVShow title)
+                    TVCollapsed (IVShowFocused title)
 
                 ( _, False ) ->
-                    TVExpanded (IVShow title) (List.map toTV ts)
+                    TVExpanded (IVShowFocused title) (List.map toTV ts)
 
         rv =
             r |> List.map toTV
