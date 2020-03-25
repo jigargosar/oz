@@ -395,26 +395,58 @@ removeGoLeftRightOrUp (OD pcs cs (LTR l _ r)) =
 viewOD : State -> Html Msg
 viewOD state =
     case state of
-        Edit title (OD _ _ (LTR l t r)) ->
-            div []
+        Edit title (OD _ cs (LTR l t r)) ->
+            viewCrumbs cs
                 (List.map viewBasicTree (List.reverse l)
                     ++ viewTitleEditorTree title t
                     :: List.map viewBasicTree r
                 )
 
-        NoEdit (OD _ _ (LTR l t r)) ->
-            div []
+        NoEdit (OD _ cs (LTR l t r)) ->
+            viewCrumbs cs
                 (List.map viewBasicTree (List.reverse l)
                     ++ viewFocusedTree t
                     :: List.map viewBasicTree r
                 )
 
 
+viewCrumbs : List Crumb -> LHM -> HM
+viewCrumbs cs lhm =
+    case cs of
+        [] ->
+            treeChildrenContainer lhm
+
+        (Crumb l item r) :: rest ->
+            viewCrumbs rest
+                (List.map viewBasicTree (List.reverse l)
+                    ++ treeContainer [ viewBasicTitle item, treeChildrenContainer lhm ]
+                    :: List.map viewBasicTree r
+                )
+
+
+type alias HM =
+    Html Msg
+
+
+type alias LHM =
+    List (Html Msg)
+
+
+treeChildrenContainer : LHM -> HM
+treeChildrenContainer =
+    div [ class "pl3" ]
+
+
+treeContainer : LHM -> HM
+treeContainer =
+    div []
+
+
 viewFocusedTree : T -> Html Msg
 viewFocusedTree (T (Item _ _ title) ts) =
-    div []
+    treeContainer
         [ viewFocusedTitle title
-        , div [ class "pr3" ] (List.map viewBasicTree ts)
+        , treeChildrenContainer (List.map viewBasicTree ts)
         ]
 
 
@@ -436,9 +468,9 @@ viewFocusedTitle title =
 
 viewTitleEditorTree : String -> T -> Html Msg
 viewTitleEditorTree title (T _ ts) =
-    div []
+    treeContainer
         [ viewTitleEditor title
-        , div [ class "pr3" ] (List.map viewBasicTree ts)
+        , treeChildrenContainer (List.map viewBasicTree ts)
         ]
 
 
@@ -461,11 +493,16 @@ viewTitleEditor title =
 
 
 viewBasicTree : T -> Html Msg
-viewBasicTree (T (Item _ _ title) ts) =
-    div []
-        [ div [] [ text (displayTitle title) ]
-        , div [ class "pr3" ] (List.map viewBasicTree ts)
+viewBasicTree (T item ts) =
+    treeContainer
+        [ viewBasicTitle item
+        , treeChildrenContainer (List.map viewBasicTree ts)
         ]
+
+
+viewBasicTitle : Item -> HM
+viewBasicTitle (Item _ _ title) =
+    div [] [ text (displayTitle title) ]
 
 
 displayTitle : String -> String
