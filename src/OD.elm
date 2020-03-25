@@ -629,7 +629,7 @@ viewTV tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
-                [ viewLineItem "." iv ]
+                [ viewLineItem "o" iv ]
 
             TVCollapsed iv ->
                 [ viewLineItem "+" iv ]
