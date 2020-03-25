@@ -241,7 +241,7 @@ update message ((Model state seed) as model) =
                                                     |> Just
                                     )
                     in
-                    case firstOf [ tryRight, tryDown ] od of
+                    case firstOf [ tryDown, tryRight ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
 
