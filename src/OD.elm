@@ -233,19 +233,8 @@ update message ((Model state seed) as model) =
 
         OnCursorRight ->
             case state of
-                NoEdit ((OD pcs cs (LTR l (T item ts) r)) as od) ->
-                    let
-                        maybeNewOD =
-                            case ( ts, itemCollapsed item ) of
-                                ( _ :: _, True ) ->
-                                    LTR l (T (setItemCollapsed False item) ts) r
-                                        |> OD pcs cs
-                                        |> Just
-
-                                _ ->
-                                    Nothing
-                    in
-                    case maybeNewOD of
+                NoEdit od ->
+                    case firstOf [ tryExpand ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
 
@@ -288,6 +277,18 @@ update message ((Model state seed) as model) =
 
                 Nothing ->
                     model
+
+
+tryExpand : OD -> Maybe OD
+tryExpand ((OD pcs cs (LTR l (T item ts) r)) as od) =
+    case ( ts, itemExpanded item ) of
+        ( _ :: _, False ) ->
+            LTR l (T (setItemExpanded True item) ts) r
+                |> OD pcs cs
+                |> Just
+
+        _ ->
+            Nothing
 
 
 tryRight : OD -> Maybe OD
@@ -768,6 +769,11 @@ itemExpanded =
 setItemCollapsed : Bool -> Item -> Item
 setItemCollapsed collapsed (Item id _ title) =
     Item id collapsed title
+
+
+setItemExpanded : Bool -> Item -> Item
+setItemExpanded =
+    not >> setItemCollapsed
 
 
 
