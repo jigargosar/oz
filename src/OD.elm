@@ -617,7 +617,7 @@ viewIndicatorIcon str =
 
 viewLineItem : String -> IV -> HM
 viewLineItem icon iv =
-    div [ class "flex" ]
+    div [ class "flex items-center" ]
         [ viewIndicatorIcon icon
         , viewIV iv
         ]
