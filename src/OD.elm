@@ -2,7 +2,7 @@ port module OD exposing (main)
 
 import Browser
 import Browser.Dom as Dom
-import Html exposing (Html, div, i, input, text)
+import Html exposing (Html, div, i, input, span, text)
 import Html.Attributes exposing (class, tabindex, value)
 import Html.Events exposing (onInput)
 import ItemId exposing (ItemId)
@@ -662,7 +662,7 @@ viewIV iv =
                 []
 
         IVShow title ->
-            div [ class "flex-auto pa1" ] [ text (displayTitle title) ]
+            div [ class "flex-auto pa1" ] [ displayTitleEl title ]
 
         IVShowFocused title ->
             div
@@ -679,7 +679,7 @@ viewIV iv =
                     , ( KeyEvent.shift "Tab", UnIndent )
                     ]
                 ]
-                [ text (displayTitle title) ]
+                [ displayTitleEl title ]
 
 
 treeChildrenContainer : LHM -> HM
@@ -692,9 +692,20 @@ treeContainer =
     div []
 
 
-displayTitle : String -> String
-displayTitle =
-    nonBlank >> Maybe.withDefault "Untitled"
+
+--displayTitle : String -> String
+--displayTitle =
+--    nonBlank >> Maybe.withDefault "Untitled"
+
+
+displayTitleEl : String -> HM
+displayTitleEl title =
+    case nonBlank title of
+        Just nb ->
+            span [ class "" ] [ text nb ]
+
+        Nothing ->
+            span [ class "silver" ] [ text "Untitled" ]
 
 
 onKeyDownHelp conditions =
