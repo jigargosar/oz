@@ -573,26 +573,6 @@ lvrToTVL (LVR l tv r) =
     (l |> List.reverse |> List.map toTV) ++ tv :: (r |> List.map toTV)
 
 
-crumbToTVL : Crumb -> List TV -> List TV
-crumbToTVL (Crumb l (Item _ _ title) r) tvs =
-    let
-        lv =
-            l |> List.reverse |> List.map toTV
-
-        tv =
-            case tvs of
-                [] ->
-                    TVLeaf (IVShow title)
-
-                _ ->
-                    TVExpanded (IVShow title) tvs
-
-        rv =
-            r |> List.map toTV
-    in
-    lv ++ tv :: rv
-
-
 toTV : T -> TV
 toTV (T (Item _ collapsed title) ts) =
     case ( ts, collapsed ) of
