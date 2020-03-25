@@ -684,7 +684,7 @@ viewIV iv =
 
 treeChildrenContainer : LHM -> HM
 treeChildrenContainer =
-    div [ class "pl3" ]
+    div [ class "pl4" ]
 
 
 treeContainer : LHM -> HM
