@@ -646,6 +646,7 @@ viewIV iv =
         IVEdit title ->
             input
                 [ Html.Attributes.id "primary-focus-node"
+                , class "flex-auto"
                 , tabindex 0
                 , value title
                 , onInput TitleChanged
@@ -658,11 +659,12 @@ viewIV iv =
                 []
 
         IVShow title ->
-            div [] [ text (displayTitle title) ]
+            div [ class "flex-auto" ] [ text (displayTitle title) ]
 
         IVShowFocused title ->
             div
                 [ Html.Attributes.id "primary-focus-node"
+                , class "flex-auto"
                 , tabindex 0
                 , onKeyDownHelp
                     [ ( KeyEvent.hot "Enter", OnEnter )
