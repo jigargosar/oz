@@ -394,7 +394,9 @@ indent (OD pcs cs (LTR l t r)) =
             Nothing
 
         (T item ts) :: rest ->
-            Just (OD pcs (Crumb rest item r :: cs) (LTR (List.reverse ts) t []))
+            LTR (List.reverse ts) t []
+                |> OD pcs (Crumb rest item r :: cs)
+                |> Just
 
 
 unIndent : OD -> Maybe OD
