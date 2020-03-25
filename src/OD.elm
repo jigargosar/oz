@@ -612,12 +612,12 @@ viewOD2 state =
 
 
 viewIndicatorIcon str =
-    div [ class "code pa1 f5" ] [ text str ]
+    div [ class "pa1 code f3 lh-solid" ] [ text str ]
 
 
 viewLineItem : String -> IV -> HM
 viewLineItem icon iv =
-    div [ class "flex items-center" ]
+    div [ class "flex" ]
         [ viewIndicatorIcon icon
         , div [ class "flex-auto flex bb b--black-30 lh-copy" ] [ viewIV iv ]
         ]
