@@ -227,15 +227,20 @@ update message ((Model state seed) as model) =
                                 [] ->
                                     Nothing
 
-                        tryDown (OD pcs cs (LTR l (T item ts) r)) =
-                            case ts of
-                                [] ->
+                        tryDown (OD pcs cs (LTR l t r)) =
+                            case visibleChildren t of
+                                Nothing ->
                                     Nothing
 
-                                first :: rest ->
-                                    LTR [] first rest
-                                        |> OD pcs (Crumb l item r :: cs)
-                                        |> Just
+                                Just (T item ts) ->
+                                    case ts of
+                                        [] ->
+                                            Nothing
+
+                                        first :: rest ->
+                                            LTR [] first rest
+                                                |> OD pcs (Crumb l item r :: cs)
+                                                |> Just
                     in
                     case firstOf [ tryRight, tryDown ] od of
                         Just newOD ->
@@ -641,6 +646,15 @@ hasChildren (T _ ts) =
 hasVisibleChildren : T -> Bool
 hasVisibleChildren ((T item _) as t) =
     hasChildren t && itemExpanded item
+
+
+visibleChildren : T -> Maybe T
+visibleChildren t =
+    if hasVisibleChildren t then
+        Just t
+
+    else
+        Nothing
 
 
 
