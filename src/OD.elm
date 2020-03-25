@@ -619,7 +619,7 @@ viewLineItem : String -> IV -> HM
 viewLineItem icon iv =
     div [ class "flex items-center" ]
         [ viewIndicatorIcon icon
-        , viewIV iv
+        , div [ class "flex-auto flex bb b--black-30 lh-copy" ] [ viewIV iv ]
         ]
 
 
@@ -646,7 +646,7 @@ viewIV iv =
         IVEdit title ->
             input
                 [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto"
+                , class "flex-auto pa1"
                 , tabindex 0
                 , value title
                 , onInput TitleChanged
@@ -659,12 +659,12 @@ viewIV iv =
                 []
 
         IVShow title ->
-            div [ class "flex-auto" ] [ text (displayTitle title) ]
+            div [ class "flex-auto pa1" ] [ text (displayTitle title) ]
 
         IVShowFocused title ->
             div
                 [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto"
+                , class "flex-auto pa1"
                 , tabindex 0
                 , onKeyDownHelp
                     [ ( KeyEvent.hot "Enter", OnEnter )
