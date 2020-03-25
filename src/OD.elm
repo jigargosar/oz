@@ -397,10 +397,10 @@ type alias LHM =
 view : Model -> Html Msg
 view (Model state _) =
     div []
-        [ div [] [ text "OZ OUTLINING V2" ]
-
-        --, viewOD state
-        , viewOD2 state
+        [ div [ class "center measure-wide" ]
+            [ div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
+            , viewOD2 state
+            ]
         ]
 
 
