@@ -538,7 +538,7 @@ type TV
 
 
 odToTVL : OD -> List TV
-odToTVL (OD _ _ (LTR l (T (Item _ collapsed title) ts) r)) =
+odToTVL (OD _ cs (LTR l (T (Item _ collapsed title) ts) r)) =
     let
         lv =
             l |> List.reverse |> List.map toTV
@@ -557,7 +557,7 @@ odToTVL (OD _ _ (LTR l (T (Item _ collapsed title) ts) r)) =
         rv =
             r |> List.map toTV
     in
-    lv ++ tv :: rv
+    List.foldl crumbToTVL (lv ++ tv :: rv) cs
 
 
 crumbToTVL : Crumb -> List TV -> List TV
