@@ -210,7 +210,7 @@ update message ((Model state seed) as model) =
         OnCursorLeft ->
             case state of
                 NoEdit od ->
-                    case firstOf [ tryCollapse, tryUp ] od of
+                    case firstOf [ tryCollapse, tryUp, tryLeft ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
 
