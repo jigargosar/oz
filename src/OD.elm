@@ -212,7 +212,7 @@ update message ((Model state seed) as model) =
                         Nothing ->
                             model
 
-                _ ->
+                Edit _ _ ->
                     model
 
         OnCursorDown ->
@@ -268,14 +268,19 @@ update message ((Model state seed) as model) =
                         Nothing ->
                             model
 
-                _ ->
+                Edit _ _ ->
                     model
 
         OnCursorLeft ->
             model
 
         OnCursorRight ->
-            model
+            case state of
+                NoEdit od ->
+                    model
+
+                Edit _ _ ->
+                    model
 
         Indent ->
             let
