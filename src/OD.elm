@@ -228,19 +228,18 @@ update message ((Model state seed) as model) =
                                     Nothing
 
                         tryDown (OD pcs cs (LTR l t r)) =
-                            case visibleChildren t of
-                                Nothing ->
-                                    Nothing
+                            visibleChildren t
+                                |> Maybe.andThen
+                                    (\(T item ts) ->
+                                        case ts of
+                                            [] ->
+                                                Nothing
 
-                                Just (T item ts) ->
-                                    case ts of
-                                        [] ->
-                                            Nothing
-
-                                        first :: rest ->
-                                            LTR [] first rest
-                                                |> OD pcs (Crumb l item r :: cs)
-                                                |> Just
+                                            first :: rest ->
+                                                LTR [] first rest
+                                                    |> OD pcs (Crumb l item r :: cs)
+                                                    |> Just
+                                    )
                     in
                     case firstOf [ tryRight, tryDown ] od of
                         Just newOD ->
