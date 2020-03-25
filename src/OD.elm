@@ -424,13 +424,19 @@ removeGoLeftRightOrUp : OD -> Maybe OD
 removeGoLeftRightOrUp (OD pcs cs (LTR l _ r)) =
     case ( l, r, cs ) of
         ( first :: rest, _, _ ) ->
-            Just (OD pcs cs (LTR rest first r))
+            LTR rest first r
+                |> OD pcs cs
+                |> Just
 
         ( _, first :: rest, _ ) ->
-            Just (OD pcs cs (LTR l first rest))
+            LTR l first rest
+                |> OD pcs cs
+                |> Just
 
-        ( _, _, (Crumb crL item crR) :: rest ) ->
-            Just (OD pcs rest (LTR crL (T item []) crR))
+        ( _, _, (Crumb cl item cr) :: rest ) ->
+            LTR cl (T item []) cr
+                |> OD pcs rest
+                |> Just
 
         _ ->
             Nothing
