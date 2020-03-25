@@ -194,16 +194,6 @@ update message ((Model state seed) as model) =
 
                                 [] ->
                                     Nothing
-
-                        tryUp (OD pcs cs (LTR l t r)) =
-                            case cs of
-                                (Crumb cl item cr) :: rest ->
-                                    LTR cl (T item (List.reverse l ++ t :: r)) cr
-                                        |> OD pcs rest
-                                        |> Just
-
-                                [] ->
-                                    Nothing
                     in
                     case firstOf [ tryLeft, tryUp ] od of
                         Just newOD ->
@@ -231,7 +221,7 @@ update message ((Model state seed) as model) =
         OnCursorLeft ->
             case state of
                 NoEdit od ->
-                    case firstOf [ tryCollapse ] od of
+                    case firstOf [ tryCollapse, tryUp ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
 
@@ -319,6 +309,18 @@ tryRight (OD pcs cs (LTR l t r)) =
         first :: rest ->
             LTR (t :: l) first rest
                 |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
+
+
+tryUp : OD -> Maybe OD
+tryUp (OD pcs cs (LTR l t r)) =
+    case cs of
+        (Crumb cl item cr) :: rest ->
+            LTR cl (T item (List.reverse l ++ t :: r)) cr
+                |> OD pcs rest
                 |> Just
 
         [] ->
