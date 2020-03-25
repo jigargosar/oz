@@ -613,7 +613,7 @@ viewOD2 state =
 
 viewIndicatorIcon : String -> Html msg
 viewIndicatorIcon str =
-    div [ class "pa1 code f3 lh-solid" ] [ text str ]
+    div [ class "pv1 pr2 code f3 lh-solid" ] [ text str ]
 
 
 viewLineItem : String -> IV -> HM
