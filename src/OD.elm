@@ -611,6 +611,7 @@ viewOD2 state =
                 (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
 
 
+viewIndicatorIcon : String -> Html msg
 viewIndicatorIcon str =
     div [ class "pa1 code f3 lh-solid" ] [ text str ]
 
