@@ -541,24 +541,36 @@ type TV
 odToTVL : OD -> List TV
 odToTVL (OD _ cs (LTR l (T (Item _ collapsed title) ts) r)) =
     let
-        lv =
-            l |> List.reverse |> List.map toTV
+        iv =
+            IVShowFocused title
 
         tv =
             case ( ts, collapsed ) of
                 ( [], _ ) ->
-                    TVLeaf (IVShowFocused title)
+                    TVLeaf iv
 
                 ( _, True ) ->
-                    TVCollapsed (IVShowFocused title)
+                    TVCollapsed iv
 
                 ( _, False ) ->
-                    TVExpanded (IVShowFocused title) (List.map toTV ts)
-
-        rv =
-            r |> List.map toTV
+                    TVExpanded iv (List.map toTV ts)
     in
-    List.foldl crumbToTVL (lv ++ tv :: rv) cs
+    List.foldl crumbToLVR (LVR l tv r) cs
+        |> lvrToTVL
+
+
+type LVR
+    = LVR (List T) TV (List T)
+
+
+crumbToLVR : Crumb -> LVR -> LVR
+crumbToLVR (Crumb l (Item _ _ title) r) lvr =
+    LVR l (TVExpanded (IVShow title) (lvrToTVL lvr)) r
+
+
+lvrToTVL : LVR -> List TV
+lvrToTVL (LVR l tv r) =
+    (l |> List.reverse |> List.map toTV) ++ tv :: (r |> List.map toTV)
 
 
 crumbToTVL : Crumb -> List TV -> List TV
