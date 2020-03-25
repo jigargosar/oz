@@ -613,14 +613,14 @@ viewOD2 state =
 
 viewIndicatorIcon : String -> Html msg
 viewIndicatorIcon str =
-    div [ class "pv1 pr2 code f3 lh-solid" ] [ text str ]
+    div [ class "w1 mr1 mt1 code f3 lh-solid" ] [ text str ]
 
 
 viewLineItem : String -> IV -> HM
 viewLineItem icon iv =
     div [ class "flex" ]
         [ viewIndicatorIcon icon
-        , div [ class "flex-auto flex bb b--black-30 lh-copy" ] [ viewIV iv ]
+        , div [ class "flex-auto flex lh-copy" ] [ viewIV iv ]
         ]
 
 
@@ -629,7 +629,7 @@ viewTV tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
-                [ viewLineItem "o" iv ]
+                [ viewLineItem "" iv ]
 
             TVCollapsed iv ->
                 [ viewLineItem "+" iv ]
