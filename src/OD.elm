@@ -592,6 +592,8 @@ viewFocusedTitle title =
             [ ( KeyEvent.hot "Enter", OnEnter )
             , ( KeyEvent.hot "ArrowUp", OnCursorUp )
             , ( KeyEvent.hot "ArrowDown", OnCursorDown )
+            , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
+            , ( KeyEvent.hot "ArrowRight", OnCursorRight )
             , ( KeyEvent.hot "Tab", Indent )
             , ( KeyEvent.shift "Tab", UnIndent )
             ]
