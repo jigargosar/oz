@@ -184,17 +184,6 @@ update message ((Model state seed) as model) =
         OnCursorUp ->
             case state of
                 NoEdit od ->
-                    let
-                        tryLeft (OD pcs cs (LTR l t r)) =
-                            case l of
-                                first :: rest ->
-                                    LTR rest first (t :: r)
-                                        |> OD pcs cs
-                                        |> Just
-
-                                [] ->
-                                    Nothing
-                    in
                     case firstOf [ tryLeft, tryUp ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
@@ -308,6 +297,18 @@ tryRight (OD pcs cs (LTR l t r)) =
     case r of
         first :: rest ->
             LTR (t :: l) first rest
+                |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
+
+
+tryLeft : OD -> Maybe OD
+tryLeft (OD pcs cs (LTR l t r)) =
+    case l of
+        first :: rest ->
+            LTR rest first (t :: r)
                 |> OD pcs cs
                 |> Just
 
