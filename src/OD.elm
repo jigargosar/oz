@@ -386,6 +386,14 @@ subscriptions _ =
 -- VIEW
 
 
+type alias HM =
+    Html Msg
+
+
+type alias LHM =
+    List (Html Msg)
+
+
 view : Model -> Html Msg
 view (Model state _) =
     div []
@@ -632,46 +640,36 @@ viewIV iv =
 
 
 -- OUTLINE DOC VIEW
-
-
-viewOD : State -> Html Msg
-viewOD state =
-    case state of
-        Edit title (OD _ cs (LTR l t r)) ->
-            viewCrumbs cs
-                (List.map viewBasicTree (List.reverse l)
-                    ++ viewTitleEditorTree title t
-                    :: List.map viewBasicTree r
-                )
-
-        NoEdit (OD _ cs (LTR l t r)) ->
-            viewCrumbs cs
-                (List.map viewBasicTree (List.reverse l)
-                    ++ viewFocusedTree t
-                    :: List.map viewBasicTree r
-                )
-
-
-viewCrumbs : List Crumb -> LHM -> HM
-viewCrumbs cs lhm =
-    case cs of
-        [] ->
-            treeChildrenContainer lhm
-
-        (Crumb l item r) :: rest ->
-            viewCrumbs rest
-                (List.map viewBasicTree (List.reverse l)
-                    ++ treeContainer [ viewBasicTitleOfItem item, treeChildrenContainer lhm ]
-                    :: List.map viewBasicTree r
-                )
-
-
-type alias HM =
-    Html Msg
-
-
-type alias LHM =
-    List (Html Msg)
+--viewOD : State -> Html Msg
+--viewOD state =
+--    case state of
+--        Edit title (OD _ cs (LTR l t r)) ->
+--            viewCrumbs cs
+--                (List.map viewBasicTree (List.reverse l)
+--                    ++ viewTitleEditorTree title t
+--                    :: List.map viewBasicTree r
+--                )
+--
+--        NoEdit (OD _ cs (LTR l t r)) ->
+--            viewCrumbs cs
+--                (List.map viewBasicTree (List.reverse l)
+--                    ++ viewFocusedTree t
+--                    :: List.map viewBasicTree r
+--                )
+--
+--
+--viewCrumbs : List Crumb -> LHM -> HM
+--viewCrumbs cs lhm =
+--    case cs of
+--        [] ->
+--            treeChildrenContainer lhm
+--
+--        (Crumb l item r) :: rest ->
+--            viewCrumbs rest
+--                (List.map viewBasicTree (List.reverse l)
+--                    ++ treeContainer [ viewBasicTitleOfItem item, treeChildrenContainer lhm ]
+--                    :: List.map viewBasicTree r
+--                )
 
 
 treeChildrenContainer : LHM -> HM
@@ -684,12 +682,13 @@ treeContainer =
     div []
 
 
-viewFocusedTree : T -> Html Msg
-viewFocusedTree (T (Item _ _ title) ts) =
-    treeContainer
-        [ viewFocusedTitle title
-        , treeChildrenContainer (List.map viewBasicTree ts)
-        ]
+
+--viewFocusedTree : T -> Html Msg
+--viewFocusedTree (T (Item _ _ title) ts) =
+--    treeContainer
+--        [ viewFocusedTitle title
+--        , treeChildrenContainer (List.map viewBasicTree ts)
+--        ]
 
 
 viewFocusedTitle : String -> Html Msg
@@ -710,12 +709,13 @@ viewFocusedTitle title =
         [ text (displayTitle title) ]
 
 
-viewTitleEditorTree : String -> T -> Html Msg
-viewTitleEditorTree title (T _ ts) =
-    treeContainer
-        [ viewTitleEditor title
-        , treeChildrenContainer (List.map viewBasicTree ts)
-        ]
+
+--viewTitleEditorTree : String -> T -> Html Msg
+--viewTitleEditorTree title (T _ ts) =
+--    treeContainer
+--        [ viewTitleEditor title
+--        , treeChildrenContainer (List.map viewBasicTree ts)
+--        ]
 
 
 viewTitleEditor : String -> Html Msg
@@ -734,21 +734,22 @@ viewTitleEditor title =
         []
 
 
-viewBasicTree : T -> Html Msg
-viewBasicTree (T item ts) =
-    treeContainer
-        [ viewBasicTitleOfItem item
-        , treeChildrenContainer (List.map viewBasicTree ts)
-        ]
+
+--viewBasicTree : T -> Html Msg
+--viewBasicTree (T item ts) =
+--    treeContainer
+--        [ viewBasicTitleOfItem item
+--        , treeChildrenContainer (List.map viewBasicTree ts)
+--        ]
+--
+--
+--viewBasicTitleOfItem : Item -> HM
+--viewBasicTitleOfItem (Item _ _ title) =
+--    div [] [ text (displayTitle title) ]
 
 
 viewBasicTitle : String -> HM
 viewBasicTitle title =
-    div [] [ text (displayTitle title) ]
-
-
-viewBasicTitleOfItem : Item -> HM
-viewBasicTitleOfItem (Item _ _ title) =
     div [] [ text (displayTitle title) ]
 
 
