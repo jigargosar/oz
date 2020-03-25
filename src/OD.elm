@@ -226,8 +226,18 @@ update message ((Model state seed) as model) =
 
                                 [] ->
                                     Nothing
+
+                        tryDown (OD pcs cs (LTR l (T item ts) r)) =
+                            case ts of
+                                [] ->
+                                    Nothing
+
+                                first :: rest ->
+                                    LTR [] first rest
+                                        |> OD pcs (Crumb l item r :: cs)
+                                        |> Just
                     in
-                    case firstOf [ tryRight ] od of
+                    case firstOf [ tryRight, tryDown ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
 
