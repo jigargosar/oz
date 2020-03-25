@@ -622,7 +622,7 @@ viewLine hideIcon iconName iv =
             , classIf hideIcon "o-0"
             ]
             [ text iconName ]
-        , div [ class "flex-auto flex f4 lh-copy" ] [ viewIV iv ]
+        , div [ class "flex-auto flex f4 lh-title" ] [ viewIV iv ]
         ]
 
 
