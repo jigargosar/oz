@@ -622,7 +622,10 @@ viewTV tv =
                 [ viewIV iv ]
 
             TVExpanded iv tvs ->
-                [ viewIV iv, treeChildrenContainer (List.map viewTV tvs) ]
+                [ viewIV iv
+                , treeChildrenContainer <|
+                    List.map viewTV tvs
+                ]
 
 
 viewIV : IV -> HM
@@ -646,7 +649,20 @@ viewIV iv =
             div [] [ text (displayTitle title) ]
 
         IVShowFocused title ->
-            viewFocusedTitle title
+            div
+                [ Html.Attributes.id "primary-focus-node"
+                , tabindex 0
+                , onKeyDownHelp
+                    [ ( KeyEvent.hot "Enter", OnEnter )
+                    , ( KeyEvent.hot "ArrowUp", OnCursorUp )
+                    , ( KeyEvent.hot "ArrowDown", OnCursorDown )
+                    , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
+                    , ( KeyEvent.hot "ArrowRight", OnCursorRight )
+                    , ( KeyEvent.hot "Tab", Indent )
+                    , ( KeyEvent.shift "Tab", UnIndent )
+                    ]
+                ]
+                [ text (displayTitle title) ]
 
 
 
@@ -700,27 +716,22 @@ treeContainer =
 --        [ viewFocusedTitle title
 --        , treeChildrenContainer (List.map viewBasicTree ts)
 --        ]
-
-
-viewFocusedTitle : String -> Html Msg
-viewFocusedTitle title =
-    div
-        [ Html.Attributes.id "primary-focus-node"
-        , tabindex 0
-        , onKeyDownHelp
-            [ ( KeyEvent.hot "Enter", OnEnter )
-            , ( KeyEvent.hot "ArrowUp", OnCursorUp )
-            , ( KeyEvent.hot "ArrowDown", OnCursorDown )
-            , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
-            , ( KeyEvent.hot "ArrowRight", OnCursorRight )
-            , ( KeyEvent.hot "Tab", Indent )
-            , ( KeyEvent.shift "Tab", UnIndent )
-            ]
-        ]
-        [ text (displayTitle title) ]
-
-
-
+--viewFocusedTitle : String -> Html Msg
+--viewFocusedTitle title =
+--    div
+--        [ Html.Attributes.id "primary-focus-node"
+--        , tabindex 0
+--        , onKeyDownHelp
+--            [ ( KeyEvent.hot "Enter", OnEnter )
+--            , ( KeyEvent.hot "ArrowUp", OnCursorUp )
+--            , ( KeyEvent.hot "ArrowDown", OnCursorDown )
+--            , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
+--            , ( KeyEvent.hot "ArrowRight", OnCursorRight )
+--            , ( KeyEvent.hot "Tab", Indent )
+--            , ( KeyEvent.shift "Tab", UnIndent )
+--            ]
+--        ]
+--        [ text (displayTitle title) ]
 --viewTitleEditorTree : String -> T -> Html Msg
 --viewTitleEditorTree title (T _ ts) =
 --    treeContainer
