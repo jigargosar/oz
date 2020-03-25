@@ -668,7 +668,7 @@ viewIV iv =
         IVEdit title ->
             input
                 [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto pa1 ma0 lh-copy bn"
+                , class "flex-auto pa1 bn ma0"
                 , tabindex 0
                 , value title
                 , onInput TitleChanged
