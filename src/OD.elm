@@ -692,12 +692,6 @@ treeContainer =
     div []
 
 
-
---displayTitle : String -> String
---displayTitle =
---    nonBlank >> Maybe.withDefault "Untitled"
-
-
 displayTitleEl : String -> HM
 displayTitleEl title =
     case nonBlank title of
