@@ -234,7 +234,7 @@ update message ((Model state seed) as model) =
         OnCursorRight ->
             case state of
                 NoEdit od ->
-                    case firstOf [ tryExpand ] od of
+                    case firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
 
