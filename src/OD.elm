@@ -171,7 +171,7 @@ update message ((Model state seed) as model) =
                                     Model (NoEdit newOd) seed
 
                                 Nothing ->
-                                    model
+                                    Model (NoEdit (odSetTitle "" od)) seed
 
         TitleChanged changedTitle ->
             case state of
