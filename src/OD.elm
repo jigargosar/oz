@@ -532,7 +532,7 @@ type IV
 
 
 type TV
-    = TVEmpty IV
+    = TVLeaf IV
     | TVCollapsed IV
     | TVExpanded IV (List TV)
 
@@ -546,13 +546,13 @@ odToTVL (OD _ cs (LTR l (T (Item _ collapsed title) ts) r)) =
         tv =
             case ( ts, collapsed ) of
                 ( [], _ ) ->
-                    TVEmpty (IVShow title)
+                    TVLeaf (IVShow title)
 
                 ( _, True ) ->
-                    TVExpanded (IVShow title) (List.map toTV ts)
+                    TVCollapsed (IVShow title)
 
                 ( _, False ) ->
-                    TVCollapsed (IVShow title)
+                    TVExpanded (IVShow title) (List.map toTV ts)
 
         rv =
             r |> List.map toTV
@@ -569,7 +569,7 @@ crumbToTVL (Crumb l (Item _ _ title) r) tvs =
         tv =
             case tvs of
                 [] ->
-                    TVEmpty (IVShow title)
+                    TVLeaf (IVShow title)
 
                 _ ->
                     TVExpanded (IVShow title) tvs
@@ -584,13 +584,13 @@ toTV : T -> TV
 toTV (T (Item _ collapsed title) ts) =
     case ( ts, collapsed ) of
         ( [], _ ) ->
-            TVEmpty (IVShow title)
+            TVLeaf (IVShow title)
 
         ( _, True ) ->
-            TVExpanded (IVShow title) (List.map toTV ts)
+            TVCollapsed (IVShow title)
 
         ( _, False ) ->
-            TVCollapsed (IVShow title)
+            TVExpanded (IVShow title) (List.map toTV ts)
 
 
 viewOD : State -> Html Msg
