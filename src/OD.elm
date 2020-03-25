@@ -2,6 +2,7 @@ port module OD exposing (main)
 
 import Browser
 import Browser.Dom as Dom
+import CollapseState exposing (CollapseState)
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (class, tabindex, value)
 import Html.Events exposing (onInput)
@@ -523,6 +524,53 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 
 
 -- OUTLINE DOC VIEW
+
+
+type IV
+    = IVEdit String
+    | IVShow String
+
+
+type TV
+    = TVEmpty IV
+    | TVCollapsed IV
+    | TVExpanded IV (List TV)
+
+
+odToTVL : OD -> List TV
+odToTVL (OD _ _ (LTR l (T (Item _ collapsed title) ts) r)) =
+    let
+        lv =
+            l |> List.reverse |> List.map toTV
+
+        tv =
+            case ( ts, collapsed ) of
+                ( [], _ ) ->
+                    TVEmpty (IVShow title)
+
+                ( _, True ) ->
+                    TVExpanded (IVShow title) (List.map toTV ts)
+
+                ( _, False ) ->
+                    TVCollapsed (IVShow title)
+
+        rv =
+            r |> List.map toTV
+    in
+    lv ++ tv :: rv
+
+
+toTV : T -> TV
+toTV (T (Item _ collapsed title) ts) =
+    case ( ts, collapsed ) of
+        ( [], _ ) ->
+            TVEmpty (IVShow title)
+
+        ( _, True ) ->
+            TVExpanded (IVShow title) (List.map toTV ts)
+
+        ( _, False ) ->
+            TVCollapsed (IVShow title)
 
 
 viewOD : State -> Html Msg
