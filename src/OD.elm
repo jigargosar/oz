@@ -720,20 +720,18 @@ viewTitleEditorTree title (T _ ts) =
 
 viewTitleEditor : String -> Html Msg
 viewTitleEditor title =
-    div []
-        [ input
-            [ Html.Attributes.id "primary-focus-node"
-            , tabindex 0
-            , value title
-            , onInput TitleChanged
-            , onKeyDownHelp
-                [ ( KeyEvent.hot "Enter", OnEnter )
-                , ( KeyEvent.hot "Tab", Indent )
-                , ( KeyEvent.shift "Tab", UnIndent )
-                ]
+    input
+        [ Html.Attributes.id "primary-focus-node"
+        , tabindex 0
+        , value title
+        , onInput TitleChanged
+        , onKeyDownHelp
+            [ ( KeyEvent.hot "Enter", OnEnter )
+            , ( KeyEvent.hot "Tab", Indent )
+            , ( KeyEvent.shift "Tab", UnIndent )
             ]
-            []
         ]
+        []
 
 
 viewBasicTree : T -> Html Msg
