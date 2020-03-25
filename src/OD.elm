@@ -615,29 +615,26 @@ viewIndicatorIcon str =
     div [ class "code pa1 f5" ] [ text str ]
 
 
+viewLineItem : String -> IV -> HM
+viewLineItem icon iv =
+    div [ class "flex" ]
+        [ viewIndicatorIcon icon
+        , viewIV iv
+        ]
+
+
 viewTV : TV -> HM
 viewTV tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
-                [ div [ class "flex" ]
-                    [ viewIndicatorIcon "."
-                    , viewIV iv
-                    ]
-                ]
+                [ viewLineItem "." iv ]
 
             TVCollapsed iv ->
-                [ div [ class "flex" ]
-                    [ viewIndicatorIcon "+"
-                    , viewIV iv
-                    ]
-                ]
+                [ viewLineItem "+" iv ]
 
             TVExpanded iv tvs ->
-                [ div [ class "flex" ]
-                    [ viewIndicatorIcon "-"
-                    , viewIV iv
-                    ]
+                [ viewLineItem "-" iv
                 , treeChildrenContainer <|
                     List.map viewTV tvs
                 ]
