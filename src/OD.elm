@@ -539,11 +539,11 @@ type TV
     | TVExpanded IV (List TV)
 
 
-odToTVL : OD -> List TV
-odToTVL (OD _ cs (LTR l (T (Item _ collapsed title) ts) r)) =
+odToTVL : (Item -> IV) -> OD -> List TV
+odToTVL itemToIV (OD _ cs (LTR l (T ((Item _ collapsed _) as item) ts) r)) =
     let
         iv =
-            IVShowFocused title
+            itemToIV item
 
         tv =
             case ( ts, collapsed ) of
@@ -596,11 +596,11 @@ viewOD2 state =
     case state of
         Edit title od ->
             treeChildrenContainer
-                (List.map viewTV (odToTVL od))
+                (List.map viewTV (odToTVL (always (IVEdit title)) od))
 
         NoEdit od ->
             treeChildrenContainer
-                (List.map viewTV (odToTVL od))
+                (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
 
 
 viewTV : TV -> HM
