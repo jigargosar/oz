@@ -2,7 +2,7 @@ port module OD exposing (main)
 
 import Browser
 import Browser.Dom as Dom
-import Html exposing (Html, div, input, text)
+import Html exposing (Html, div, i, input, span, text)
 import Html.Attributes exposing (class, tabindex, value)
 import Html.Events exposing (onInput)
 import ItemId exposing (ItemId)
@@ -616,10 +616,39 @@ viewIndicatorIcon str =
     div [ class "w1 mr1 mt1 code f3 lh-solid" ] [ text str ]
 
 
-viewLineItem : String -> IV -> HM
+matIcon : String -> Html msg
+matIcon iconName =
+    i [ class "material-icons" ] [ text iconName ]
+
+
+chevron_left =
+    "chevron_left"
+
+
+chevron_right =
+    "chevron_right"
+
+
+expand_more =
+    "expand_more"
+
+
+expand_less =
+    "expand_less"
+
+
+collapsedStateIcon =
+    matIcon expand_more
+
+
+expandedStateIcon =
+    matIcon chevron_right
+
+
+viewLineItem : HM -> IV -> HM
 viewLineItem icon iv =
     div [ class "flex" ]
-        [ viewIndicatorIcon icon
+        [ icon
         , div [ class "flex-auto flex lh-copy" ] [ viewIV iv ]
         ]
 
@@ -629,13 +658,13 @@ viewTV tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
-                [ viewLineItem "" iv ]
+                [ viewLineItem collapsedStateIcon iv ]
 
             TVCollapsed iv ->
-                [ viewLineItem "+" iv ]
+                [ viewLineItem collapsedStateIcon iv ]
 
             TVExpanded iv tvs ->
-                [ viewLineItem "-" iv
+                [ viewLineItem expandedStateIcon iv
                 , treeChildrenContainer <|
                     List.map viewTV tvs
                 ]
