@@ -589,6 +589,11 @@ toTV (T (Item _ collapsed title) ts) =
 -- OD VM View
 
 
+viewOD2 : State -> OD -> HM
+viewOD2 state od =
+    treeChildrenContainer (List.map viewTV (odToTVL od))
+
+
 viewTV : TV -> HM
 viewTV tv =
     treeContainer <|
