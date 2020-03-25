@@ -265,7 +265,21 @@ update message ((Model state seed) as model) =
                     model
 
         UnIndent ->
-            model
+            let
+                maybeNewState =
+                    case state of
+                        NoEdit od ->
+                            unIndent od |> Maybe.map NoEdit
+
+                        Edit t od ->
+                            unIndent od |> Maybe.map (Edit t)
+            in
+            case maybeNewState of
+                Just newState ->
+                    Model newState seed
+
+                Nothing ->
+                    model
 
 
 itemOf : OD -> Item
@@ -381,6 +395,18 @@ indent (OD pcs cs (LTR l t r)) =
 
         (T item ts) :: rest ->
             Just (OD pcs (Crumb rest item r :: cs) (LTR (List.reverse ts) t []))
+
+
+unIndent : OD -> Maybe OD
+unIndent (OD pcs cs (LTR l t r)) =
+    case cs of
+        [] ->
+            Nothing
+
+        (Crumb cl item cr) :: rest ->
+            LTR (T item (List.reverse l ++ r) :: cl) t cr
+                |> OD pcs rest
+                |> Just
 
 
 removeLeaf : OD -> Maybe OD
