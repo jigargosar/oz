@@ -390,7 +390,9 @@ view : Model -> Html Msg
 view (Model state _) =
     div []
         [ div [] [ text "OZ OUTLINING V2" ]
-        , viewOD state
+
+        --, viewOD state
+        , viewOD2 state
         ]
 
 
@@ -589,9 +591,14 @@ toTV (T (Item _ collapsed title) ts) =
 -- OD VM View
 
 
-viewOD2 : State -> OD -> HM
-viewOD2 state od =
-    treeChildrenContainer (List.map viewTV (odToTVL od))
+viewOD2 : State -> HM
+viewOD2 state =
+    case state of
+        Edit title od ->
+            treeChildrenContainer (List.map viewTV (odToTVL od))
+
+        NoEdit od ->
+            treeChildrenContainer (List.map viewTV (odToTVL od))
 
 
 viewTV : TV -> HM
