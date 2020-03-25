@@ -218,49 +218,6 @@ update message ((Model state seed) as model) =
         OnCursorDown ->
             case state of
                 NoEdit od ->
-                    let
-                        tryRight (OD pcs cs (LTR l t r)) =
-                            case r of
-                                first :: rest ->
-                                    LTR (t :: l) first rest
-                                        |> OD pcs cs
-                                        |> Just
-
-                                [] ->
-                                    Nothing
-
-                        tryDown (OD pcs cs (LTR l t r)) =
-                            visibleChildren t
-                                |> Maybe.andThen
-                                    (\(T item ts) ->
-                                        case ts of
-                                            [] ->
-                                                Nothing
-
-                                            first :: rest ->
-                                                LTR [] first rest
-                                                    |> OD pcs (Crumb l item r :: cs)
-                                                    |> Just
-                                    )
-
-                        tryRightOfAncestor (OD pcs cs (LTR l t r)) =
-                            case cs of
-                                (Crumb cl item (crFirst :: crRest)) :: rest ->
-                                    LTR (T item (List.reverse l ++ t :: r) :: cl) crFirst crRest
-                                        |> OD pcs rest
-                                        |> Just
-
-                                (Crumb cl item []) :: rest ->
-                                    case
-                                        LTR cl (T item (List.reverse l ++ t :: r)) []
-                                            |> OD pcs rest
-                                    of
-                                        parentOd ->
-                                            tryRightOfAncestor parentOd
-
-                                [] ->
-                                    Nothing
-                    in
                     case firstOf [ tryDown, tryRight, tryRightOfAncestor ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
@@ -315,6 +272,54 @@ update message ((Model state seed) as model) =
 
                 Nothing ->
                     model
+
+
+tryRight : OD -> Maybe OD
+tryRight (OD pcs cs (LTR l t r)) =
+    case r of
+        first :: rest ->
+            LTR (t :: l) first rest
+                |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
+
+
+tryDown : OD -> Maybe OD
+tryDown (OD pcs cs (LTR l t r)) =
+    visibleChildren t
+        |> Maybe.andThen
+            (\(T item ts) ->
+                case ts of
+                    [] ->
+                        Nothing
+
+                    first :: rest ->
+                        LTR [] first rest
+                            |> OD pcs (Crumb l item r :: cs)
+                            |> Just
+            )
+
+
+tryRightOfAncestor : OD -> Maybe OD
+tryRightOfAncestor (OD pcs cs (LTR l t r)) =
+    case cs of
+        (Crumb cl item (crFirst :: crRest)) :: rest ->
+            LTR (T item (List.reverse l ++ t :: r) :: cl) crFirst crRest
+                |> OD pcs rest
+                |> Just
+
+        (Crumb cl item []) :: rest ->
+            case
+                LTR cl (T item (List.reverse l ++ t :: r)) []
+                    |> OD pcs rest
+            of
+                parentOd ->
+                    tryRightOfAncestor parentOd
+
+        [] ->
+            Nothing
 
 
 itemOf : OD -> Item
