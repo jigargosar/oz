@@ -680,40 +680,6 @@ viewIV iv =
                 [ text (displayTitle title) ]
 
 
-
--- OUTLINE DOC VIEW
---viewOD : State -> Html Msg
---viewOD state =
---    case state of
---        Edit title (OD _ cs (LTR l t r)) ->
---            viewCrumbs cs
---                (List.map viewBasicTree (List.reverse l)
---                    ++ viewTitleEditorTree title t
---                    :: List.map viewBasicTree r
---                )
---
---        NoEdit (OD _ cs (LTR l t r)) ->
---            viewCrumbs cs
---                (List.map viewBasicTree (List.reverse l)
---                    ++ viewFocusedTree t
---                    :: List.map viewBasicTree r
---                )
---
---
---viewCrumbs : List Crumb -> LHM -> HM
---viewCrumbs cs lhm =
---    case cs of
---        [] ->
---            treeChildrenContainer lhm
---
---        (Crumb l item r) :: rest ->
---            viewCrumbs rest
---                (List.map viewBasicTree (List.reverse l)
---                    ++ treeContainer [ viewBasicTitleOfItem item, treeChildrenContainer lhm ]
---                    :: List.map viewBasicTree r
---                )
-
-
 treeChildrenContainer : LHM -> HM
 treeChildrenContainer =
     div [ class "pl3" ]
@@ -722,65 +688,6 @@ treeChildrenContainer =
 treeContainer : LHM -> HM
 treeContainer =
     div []
-
-
-
---viewFocusedTree : T -> Html Msg
---viewFocusedTree (T (Item _ _ title) ts) =
---    treeContainer
---        [ viewFocusedTitle title
---        , treeChildrenContainer (List.map viewBasicTree ts)
---        ]
---viewFocusedTitle : String -> Html Msg
---viewFocusedTitle title =
---    div
---        [ Html.Attributes.id "primary-focus-node"
---        , tabindex 0
---        , onKeyDownHelp
---            [ ( KeyEvent.hot "Enter", OnEnter )
---            , ( KeyEvent.hot "ArrowUp", OnCursorUp )
---            , ( KeyEvent.hot "ArrowDown", OnCursorDown )
---            , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
---            , ( KeyEvent.hot "ArrowRight", OnCursorRight )
---            , ( KeyEvent.hot "Tab", Indent )
---            , ( KeyEvent.shift "Tab", UnIndent )
---            ]
---        ]
---        [ text (displayTitle title) ]
---viewTitleEditorTree : String -> T -> Html Msg
---viewTitleEditorTree title (T _ ts) =
---    treeContainer
---        [ viewTitleEditor title
---        , treeChildrenContainer (List.map viewBasicTree ts)
---        ]
---viewTitleEditor : String -> Html Msg
---viewTitleEditor title =
---    input
---        [ Html.Attributes.id "primary-focus-node"
---        , tabindex 0
---        , value title
---        , onInput TitleChanged
---        , onKeyDownHelp
---            [ ( KeyEvent.hot "Enter", OnEnter )
---            , ( KeyEvent.hot "Tab", Indent )
---            , ( KeyEvent.shift "Tab", UnIndent )
---            ]
---        ]
---        []
---viewBasicTree : T -> Html Msg
---viewBasicTree (T item ts) =
---    treeContainer
---        [ viewBasicTitleOfItem item
---        , treeChildrenContainer (List.map viewBasicTree ts)
---        ]
---
---
---viewBasicTitleOfItem : Item -> HM
---viewBasicTitleOfItem (Item _ _ title) =
---    div [] [ text (displayTitle title) ]
---viewBasicTitle : String -> HM
---viewBasicTitle title =
---    div [] [ text (displayTitle title) ]
 
 
 displayTitle : String -> String
