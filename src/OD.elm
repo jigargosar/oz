@@ -614,28 +614,6 @@ viewOD2 state =
                 (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
 
 
-
---chevron_left =
---    "chevron_left"
-
-
-chevron_right =
-    "chevron_right"
-
-
-expand_more =
-    "expand_more"
-
-
-
---expand_less =
---    "expand_less"
-
-
-collapsedStateIconName =
-    expand_more
-
-
 viewLine : Bool -> String -> IV -> HM
 viewLine hideIcon iconName iv =
     div [ class "flex" ]
