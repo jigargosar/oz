@@ -240,8 +240,26 @@ update message ((Model state seed) as model) =
                                                     |> OD pcs (Crumb l item r :: cs)
                                                     |> Just
                                     )
+
+                        tryRightOfAncestor (OD pcs cs (LTR l t r)) =
+                            case cs of
+                                (Crumb cl item (crFirst :: crRest)) :: rest ->
+                                    LTR (T item (List.reverse l ++ t :: r) :: cl) crFirst crRest
+                                        |> OD pcs rest
+                                        |> Just
+
+                                (Crumb cl item []) :: rest ->
+                                    case
+                                        LTR cl (T item (List.reverse l ++ t :: r)) []
+                                            |> OD pcs rest
+                                    of
+                                        parentOd ->
+                                            tryRightOfAncestor parentOd
+
+                                [] ->
+                                    Nothing
                     in
-                    case firstOf [ tryDown, tryRight ] od of
+                    case firstOf [ tryDown, tryRight, tryRightOfAncestor ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
 
