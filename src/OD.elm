@@ -229,7 +229,17 @@ update message ((Model state seed) as model) =
                     model
 
         OnCursorLeft ->
-            model
+            case state of
+                NoEdit od ->
+                    case firstOf [ tryCollapse ] od of
+                        Just newOD ->
+                            Model (NoEdit newOD) seed
+
+                        Nothing ->
+                            model
+
+                Edit _ _ ->
+                    model
 
         OnCursorRight ->
             case state of
@@ -280,10 +290,22 @@ update message ((Model state seed) as model) =
 
 
 tryExpand : OD -> Maybe OD
-tryExpand ((OD pcs cs (LTR l (T item ts) r)) as od) =
+tryExpand (OD pcs cs (LTR l (T item ts) r)) =
     case ( ts, itemExpanded item ) of
         ( _ :: _, False ) ->
             LTR l (T (setItemExpanded True item) ts) r
+                |> OD pcs cs
+                |> Just
+
+        _ ->
+            Nothing
+
+
+tryCollapse : OD -> Maybe OD
+tryCollapse (OD pcs cs (LTR l (T item ts) r)) =
+    case ( ts, itemCollapsed item ) of
+        ( _ :: _, False ) ->
+            LTR l (T (setItemCollapsed True item) ts) r
                 |> OD pcs cs
                 |> Just
 
@@ -709,18 +731,16 @@ visibleChildren t =
         Nothing
 
 
-expandTree : T -> Maybe T
-expandTree ((T item ts) as t) =
-    case ( ts, itemCollapsed item ) of
-        ( _ :: _, True ) ->
-            T (setItemCollapsed False item) ts
-                |> Just
 
-        _ ->
-            Nothing
-
-
-
+--expandTree : T -> Maybe T
+--expandTree ((T item ts) as t) =
+--    case ( ts, itemCollapsed item ) of
+--        ( _ :: _, True ) ->
+--            T (setItemCollapsed False item) ts
+--                |> Just
+--
+--        _ ->
+--            Nothing
 -- ITEM
 
 
