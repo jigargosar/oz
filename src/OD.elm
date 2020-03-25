@@ -85,6 +85,8 @@ type Msg
     | TitleChanged String
     | OnCursorUp
     | OnCursorDown
+    | OnCursorLeft
+    | OnCursorRight
     | Indent
     | UnIndent
 
@@ -268,6 +270,12 @@ update message ((Model state seed) as model) =
 
                 _ ->
                     model
+
+        OnCursorLeft ->
+            model
+
+        OnCursorRight ->
+            model
 
         Indent ->
             let
