@@ -179,6 +179,7 @@ cacheState o n =
     cmdIf (neqBy stateToOD o n) (cacheODCmd (stateToOD n))
 
 
+mmODFocus : (OD -> Maybe OD) -> Model -> Ret
 mmODFocus func model =
     case model of
         Model (NoState od) _ _ ->
@@ -254,16 +255,16 @@ update message model =
             mmQOD2 searchPrevWrapAtTop focusPrimary model
 
         OnCursorUp ->
-            onCursorUp model
+            mmODFocus tryBackwardVisible model
 
         OnCursorDown ->
-            onCursorDown model
+            mmODFocus tryForwardVisible model
 
         OnCursorLeft ->
-            onCursorLeft model
+            mmODFocus (firstOf [ tryCollapse, tryUp, tryLeft ]) model
 
         OnCursorRight ->
-            onCursorRight model
+            mmODFocus (firstOf [ tryExpand, tryForwardVisible ]) model
 
         Indent ->
             onIndent model
