@@ -832,18 +832,6 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 -- OD VM
 
 
-type IV
-    = IVEdit String
-    | IVShow String
-    | IVFocused String
-
-
-type TV
-    = TVLeaf IV
-    | TVCollapsed IV
-    | TVExpanded IV (List TV)
-
-
 odToTVL : (Item -> IV) -> OD -> List TV
 odToTVL itemToIV (OD _ cs (LTR l (T ((Item _ collapsed _) as item) ts) r)) =
     let
@@ -894,6 +882,18 @@ toTV (T (Item _ collapsed title) ts) =
 
 
 -- OD VM View
+
+
+type IV
+    = IVEdit String
+    | IVShow String
+    | IVFocused String
+
+
+type TV
+    = TVLeaf IV
+    | TVCollapsed IV
+    | TVExpanded IV (List TV)
 
 
 viewOD : String -> State -> HM
