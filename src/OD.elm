@@ -774,7 +774,7 @@ view (Model state qs _) =
         [ div [ class "center measure-wide" ]
             [ div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
             , viewSearchQuery qs
-            , viewOD state
+            , viewOD qs state
             ]
         ]
 
@@ -964,7 +964,6 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 type IV
     = IVEdit String
     | IVShow String
-    | IVShowFocused String
     | IVSearchFocused Query String
 
 
@@ -1026,8 +1025,8 @@ toTV (T (Item _ collapsed title) ts) =
 -- OD VM View
 
 
-viewOD : State -> HM
-viewOD state =
+viewOD : String -> State -> HM
+viewOD qs state =
     case state of
         Edit title od ->
             div []
@@ -1040,7 +1039,7 @@ viewOD state =
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
-                    (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
+                    (List.map viewTV (odToTVL (\(Item _ _ title) -> IVSearchFocused (Query qs) title) od))
                 ]
 
         Search query od ->
@@ -1120,27 +1119,26 @@ viewIV iv =
         IVShow title ->
             div [ class "flex-auto pa1" ] [ displayTitleEl title ]
 
-        IVShowFocused title ->
-            div
-                [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto pa1 bg-lightest-blue"
-                , tabindex 0
-                , onKeyDownHelp
-                    [ ( KeyEvent.hot "Enter", OnEnter )
-                    , ( KeyEvent.hot "ArrowUp", OnCursorUp )
-                    , ( KeyEvent.hot "ArrowDown", OnCursorDown )
-                    , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
-                    , ( KeyEvent.hot "ArrowRight", OnCursorRight )
-                    , ( KeyEvent.hot "Tab", Indent )
-                    , ( KeyEvent.shift "Tab", UnIndent )
-                    , ( KeyEvent.shift "ArrowRight", ZoomIn )
-                    , ( KeyEvent.shift "ArrowLeft", ZoomOut )
-                    , ( KeyEvent.hot "/", FocusSearch )
-                    ]
-                ]
-                [ displayTitleEl title ]
-
-        IVSearchFocused query title ->
+        --IVShowFocused title ->
+        --    div
+        --        [ Html.Attributes.id "primary-focus-node"
+        --        , class "flex-auto pa1 bg-lightest-blue"
+        --        , tabindex 0
+        --        , onKeyDownHelp
+        --            [ ( KeyEvent.hot "Enter", OnEnter )
+        --            , ( KeyEvent.hot "ArrowUp", OnCursorUp )
+        --            , ( KeyEvent.hot "ArrowDown", OnCursorDown )
+        --            , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
+        --            , ( KeyEvent.hot "ArrowRight", OnCursorRight )
+        --            , ( KeyEvent.hot "Tab", Indent )
+        --            , ( KeyEvent.shift "Tab", UnIndent )
+        --            , ( KeyEvent.shift "ArrowRight", ZoomIn )
+        --            , ( KeyEvent.shift "ArrowLeft", ZoomOut )
+        --            , ( KeyEvent.hot "/", FocusSearch )
+        --            ]
+        --        ]
+        --        [ displayTitleEl title ]
+        IVSearchFocused (Query _) title ->
             div
                 [ Html.Attributes.id "primary-focus-node"
                 , class "flex-auto pa1 bg-lightest-blue"
