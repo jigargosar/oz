@@ -253,7 +253,14 @@ update message model =
             onEnter model
 
         TitleChanged changedTitle ->
-            ( onTitleChanged changedTitle model, Cmd.none )
+            ( case model of
+                Model (Edit _ od) _ _ ->
+                    setState (Edit changedTitle od) model
+
+                _ ->
+                    model
+            , Cmd.none
+            )
 
         OnCursorUp ->
             onCursorUp model
