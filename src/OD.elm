@@ -413,6 +413,29 @@ onCursorRight ((Model state _ _) as model) =
                     ( model, Cmd.none )
 
 
+onCursorLeft : Model -> Ret
+onCursorLeft ((Model state _ _) as model) =
+    case state of
+        NoState od ->
+            case firstOf [ tryCollapse, tryUp, tryLeft ] od of
+                Just newOD ->
+                    ( setNoState newOD model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Edit _ _ ->
+            ( model, Cmd.none )
+
+        Search query od ->
+            case firstOf [ tryCollapse, tryUp, tryLeft ] od of
+                Just newOD ->
+                    ( setState (Search query newOD) model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+
 
 --onCursorHelp [ tryExpand, tryForwardVisible ]
 
@@ -514,33 +537,6 @@ tryBackwardVisible =
 tryBackward : OD -> Maybe OD
 tryBackward =
     firstOf [ tryLeft >> Maybe.map lastDescendent, tryUp ]
-
-
-onCursorLeft : Model -> Ret
-onCursorLeft =
-    onCursorHelp [ tryCollapse, tryUp, tryLeft ]
-
-
-onCursorHelp : List (OD -> Maybe OD) -> Model -> Ret
-onCursorHelp arr ((Model state _ _) as model) =
-    let
-        maybeRet =
-            case state of
-                NoState od ->
-                    case firstOf arr od of
-                        Just newOD ->
-                            Just ( setNoState newOD model, focusPrimary )
-
-                        Nothing ->
-                            Nothing
-
-                Edit _ _ ->
-                    Nothing
-
-                Search _ _ ->
-                    Nothing
-    in
-    maybeRet |> Maybe.withDefault ( model, Cmd.none )
 
 
 onIndent : Model -> Ret
