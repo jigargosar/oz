@@ -297,38 +297,14 @@ onCursorDown model =
 
 onCursorLeft : Model -> Ret
 onCursorLeft ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryCollapse, tryUp, tryLeft ] od of
-                Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    save model
-
-        Edit _ _ ->
-            save model
-
-        Search _ _ ->
-            save model
+    tryNoStateHelp (firstOf [ tryCollapse, tryUp, tryLeft ]) model
+        |> Maybe.withDefault (save model)
 
 
-onCursorRight : Model -> Model
+onCursorRight : Model -> Ret
 onCursorRight ((Model state qs seed) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ] od of
-                Just newOD ->
-                    Model (NoState newOD) qs seed
-
-                Nothing ->
-                    model
-
-        Edit _ _ ->
-            model
-
-        Search _ _ ->
-            model
+    tryNoStateHelp (firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ]) model
+        |> Maybe.withDefault (save model)
 
 
 tryNoStateHelp : (OD -> Maybe OD) -> Model -> Maybe Ret
@@ -478,7 +454,7 @@ update message model =
             onCursorLeft model
 
         OnCursorRight ->
-            onCursorRight model |> save
+            onCursorRight model
 
         Indent ->
             onIndent model |> save
