@@ -521,6 +521,16 @@ findNextWrap pred =
     firstOf [ findNext pred, firstRoot >> findNext pred ]
 
 
+findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
+findPrevWrap pred =
+    firstOf [ findPrev pred, lastDescendentOfLastRoot >> findPrev pred ]
+
+
+lastDescendentOfLastRoot : OD -> OD
+lastDescendentOfLastRoot =
+    lastRoot >> lastDescendent
+
+
 findPrev : (OD -> Bool) -> OD -> Maybe OD
 findPrev pred =
     findX pred tryBackward
