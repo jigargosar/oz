@@ -362,6 +362,33 @@ onCursorDown ((Model state _ _) as model) =
                     ( model, Cmd.none )
 
 
+onCursorRight : Model -> Ret
+onCursorRight ((Model state _ _) as model) =
+    case state of
+        NoState od ->
+            case firstOf [ tryExpand, tryForwardVisible ] od of
+                Just newOD ->
+                    ( setNoState newOD model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Edit _ _ ->
+            ( model, Cmd.none )
+
+        Search query od ->
+            case firstOf [ tryExpand, searchX query tryForward ] od of
+                Just newOD ->
+                    ( setState (Search query newOD) model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+
+
+--onCursorHelp [ tryExpand, tryForwardVisible ]
+
+
 searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
 searchX query =
     findX (matches query)
@@ -409,11 +436,6 @@ tryBackward =
 onCursorLeft : Model -> Ret
 onCursorLeft =
     onCursorHelp [ tryCollapse, tryUp, tryLeft ]
-
-
-onCursorRight : Model -> Ret
-onCursorRight =
-    onCursorHelp [ tryExpand, tryForwardVisible ]
 
 
 onCursorHelp : List (OD -> Maybe OD) -> Model -> Ret
