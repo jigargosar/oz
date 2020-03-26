@@ -189,6 +189,55 @@ cacheODCmd od =
     cacheKV ( "od", odEncoder od )
 
 
+update : Msg -> Model -> ( Model, Cmd Msg )
+update message model =
+    case message of
+        NoOp ->
+            ( model, Cmd.none )
+
+        OnFocusResult (Ok ()) ->
+            ( model, Cmd.none )
+
+        OnFocusResult (Err (Dom.NotFound domId)) ->
+            Debug.todo ("focus failed on: " ++ domId)
+
+        FocusSearch ->
+            ( model, focusSearch )
+
+        QueryChanged nqs ->
+            ( onQueryChange nqs model, Cmd.none )
+
+        OnEnter ->
+            onEnter model
+
+        TitleChanged changedTitle ->
+            ( onTitleChanged changedTitle model, Cmd.none )
+
+        OnCursorUp ->
+            onCursorUp model
+
+        OnCursorDown ->
+            onCursorDown model
+
+        OnCursorLeft ->
+            onCursorLeft model
+
+        OnCursorRight ->
+            onCursorRight model
+
+        Indent ->
+            onIndent model
+
+        UnIndent ->
+            onUnIndent model
+
+        ZoomIn ->
+            onZoomIn model
+
+        ZoomOut ->
+            onZoomOut model
+
+
 onQueryChange : String -> Model -> Model
 onQueryChange nqs (Model state _ seed) =
     let
@@ -400,55 +449,6 @@ onZoomOut ((Model state qs seed) as model) =
                     Nothing
     in
     maybeRet |> Maybe.withDefault ( model, Cmd.none )
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update message model =
-    case message of
-        NoOp ->
-            ( model, Cmd.none )
-
-        OnFocusResult (Ok ()) ->
-            ( model, Cmd.none )
-
-        OnFocusResult (Err (Dom.NotFound domId)) ->
-            Debug.todo ("focus failed on: " ++ domId)
-
-        FocusSearch ->
-            ( model, focusSearch )
-
-        QueryChanged nqs ->
-            ( onQueryChange nqs model, Cmd.none )
-
-        OnEnter ->
-            onEnter model
-
-        TitleChanged changedTitle ->
-            ( onTitleChanged changedTitle model, Cmd.none )
-
-        OnCursorUp ->
-            onCursorUp model
-
-        OnCursorDown ->
-            onCursorDown model
-
-        OnCursorLeft ->
-            onCursorLeft model
-
-        OnCursorRight ->
-            onCursorRight model
-
-        Indent ->
-            onIndent model
-
-        UnIndent ->
-            onUnIndent model
-
-        ZoomIn ->
-            onZoomIn model
-
-        ZoomOut ->
-            onZoomOut model
 
 
 
