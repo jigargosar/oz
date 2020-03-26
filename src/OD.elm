@@ -226,6 +226,19 @@ onEnter ((Model state qs seed) as model) =
             model
 
 
+onTitleChanged : String -> Model -> Model
+onTitleChanged changedTitle ((Model state qs seed) as model) =
+    case state of
+        Edit _ od ->
+            Model (Edit changedTitle od) qs seed
+
+        NoEdit _ ->
+            model
+
+        Search _ _ ->
+            model
+
+
 update : Msg -> Model -> Model
 update message ((Model state qs seed) as model) =
     case message of
