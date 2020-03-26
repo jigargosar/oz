@@ -254,20 +254,20 @@ onEnter ((Model state _ _) as model) =
                     ( stepSetState setTitleThenAddNew model, focusPrimary )
 
                 Nothing ->
-                    ( setNoState (removeLeafOrSetEmptyTitle od) model, focusPrimary )
+                    let
+                        removeLeafOrSetEmptyTitle : OD
+                        removeLeafOrSetEmptyTitle =
+                            case removeLeaf od of
+                                Just nod ->
+                                    nod
+
+                                Nothing ->
+                                    odSetTitle "" od
+                    in
+                    ( setNoState removeLeafOrSetEmptyTitle model, focusPrimary )
 
         Search _ _ ->
             ( model, Cmd.none )
-
-
-removeLeafOrSetEmptyTitle : OD -> OD
-removeLeafOrSetEmptyTitle od =
-    case removeLeaf od of
-        Just nod ->
-            nod
-
-        Nothing ->
-            odSetTitle "" od
 
 
 onTitleChanged : String -> Model -> Model
