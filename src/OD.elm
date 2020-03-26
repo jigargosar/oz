@@ -497,7 +497,8 @@ viewSearchQuery : String -> HM
 viewSearchQuery qs =
     div [ class "pv1 flex" ]
         [ input
-            [ class "flex-auto"
+            [ Html.Attributes.id "search-input"
+            , class "flex-auto"
             , value qs
             , onInput QueryChanged
             , placeholder "Search..."
