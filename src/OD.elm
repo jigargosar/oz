@@ -134,6 +134,8 @@ type Msg
     | QueryChanged String
     | OnQueryEnter
     | OnQueryShiftEnter
+    | SearchForward
+    | SearchBackward
     | FocusSearch
     | OnEnter
     | TitleChanged String
@@ -222,6 +224,32 @@ update message model =
                     case searchPrevWrapAtTop query od of
                         Just nod ->
                             ( setState (Search query nod) model, Cmd.none )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SearchForward ->
+            case model of
+                Model (Search query od) _ _ ->
+                    case searchNextWrapAtBottom query od of
+                        Just nod ->
+                            ( setState (Search query nod) model, focusPrimary )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SearchBackward ->
+            case model of
+                Model (Search query od) _ _ ->
+                    case searchPrevWrapAtTop query od of
+                        Just nod ->
+                            ( setState (Search query nod) model, focusPrimary )
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -1150,6 +1178,8 @@ viewIV iv =
                     , ( KeyEvent.hot "ArrowRight", OnCursorRight )
                     , ( KeyEvent.hot "Tab", Indent )
                     , ( KeyEvent.shift "Tab", UnIndent )
+                    , ( KeyEvent.hot "n", SearchForward )
+                    , ( KeyEvent.shift "N", SearchBackward )
                     , ( KeyEvent.shift "ArrowRight", ZoomIn )
                     , ( KeyEvent.shift "ArrowLeft", ZoomOut )
                     , ( KeyEvent.hot "/", FocusSearch )
