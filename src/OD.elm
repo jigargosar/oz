@@ -379,8 +379,13 @@ searchPrev query =
 
 
 matches : Query -> OD -> Bool
-matches (Query qs) (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
-    String.contains (String.toLower qs) (String.toLower title)
+matches (Query qs) od =
+    String.contains (String.toLower qs) (String.toLower (odTitle od))
+
+
+odTitle : OD -> String
+odTitle (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+    title
 
 
 findX : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
