@@ -249,7 +249,11 @@ update message model =
             ( model, focusSearch )
 
         QueryChanged nqs ->
-            ( onQueryChange nqs model, Cmd.none )
+            ( case model of
+                Model s _ seed ->
+                    Model s nqs seed
+            , Cmd.none
+            )
 
         TitleChanged changedTitle ->
             ( case model of
