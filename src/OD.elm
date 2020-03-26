@@ -462,6 +462,16 @@ lastDescendent od =
             od
 
 
+lastDescendentVisible : OD -> OD
+lastDescendentVisible od =
+    case tryDownVisible od of
+        Just cod ->
+            lastDescendent (applyWhileJust tryRight cod)
+
+        Nothing ->
+            od
+
+
 searchPrev : Query -> OD -> Maybe OD
 searchPrev query =
     searchX query tryBackward
@@ -498,7 +508,7 @@ tryForward =
 
 tryBackwardVisible : OD -> Maybe OD
 tryBackwardVisible =
-    firstOf [ tryLeft, tryUp ]
+    firstOf [ tryLeft >> Maybe.map lastDescendentVisible, tryUp ]
 
 
 tryBackward : OD -> Maybe OD
