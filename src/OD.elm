@@ -331,7 +331,7 @@ onCursorUp ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case searchPrevious query od of
+            case searchX query tryBackward od of
                 Just newOD ->
                     ( setState (Search query newOD) model, focusPrimary )
 
@@ -354,7 +354,7 @@ onCursorDown ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case searchNext query od of
+            case searchX query tryForward od of
                 Just newOD ->
                     ( setState (Search query newOD) model, focusPrimary )
 
@@ -362,6 +362,7 @@ onCursorDown ((Model state _ _) as model) =
                     ( model, Cmd.none )
 
 
+findX : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
 findX pred nextValFunc val =
     case nextValFunc val of
         Just nod ->
@@ -375,22 +376,14 @@ findX pred nextValFunc val =
             Nothing
 
 
-searchNext : Query -> OD -> Maybe OD
-searchNext (Query qs) =
-    let
-        pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
-            String.contains (String.toLower qs) (String.toLower title)
-    in
-    findX pred tryForward
+searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
+searchX query =
+    findX (matches query)
 
 
-searchPrevious : Query -> OD -> Maybe OD
-searchPrevious (Query qs) =
-    let
-        pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
-            String.contains (String.toLower qs) (String.toLower title)
-    in
-    findX pred tryBackward
+matches : Query -> OD -> Bool
+matches (Query qs) (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+    String.contains (String.toLower qs) (String.toLower title)
 
 
 tryForwardVisible : OD -> Maybe OD
