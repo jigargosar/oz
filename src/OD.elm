@@ -239,6 +239,42 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
             model
 
 
+onCursorUp : Model -> Model
+onCursorUp ((Model state qs seed) as model) =
+    case state of
+        NoEdit od ->
+            case firstOf [ tryLeft, tryUp ] od of
+                Just newOD ->
+                    Model (NoEdit newOD) qs seed
+
+                Nothing ->
+                    model
+
+        Edit _ _ ->
+            model
+
+        Search _ _ ->
+            model
+
+
+onCursorDown : Model -> Model
+onCursorDown ((Model state qs seed) as model) =
+    case state of
+        NoEdit od ->
+            case firstOf [ tryDown, tryRight, tryRightOfAncestor ] od of
+                Just newOD ->
+                    Model (NoEdit newOD) qs seed
+
+                Nothing ->
+                    model
+
+        Edit _ _ ->
+            model
+
+        Search _ _ ->
+            model
+
+
 update : Msg -> Model -> Model
 update message ((Model state qs seed) as model) =
     case message of
@@ -261,47 +297,13 @@ update message ((Model state qs seed) as model) =
             onEnter model
 
         TitleChanged changedTitle ->
-            case state of
-                Edit _ od ->
-                    Model (Edit changedTitle od) qs seed
-
-                NoEdit _ ->
-                    model
-
-                Search _ _ ->
-                    model
+            onTitleChanged changedTitle model
 
         OnCursorUp ->
-            case state of
-                NoEdit od ->
-                    case firstOf [ tryLeft, tryUp ] od of
-                        Just newOD ->
-                            Model (NoEdit newOD) qs seed
-
-                        Nothing ->
-                            model
-
-                Edit _ _ ->
-                    model
-
-                Search _ _ ->
-                    model
+            onCursorUp model
 
         OnCursorDown ->
-            case state of
-                NoEdit od ->
-                    case firstOf [ tryDown, tryRight, tryRightOfAncestor ] od of
-                        Just newOD ->
-                            Model (NoEdit newOD) qs seed
-
-                        Nothing ->
-                            model
-
-                Edit _ _ ->
-                    model
-
-                Search _ _ ->
-                    model
+            onCursorDown model
 
         OnCursorLeft ->
             case state of
