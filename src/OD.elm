@@ -179,6 +179,21 @@ cacheState o n =
     cmdIf (neqBy stateToOD o n) (cacheODCmd (stateToOD n))
 
 
+mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
+mmQOD func model =
+    case model of
+        Model (NoState od) q _ ->
+            case func (Query q) od of
+                Just nod ->
+                    ( setNoState nod model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -198,30 +213,10 @@ update message model =
             ( onQueryChange nqs model, Cmd.none )
 
         OnQueryEnter ->
-            case model of
-                Model (NoState od) query _ ->
-                    case searchNextWrapAtBottom (Query query) od of
-                        Just nod ->
-                            ( setNoState nod model, Cmd.none )
-
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            mmQOD searchNextWrapAtBottom model
 
         OnQueryShiftEnter ->
-            case model of
-                Model (NoState od) query _ ->
-                    case searchPrevWrapAtTop (Query query) od of
-                        Just nod ->
-                            ( setNoState nod model, Cmd.none )
-
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            mmQOD searchPrevWrapAtTop model
 
         SearchForward ->
             case model of
