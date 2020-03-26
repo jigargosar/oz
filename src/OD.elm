@@ -266,17 +266,17 @@ update message model =
         OnCursorRight ->
             mmODFocus (firstOf [ tryExpand, tryForwardVisible ]) model
 
-        Indent ->
-            onIndent model
-
-        UnIndent ->
-            onUnIndent model
-
         ZoomIn ->
             onZoomIn model
 
         ZoomOut ->
             onZoomOut model
+
+        Indent ->
+            onIndent model
+
+        UnIndent ->
+            onUnIndent model
 
         OnEnter ->
             onEnter model
