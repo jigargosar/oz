@@ -53,12 +53,6 @@ type State
     | Search Query
 
 
-type StateType
-    = EditType
-    | NoEditType
-    | SearchType
-
-
 type alias Flags =
     { now : Int, od : Value }
 
@@ -101,32 +95,6 @@ type Msg
     | UnIndent
     | ZoomIn
     | ZoomOut
-
-
-odOf : State -> Maybe OD
-odOf state =
-    case state of
-        Edit _ od ->
-            Just od
-
-        NoEdit od ->
-            Just od
-
-        Search query ->
-            Nothing
-
-
-typeOf : State -> StateType
-typeOf state =
-    case state of
-        Edit _ _ ->
-            EditType
-
-        NoEdit _ ->
-            NoEditType
-
-        Search _ ->
-            SearchType
 
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
