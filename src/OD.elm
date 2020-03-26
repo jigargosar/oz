@@ -392,7 +392,7 @@ onZoomOut ((Model state qs seed) as model) =
 
 
 update : Msg -> Model -> Model
-update message ((Model state qs seed) as model) =
+update message model =
     case message of
         NoOp ->
             model
