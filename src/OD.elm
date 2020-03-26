@@ -285,26 +285,26 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
 
 onCursorUp : Model -> Ret
 onCursorUp =
-    onCursorFirstOfHelp [ tryLeft, tryUp ]
+    onCursorHelp [ tryLeft, tryUp ]
 
 
 onCursorDown : Model -> Ret
 onCursorDown =
-    onCursorFirstOfHelp [ tryDown, tryRight, tryRightOfAncestor ]
+    onCursorHelp [ tryDown, tryRight, tryRightOfAncestor ]
 
 
 onCursorLeft : Model -> Ret
 onCursorLeft =
-    onCursorFirstOfHelp [ tryCollapse, tryUp, tryLeft ]
+    onCursorHelp [ tryCollapse, tryUp, tryLeft ]
 
 
 onCursorRight : Model -> Ret
 onCursorRight =
-    onCursorFirstOfHelp [ tryExpand, tryDown, tryRight, tryRightOfAncestor ]
+    onCursorHelp [ tryExpand, tryDown, tryRight, tryRightOfAncestor ]
 
 
-onCursorFirstOfHelp : List (OD -> Maybe OD) -> Model -> Ret
-onCursorFirstOfHelp arr ((Model state _ _) as model) =
+onCursorHelp : List (OD -> Maybe OD) -> Model -> Ret
+onCursorHelp arr ((Model state _ _) as model) =
     let
         maybeRet =
             case state of
