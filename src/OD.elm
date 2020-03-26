@@ -730,6 +730,9 @@ viewSearchQuery qs =
             , value qs
             , onInput QueryChanged
             , placeholder "Search..."
+            , onKeyDownHelp
+                [ ( KeyEvent.hot "Enter", OnQueryEnter )
+                ]
             ]
             []
         ]
@@ -1119,6 +1122,7 @@ displayTitleEl title =
             span [ class "silver" ] [ text "Untitled" ]
 
 
+onKeyDownHelp : List ( KeyEvent.KeyEvent -> Bool, a ) -> Html.Attribute a
 onKeyDownHelp conditions =
     Html.Events.preventDefaultOn "keydown"
         (KeyEvent.decoder
