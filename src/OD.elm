@@ -284,22 +284,23 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
             model
 
 
-onCursorUp : Model -> Model
-onCursorUp ((Model state qs seed) as model) =
+onCursorUp : Model -> Ret
+onCursorUp ((Model state _ _) as model) =
     case state of
         NoState od ->
             case firstOf [ tryLeft, tryUp ] od of
                 Just newOD ->
-                    Model (NoState newOD) qs seed
+                    setNoState newOD model
+                        |> saveAndFocusPrimary
 
                 Nothing ->
-                    model
+                    save model
 
         Edit _ _ ->
-            model
+            save model
 
         Search _ _ ->
-            model
+            save model
 
 
 onCursorDown : Model -> Model
@@ -452,52 +453,52 @@ saveAndFocusSearch model =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update message =
+update message model =
     case message of
         NoOp ->
-            save
+            save model
 
         OnFocusResult (Ok ()) ->
-            save
+            save model
 
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
 
         FocusSearch ->
-            saveAndFocusSearch
+            saveAndFocusSearch model
 
         QueryChanged nqs ->
-            onQueryChange nqs >> save
+            onQueryChange nqs model |> save
 
         OnEnter ->
-            onEnter
+            onEnter model
 
         TitleChanged changedTitle ->
-            onTitleChanged changedTitle >> save
+            onTitleChanged changedTitle model |> save
 
         OnCursorUp ->
-            onCursorUp >> save
+            onCursorUp model
 
         OnCursorDown ->
-            onCursorDown >> save
+            onCursorDown model |> save
 
         OnCursorLeft ->
-            onCursorLeft >> save
+            onCursorLeft model |> save
 
         OnCursorRight ->
-            onCursorRight >> save
+            onCursorRight model |> save
 
         Indent ->
-            onIndent >> save
+            onIndent model |> save
 
         UnIndent ->
-            onUnIndent >> save
+            onUnIndent model |> save
 
         ZoomIn ->
-            onZoomIn >> save
+            onZoomIn model |> save
 
         ZoomOut ->
-            onZoomOut >> save
+            onZoomOut model |> save
 
 
 
