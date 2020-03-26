@@ -1113,20 +1113,6 @@ viewTV query tv =
         ]
 
 
-viewLine : Query -> Bool -> String -> IV -> HM
-viewLine query hideIcon iconName iv =
-    div [ class "flex" ]
-        [ i
-            [ class "self-start pt2 ph1 material-icons md-24 light-silver"
-            , classIf hideIcon "o-0"
-            ]
-            [ text iconName ]
-        , div [ class "flex-auto flex f4 lh-title" ]
-            [ viewIV query iv
-            ]
-        ]
-
-
 viewIV : Query -> IV -> HM
 viewIV (Query _) iv =
     case iv of
