@@ -113,6 +113,11 @@ setTitleAndEditNew title od =
         |> Random.map initEditState
 
 
+setTitleAndNoEdit : String -> OD -> State
+setTitleAndNoEdit title od =
+    odSetTitle title od |> NoEdit
+
+
 
 -- Update
 
@@ -259,7 +264,7 @@ onEnter ((Model state _ _) as model) =
                                 |> save
 
                         Nothing ->
-                            setState (NoEdit <| odSetTitle "" od) model
+                            setState (setTitleAndNoEdit "" od) model
                                 |> save
 
         Search _ _ ->
