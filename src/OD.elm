@@ -190,8 +190,27 @@ mmODFocus func model =
                 _ ->
                     ( model, Cmd.none )
 
-        _ ->
-            ( model, Cmd.none )
+        Model (Edit title od) _ _ ->
+            case func od of
+                Just nod ->
+                    if odEqById od nod then
+                        ( setState (Edit title nod) model, focusPrimary )
+
+                    else
+                        ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+
+odEqById : OD -> OD -> Bool
+odEqById =
+    eqBy odId
+
+
+odId : OD -> Id
+odId (OD _ _ (LTR _ (T (Item id _ _) _) _)) =
+    id
 
 
 mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
