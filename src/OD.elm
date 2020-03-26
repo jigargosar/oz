@@ -205,7 +205,7 @@ update message model =
         OnQueryEnter ->
             case model of
                 Model (Search query od) _ _ ->
-                    case searchNext query od of
+                    case searchNextWrapAtBottom query od of
                         Just nod ->
                             ( setState (Search query nod) model, Cmd.none )
 
@@ -411,6 +411,16 @@ searchX query =
 searchNext : Query -> OD -> Maybe OD
 searchNext query =
     searchX query tryForward
+
+
+searchNextWrapAtBottom : Query -> OD -> Maybe OD
+searchNextWrapAtBottom query =
+    firstOf [ searchNext query, firstRoot >> searchNext query ]
+
+
+firstRoot : OD -> OD
+firstRoot =
+    applyWhileJust tryUp >> applyWhileJust tryLeft
 
 
 searchPrev : Query -> OD -> Maybe OD
