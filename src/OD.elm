@@ -430,7 +430,7 @@ view (Model state _) =
     div []
         [ div [ class "center measure-wide" ]
             [ div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
-            , viewOD2 state
+            , viewOD state
             ]
         ]
 
@@ -663,8 +663,8 @@ toTV (T (Item _ collapsed title) ts) =
 -- OD VM View
 
 
-viewOD2 : State -> HM
-viewOD2 state =
+viewOD : State -> HM
+viewOD state =
     case state of
         Edit title od ->
             treeChildrenContainer
