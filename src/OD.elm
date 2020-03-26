@@ -692,7 +692,7 @@ viewZoomCrumbs (OD pcs _ _) =
                 [ text "chevron_right" ]
     in
     div [ class "flex items-center" ]
-        (div [ class "pa1" ] [ displayTitleEl "HOME" ]
+        (div [ class "pa1" ] [ displayTitleEl "Home" ]
             :: List.map viewZC (List.reverse pcs)
             |> List.intersperse viewSep
         )
