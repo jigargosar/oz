@@ -36,7 +36,12 @@ main =
 
 
 type Query
-    = Query
+    = Query String
+
+
+fromString : String -> Maybe Query
+fromString =
+    nonBlank >> Maybe.map Query
 
 
 
@@ -50,7 +55,7 @@ type Model
 type State
     = Edit String OD
     | NoEdit OD
-    | Search Query
+    | Search Query OD
 
 
 type alias Flags =
@@ -85,6 +90,7 @@ init flags =
 type Msg
     = NoOp
     | OnFocusResult (Result Dom.Error ())
+    | QueryChanged String
     | OnEnter
     | TitleChanged String
     | OnCursorUp
@@ -131,8 +137,8 @@ cacheState _ n =
         NoEdit od ->
             cacheODCmd od
 
-        Search _ ->
-            Cmd.none
+        Search _ od ->
+            cacheODCmd od
 
 
 cacheODCmd : OD -> Cmd msg
@@ -151,6 +157,29 @@ update message ((Model state seed) as model) =
 
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
+
+        QueryChanged q ->
+            let
+                maybeNewState =
+                    case ( fromString q, state ) of
+                        ( Just query, NoEdit od ) ->
+                            Just (Search query od)
+
+                        ( Just query, Search _ od ) ->
+                            Just (Search query od)
+
+                        ( Nothing, Search _ od ) ->
+                            Just (NoEdit od)
+
+                        _ ->
+                            Nothing
+            in
+            case maybeNewState of
+                Just ns ->
+                    Model ns seed
+
+                Nothing ->
+                    model
 
         OnEnter ->
             case state of
@@ -173,7 +202,7 @@ update message ((Model state seed) as model) =
                                 Nothing ->
                                     Model (NoEdit (odSetTitle "" od)) seed
 
-                Search _ ->
+                Search _ _ ->
                     model
 
         TitleChanged changedTitle ->
@@ -184,7 +213,7 @@ update message ((Model state seed) as model) =
                 NoEdit _ ->
                     model
 
-                Search _ ->
+                Search _ _ ->
                     model
 
         OnCursorUp ->
@@ -200,7 +229,7 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
-                Search _ ->
+                Search _ _ ->
                     model
 
         OnCursorDown ->
@@ -216,7 +245,7 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
-                Search _ ->
+                Search _ _ ->
                     model
 
         OnCursorLeft ->
@@ -232,7 +261,7 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
-                Search _ ->
+                Search _ _ ->
                     model
 
         OnCursorRight ->
@@ -248,7 +277,7 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
-                Search _ ->
+                Search _ _ ->
                     model
 
         Indent ->
@@ -261,7 +290,7 @@ update message ((Model state seed) as model) =
                         Edit t od ->
                             indent od |> Maybe.map (Edit t)
 
-                        Search _ ->
+                        Search _ _ ->
                             Nothing
             in
             case maybeNewState of
@@ -281,7 +310,7 @@ update message ((Model state seed) as model) =
                         Edit t od ->
                             unIndent od |> Maybe.map (Edit t)
 
-                        Search _ ->
+                        Search _ _ ->
                             Nothing
             in
             case maybeNewState of
@@ -304,7 +333,7 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
-                Search _ ->
+                Search _ _ ->
                     model
 
         ZoomOut ->
@@ -320,7 +349,7 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
-                Search _ ->
+                Search _ _ ->
                     model
 
 
@@ -708,7 +737,7 @@ viewOD state =
                     (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
                 ]
 
-        Search _ ->
+        Search _ _ ->
             noHtml
 
 
