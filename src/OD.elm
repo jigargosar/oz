@@ -410,6 +410,189 @@ viewSearchQuery qs =
 
 
 
+-- OD VM View
+
+
+type IV
+    = IVEdit String
+    | IVShow String
+    | IVFocused String
+
+
+type TV
+    = TVLeaf IV
+    | TVCollapsed IV
+    | TVExpanded IV (List TV)
+
+
+type ZV
+    = ZV String
+
+
+viewOD : String -> State -> HM
+viewOD qs state =
+    let
+        stateFu =
+            case state of
+                Edit title od ->
+                    ( always (IVEdit title), od )
+
+                NoState od ->
+                    ( \(Item _ _ title) -> IVFocused title, od )
+    in
+    let
+        ( itemToIV, od ) =
+            stateFu
+
+        tvl =
+            odToTVL itemToIV od
+    in
+    div []
+        [ viewZoomCrumbs (odToZVL od)
+        , div [] (List.map (viewTV (Query qs)) tvl)
+        ]
+
+
+viewZoomCrumbs : List ZV -> HM
+viewZoomCrumbs zvl =
+    let
+        viewZV (ZV title) =
+            div [ class "pa1" ] [ displayTitleEl title ]
+
+        viewSep =
+            i [ class "material-icons md-18 light-silver" ]
+                [ text "chevron_right" ]
+    in
+    div [ class "flex items-center" ]
+        (div [ class "pa1" ] [ displayTitleEl "Home" ]
+            :: List.map viewZV zvl
+            |> List.intersperse viewSep
+        )
+
+
+viewTV : Query -> TV -> HM
+viewTV query tv =
+    let
+        ( iv2, collapseState, tvs2 ) =
+            case tv of
+                TVLeaf iv ->
+                    ( iv, CollapseState.NoChildren, [] )
+
+                TVCollapsed iv ->
+                    ( iv, CollapseState.Collapsed, [] )
+
+                TVExpanded iv tvs ->
+                    ( iv, CollapseState.Expanded, tvs )
+
+        iconName =
+            case collapseState of
+                CollapseState.NoChildren ->
+                    "chevron_right"
+
+                CollapseState.Expanded ->
+                    "expand_more"
+
+                CollapseState.Collapsed ->
+                    "chevron_right"
+    in
+    treeContainer
+        [ div [ class "flex" ]
+            [ i
+                [ class "self-start pt2 ph1 material-icons md-24 light-silver"
+                , classIf (collapseState == CollapseState.NoChildren) "o-0"
+                ]
+                [ text iconName ]
+            , div [ class "flex-auto flex f4 lh-title" ]
+                [ viewIV query iv2
+                ]
+            ]
+        , treeChildrenContainer <|
+            List.map (viewTV query) tvs2
+        ]
+
+
+viewIV : Query -> IV -> HM
+viewIV (Query _) iv =
+    case iv of
+        IVEdit title ->
+            input
+                [ Html.Attributes.id "primary-focus-node"
+                , class "flex-auto pa1 bn bw0 ma0"
+                , tabindex 0
+                , value title
+                , onInput TitleChanged
+                , onKeyDownHelp
+                    [ ( KeyEvent.hot "Enter", OnEnter )
+                    , ( KeyEvent.hot "Tab", Indent )
+                    , ( KeyEvent.shift "Tab", UnIndent )
+                    ]
+                ]
+                []
+
+        IVShow title ->
+            div [ class "flex-auto pa1" ] [ displayTitleEl title ]
+
+        IVFocused title ->
+            div
+                [ Html.Attributes.id "primary-focus-node"
+                , class "flex-auto pa1 bg-lightest-blue"
+                , tabindex 0
+                , onKeyDownHelp
+                    [ ( KeyEvent.hot "Enter", OnEnter )
+                    , ( KeyEvent.hot "ArrowUp", OnCursorUp )
+                    , ( KeyEvent.hot "k", OnCursorUp )
+                    , ( KeyEvent.hot "ArrowDown", OnCursorDown )
+                    , ( KeyEvent.hot "j", OnCursorDown )
+                    , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
+                    , ( KeyEvent.hot "h", OnCursorLeft )
+                    , ( KeyEvent.hot "ArrowRight", OnCursorRight )
+                    , ( KeyEvent.hot "l", OnCursorRight )
+                    , ( KeyEvent.hot "Tab", Indent )
+                    , ( KeyEvent.shift "Tab", UnIndent )
+                    , ( KeyEvent.hot "n", SearchForward )
+                    , ( KeyEvent.shift "N", SearchBackward )
+                    , ( KeyEvent.shift "ArrowRight", ZoomIn )
+                    , ( KeyEvent.shift "ArrowLeft", ZoomOut )
+                    , ( KeyEvent.hot "/", FocusSearch )
+                    ]
+                ]
+                [ displayTitleEl title ]
+
+
+treeChildrenContainer : LHM -> HM
+treeChildrenContainer =
+    div [ class "pl4" ]
+
+
+treeContainer : LHM -> HM
+treeContainer =
+    div []
+
+
+displayTitleEl : String -> HM
+displayTitleEl title =
+    case nonBlank title of
+        Just nb ->
+            span [ class "" ] [ text nb ]
+
+        Nothing ->
+            span [ class "silver" ] [ text "Untitled" ]
+
+
+onKeyDownHelp : List ( KeyEvent.KeyEvent -> Bool, a ) -> Html.Attribute a
+onKeyDownHelp conditions =
+    Html.Events.preventDefaultOn "keydown"
+        (KeyEvent.decoder
+            |> JD.andThen
+                (\ke ->
+                    condAlways conditions ke
+                        |> Maybe.map (\msg -> JD.succeed ( msg, True ))
+                        |> Maybe.withDefault (JD.fail "Not interested")
+                )
+        )
+
+
+
 -- OUTLINE DOC
 
 
@@ -778,7 +961,7 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 
 
 
--- OD VM
+-- OD to VM
 
 
 odToTVL : (Item -> IV) -> OD -> List TV
@@ -836,189 +1019,6 @@ toTV (T (Item _ collapsed title) ts) =
 
         ( _, False ) ->
             TVExpanded (IVShow title) (List.map toTV ts)
-
-
-
--- OD VM View
-
-
-type IV
-    = IVEdit String
-    | IVShow String
-    | IVFocused String
-
-
-type TV
-    = TVLeaf IV
-    | TVCollapsed IV
-    | TVExpanded IV (List TV)
-
-
-type ZV
-    = ZV String
-
-
-viewOD : String -> State -> HM
-viewOD qs state =
-    let
-        stateFu =
-            case state of
-                Edit title od ->
-                    ( always (IVEdit title), od )
-
-                NoState od ->
-                    ( \(Item _ _ title) -> IVFocused title, od )
-    in
-    let
-        ( itemToIV, od ) =
-            stateFu
-
-        tvl =
-            odToTVL itemToIV od
-    in
-    div []
-        [ viewZoomCrumbs (odToZVL od)
-        , div [] (List.map (viewTV (Query qs)) tvl)
-        ]
-
-
-viewZoomCrumbs : List ZV -> HM
-viewZoomCrumbs zvl =
-    let
-        viewZV (ZV title) =
-            div [ class "pa1" ] [ displayTitleEl title ]
-
-        viewSep =
-            i [ class "material-icons md-18 light-silver" ]
-                [ text "chevron_right" ]
-    in
-    div [ class "flex items-center" ]
-        (div [ class "pa1" ] [ displayTitleEl "Home" ]
-            :: List.map viewZV zvl
-            |> List.intersperse viewSep
-        )
-
-
-viewTV : Query -> TV -> HM
-viewTV query tv =
-    let
-        ( iv2, collapseState, tvs2 ) =
-            case tv of
-                TVLeaf iv ->
-                    ( iv, CollapseState.NoChildren, [] )
-
-                TVCollapsed iv ->
-                    ( iv, CollapseState.Collapsed, [] )
-
-                TVExpanded iv tvs ->
-                    ( iv, CollapseState.Expanded, tvs )
-
-        iconName =
-            case collapseState of
-                CollapseState.NoChildren ->
-                    "chevron_right"
-
-                CollapseState.Expanded ->
-                    "expand_more"
-
-                CollapseState.Collapsed ->
-                    "chevron_right"
-    in
-    treeContainer
-        [ div [ class "flex" ]
-            [ i
-                [ class "self-start pt2 ph1 material-icons md-24 light-silver"
-                , classIf (collapseState == CollapseState.NoChildren) "o-0"
-                ]
-                [ text iconName ]
-            , div [ class "flex-auto flex f4 lh-title" ]
-                [ viewIV query iv2
-                ]
-            ]
-        , treeChildrenContainer <|
-            List.map (viewTV query) tvs2
-        ]
-
-
-viewIV : Query -> IV -> HM
-viewIV (Query _) iv =
-    case iv of
-        IVEdit title ->
-            input
-                [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto pa1 bn bw0 ma0"
-                , tabindex 0
-                , value title
-                , onInput TitleChanged
-                , onKeyDownHelp
-                    [ ( KeyEvent.hot "Enter", OnEnter )
-                    , ( KeyEvent.hot "Tab", Indent )
-                    , ( KeyEvent.shift "Tab", UnIndent )
-                    ]
-                ]
-                []
-
-        IVShow title ->
-            div [ class "flex-auto pa1" ] [ displayTitleEl title ]
-
-        IVFocused title ->
-            div
-                [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto pa1 bg-lightest-blue"
-                , tabindex 0
-                , onKeyDownHelp
-                    [ ( KeyEvent.hot "Enter", OnEnter )
-                    , ( KeyEvent.hot "ArrowUp", OnCursorUp )
-                    , ( KeyEvent.hot "k", OnCursorUp )
-                    , ( KeyEvent.hot "ArrowDown", OnCursorDown )
-                    , ( KeyEvent.hot "j", OnCursorDown )
-                    , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
-                    , ( KeyEvent.hot "h", OnCursorLeft )
-                    , ( KeyEvent.hot "ArrowRight", OnCursorRight )
-                    , ( KeyEvent.hot "l", OnCursorRight )
-                    , ( KeyEvent.hot "Tab", Indent )
-                    , ( KeyEvent.shift "Tab", UnIndent )
-                    , ( KeyEvent.hot "n", SearchForward )
-                    , ( KeyEvent.shift "N", SearchBackward )
-                    , ( KeyEvent.shift "ArrowRight", ZoomIn )
-                    , ( KeyEvent.shift "ArrowLeft", ZoomOut )
-                    , ( KeyEvent.hot "/", FocusSearch )
-                    ]
-                ]
-                [ displayTitleEl title ]
-
-
-treeChildrenContainer : LHM -> HM
-treeChildrenContainer =
-    div [ class "pl4" ]
-
-
-treeContainer : LHM -> HM
-treeContainer =
-    div []
-
-
-displayTitleEl : String -> HM
-displayTitleEl title =
-    case nonBlank title of
-        Just nb ->
-            span [ class "" ] [ text nb ]
-
-        Nothing ->
-            span [ class "silver" ] [ text "Untitled" ]
-
-
-onKeyDownHelp : List ( KeyEvent.KeyEvent -> Bool, a ) -> Html.Attribute a
-onKeyDownHelp conditions =
-    Html.Events.preventDefaultOn "keydown"
-        (KeyEvent.decoder
-            |> JD.andThen
-                (\ke ->
-                    condAlways conditions ke
-                        |> Maybe.map (\msg -> JD.succeed ( msg, True ))
-                        |> Maybe.withDefault (JD.fail "Not interested")
-                )
-        )
 
 
 
