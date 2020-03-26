@@ -978,14 +978,14 @@ viewOD qs state =
         Edit title od ->
             div []
                 [ viewZoomCrumbs od
-                , treeChildrenContainer
+                , div []
                     (List.map viewTVHelp (odToTVL (always (IVEdit title)) od))
                 ]
 
         NoState od ->
             div []
                 [ viewZoomCrumbs od
-                , treeChildrenContainer
+                , div []
                     (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVFocused title) od))
                 ]
 
