@@ -39,11 +39,6 @@ type Query
     = Query String
 
 
-fromString : String -> Maybe Query
-fromString =
-    nonBlank >> Maybe.map Query
-
-
 
 -- Model
 
@@ -207,10 +202,10 @@ update message model =
 
         OnQueryEnter ->
             case model of
-                Model (Search query od) _ _ ->
-                    case searchNextWrapAtBottom query od of
+                Model (NoState od) query _ ->
+                    case searchNextWrapAtBottom (Query query) od of
                         Just nod ->
-                            ( setState (Search query nod) model, Cmd.none )
+                            ( setNoState nod model, Cmd.none )
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -220,10 +215,10 @@ update message model =
 
         OnQueryShiftEnter ->
             case model of
-                Model (Search query od) _ _ ->
-                    case searchPrevWrapAtTop query od of
+                Model (NoState od) query _ ->
+                    case searchPrevWrapAtTop (Query query) od of
                         Just nod ->
-                            ( setState (Search query nod) model, Cmd.none )
+                            ( setNoState nod model, Cmd.none )
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -233,10 +228,10 @@ update message model =
 
         SearchForward ->
             case model of
-                Model (Search query od) _ _ ->
-                    case searchNextWrapAtBottom query od of
+                Model (NoState od) query _ ->
+                    case searchNextWrapAtBottom (Query query) od of
                         Just nod ->
-                            ( setState (Search query nod) model, focusPrimary )
+                            ( setNoState nod model, focusPrimary )
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -246,10 +241,10 @@ update message model =
 
         SearchBackward ->
             case model of
-                Model (Search query od) _ _ ->
-                    case searchPrevWrapAtTop query od of
+                Model (NoState od) query _ ->
+                    case searchPrevWrapAtTop (Query query) od of
                         Just nod ->
-                            ( setState (Search query nod) model, focusPrimary )
+                            ( setNoState nod model, focusPrimary )
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -290,27 +285,7 @@ update message model =
 
 onQueryChange : String -> Model -> Model
 onQueryChange nqs (Model state _ seed) =
-    let
-        maybeNewState =
-            case ( fromString nqs, state ) of
-                ( Just query, NoState od ) ->
-                    Just (Search query od)
-
-                ( Just query, Search _ od ) ->
-                    Just (Search query od)
-
-                ( Nothing, Search _ od ) ->
-                    Just (NoState od)
-
-                _ ->
-                    Nothing
-    in
-    case maybeNewState of
-        Just ns ->
-            Model ns nqs seed
-
-        Nothing ->
-            Model state nqs seed
+    Model state nqs seed
 
 
 onEnter : Model -> Ret
