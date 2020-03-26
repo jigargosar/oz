@@ -106,11 +106,6 @@ type State
     | Search Query OD
 
 
-initEditState : OD -> State
-initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
-    Edit title od
-
-
 
 -- DOM FOCUS
 
@@ -265,6 +260,11 @@ onQueryChange nqs (Model state _ seed) =
 
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
+    let
+        initEditState : OD -> State
+        initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
+            Edit title od
+    in
     case state of
         NoState od ->
             ( setState (initEditState od) model
