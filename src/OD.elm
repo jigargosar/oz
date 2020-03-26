@@ -737,8 +737,12 @@ viewOD state =
                     (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
                 ]
 
-        Search _ _ ->
-            noHtml
+        Search _ od ->
+            div []
+                [ viewZoomCrumbs od
+                , treeChildrenContainer
+                    (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
+                ]
 
 
 viewZoomCrumbs : OD -> HM
