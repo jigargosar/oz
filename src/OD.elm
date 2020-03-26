@@ -418,41 +418,6 @@ searchPrevWrapAtTop query =
     firstOf [ searchPrev query, lastRoot >> lastDescendent >> searchPrev query ]
 
 
-firstRoot : OD -> OD
-firstRoot =
-    root >> applyWhileJust tryLeft
-
-
-lastRoot : OD -> OD
-lastRoot =
-    root >> applyWhileJust tryRight
-
-
-root : OD -> OD
-root =
-    applyWhileJust tryUp
-
-
-lastDescendent : OD -> OD
-lastDescendent od =
-    case tryDown od of
-        Just cod ->
-            lastDescendent (applyWhileJust tryRight cod)
-
-        Nothing ->
-            od
-
-
-lastDescendentVisible : OD -> OD
-lastDescendentVisible od =
-    case tryDownVisible od of
-        Just cod ->
-            lastDescendent (applyWhileJust tryRight cod)
-
-        Nothing ->
-            od
-
-
 searchPrev : Query -> OD -> Maybe OD
 searchPrev query =
     searchX query tryBackward
@@ -810,6 +775,41 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
     else
         -- insertAfter
         OD pcs cs (LTR (t :: l) newT r)
+
+
+firstRoot : OD -> OD
+firstRoot =
+    root >> applyWhileJust tryLeft
+
+
+lastRoot : OD -> OD
+lastRoot =
+    root >> applyWhileJust tryRight
+
+
+root : OD -> OD
+root =
+    applyWhileJust tryUp
+
+
+lastDescendent : OD -> OD
+lastDescendent od =
+    case tryDown od of
+        Just cod ->
+            lastDescendent (applyWhileJust tryRight cod)
+
+        Nothing ->
+            od
+
+
+lastDescendentVisible : OD -> OD
+lastDescendentVisible od =
+    case tryDownVisible od of
+        Just cod ->
+            lastDescendent (applyWhileJust tryRight cod)
+
+        Nothing ->
+            od
 
 
 indent : OD -> Maybe OD
