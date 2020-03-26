@@ -244,12 +244,13 @@ onEnter ((Model state _ _) as model) =
             case nonBlank unsafeTitle of
                 Just title ->
                     let
-                        stateGen =
+                        saveAndAddNew : Generator State
+                        saveAndAddNew =
                             odSetTitle title od
                                 |> addNew
                                 |> Random.map initEditState
                     in
-                    stepSetState stateGen model
+                    stepSetState saveAndAddNew model
                         |> save
 
                 Nothing ->
