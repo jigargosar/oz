@@ -340,66 +340,6 @@ initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
     Edit title od
 
 
-onCursorUp : Model -> Ret
-onCursorUp ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case tryBackwardVisible od of
-                Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        Edit _ _ ->
-            ( model, Cmd.none )
-
-
-onCursorDown : Model -> Ret
-onCursorDown ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case tryForwardVisible od of
-                Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        Edit _ _ ->
-            ( model, Cmd.none )
-
-
-onCursorRight : Model -> Ret
-onCursorRight ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryExpand, tryForwardVisible ] od of
-                Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        Edit _ _ ->
-            ( model, Cmd.none )
-
-
-onCursorLeft : Model -> Ret
-onCursorLeft ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryCollapse, tryUp, tryLeft ] od of
-                Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        Edit _ _ ->
-            ( model, Cmd.none )
-
-
 searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
 searchX query =
     findX (matches query)
