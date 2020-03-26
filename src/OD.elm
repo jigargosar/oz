@@ -375,9 +375,32 @@ findX pred nextValFunc val =
             Nothing
 
 
+searchNext : Query -> OD -> Maybe OD
+searchNext (Query qs) =
+    let
+        pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+            String.contains (String.toLower qs) (String.toLower title)
+    in
+    findX pred tryForward
+
+
+searchPrevious : Query -> OD -> Maybe OD
+searchPrevious (Query qs) =
+    let
+        pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+            String.contains (String.toLower qs) (String.toLower title)
+    in
+    findX pred tryBackward
+
+
 tryForwardVisible : OD -> Maybe OD
 tryForwardVisible =
     firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ]
+
+
+tryForward : OD -> Maybe OD
+tryForward =
+    firstOf [ tryDown, tryRight, tryRightOfAncestor ]
 
 
 tryBackwardVisible : OD -> Maybe OD
@@ -385,28 +408,9 @@ tryBackwardVisible =
     firstOf [ tryLeft, tryUp ]
 
 
-searchNext : Query -> OD -> Maybe OD
-searchNext (Query qs) =
-    let
-        fwd =
-            firstOf [ tryDown, tryRight, tryRightOfAncestor ]
-
-        pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
-            String.contains (String.toLower qs) (String.toLower title)
-    in
-    findX pred fwd
-
-
-searchPrevious : Query -> OD -> Maybe OD
-searchPrevious (Query qs) =
-    let
-        bwd =
-            firstOf [ tryLeft, tryUp ]
-
-        pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
-            String.contains (String.toLower qs) (String.toLower title)
-    in
-    findX pred bwd
+tryBackward : OD -> Maybe OD
+tryBackward =
+    firstOf [ tryLeft, tryUp ]
 
 
 onCursorLeft : Model -> Ret
