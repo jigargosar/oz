@@ -175,6 +175,57 @@ cacheODCmd od =
     cacheKV ( "od", odEncoder od )
 
 
+onQueryChange : String -> Model -> Model
+onQueryChange nqs (Model state _ seed) =
+    let
+        maybeNewState =
+            case ( fromString nqs, state ) of
+                ( Just query, NoEdit od ) ->
+                    Just (Search query od)
+
+                ( Just query, Search _ od ) ->
+                    Just (Search query od)
+
+                ( Nothing, Search _ od ) ->
+                    Just (NoEdit od)
+
+                _ ->
+                    Nothing
+    in
+    case maybeNewState of
+        Just ns ->
+            Model ns nqs seed
+
+        Nothing ->
+            Model state nqs seed
+
+
+onEnter : Model -> Model
+onEnter ((Model state qs seed) as model) =
+    case state of
+        NoEdit od ->
+            case itemOf od of
+                Item _ _ title ->
+                    Model (Edit title od) qs seed
+
+        Edit title od ->
+            case nonBlank title of
+                Just nbTitle ->
+                    Random.step (addNew (odSetTitle nbTitle od)) seed
+                        |> uncurry (Edit "" >> flip Model qs)
+
+                Nothing ->
+                    case removeLeaf od of
+                        Just newOd ->
+                            Model (NoEdit newOd) qs seed
+
+                        Nothing ->
+                            Model (NoEdit (odSetTitle "" od)) qs seed
+
+        Search _ _ ->
+            model
+
+
 update : Msg -> Model -> Model
 update message ((Model state qs seed) as model) =
     case message of
@@ -191,51 +242,10 @@ update message ((Model state qs seed) as model) =
             model
 
         QueryChanged nqs ->
-            let
-                maybeNewState =
-                    case ( fromString nqs, state ) of
-                        ( Just query, NoEdit od ) ->
-                            Just (Search query od)
-
-                        ( Just query, Search _ od ) ->
-                            Just (Search query od)
-
-                        ( Nothing, Search _ od ) ->
-                            Just (NoEdit od)
-
-                        _ ->
-                            Nothing
-            in
-            case maybeNewState of
-                Just ns ->
-                    Model ns nqs seed
-
-                Nothing ->
-                    Model state nqs seed
+            onQueryChange nqs model
 
         OnEnter ->
-            case state of
-                NoEdit od ->
-                    case itemOf od of
-                        Item _ _ title ->
-                            Model (Edit title od) qs seed
-
-                Edit title od ->
-                    case nonBlank title of
-                        Just nbTitle ->
-                            Random.step (addNew (odSetTitle nbTitle od)) seed
-                                |> uncurry (Edit "" >> flip Model qs)
-
-                        Nothing ->
-                            case removeLeaf od of
-                                Just newOd ->
-                                    Model (NoEdit newOd) qs seed
-
-                                Nothing ->
-                                    Model (NoEdit (odSetTitle "" od)) qs seed
-
-                Search _ _ ->
-                    model
+            onEnter model
 
         TitleChanged changedTitle ->
             case state of
