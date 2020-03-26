@@ -928,15 +928,15 @@ viewOD qs state =
             odToTVL itemToIV od
     in
     div []
-        [ viewZoomCrumbs od
+        [ viewZoomCrumbs (odToZVL od)
         , div [] (List.map (viewTV (Query qs)) tvl)
         ]
 
 
-viewZoomCrumbs : OD -> HM
-viewZoomCrumbs (OD pcs _ _) =
+viewZoomCrumbs : List ZV -> HM
+viewZoomCrumbs zvl =
     let
-        viewZC (Crumb _ (Item _ _ title) _) =
+        viewZV (ZV title) =
             div [ class "pa1" ] [ displayTitleEl title ]
 
         viewSep =
@@ -945,7 +945,7 @@ viewZoomCrumbs (OD pcs _ _) =
     in
     div [ class "flex items-center" ]
         (div [ class "pa1" ] [ displayTitleEl "Home" ]
-            :: List.map viewZC (List.reverse pcs)
+            :: List.map viewZV zvl
             |> List.intersperse viewSep
         )
 
