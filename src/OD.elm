@@ -364,8 +364,8 @@ searchNextWrapAtBottom =
 
 
 searchPrevWrapAtTop : Query -> OD -> Maybe OD
-searchPrevWrapAtTop query =
-    firstOf [ searchPrev query, lastRoot >> lastDescendent >> searchPrev query ]
+searchPrevWrapAtTop =
+    matches >> findPrevWrap
 
 
 matches : Query -> OD -> Bool
