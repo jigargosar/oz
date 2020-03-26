@@ -513,6 +513,16 @@ viewTV query tv =
 
 viewIV : Query -> IV -> HM
 viewIV (Query _) iv =
+    let
+        key =
+            KeyEvent.hot
+
+        shift =
+            KeyEvent.shift
+
+        any =
+            anyPass
+    in
     case iv of
         IVEdit title ->
             input
@@ -533,16 +543,6 @@ viewIV (Query _) iv =
             div [ class "flex-auto pa1" ] [ displayTitleEl title ]
 
         IVFocused title ->
-            let
-                key =
-                    KeyEvent.hot
-
-                shift =
-                    KeyEvent.shift
-
-                any =
-                    anyPass
-            in
             div
                 [ Html.Attributes.id "primary-focus-node"
                 , class "flex-auto pa1 bg-lightest-blue"
