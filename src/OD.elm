@@ -485,6 +485,10 @@ update message =
             onZoomOut >> save
 
 
+
+-- UPDATE HELPERS
+
+
 tryExpand : OD -> Maybe OD
 tryExpand (OD pcs cs (LTR l (T item ts) r)) =
     case ( ts, itemExpanded item ) of
