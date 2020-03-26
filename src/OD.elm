@@ -251,7 +251,9 @@ onEnter ((Model state _ _) as model) =
                                 |> addNew
                                 |> Random.map initEditState
                     in
-                    ( stepSetState setTitleThenAddNew model, focusPrimary )
+                    ( stepSetState setTitleThenAddNew model
+                    , focusPrimary
+                    )
 
                 Nothing ->
                     let
@@ -264,7 +266,9 @@ onEnter ((Model state _ _) as model) =
                                 Nothing ->
                                     odSetTitle "" od
                     in
-                    ( setNoState removeLeafOrSetEmptyTitle model, focusPrimary )
+                    ( setNoState removeLeafOrSetEmptyTitle model
+                    , focusPrimary
+                    )
 
         Search _ _ ->
             ( model, Cmd.none )
