@@ -348,16 +348,6 @@ initEditState od =
     Edit (odTitle od) od
 
 
-searchNext : Query -> OD -> Maybe OD
-searchNext =
-    matches >> findNext
-
-
-searchPrev : Query -> OD -> Maybe OD
-searchPrev =
-    matches >> findPrev
-
-
 searchNextWrapAtBottom : Query -> OD -> Maybe OD
 searchNextWrapAtBottom =
     matches >> findNextWrap
