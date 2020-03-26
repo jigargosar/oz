@@ -52,12 +52,6 @@ type Model
     = Model State String Seed
 
 
-type State
-    = Edit String OD
-    | NoEdit OD
-    | Search Query OD
-
-
 type alias Flags =
     { now : Int, od : Value }
 
@@ -81,6 +75,42 @@ init flags =
 
         Err err ->
             Debug.todo (JD.errorToString err)
+
+
+setStateNew : Generator State -> Model -> Model
+setStateNew genF (Model _ qs seed0) =
+    let
+        ( state, seed ) =
+            Random.step genF seed0
+    in
+    Model state qs seed
+
+
+setState : State -> Model -> Model
+setState state (Model _ qs seed) =
+    Model state qs seed
+
+
+
+-- STATE
+
+
+type State
+    = Edit String OD
+    | NoEdit OD
+    | Search Query OD
+
+
+initEditState : OD -> State
+initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
+    Edit title od
+
+
+setTitleAndEditNew : String -> OD -> Generator State
+setTitleAndEditNew title od =
+    odSetTitle title od
+        |> addNew
+        |> Random.map initEditState
 
 
 
@@ -205,32 +235,6 @@ type alias Ret =
     ( Model, Cmd Msg )
 
 
-initEditState : OD -> State
-initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
-    Edit title od
-
-
-setTitleAndEditNewStateGenerator : String -> OD -> Generator State
-setTitleAndEditNewStateGenerator title od =
-    odSetTitle title od
-        |> addNew
-        |> Random.map initEditState
-
-
-setStateGenerator : Generator State -> Model -> Model
-setStateGenerator genF (Model _ qs seed0) =
-    let
-        ( state, seed ) =
-            Random.step genF seed0
-    in
-    Model state qs seed
-
-
-setState : State -> Model -> Model
-setState state (Model _ qs seed) =
-    Model state qs seed
-
-
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
     case state of
@@ -243,9 +247,9 @@ onEnter ((Model state _ _) as model) =
                 Just nbTitle ->
                     let
                         stateGen =
-                            setTitleAndEditNewStateGenerator nbTitle od
+                            setTitleAndEditNew nbTitle od
                     in
-                    setStateGenerator stateGen model
+                    setStateNew stateGen model
                         |> save
 
                 Nothing ->
@@ -575,17 +579,6 @@ tryRightOfAncestor (OD pcs cs (LTR l t r)) =
 
         [] ->
             Nothing
-
-
-itemOf : OD -> Item
-itemOf (OD _ _ (LTR _ (T item _) _)) =
-    item
-
-
-
---idOfOd : OD -> Id
---idOfOd =
---    itemOf >> idOf
 
 
 odSetTitle : String -> OD -> OD
