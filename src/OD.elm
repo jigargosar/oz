@@ -179,6 +179,20 @@ cacheState o n =
     cmdIf (neqBy stateToOD o n) (cacheODCmd (stateToOD n))
 
 
+mmODFocus func model =
+    case model of
+        Model (NoState od) _ _ ->
+            case func od of
+                Just nod ->
+                    ( setNoState nod model, focusPrimary )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
+
+
 mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
 mmQOD func model =
     case model of
