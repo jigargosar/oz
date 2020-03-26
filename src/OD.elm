@@ -275,6 +275,122 @@ onCursorDown ((Model state qs seed) as model) =
             model
 
 
+onCursorLeft : Model -> Model
+onCursorLeft ((Model state qs seed) as model) =
+    case state of
+        NoEdit od ->
+            case firstOf [ tryCollapse, tryUp, tryLeft ] od of
+                Just newOD ->
+                    Model (NoEdit newOD) qs seed
+
+                Nothing ->
+                    model
+
+        Edit _ _ ->
+            model
+
+        Search _ _ ->
+            model
+
+
+onCursorRight : Model -> Model
+onCursorRight ((Model state qs seed) as model) =
+    case state of
+        NoEdit od ->
+            case firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ] od of
+                Just newOD ->
+                    Model (NoEdit newOD) qs seed
+
+                Nothing ->
+                    model
+
+        Edit _ _ ->
+            model
+
+        Search _ _ ->
+            model
+
+
+onIndent : Model -> Model
+onIndent ((Model state qs seed) as model) =
+    let
+        maybeNewState =
+            case state of
+                NoEdit od ->
+                    indent od |> Maybe.map NoEdit
+
+                Edit t od ->
+                    indent od |> Maybe.map (Edit t)
+
+                Search _ _ ->
+                    Nothing
+    in
+    case maybeNewState of
+        Just newState ->
+            Model newState qs seed
+
+        Nothing ->
+            model
+
+
+onUnIndent : Model -> Model
+onUnIndent ((Model state qs seed) as model) =
+    let
+        maybeNewState =
+            case state of
+                NoEdit od ->
+                    unIndent od |> Maybe.map NoEdit
+
+                Edit t od ->
+                    unIndent od |> Maybe.map (Edit t)
+
+                Search _ _ ->
+                    Nothing
+    in
+    case maybeNewState of
+        Just newState ->
+            Model newState qs seed
+
+        Nothing ->
+            model
+
+
+onZoomIn : Model -> Model
+onZoomIn ((Model state qs seed) as model) =
+    case state of
+        NoEdit od ->
+            case firstOf [ tryZoomIn, tryZoomInParent ] od of
+                Just newOD ->
+                    Model (NoEdit newOD) qs seed
+
+                Nothing ->
+                    model
+
+        Edit _ _ ->
+            model
+
+        Search _ _ ->
+            model
+
+
+onZoomOut : Model -> Model
+onZoomOut ((Model state qs seed) as model) =
+    case state of
+        NoEdit od ->
+            case firstOf [ tryZoomOut ] od of
+                Just newOD ->
+                    Model (NoEdit newOD) qs seed
+
+                Nothing ->
+                    model
+
+        Edit _ _ ->
+            model
+
+        Search _ _ ->
+            model
+
+
 update : Msg -> Model -> Model
 update message ((Model state qs seed) as model) =
     case message of
@@ -306,108 +422,22 @@ update message ((Model state qs seed) as model) =
             onCursorDown model
 
         OnCursorLeft ->
-            case state of
-                NoEdit od ->
-                    case firstOf [ tryCollapse, tryUp, tryLeft ] od of
-                        Just newOD ->
-                            Model (NoEdit newOD) qs seed
-
-                        Nothing ->
-                            model
-
-                Edit _ _ ->
-                    model
-
-                Search _ _ ->
-                    model
+            onCursorLeft model
 
         OnCursorRight ->
-            case state of
-                NoEdit od ->
-                    case firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ] od of
-                        Just newOD ->
-                            Model (NoEdit newOD) qs seed
-
-                        Nothing ->
-                            model
-
-                Edit _ _ ->
-                    model
-
-                Search _ _ ->
-                    model
+            onCursorRight model
 
         Indent ->
-            let
-                maybeNewState =
-                    case state of
-                        NoEdit od ->
-                            indent od |> Maybe.map NoEdit
-
-                        Edit t od ->
-                            indent od |> Maybe.map (Edit t)
-
-                        Search _ _ ->
-                            Nothing
-            in
-            case maybeNewState of
-                Just newState ->
-                    Model newState qs seed
-
-                Nothing ->
-                    model
+            onIndent model
 
         UnIndent ->
-            let
-                maybeNewState =
-                    case state of
-                        NoEdit od ->
-                            unIndent od |> Maybe.map NoEdit
-
-                        Edit t od ->
-                            unIndent od |> Maybe.map (Edit t)
-
-                        Search _ _ ->
-                            Nothing
-            in
-            case maybeNewState of
-                Just newState ->
-                    Model newState qs seed
-
-                Nothing ->
-                    model
+            onUnIndent model
 
         ZoomIn ->
-            case state of
-                NoEdit od ->
-                    case firstOf [ tryZoomIn, tryZoomInParent ] od of
-                        Just newOD ->
-                            Model (NoEdit newOD) qs seed
-
-                        Nothing ->
-                            model
-
-                Edit _ _ ->
-                    model
-
-                Search _ _ ->
-                    model
+            onZoomIn model
 
         ZoomOut ->
-            case state of
-                NoEdit od ->
-                    case firstOf [ tryZoomOut ] od of
-                        Just newOD ->
-                            Model (NoEdit newOD) qs seed
-
-                        Nothing ->
-                            model
-
-                Edit _ _ ->
-                    model
-
-                Search _ _ ->
-                    model
+            onZoomOut model
 
 
 tryExpand : OD -> Maybe OD
