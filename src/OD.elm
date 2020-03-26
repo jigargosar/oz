@@ -533,26 +533,33 @@ viewIV (Query _) iv =
             div [ class "flex-auto pa1" ] [ displayTitleEl title ]
 
         IVFocused title ->
+            let
+                key =
+                    KeyEvent.hot
+
+                shift =
+                    KeyEvent.shift
+            in
             div
                 [ Html.Attributes.id "primary-focus-node"
                 , class "flex-auto pa1 bg-lightest-blue"
                 , tabindex 0
                 , onKeyDownHelp
-                    [ ( KeyEvent.hot "Enter", OnEnter )
-                    , ( KeyEvent.hot "ArrowUp", OnCursorUp )
-                    , ( KeyEvent.hot "k", OnCursorUp )
-                    , ( KeyEvent.hot "ArrowDown", OnCursorDown )
-                    , ( KeyEvent.hot "j", OnCursorDown )
-                    , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
-                    , ( KeyEvent.hot "h", OnCursorLeft )
-                    , ( anyPass [ KeyEvent.hot "ArrowRight", KeyEvent.hot "l" ], OnCursorRight )
-                    , ( KeyEvent.hot "Tab", Indent )
-                    , ( KeyEvent.shift "Tab", UnIndent )
-                    , ( KeyEvent.hot "n", SearchForward )
-                    , ( KeyEvent.shift "N", SearchBackward )
-                    , ( KeyEvent.shift "ArrowRight", ZoomIn )
-                    , ( KeyEvent.shift "ArrowLeft", ZoomOut )
-                    , ( KeyEvent.hot "/", FocusSearch )
+                    [ ( key "Enter", OnEnter )
+                    , ( key "ArrowUp", OnCursorUp )
+                    , ( key "k", OnCursorUp )
+                    , ( key "ArrowDown", OnCursorDown )
+                    , ( key "j", OnCursorDown )
+                    , ( key "ArrowLeft", OnCursorLeft )
+                    , ( key "h", OnCursorLeft )
+                    , ( anyPass [ key "ArrowRight", key "l" ], OnCursorRight )
+                    , ( key "Tab", Indent )
+                    , ( shift "Tab", UnIndent )
+                    , ( key "n", SearchForward )
+                    , ( shift "N", SearchBackward )
+                    , ( shift "ArrowRight", ZoomIn )
+                    , ( shift "ArrowLeft", ZoomOut )
+                    , ( key "/", FocusSearch )
                     ]
                 ]
                 [ displayTitleEl title ]
