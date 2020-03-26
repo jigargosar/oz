@@ -364,7 +364,7 @@ onCursorDown ((Model state _ _) as model) =
         Search query od ->
             case searchNext query od of
                 Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
+                    ( setState (Search query newOD) model, focusPrimary )
 
                 Nothing ->
                     ( model, Cmd.none )
