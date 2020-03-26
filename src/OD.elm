@@ -257,7 +257,7 @@ onEnter ((Model state _ _) as model) =
                     ( setNoState (removeLeafOrSetEmptyTitle od) model, focusPrimary )
 
         Search _ _ ->
-            save model
+            ( model, Cmd.none )
 
 
 removeLeafOrSetEmptyTitle : OD -> OD
@@ -424,10 +424,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         NoOp ->
-            save model
+            ( model, Cmd.none )
 
         OnFocusResult (Ok ()) ->
-            save model
+            ( model, Cmd.none )
 
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
@@ -436,13 +436,13 @@ update message model =
             saveAndFocusSearch model
 
         QueryChanged nqs ->
-            onQueryChange nqs model |> save
+            ( onQueryChange nqs model, Cmd.none )
 
         OnEnter ->
             onEnter model
 
         TitleChanged changedTitle ->
-            onTitleChanged changedTitle model |> save
+            ( onTitleChanged changedTitle model, Cmd.none )
 
         OnCursorUp ->
             onCursorUp model
@@ -463,10 +463,10 @@ update message model =
             onUnIndent model
 
         ZoomIn ->
-            onZoomIn model |> save
+            ( onZoomIn model, Cmd.none )
 
         ZoomOut ->
-            onZoomOut model |> save
+            ( onZoomOut model, Cmd.none )
 
 
 
