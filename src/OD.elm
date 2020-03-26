@@ -307,6 +307,11 @@ mmQODFocus func model =
 
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
+    let
+        initEditState : OD -> State
+        initEditState od =
+            Edit (odTitle od) od
+    in
     case state of
         NoState od ->
             ( setState (initEditState od) model
@@ -341,11 +346,6 @@ onEnter ((Model state _ _) as model) =
                     ( setNoState removeLeafOrSetEmptyTitle model
                     , focusPrimary
                     )
-
-
-initEditState : OD -> State
-initEditState od =
-    Edit (odTitle od) od
 
 
 searchNextWrapAtBottom : Query -> OD -> Maybe OD
