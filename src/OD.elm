@@ -442,26 +442,6 @@ findX pred nextValFunc val =
             Nothing
 
 
-tryForwardVisible : OD -> Maybe OD
-tryForwardVisible =
-    firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ]
-
-
-tryForward : OD -> Maybe OD
-tryForward =
-    firstOf [ tryDown, tryRight, tryRightOfAncestor ]
-
-
-tryBackwardVisible : OD -> Maybe OD
-tryBackwardVisible =
-    firstOf [ tryLeft >> Maybe.map lastDescendentVisible, tryUp ]
-
-
-tryBackward : OD -> Maybe OD
-tryBackward =
-    firstOf [ tryLeft >> Maybe.map lastDescendent, tryUp ]
-
-
 onIndent : Model -> Ret
 onIndent ((Model state qs seed) as model) =
     let
@@ -667,6 +647,26 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 odSetTitle : String -> OD -> OD
 odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
     OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
+
+
+tryForwardVisible : OD -> Maybe OD
+tryForwardVisible =
+    firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ]
+
+
+tryForward : OD -> Maybe OD
+tryForward =
+    firstOf [ tryDown, tryRight, tryRightOfAncestor ]
+
+
+tryBackwardVisible : OD -> Maybe OD
+tryBackwardVisible =
+    firstOf [ tryLeft >> Maybe.map lastDescendentVisible, tryUp ]
+
+
+tryBackward : OD -> Maybe OD
+tryBackward =
+    firstOf [ tryLeft >> Maybe.map lastDescendent, tryUp ]
 
 
 tryExpand : OD -> Maybe OD
