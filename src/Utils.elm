@@ -159,6 +159,38 @@ noHtml =
     Html.text ""
 
 
+neq =
+    (/=)
+
+
+eq =
+    (==)
+
+
+add =
+    (+)
+
+
+sub =
+    (-)
+
+
+mul =
+    (*)
+
+
+idiv =
+    (//)
+
+
+fdiv =
+    (/)
+
+
+pow =
+    (^)
+
+
 flip func a b =
     func b a
 

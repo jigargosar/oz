@@ -32,6 +32,14 @@ main =
 
 
 
+-- Query
+
+
+type Query
+    = Query
+
+
+
 -- Model
 
 
@@ -42,11 +50,13 @@ type Model
 type State
     = Edit String OD
     | NoEdit OD
+    | Search Query
 
 
 type StateType
     = EditType
     | NoEditType
+    | SearchType
 
 
 type alias Flags =
@@ -93,14 +103,17 @@ type Msg
     | ZoomOut
 
 
-odOf : State -> OD
+odOf : State -> Maybe OD
 odOf state =
     case state of
         Edit _ od ->
-            od
+            Just od
 
         NoEdit od ->
-            od
+            Just od
+
+        Search query ->
+            Nothing
 
 
 typeOf : State -> StateType
@@ -112,6 +125,9 @@ typeOf state =
         NoEdit _ ->
             NoEditType
 
+        Search _ ->
+            SearchType
+
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
 aroundUpdate msg ((Model oldState _) as model) =
@@ -122,19 +138,33 @@ aroundUpdate msg ((Model oldState _) as model) =
         (Model newState _) =
             newModel
 
-        docChanged =
-            neqBy odOf oldState newState
+        shouldFocus =
+            case ( oldState, newState ) of
+                ( Edit _ ood, Edit _ nod ) ->
+                    ood /= nod
 
-        stateSwitched =
-            neqBy typeOf oldState newState
+                _ ->
+                    True
     in
     ( newModel
     , Cmd.batch
-        [ cmdIf (docChanged || stateSwitched)
-            (Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult)
-        , cmdIf docChanged (cacheODCmd (odOf newState))
+        [ cmdIf shouldFocus (Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult)
+        , cacheState oldState newState
         ]
     )
+
+
+cacheState : State -> State -> Cmd msg
+cacheState _ n =
+    case n of
+        Edit _ od ->
+            cacheODCmd od
+
+        NoEdit od ->
+            cacheODCmd od
+
+        Search query ->
+            Cmd.none
 
 
 cacheODCmd : OD -> Cmd msg
@@ -175,12 +205,18 @@ update message ((Model state seed) as model) =
                                 Nothing ->
                                     Model (NoEdit (odSetTitle "" od)) seed
 
+                Search _ ->
+                    model
+
         TitleChanged changedTitle ->
             case state of
                 Edit _ od ->
                     Model (Edit changedTitle od) seed
 
                 NoEdit _ ->
+                    model
+
+                Search _ ->
                     model
 
         OnCursorUp ->
@@ -196,6 +232,9 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
+                Search _ ->
+                    model
+
         OnCursorDown ->
             case state of
                 NoEdit od ->
@@ -207,6 +246,9 @@ update message ((Model state seed) as model) =
                             model
 
                 Edit _ _ ->
+                    model
+
+                Search _ ->
                     model
 
         OnCursorLeft ->
@@ -222,6 +264,9 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
+                Search _ ->
+                    model
+
         OnCursorRight ->
             case state of
                 NoEdit od ->
@@ -235,6 +280,9 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
+                Search _ ->
+                    model
+
         Indent ->
             let
                 maybeNewState =
@@ -244,6 +292,9 @@ update message ((Model state seed) as model) =
 
                         Edit t od ->
                             indent od |> Maybe.map (Edit t)
+
+                        Search _ ->
+                            Nothing
             in
             case maybeNewState of
                 Just newState ->
@@ -261,6 +312,9 @@ update message ((Model state seed) as model) =
 
                         Edit t od ->
                             unIndent od |> Maybe.map (Edit t)
+
+                        Search query ->
+                            Nothing
             in
             case maybeNewState of
                 Just newState ->
@@ -282,6 +336,9 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
+                Search query ->
+                    model
+
         ZoomOut ->
             case state of
                 NoEdit od ->
@@ -293,6 +350,9 @@ update message ((Model state seed) as model) =
                             model
 
                 Edit _ _ ->
+                    model
+
+                Search query ->
                     model
 
 
@@ -679,6 +739,9 @@ viewOD state =
                 , treeChildrenContainer
                     (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
                 ]
+
+        Search query ->
+            noHtml
 
 
 viewZoomCrumbs : OD -> HM
