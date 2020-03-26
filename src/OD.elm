@@ -165,6 +165,10 @@ aroundUpdate msg ((Model oldState _ _) as model) =
 cacheState : State -> State -> Cmd msg
 cacheState o n =
     let
+        cacheODCmd : OD -> Cmd msg
+        cacheODCmd od =
+            cacheKV ( "od", odEncoder od )
+
         stateToOD state =
             case state of
                 Edit _ od ->
@@ -177,11 +181,6 @@ cacheState o n =
                     od
     in
     cmdIf (neqBy stateToOD o n) (cacheODCmd (stateToOD n))
-
-
-cacheODCmd : OD -> Cmd msg
-cacheODCmd od =
-    cacheKV ( "od", odEncoder od )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
