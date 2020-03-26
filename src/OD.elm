@@ -1027,26 +1027,30 @@ toTV (T (Item _ collapsed title) ts) =
 
 viewOD : String -> State -> HM
 viewOD qs state =
+    let
+        viewTVHelp =
+            viewTV (Query qs)
+    in
     case state of
         Edit title od ->
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
-                    (List.map viewTV (odToTVL (always (IVEdit title)) od))
+                    (List.map viewTVHelp (odToTVL (always (IVEdit title)) od))
                 ]
 
         NoState od ->
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
-                    (List.map viewTV (odToTVL (\(Item _ _ title) -> IVSearchFocused (Query qs) title) od))
+                    (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVSearchFocused (Query qs) title) od))
                 ]
 
         Search query od ->
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
-                    (List.map viewTV (odToTVL (\(Item _ _ title) -> IVSearchFocused query title) od))
+                    (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVSearchFocused query title) od))
                 ]
 
 
@@ -1067,8 +1071,8 @@ viewZoomCrumbs (OD pcs _ _) =
         )
 
 
-viewTV : TV -> HM
-viewTV tv =
+viewTV : Query -> TV -> HM
+viewTV query tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
@@ -1080,7 +1084,7 @@ viewTV tv =
             TVExpanded iv tvs ->
                 [ viewLine False "expand_more" iv
                 , treeChildrenContainer <|
-                    List.map viewTV tvs
+                    List.map (viewTV query) tvs
                 ]
 
 
