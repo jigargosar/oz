@@ -446,6 +446,11 @@ saveAndFocusPrimary model =
     ( model, Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult )
 
 
+saveAndFocusSearch : Model -> Ret
+saveAndFocusSearch model =
+    ( model, Dom.focus "search-input" |> Task.attempt OnFocusResult )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message =
     case message of
@@ -459,7 +464,7 @@ update message =
             Debug.todo ("focus failed on: " ++ domId)
 
         FocusSearch ->
-            save
+            saveAndFocusSearch
 
         QueryChanged nqs ->
             onQueryChange nqs >> save
