@@ -326,6 +326,9 @@ onCursorDown ((Model state _ _) as model) =
     let
         tryFnsNoState =
             [ tryDown, tryRight, tryRightOfAncestor ]
+
+        tryFnsQuery query =
+            []
     in
     case state of
         NoState od ->
@@ -339,8 +342,13 @@ onCursorDown ((Model state _ _) as model) =
         Edit _ _ ->
             ( model, Cmd.none )
 
-        Search _ _ ->
-            ( model, Cmd.none )
+        Search query od ->
+            case firstOf (tryFnsQuery query) od of
+                Just newOD ->
+                    ( setNoState newOD model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 onCursorLeft : Model -> Ret
