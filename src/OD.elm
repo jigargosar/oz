@@ -299,10 +299,10 @@ update message model =
             mmODFocus tryZoomOut model
 
         Indent ->
-            mmODFocus indent model
+            mmODFocus tryIndent model
 
         UnIndent ->
-            mmODFocus unIndent model
+            mmODFocus tryUnIndent model
 
 
 onQueryChange : String -> Model -> Model
@@ -403,10 +403,10 @@ onIndent ((Model state qs seed) as model) =
         maybeNewState =
             case state of
                 NoState od ->
-                    indent od |> Maybe.map NoState
+                    tryIndent od |> Maybe.map NoState
 
                 Edit t od ->
-                    indent od |> Maybe.map (Edit t)
+                    tryIndent od |> Maybe.map (Edit t)
     in
     case maybeNewState of
         Just newState ->
@@ -422,10 +422,10 @@ onUnIndent ((Model state qs seed) as model) =
         maybeNewState =
             case state of
                 NoState od ->
-                    unIndent od |> Maybe.map NoState
+                    tryUnIndent od |> Maybe.map NoState
 
                 Edit t od ->
-                    unIndent od |> Maybe.map (Edit t)
+                    tryUnIndent od |> Maybe.map (Edit t)
     in
     case maybeNewState of
         Just newState ->
@@ -735,8 +735,8 @@ lastDescendentVisible od =
             od
 
 
-indent : OD -> Maybe OD
-indent (OD pcs cs (LTR l t r)) =
+tryIndent : OD -> Maybe OD
+tryIndent (OD pcs cs (LTR l t r)) =
     case l of
         [] ->
             Nothing
@@ -747,8 +747,8 @@ indent (OD pcs cs (LTR l t r)) =
                 |> Just
 
 
-unIndent : OD -> Maybe OD
-unIndent (OD pcs cs (LTR l t r)) =
+tryUnIndent : OD -> Maybe OD
+tryUnIndent (OD pcs cs (LTR l t r)) =
     case cs of
         [] ->
             Nothing
