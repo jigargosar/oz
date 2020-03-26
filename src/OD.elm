@@ -2,6 +2,7 @@ port module OD exposing (main)
 
 import Browser
 import Browser.Dom as Dom
+import CollapseState
 import Html exposing (Html, div, i, input, span, text)
 import Html.Attributes exposing (class, placeholder, tabindex, value)
 import Html.Events exposing (onInput)
@@ -1073,6 +1074,45 @@ viewZoomCrumbs (OD pcs _ _) =
 
 viewTV : Query -> TV -> HM
 viewTV query tv =
+    let
+        ( iv2, collapseState, tvs2 ) =
+            case tv of
+                TVLeaf iv ->
+                    ( iv, CollapseState.NoChildren, [] )
+
+                TVCollapsed iv ->
+                    ( iv, CollapseState.Collapsed, [] )
+
+                TVExpanded iv tvs ->
+                    ( iv, CollapseState.Expanded, tvs )
+
+        iconName =
+            case collapseState of
+                CollapseState.NoChildren ->
+                    "chevron_right"
+
+                CollapseState.Expanded ->
+                    "expand_more"
+
+                CollapseState.Collapsed ->
+                    "chevron_right"
+
+        lineView =
+            treeContainer
+                [ div [ class "flex" ]
+                    [ i
+                        [ class "self-start pt2 ph1 material-icons md-24 light-silver"
+                        , classIf (collapseState == CollapseState.NoChildren) "o-0"
+                        ]
+                        [ text iconName ]
+                    , div [ class "flex-auto flex f4 lh-title" ]
+                        [ viewIV query iv2
+                        ]
+                    ]
+                , treeChildrenContainer <|
+                    List.map (viewTV query) tvs2
+                ]
+    in
     treeContainer <|
         case tv of
             TVLeaf iv ->
