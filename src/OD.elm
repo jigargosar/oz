@@ -272,7 +272,7 @@ update message ((Model state seed) as model) =
         ZoomIn ->
             case state of
                 NoEdit od ->
-                    case firstOf [ tryZoomIn ] od of
+                    case firstOf [ tryZoomIn, tryZoomInParent ] od of
                         Just newOD ->
                             Model (NoEdit newOD) seed
 
@@ -531,14 +531,26 @@ unIndent (OD pcs cs (LTR l t r)) =
                 |> Just
 
 
-tryZoomIn : OD -> Maybe OD
-tryZoomIn (OD pcs cs ltr) =
+tryZoomInParent : OD -> Maybe OD
+tryZoomInParent (OD pcs cs ltr) =
     case cs of
         [] ->
             Nothing
 
         _ :: _ ->
             OD (cs ++ pcs) [] ltr
+                |> Just
+
+
+tryZoomIn : OD -> Maybe OD
+tryZoomIn (OD pcs cs (LTR l (T item ts) r)) =
+    case ts of
+        [] ->
+            Nothing
+
+        first :: rest ->
+            LTR [] first rest
+                |> OD pcs (Crumb l item r :: cs)
                 |> Just
 
 
