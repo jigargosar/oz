@@ -503,7 +503,7 @@ tryBackwardVisible =
 
 tryBackward : OD -> Maybe OD
 tryBackward =
-    firstOf [ tryLeft, tryUp ]
+    firstOf [ tryLeft >> Maybe.map lastDescendent, tryUp ]
 
 
 onCursorLeft : Model -> Ret
