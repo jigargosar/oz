@@ -117,6 +117,10 @@ setTitleAndEditNew title od =
 -- Update
 
 
+type alias Ret =
+    ( Model, Cmd Msg )
+
+
 type Msg
     = NoOp
     | OnFocusResult (Result Dom.Error ())
@@ -229,10 +233,6 @@ onQueryChange nqs (Model state _ seed) =
 
         Nothing ->
             Model state nqs seed
-
-
-type alias Ret =
-    ( Model, Cmd Msg )
 
 
 onEnter : Model -> Ret
