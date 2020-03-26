@@ -503,6 +503,27 @@ unIndent (OD pcs cs (LTR l t r)) =
                 |> Just
 
 
+tryZoomIn : OD -> Maybe OD
+tryZoomIn (OD pcs cs ltr) =
+    case cs of
+        [] ->
+            Nothing
+
+        _ :: _ ->
+            OD (cs ++ pcs) [] ltr
+                |> Just
+
+
+tryZoomOut : OD -> Maybe OD
+tryZoomOut (OD pcs cs ltr) =
+    case pcs of
+        [] ->
+            Nothing
+
+        first :: rest ->
+            OD rest (first :: cs) ltr |> Just
+
+
 removeLeaf : OD -> Maybe OD
 removeLeaf ((OD _ _ (LTR _ t _)) as od) =
     if hasChildren t then
