@@ -373,22 +373,29 @@ onUnIndent ((Model state qs seed) as model) =
             ( model, Cmd.none )
 
 
-onZoomIn : Model -> Model
+onZoomIn : Model -> Ret
 onZoomIn ((Model state qs seed) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryZoomIn, tryZoomInParent ] od of
-                Just newOD ->
-                    Model (NoState newOD) qs seed
+    let
+        maybeRet =
+            case state of
+                NoState od ->
+                    case firstOf [ tryZoomIn, tryZoomInParent ] od of
+                        Just newOD ->
+                            ( Model (NoState newOD) qs seed
+                            , focusPrimary
+                            )
+                                |> Just
 
-                Nothing ->
-                    model
+                        Nothing ->
+                            Nothing
 
-        Edit _ _ ->
-            model
+                Edit _ _ ->
+                    Nothing
 
-        Search _ _ ->
-            model
+                Search _ _ ->
+                    Nothing
+    in
+    maybeRet |> Maybe.withDefault ( model, Cmd.none )
 
 
 onZoomOut : Model -> Model
