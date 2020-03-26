@@ -320,7 +320,7 @@ onCursorUp : Model -> Ret
 onCursorUp ((Model state _ _) as model) =
     case state of
         NoState od ->
-            case firstOf [ tryLeft, tryUp ] od of
+            case tryBackwardVisible od of
                 Just newOD ->
                     ( setNoState newOD model, focusPrimary )
 
@@ -339,15 +339,11 @@ onCursorUp ((Model state _ _) as model) =
                     ( model, Cmd.none )
 
 
-
---onCursorHelp [ tryLeft, tryUp ]
-
-
 onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
     case state of
         NoState od ->
-            case firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ] od of
+            case tryForwardVisible od of
                 Just newOD ->
                     ( setNoState newOD model, focusPrimary )
 
@@ -377,6 +373,16 @@ findX pred nextValFunc val =
 
         Nothing ->
             Nothing
+
+
+tryForwardVisible : OD -> Maybe OD
+tryForwardVisible =
+    firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ]
+
+
+tryBackwardVisible : OD -> Maybe OD
+tryBackwardVisible =
+    firstOf [ tryLeft, tryUp ]
 
 
 searchNext : Query -> OD -> Maybe OD
