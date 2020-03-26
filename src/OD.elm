@@ -301,40 +301,40 @@ onCursorUp ((Model state _ _) as model) =
             save model
 
 
-onCursorDown : Model -> Model
-onCursorDown ((Model state qs seed) as model) =
+onCursorDown : Model -> Ret
+onCursorDown ((Model state _ _) as model) =
     case state of
         NoState od ->
             case firstOf [ tryDown, tryRight, tryRightOfAncestor ] od of
                 Just newOD ->
-                    Model (NoState newOD) qs seed
+                    ( setNoState newOD model, focusPrimary )
 
                 Nothing ->
-                    model
+                    save model
 
         Edit _ _ ->
-            model
+            save model
 
         Search _ _ ->
-            model
+            save model
 
 
-onCursorLeft : Model -> Model
-onCursorLeft ((Model state qs seed) as model) =
+onCursorLeft : Model -> Ret
+onCursorLeft ((Model state _ _) as model) =
     case state of
         NoState od ->
             case firstOf [ tryCollapse, tryUp, tryLeft ] od of
                 Just newOD ->
-                    Model (NoState newOD) qs seed
+                    ( setNoState newOD model, focusPrimary )
 
                 Nothing ->
-                    model
+                    save model
 
         Edit _ _ ->
-            model
+            save model
 
         Search _ _ ->
-            model
+            save model
 
 
 onCursorRight : Model -> Model
@@ -478,10 +478,10 @@ update message model =
             onCursorUp model
 
         OnCursorDown ->
-            onCursorDown model |> save
+            onCursorDown model
 
         OnCursorLeft ->
-            onCursorLeft model |> save
+            onCursorLeft model
 
         OnCursorRight ->
             onCursorRight model |> save
