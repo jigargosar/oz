@@ -532,9 +532,9 @@ viewIV (Query _) iv =
                 , value title
                 , onInput TitleChanged
                 , onKeyDownHelp
-                    [ ( KeyEvent.hot "Enter", OnEnter )
-                    , ( KeyEvent.hot "Tab", Indent )
-                    , ( KeyEvent.shift "Tab", UnIndent )
+                    [ ( key "Enter", OnEnter )
+                    , ( key "Tab", Indent )
+                    , ( shift "Tab", UnIndent )
                     ]
                 ]
                 []
