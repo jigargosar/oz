@@ -324,27 +324,23 @@ onCursorUp =
 onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
     let
-        maybeRet arr =
-            case state of
-                NoState od ->
-                    case firstOf arr od of
-                        Just newOD ->
-                            ( setNoState newOD model, focusPrimary )
-
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                Edit _ _ ->
-                    ( model, Cmd.none )
-
-                Search _ _ ->
-                    ( model, Cmd.none )
-    in
-    let
         tryFns =
             [ tryDown, tryRight, tryRightOfAncestor ]
     in
-    maybeRet tryFns
+    case state of
+        NoState od ->
+            case firstOf tryFns od of
+                Just newOD ->
+                    ( setNoState newOD model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Edit _ _ ->
+            ( model, Cmd.none )
+
+        Search _ _ ->
+            ( model, Cmd.none )
 
 
 onCursorLeft : Model -> Ret
