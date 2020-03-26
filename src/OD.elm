@@ -335,16 +335,6 @@ initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
     Edit title od
 
 
-onTitleChanged : String -> Model -> Model
-onTitleChanged changedTitle ((Model state qs seed) as model) =
-    case state of
-        Edit _ od ->
-            Model (Edit changedTitle od) qs seed
-
-        NoState _ ->
-            model
-
-
 onCursorUp : Model -> Ret
 onCursorUp ((Model state _ _) as model) =
     case state of
