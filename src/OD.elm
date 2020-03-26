@@ -324,12 +324,12 @@ onCursorUp =
 onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
     let
-        tryFns =
+        tryFnsNoState =
             [ tryDown, tryRight, tryRightOfAncestor ]
     in
     case state of
         NoState od ->
-            case firstOf tryFns od of
+            case firstOf tryFnsNoState od of
                 Just newOD ->
                     ( setNoState newOD model, focusPrimary )
 
