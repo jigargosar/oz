@@ -113,7 +113,7 @@ type FocusCmd
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
 aroundUpdate msg ((Model oldState _ _) as model) =
     let
-        newModel =
+        ( newModel, cmd ) =
             update msg model
 
         (Model newState _ _) =
@@ -143,7 +143,8 @@ aroundUpdate msg ((Model oldState _ _) as model) =
     in
     ( newModel
     , Cmd.batch
-        [ case fc of
+        [ cmd
+        , case fc of
             FocusPrimaryCmd ->
                 Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
 
@@ -391,53 +392,58 @@ onZoomOut ((Model state qs seed) as model) =
             model
 
 
-update : Msg -> Model -> Model
-update message model =
+save : Model -> ( Model, Cmd Msg )
+save model =
+    ( model, Cmd.none )
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update message =
     case message of
         NoOp ->
-            model
+            save
 
         OnFocusResult (Ok ()) ->
-            model
+            save
 
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
 
         FocusSearch ->
-            model
+            save
 
         QueryChanged nqs ->
-            onQueryChange nqs model
+            onQueryChange nqs >> save
 
         OnEnter ->
-            onEnter model
+            onEnter >> save
 
         TitleChanged changedTitle ->
-            onTitleChanged changedTitle model
+            onTitleChanged changedTitle >> save
 
         OnCursorUp ->
-            onCursorUp model
+            onCursorUp >> save
 
         OnCursorDown ->
-            onCursorDown model
+            onCursorDown >> save
 
         OnCursorLeft ->
-            onCursorLeft model
+            onCursorLeft >> save
 
         OnCursorRight ->
-            onCursorRight model
+            onCursorRight >> save
 
         Indent ->
-            onIndent model
+            onIndent >> save
 
         UnIndent ->
-            onUnIndent model
+            onUnIndent >> save
 
         ZoomIn ->
-            onZoomIn model
+            onZoomIn >> save
 
         ZoomOut ->
-            onZoomOut model
+            onZoomOut >> save
 
 
 tryExpand : OD -> Maybe OD
