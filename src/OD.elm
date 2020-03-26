@@ -302,7 +302,7 @@ onCursorLeft ((Model state _ _) as model) =
 
 
 onCursorRight : Model -> Ret
-onCursorRight ((Model state qs seed) as model) =
+onCursorRight model =
     tryNoStateHelp (firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ]) model
         |> Maybe.withDefault (save model)
 
