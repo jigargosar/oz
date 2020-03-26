@@ -358,6 +358,11 @@ searchNext query =
     searchX query tryForward
 
 
+searchPrev : Query -> OD -> Maybe OD
+searchPrev query =
+    searchX query tryBackward
+
+
 searchNextWrapAtBottom : Query -> OD -> Maybe OD
 searchNextWrapAtBottom query =
     firstOf [ searchNext query, firstRoot >> searchNext query ]
@@ -366,11 +371,6 @@ searchNextWrapAtBottom query =
 searchPrevWrapAtTop : Query -> OD -> Maybe OD
 searchPrevWrapAtTop query =
     firstOf [ searchPrev query, lastRoot >> lastDescendent >> searchPrev query ]
-
-
-searchPrev : Query -> OD -> Maybe OD
-searchPrev query =
-    searchX query tryBackward
 
 
 matches : Query -> OD -> Bool
