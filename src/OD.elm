@@ -1146,9 +1146,13 @@ viewIV iv =
                 , onKeyDownHelp
                     [ ( KeyEvent.hot "Enter", OnEnter )
                     , ( KeyEvent.hot "ArrowUp", OnCursorUp )
+                    , ( KeyEvent.hot "k", OnCursorUp )
                     , ( KeyEvent.hot "ArrowDown", OnCursorDown )
+                    , ( KeyEvent.hot "k", OnCursorDown )
                     , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
+                    , ( KeyEvent.hot "h", OnCursorLeft )
                     , ( KeyEvent.hot "ArrowRight", OnCursorRight )
+                    , ( KeyEvent.hot "l", OnCursorRight )
                     , ( KeyEvent.hot "Tab", Indent )
                     , ( KeyEvent.shift "Tab", UnIndent )
                     , ( KeyEvent.hot "n", SearchForward )
