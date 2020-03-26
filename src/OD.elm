@@ -1096,36 +1096,21 @@ viewTV query tv =
 
                 CollapseState.Collapsed ->
                     "chevron_right"
-
-        lineView =
-            treeContainer
-                [ div [ class "flex" ]
-                    [ i
-                        [ class "self-start pt2 ph1 material-icons md-24 light-silver"
-                        , classIf (collapseState == CollapseState.NoChildren) "o-0"
-                        ]
-                        [ text iconName ]
-                    , div [ class "flex-auto flex f4 lh-title" ]
-                        [ viewIV query iv2
-                        ]
-                    ]
-                , treeChildrenContainer <|
-                    List.map (viewTV query) tvs2
-                ]
     in
-    treeContainer <|
-        case tv of
-            TVLeaf iv ->
-                [ viewLine query True "chevron_right" iv ]
-
-            TVCollapsed iv ->
-                [ viewLine query False "chevron_right" iv ]
-
-            TVExpanded iv tvs ->
-                [ viewLine query False "expand_more" iv
-                , treeChildrenContainer <|
-                    List.map (viewTV query) tvs
+    treeContainer
+        [ div [ class "flex" ]
+            [ i
+                [ class "self-start pt2 ph1 material-icons md-24 light-silver"
+                , classIf (collapseState == CollapseState.NoChildren) "o-0"
                 ]
+                [ text iconName ]
+            , div [ class "flex-auto flex f4 lh-title" ]
+                [ viewIV query iv2
+                ]
+            ]
+        , treeChildrenContainer <|
+            List.map (viewTV query) tvs2
+        ]
 
 
 viewLine : Query -> Bool -> String -> IV -> HM
