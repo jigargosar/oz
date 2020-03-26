@@ -240,12 +240,14 @@ onEnter ((Model state _ _) as model) =
             setState (initEditState od) model
                 |> save
 
-        Edit title od ->
-            case nonBlank title of
-                Just nbTitle ->
+        Edit unsafeTitle od ->
+            case nonBlank unsafeTitle of
+                Just title ->
                     let
                         stateGen =
-                            setTitleAndEditNew nbTitle od
+                            odSetTitle title od
+                                |> addNew
+                                |> Random.map initEditState
                     in
                     stepSetState stateGen model
                         |> save
@@ -256,13 +258,6 @@ onEnter ((Model state _ _) as model) =
 
         Search _ _ ->
             save model
-
-
-setTitleAndEditNew : String -> OD -> Generator State
-setTitleAndEditNew title od =
-    odSetTitle title od
-        |> addNew
-        |> Random.map initEditState
 
 
 removeLeafOrSetEmptyTitle : OD -> OD
