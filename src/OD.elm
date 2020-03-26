@@ -324,9 +324,6 @@ onCursorUp =
 onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
     let
-        tryFnsNoState =
-            [ tryDownVisible, tryRight, tryRightOfAncestor ]
-
         findX pred nf od =
             case nf od of
                 Just nod ->
@@ -351,7 +348,7 @@ onCursorDown ((Model state _ _) as model) =
     in
     case state of
         NoState od ->
-            case firstOf tryFnsNoState od of
+            case firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ] od of
                 Just newOD ->
                     ( setNoState newOD model, focusPrimary )
 
