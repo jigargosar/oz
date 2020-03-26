@@ -321,21 +321,22 @@ onCursorUp =
     onCursorHelp [ tryLeft, tryUp ]
 
 
+findX pred nextValFunc val =
+    case nextValFunc val of
+        Just nod ->
+            if pred nod then
+                Just nod
+
+            else
+                findX pred nextValFunc nod
+
+        Nothing ->
+            Nothing
+
+
 onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
     let
-        findX pred nf od =
-            case nf od of
-                Just nod ->
-                    if pred nod then
-                        Just nod
-
-                    else
-                        findX pred nf nod
-
-                Nothing ->
-                    Nothing
-
         searchNext (Query qs) =
             let
                 fwd =
