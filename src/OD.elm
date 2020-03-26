@@ -201,30 +201,38 @@ onQueryChange nqs (Model state _ seed) =
             Model state nqs seed
 
 
-onEnter : Model -> Model
+type alias Ret =
+    ( Model, Cmd Msg )
+
+
+onEnter : Model -> Ret
 onEnter ((Model state qs seed) as model) =
     case state of
         NoEdit od ->
             case itemOf od of
                 Item _ _ title ->
                     Model (Edit title od) qs seed
+                        |> save
 
         Edit title od ->
             case nonBlank title of
                 Just nbTitle ->
                     Random.step (addNew (odSetTitle nbTitle od)) seed
                         |> uncurry (Edit "" >> flip Model qs)
+                        |> save
 
                 Nothing ->
                     case removeLeaf od of
                         Just newOd ->
                             Model (NoEdit newOd) qs seed
+                                |> save
 
                         Nothing ->
                             Model (NoEdit (odSetTitle "" od)) qs seed
+                                |> save
 
         Search _ _ ->
-            model
+            save model
 
 
 onTitleChanged : String -> Model -> Model
@@ -416,7 +424,7 @@ update message =
             onQueryChange nqs >> save
 
         OnEnter ->
-            onEnter >> save
+            onEnter
 
         TitleChanged changedTitle ->
             onTitleChanged changedTitle >> save
