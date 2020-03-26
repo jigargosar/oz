@@ -163,7 +163,7 @@ cacheState _ n =
         NoEdit od ->
             cacheODCmd od
 
-        Search query ->
+        Search _ ->
             Cmd.none
 
 
@@ -313,7 +313,7 @@ update message ((Model state seed) as model) =
                         Edit t od ->
                             unIndent od |> Maybe.map (Edit t)
 
-                        Search query ->
+                        Search _ ->
                             Nothing
             in
             case maybeNewState of
@@ -336,7 +336,7 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
-                Search query ->
+                Search _ ->
                     model
 
         ZoomOut ->
@@ -352,7 +352,7 @@ update message ((Model state seed) as model) =
                 Edit _ _ ->
                     model
 
-                Search query ->
+                Search _ ->
                     model
 
 
@@ -740,7 +740,7 @@ viewOD state =
                     (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
                 ]
 
-        Search query ->
+        Search _ ->
             noHtml
 
 
