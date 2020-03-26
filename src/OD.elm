@@ -853,6 +853,15 @@ odToTVL itemToIV (OD _ cs (LTR l (T ((Item _ collapsed _) as item) ts) r)) =
         |> lvrToTVL
 
 
+odToZVL : OD -> List ZV
+odToZVL (OD pcs _ _) =
+    let
+        cToZV (Crumb _ (Item _ _ title) _) =
+            ZV title
+    in
+    List.foldl (cToZV >> cons) [] pcs
+
+
 type LVR
     = LVR (List T) TV (List T)
 

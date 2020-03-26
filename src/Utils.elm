@@ -191,6 +191,10 @@ pow =
     (^)
 
 
+cons =
+    (::)
+
+
 flip func a b =
     func b a
 
