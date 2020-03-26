@@ -215,16 +215,16 @@ update message model =
             onEnter model
 
         OnQueryEnter ->
-            mmQOD searchNextWrapAtBottom model
+            mmQOD searchForward model
 
         OnQueryShiftEnter ->
-            mmQOD searchPrevWrapAtTop model
+            mmQOD searchBackwards model
 
         SearchForward ->
-            mmQODFocus searchNextWrapAtBottom model
+            mmQODFocus searchForward model
 
         SearchBackward ->
-            mmQODFocus searchPrevWrapAtTop model
+            mmQODFocus searchBackwards model
 
         OnCursorUp ->
             mmODFocus tryBackwardVisible model
@@ -348,13 +348,13 @@ onEnter ((Model state _ _) as model) =
                     )
 
 
-searchNextWrapAtBottom : Query -> OD -> Maybe OD
-searchNextWrapAtBottom =
+searchForward : Query -> OD -> Maybe OD
+searchForward =
     matches >> findNextWrap
 
 
-searchPrevWrapAtTop : Query -> OD -> Maybe OD
-searchPrevWrapAtTop =
+searchBackwards : Query -> OD -> Maybe OD
+searchBackwards =
     matches >> findPrevWrap
 
 
