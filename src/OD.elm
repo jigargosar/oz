@@ -550,7 +550,7 @@ tryZoomIn (OD pcs cs (LTR l (T item ts) r)) =
 
         first :: rest ->
             LTR [] first rest
-                |> OD pcs (Crumb l item r :: cs)
+                |> OD ((Crumb l item r :: cs) ++ pcs) []
                 |> Just
 
 
