@@ -205,20 +205,38 @@ type alias Ret =
     ( Model, Cmd Msg )
 
 
+initEditState : OD -> State
+initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
+    Edit title od
+
+
+setTitleAndEditNewStateGenerator : String -> OD -> Generator State
+setTitleAndEditNewStateGenerator title od =
+    odSetTitle title od
+        |> addNew
+        |> Random.map initEditState
+
+
+setStateFromGenerator : Generator State -> Model -> Model
+setStateFromGenerator genF (Model _ qs seed0) =
+    let
+        ( state, seed ) =
+            Random.step genF seed0
+    in
+    Model state qs seed
+
+
 onEnter : Model -> Ret
 onEnter ((Model state qs seed) as model) =
     case state of
         NoEdit od ->
-            case itemOf od of
-                Item _ _ title ->
-                    Model (Edit title od) qs seed
-                        |> save
+            Model (initEditState od) qs seed
+                |> save
 
         Edit title od ->
             case nonBlank title of
                 Just nbTitle ->
-                    Random.step (addNew (odSetTitle nbTitle od)) seed
-                        |> uncurry (Edit "" >> flip Model qs)
+                    setStateFromGenerator (setTitleAndEditNewStateGenerator nbTitle od) model
                         |> save
 
                 Nothing ->
