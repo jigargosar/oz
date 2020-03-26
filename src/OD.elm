@@ -64,12 +64,12 @@ init flags =
                 ( newOD, seed ) =
                     Random.step new (Random.initialSeed flags.now)
             in
-            ( Model (NoEdit newOD) "" seed
+            ( Model (NoState newOD) "" seed
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Ok (Just od) ->
-            ( Model (NoEdit od) "" (Random.initialSeed flags.now)
+            ( Model (NoState od) "" (Random.initialSeed flags.now)
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
@@ -97,7 +97,7 @@ setState state (Model _ qs seed) =
 
 type State
     = Edit String OD
-    | NoEdit OD
+    | NoState OD
     | Search Query OD
 
 
@@ -115,7 +115,7 @@ setTitleAndEditNew title od =
 
 setTitleAndNoEdit : String -> OD -> State
 setTitleAndNoEdit title od =
-    odSetTitle title od |> NoEdit
+    odSetTitle title od |> NoState
 
 
 
@@ -203,7 +203,7 @@ cacheState _ n =
         Edit _ od ->
             cacheODCmd od
 
-        NoEdit od ->
+        NoState od ->
             cacheODCmd od
 
         Search _ od ->
@@ -220,14 +220,14 @@ onQueryChange nqs (Model state _ seed) =
     let
         maybeNewState =
             case ( fromString nqs, state ) of
-                ( Just query, NoEdit od ) ->
+                ( Just query, NoState od ) ->
                     Just (Search query od)
 
                 ( Just query, Search _ od ) ->
                     Just (Search query od)
 
                 ( Nothing, Search _ od ) ->
-                    Just (NoEdit od)
+                    Just (NoState od)
 
                 _ ->
                     Nothing
@@ -253,7 +253,7 @@ removeLeafOrSetEmptyTitle od =
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
     case state of
-        NoEdit od ->
+        NoState od ->
             setState (initEditState od) model
                 |> save
 
@@ -268,7 +268,7 @@ onEnter ((Model state _ _) as model) =
                         |> save
 
                 Nothing ->
-                    setState (NoEdit <| removeLeafOrSetEmptyTitle od) model
+                    setState (NoState <| removeLeafOrSetEmptyTitle od) model
                         |> save
 
         Search _ _ ->
@@ -281,7 +281,7 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
         Edit _ od ->
             Model (Edit changedTitle od) qs seed
 
-        NoEdit _ ->
+        NoState _ ->
             model
 
         Search _ _ ->
@@ -291,10 +291,10 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
 onCursorUp : Model -> Model
 onCursorUp ((Model state qs seed) as model) =
     case state of
-        NoEdit od ->
+        NoState od ->
             case firstOf [ tryLeft, tryUp ] od of
                 Just newOD ->
-                    Model (NoEdit newOD) qs seed
+                    Model (NoState newOD) qs seed
 
                 Nothing ->
                     model
@@ -309,10 +309,10 @@ onCursorUp ((Model state qs seed) as model) =
 onCursorDown : Model -> Model
 onCursorDown ((Model state qs seed) as model) =
     case state of
-        NoEdit od ->
+        NoState od ->
             case firstOf [ tryDown, tryRight, tryRightOfAncestor ] od of
                 Just newOD ->
-                    Model (NoEdit newOD) qs seed
+                    Model (NoState newOD) qs seed
 
                 Nothing ->
                     model
@@ -327,10 +327,10 @@ onCursorDown ((Model state qs seed) as model) =
 onCursorLeft : Model -> Model
 onCursorLeft ((Model state qs seed) as model) =
     case state of
-        NoEdit od ->
+        NoState od ->
             case firstOf [ tryCollapse, tryUp, tryLeft ] od of
                 Just newOD ->
-                    Model (NoEdit newOD) qs seed
+                    Model (NoState newOD) qs seed
 
                 Nothing ->
                     model
@@ -345,10 +345,10 @@ onCursorLeft ((Model state qs seed) as model) =
 onCursorRight : Model -> Model
 onCursorRight ((Model state qs seed) as model) =
     case state of
-        NoEdit od ->
+        NoState od ->
             case firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ] od of
                 Just newOD ->
-                    Model (NoEdit newOD) qs seed
+                    Model (NoState newOD) qs seed
 
                 Nothing ->
                     model
@@ -365,8 +365,8 @@ onIndent ((Model state qs seed) as model) =
     let
         maybeNewState =
             case state of
-                NoEdit od ->
-                    indent od |> Maybe.map NoEdit
+                NoState od ->
+                    indent od |> Maybe.map NoState
 
                 Edit t od ->
                     indent od |> Maybe.map (Edit t)
@@ -387,8 +387,8 @@ onUnIndent ((Model state qs seed) as model) =
     let
         maybeNewState =
             case state of
-                NoEdit od ->
-                    unIndent od |> Maybe.map NoEdit
+                NoState od ->
+                    unIndent od |> Maybe.map NoState
 
                 Edit t od ->
                     unIndent od |> Maybe.map (Edit t)
@@ -407,10 +407,10 @@ onUnIndent ((Model state qs seed) as model) =
 onZoomIn : Model -> Model
 onZoomIn ((Model state qs seed) as model) =
     case state of
-        NoEdit od ->
+        NoState od ->
             case firstOf [ tryZoomIn, tryZoomInParent ] od of
                 Just newOD ->
-                    Model (NoEdit newOD) qs seed
+                    Model (NoState newOD) qs seed
 
                 Nothing ->
                     model
@@ -425,10 +425,10 @@ onZoomIn ((Model state qs seed) as model) =
 onZoomOut : Model -> Model
 onZoomOut ((Model state qs seed) as model) =
     case state of
-        NoEdit od ->
+        NoState od ->
             case firstOf [ tryZoomOut ] od of
                 Just newOD ->
-                    Model (NoEdit newOD) qs seed
+                    Model (NoState newOD) qs seed
 
                 Nothing ->
                     model
@@ -879,7 +879,7 @@ viewOD state =
                     (List.map viewTV (odToTVL (always (IVEdit title)) od))
                 ]
 
-        NoEdit od ->
+        NoState od ->
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
