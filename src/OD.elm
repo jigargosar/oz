@@ -561,7 +561,7 @@ tryZoomOut (OD pcs cs ltr) =
             Nothing
 
         first :: rest ->
-            OD rest (first :: cs) ltr |> Just
+            OD rest (cs ++ [ first ]) ltr |> Just
 
 
 removeLeaf : OD -> Maybe OD
