@@ -452,7 +452,7 @@ onZoomOut ((Model state qs seed) as model) =
 
 
 
--- OD UPDATE HELPERS
+--UPDATE HELPERS : OD
 
 
 tryExpand : OD -> Maybe OD
