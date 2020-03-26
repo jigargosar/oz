@@ -218,13 +218,13 @@ update message model =
             mmQOD searchForward model
 
         OnQueryShiftEnter ->
-            mmQOD searchBackwards model
+            mmQOD searchBackward model
 
         SearchForward ->
             mmQODFocus searchForward model
 
         SearchBackward ->
-            mmQODFocus searchBackwards model
+            mmQODFocus searchBackward model
 
         OnCursorUp ->
             mmODFocus tryBackwardVisible model
@@ -353,8 +353,8 @@ searchForward =
     matches >> findNextWrap
 
 
-searchBackwards : Query -> OD -> Maybe OD
-searchBackwards =
+searchBackward : Query -> OD -> Maybe OD
+searchBackward =
     matches >> findPrevWrap
 
 
