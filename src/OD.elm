@@ -348,19 +348,14 @@ initEditState od =
     Edit (odTitle od) od
 
 
-searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
-searchX query =
-    findX (matches query)
-
-
 searchNext : Query -> OD -> Maybe OD
-searchNext query =
-    searchX query tryForward
+searchNext =
+    matches >> findNext
 
 
 searchPrev : Query -> OD -> Maybe OD
-searchPrev query =
-    searchX query tryBackward
+searchPrev =
+    matches >> findPrev
 
 
 searchNextWrapAtBottom : Query -> OD -> Maybe OD
@@ -376,20 +371,6 @@ searchPrevWrapAtTop query =
 matches : Query -> OD -> Bool
 matches (Query qs) od =
     String.contains (String.toLower qs) (String.toLower (odTitle od))
-
-
-findX : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
-findX pred nextValFunc val =
-    case nextValFunc val of
-        Just nod ->
-            if pred nod then
-                Just nod
-
-            else
-                findX pred nextValFunc nod
-
-        Nothing ->
-            Nothing
 
 
 subscriptions : Model -> Sub Msg
@@ -528,6 +509,16 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 odSetTitle : String -> OD -> OD
 odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
     OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
+
+
+findNext : (OD -> Bool) -> OD -> Maybe OD
+findNext pred =
+    findX pred tryForward
+
+
+findPrev : (OD -> Bool) -> OD -> Maybe OD
+findPrev pred =
+    findX pred tryBackward
 
 
 tryForwardVisible : OD -> Maybe OD
