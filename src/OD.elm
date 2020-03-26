@@ -207,7 +207,7 @@ update message model =
                 Model (Search query od) _ _ ->
                     case searchNext query od of
                         Just nod ->
-                            ( setState (Search query nod) model, focusPrimary )
+                            ( setState (Search query nod) model, Cmd.none )
 
                         Nothing ->
                             ( model, Cmd.none )
