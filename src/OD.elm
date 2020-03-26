@@ -843,11 +843,11 @@ viewOD state =
                     (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
                 ]
 
-        Search _ od ->
+        Search query od ->
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
-                    (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
+                    (List.map viewTV (odToTVL (\(Item _ _ title) -> IVSearchFocused query title) od))
                 ]
 
 
