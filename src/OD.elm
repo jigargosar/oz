@@ -260,11 +260,6 @@ onQueryChange nqs (Model state _ seed) =
 
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
-    let
-        initEditState : OD -> State
-        initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
-            Edit title od
-    in
     case state of
         NoState od ->
             ( setState (initEditState od) model
@@ -302,6 +297,11 @@ onEnter ((Model state _ _) as model) =
 
         Search _ _ ->
             ( model, Cmd.none )
+
+
+initEditState : OD -> State
+initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
+    Edit title od
 
 
 onTitleChanged : String -> Model -> Model
