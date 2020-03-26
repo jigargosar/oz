@@ -896,6 +896,10 @@ type TV
     | TVExpanded IV (List TV)
 
 
+type ZV
+    = ZV String
+
+
 viewOD : String -> State -> HM
 viewOD qs state =
     let
