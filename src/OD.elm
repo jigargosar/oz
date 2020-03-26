@@ -239,19 +239,6 @@ update message model =
         SearchBackward ->
             mmQOD2 searchPrevWrapAtTop focusPrimary model
 
-        OnEnter ->
-            onEnter model
-
-        TitleChanged changedTitle ->
-            ( case model of
-                Model (Edit _ od) _ _ ->
-                    setState (Edit changedTitle od) model
-
-                _ ->
-                    model
-            , Cmd.none
-            )
-
         OnCursorUp ->
             onCursorUp model
 
@@ -275,6 +262,19 @@ update message model =
 
         ZoomOut ->
             onZoomOut model
+
+        OnEnter ->
+            onEnter model
+
+        TitleChanged changedTitle ->
+            ( case model of
+                Model (Edit _ od) _ _ ->
+                    setState (Edit changedTitle od) model
+
+                _ ->
+                    model
+            , Cmd.none
+            )
 
 
 onQueryChange : String -> Model -> Model
