@@ -237,17 +237,7 @@ update message model =
             mmQOD2 searchNextWrapAtBottom focusPrimary model
 
         SearchBackward ->
-            case model of
-                Model (NoState od) query _ ->
-                    case searchPrevWrapAtTop (Query query) od of
-                        Just nod ->
-                            ( setNoState nod model, focusPrimary )
-
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            mmQOD2 searchPrevWrapAtTop focusPrimary model
 
         OnEnter ->
             onEnter model
