@@ -325,7 +325,7 @@ onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
     let
         tryFnsNoState =
-            [ tryDown, tryRight, tryRightOfAncestor ]
+            [ tryDownVisible, tryRight, tryRightOfAncestor ]
 
         tryFnsQuery query =
             []
@@ -358,7 +358,7 @@ onCursorLeft =
 
 onCursorRight : Model -> Ret
 onCursorRight =
-    onCursorHelp [ tryExpand, tryDown, tryRight, tryRightOfAncestor ]
+    onCursorHelp [ tryExpand, tryDownVisible, tryRight, tryRightOfAncestor ]
 
 
 onCursorHelp : List (OD -> Maybe OD) -> Model -> Ret
@@ -539,8 +539,8 @@ tryUp (OD pcs cs (LTR l t r)) =
             Nothing
 
 
-tryDown : OD -> Maybe OD
-tryDown (OD pcs cs (LTR l t r)) =
+tryDownVisible : OD -> Maybe OD
+tryDownVisible (OD pcs cs (LTR l t r)) =
     visibleChildren t
         |> Maybe.andThen
             (\(T item ts) ->
@@ -553,6 +553,18 @@ tryDown (OD pcs cs (LTR l t r)) =
                             |> OD pcs (Crumb l item r :: cs)
                             |> Just
             )
+
+
+tryDown2 : OD -> Maybe OD
+tryDown2 (OD pcs cs (LTR l (T item ts) r)) =
+    case ts of
+        [] ->
+            Nothing
+
+        first :: rest ->
+            LTR [] first rest
+                |> OD pcs (Crumb l item r :: cs)
+                |> Just
 
 
 tryRightOfAncestor : OD -> Maybe OD
