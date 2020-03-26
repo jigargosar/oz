@@ -194,6 +194,21 @@ mmQOD func model =
             ( model, Cmd.none )
 
 
+mmQOD2 : (Query -> OD -> Maybe OD) -> Cmd Msg -> Model -> Ret
+mmQOD2 func cmd model =
+    case model of
+        Model (NoState od) q _ ->
+            case func (Query q) od of
+                Just nod ->
+                    ( setNoState nod model, cmd )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -219,17 +234,7 @@ update message model =
             mmQOD searchPrevWrapAtTop model
 
         SearchForward ->
-            case model of
-                Model (NoState od) query _ ->
-                    case searchNextWrapAtBottom (Query query) od of
-                        Just nod ->
-                            ( setNoState nod model, focusPrimary )
-
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            mmQOD2 searchNextWrapAtBottom focusPrimary model
 
         SearchBackward ->
             case model of
