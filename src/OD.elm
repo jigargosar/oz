@@ -546,119 +546,6 @@ onZoomOut ((Model state qs seed) as model) =
 --UPDATE HELPERS : OD
 
 
-tryExpand : OD -> Maybe OD
-tryExpand (OD pcs cs (LTR l (T item ts) r)) =
-    case ( ts, itemExpanded item ) of
-        ( _ :: _, False ) ->
-            LTR l (T (setItemExpanded True item) ts) r
-                |> OD pcs cs
-                |> Just
-
-        _ ->
-            Nothing
-
-
-tryCollapse : OD -> Maybe OD
-tryCollapse (OD pcs cs (LTR l (T item ts) r)) =
-    case ( ts, itemCollapsed item ) of
-        ( _ :: _, False ) ->
-            LTR l (T (setItemCollapsed True item) ts) r
-                |> OD pcs cs
-                |> Just
-
-        _ ->
-            Nothing
-
-
-tryRight : OD -> Maybe OD
-tryRight (OD pcs cs (LTR l t r)) =
-    case r of
-        first :: rest ->
-            LTR (t :: l) first rest
-                |> OD pcs cs
-                |> Just
-
-        [] ->
-            Nothing
-
-
-tryLeft : OD -> Maybe OD
-tryLeft (OD pcs cs (LTR l t r)) =
-    case l of
-        first :: rest ->
-            LTR rest first (t :: r)
-                |> OD pcs cs
-                |> Just
-
-        [] ->
-            Nothing
-
-
-tryUp : OD -> Maybe OD
-tryUp (OD pcs cs (LTR l t r)) =
-    case cs of
-        (Crumb cl item cr) :: rest ->
-            LTR cl (T item (List.reverse l ++ t :: r)) cr
-                |> OD pcs rest
-                |> Just
-
-        [] ->
-            Nothing
-
-
-tryDownVisible : OD -> Maybe OD
-tryDownVisible (OD pcs cs (LTR l t r)) =
-    visibleChildren t
-        |> Maybe.andThen
-            (\(T item ts) ->
-                case ts of
-                    [] ->
-                        Nothing
-
-                    first :: rest ->
-                        LTR [] first rest
-                            |> OD pcs (Crumb l item r :: cs)
-                            |> Just
-            )
-
-
-tryDown : OD -> Maybe OD
-tryDown (OD pcs cs (LTR l (T item ts) r)) =
-    case ts of
-        [] ->
-            Nothing
-
-        first :: rest ->
-            LTR [] first rest
-                |> OD pcs (Crumb l item r :: cs)
-                |> Just
-
-
-tryRightOfAncestor : OD -> Maybe OD
-tryRightOfAncestor (OD pcs cs (LTR l t r)) =
-    case cs of
-        (Crumb cl item (crFirst :: crRest)) :: rest ->
-            LTR (T item (List.reverse l ++ t :: r) :: cl) crFirst crRest
-                |> OD pcs rest
-                |> Just
-
-        (Crumb cl item []) :: rest ->
-            case
-                LTR cl (T item (List.reverse l ++ t :: r)) []
-                    |> OD pcs rest
-            of
-                parentOd ->
-                    tryRightOfAncestor parentOd
-
-        [] ->
-            Nothing
-
-
-odSetTitle : String -> OD -> OD
-odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
-    OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
-
-
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch []
@@ -775,6 +662,119 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
     else
         -- insertAfter
         OD pcs cs (LTR (t :: l) newT r)
+
+
+odSetTitle : String -> OD -> OD
+odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
+    OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
+
+
+tryExpand : OD -> Maybe OD
+tryExpand (OD pcs cs (LTR l (T item ts) r)) =
+    case ( ts, itemExpanded item ) of
+        ( _ :: _, False ) ->
+            LTR l (T (setItemExpanded True item) ts) r
+                |> OD pcs cs
+                |> Just
+
+        _ ->
+            Nothing
+
+
+tryCollapse : OD -> Maybe OD
+tryCollapse (OD pcs cs (LTR l (T item ts) r)) =
+    case ( ts, itemCollapsed item ) of
+        ( _ :: _, False ) ->
+            LTR l (T (setItemCollapsed True item) ts) r
+                |> OD pcs cs
+                |> Just
+
+        _ ->
+            Nothing
+
+
+tryRight : OD -> Maybe OD
+tryRight (OD pcs cs (LTR l t r)) =
+    case r of
+        first :: rest ->
+            LTR (t :: l) first rest
+                |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
+
+
+tryLeft : OD -> Maybe OD
+tryLeft (OD pcs cs (LTR l t r)) =
+    case l of
+        first :: rest ->
+            LTR rest first (t :: r)
+                |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
+
+
+tryUp : OD -> Maybe OD
+tryUp (OD pcs cs (LTR l t r)) =
+    case cs of
+        (Crumb cl item cr) :: rest ->
+            LTR cl (T item (List.reverse l ++ t :: r)) cr
+                |> OD pcs rest
+                |> Just
+
+        [] ->
+            Nothing
+
+
+tryDownVisible : OD -> Maybe OD
+tryDownVisible (OD pcs cs (LTR l t r)) =
+    visibleChildren t
+        |> Maybe.andThen
+            (\(T item ts) ->
+                case ts of
+                    [] ->
+                        Nothing
+
+                    first :: rest ->
+                        LTR [] first rest
+                            |> OD pcs (Crumb l item r :: cs)
+                            |> Just
+            )
+
+
+tryDown : OD -> Maybe OD
+tryDown (OD pcs cs (LTR l (T item ts) r)) =
+    case ts of
+        [] ->
+            Nothing
+
+        first :: rest ->
+            LTR [] first rest
+                |> OD pcs (Crumb l item r :: cs)
+                |> Just
+
+
+tryRightOfAncestor : OD -> Maybe OD
+tryRightOfAncestor (OD pcs cs (LTR l t r)) =
+    case cs of
+        (Crumb cl item (crFirst :: crRest)) :: rest ->
+            LTR (T item (List.reverse l ++ t :: r) :: cl) crFirst crRest
+                |> OD pcs rest
+                |> Just
+
+        (Crumb cl item []) :: rest ->
+            case
+                LTR cl (T item (List.reverse l ++ t :: r)) []
+                    |> OD pcs rest
+            of
+                parentOd ->
+                    tryRightOfAncestor parentOd
+
+        [] ->
+            Nothing
 
 
 firstRoot : OD -> OD
