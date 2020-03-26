@@ -267,7 +267,7 @@ update message model =
             mmODFocus (firstOf [ tryExpand, tryForwardVisible ]) model
 
         ZoomIn ->
-            onZoomIn model
+            mmODFocus (firstOf [ tryZoomIn, tryZoomInParent ]) model
 
         ZoomOut ->
             onZoomOut model
