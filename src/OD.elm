@@ -539,6 +539,9 @@ viewIV (Query _) iv =
 
                 shift =
                     KeyEvent.shift
+
+                any =
+                    anyPass
             in
             div
                 [ Html.Attributes.id "primary-focus-node"
@@ -546,13 +549,10 @@ viewIV (Query _) iv =
                 , tabindex 0
                 , onKeyDownHelp
                     [ ( key "Enter", OnEnter )
-                    , ( key "ArrowUp", OnCursorUp )
-                    , ( key "k", OnCursorUp )
-                    , ( key "ArrowDown", OnCursorDown )
-                    , ( key "j", OnCursorDown )
-                    , ( key "ArrowLeft", OnCursorLeft )
-                    , ( key "h", OnCursorLeft )
-                    , ( anyPass [ key "ArrowRight", key "l" ], OnCursorRight )
+                    , ( any [ key "ArrowUp", key "k" ], OnCursorUp )
+                    , ( any [ key "ArrowDown", key "j" ], OnCursorDown )
+                    , ( any [ key "ArrowLeft", key "h" ], OnCursorLeft )
+                    , ( any [ key "ArrowRight", key "l" ], OnCursorRight )
                     , ( key "Tab", Indent )
                     , ( shift "Tab", UnIndent )
                     , ( key "n", SearchForward )
