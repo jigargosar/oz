@@ -667,24 +667,35 @@ viewOD : State -> HM
 viewOD state =
     case state of
         Edit title od ->
-            treeChildrenContainer
-                (List.map viewTV (odToTVL (always (IVEdit title)) od))
+            div []
+                [ viewZoomCrumbs od
+                , treeChildrenContainer
+                    (List.map viewTV (odToTVL (always (IVEdit title)) od))
+                ]
 
         NoEdit od ->
-            treeChildrenContainer
-                (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
+            div []
+                [ viewZoomCrumbs od
+                , treeChildrenContainer
+                    (List.map viewTV (odToTVL (\(Item _ _ title) -> IVShowFocused title) od))
+                ]
 
 
-viewLine : Bool -> String -> IV -> HM
-viewLine hideIcon iconName iv =
-    div [ class "flex" ]
-        [ i
-            [ class "self-start pt2 ph1 material-icons md-24 light-silver"
-            , classIf hideIcon "o-0"
-            ]
-            [ text iconName ]
-        , div [ class "flex-auto flex f4 lh-title" ] [ viewIV iv ]
-        ]
+viewZoomCrumbs : OD -> HM
+viewZoomCrumbs (OD pcs _ _) =
+    let
+        viewZC (Crumb _ (Item _ _ title) _) =
+            div [ class "pa1" ] [ displayTitleEl title ]
+
+        viewSep =
+            i [ class "material-icons md-18 light-silver" ]
+                [ text "chevron_right" ]
+    in
+    div [ class "flex items-center" ]
+        (div [ class "pa1" ] [ displayTitleEl "HOME" ]
+            :: List.map viewZC (List.reverse pcs)
+            |> List.intersperse viewSep
+        )
 
 
 viewTV : TV -> HM
@@ -702,6 +713,20 @@ viewTV tv =
                 , treeChildrenContainer <|
                     List.map viewTV tvs
                 ]
+
+
+viewLine : Bool -> String -> IV -> HM
+viewLine hideIcon iconName iv =
+    div [ class "flex" ]
+        [ i
+            [ class "self-start pt2 ph1 material-icons md-24 light-silver"
+            , classIf hideIcon "o-0"
+            ]
+            [ text iconName ]
+        , div [ class "flex-auto flex f4 lh-title" ]
+            [ viewIV iv
+            ]
+        ]
 
 
 viewIV : IV -> HM
