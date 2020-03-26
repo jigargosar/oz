@@ -435,10 +435,10 @@ viewOD qs state =
         stateFu =
             case state of
                 Edit title od ->
-                    ( always (IVEdit title), od )
+                    ( IVEdit title, od )
 
                 NoState od ->
-                    ( \(Item _ _ title) -> IVFocused title, od )
+                    ( IVFocused (odTitle od), od )
     in
     let
         ( itemToIV, od ) =
@@ -964,12 +964,9 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 -- OD to VM
 
 
-odToTVL : (Item -> IV) -> OD -> List TV
-odToTVL itemToIV (OD _ cs (LTR l (T ((Item _ collapsed _) as item) ts) r)) =
+odToTVL : IV -> OD -> List TV
+odToTVL iv (OD _ cs (LTR l (T ((Item _ collapsed _) as item) ts) r)) =
     let
-        iv =
-            itemToIV item
-
         tv =
             case ( ts, collapsed ) of
                 ( [], _ ) ->
