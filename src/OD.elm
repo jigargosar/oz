@@ -136,12 +136,6 @@ type Msg
     | ZoomOut
 
 
-type FocusCmd
-    = NoFocusCmd
-    | FocusSearchCmd
-    | FocusPrimaryCmd
-
-
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
 aroundUpdate msg ((Model oldState _ _) as model) =
     let
@@ -150,41 +144,10 @@ aroundUpdate msg ((Model oldState _ _) as model) =
 
         (Model newState _ _) =
             newModel
-
-        fc =
-            case ( oldState, newState ) of
-                ( Edit _ ood, Edit _ nod ) ->
-                    if neq ood nod then
-                        FocusPrimaryCmd
-
-                    else
-                        NoFocusCmd
-
-                ( Search _ _, Search _ _ ) ->
-                    NoFocusCmd
-
-                ( _, Search _ _ ) ->
-                    FocusSearchCmd
-
-                ( a, b ) ->
-                    if neq a b then
-                        FocusPrimaryCmd
-
-                    else
-                        NoFocusCmd
     in
     ( newModel
     , Cmd.batch
         [ cmd
-        , case fc of
-            FocusPrimaryCmd ->
-                Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
-
-            NoFocusCmd ->
-                Cmd.none
-
-            FocusSearchCmd ->
-                Dom.focus "search-input" |> Task.attempt OnFocusResult
         , cacheState oldState newState
         ]
     )
