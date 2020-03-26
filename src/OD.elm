@@ -334,19 +334,20 @@ findX pred nextValFunc val =
             Nothing
 
 
+searchNext : Query -> OD -> Maybe OD
+searchNext (Query qs) =
+    let
+        fwd =
+            firstOf [ tryDown, tryRight, tryRightOfAncestor ]
+
+        pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+            String.contains (String.toLower qs) (String.toLower title)
+    in
+    findX pred fwd
+
+
 onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
-    let
-        searchNext (Query qs) =
-            let
-                fwd =
-                    firstOf [ tryDown, tryRight, tryRightOfAncestor ]
-
-                pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
-                    String.contains (String.toLower qs) (String.toLower title)
-            in
-            findX pred fwd
-    in
     case state of
         NoState od ->
             case firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ] od of
