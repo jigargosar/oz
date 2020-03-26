@@ -1208,15 +1208,6 @@ visibleChildren t =
 
 
 
---expandTree : T -> Maybe T
---expandTree ((T item ts) as t) =
---    case ( ts, itemCollapsed item ) of
---        ( _ :: _, True ) ->
---            T (setItemCollapsed False item) ts
---                |> Just
---
---        _ ->
---            Nothing
 -- ITEM
 
 
