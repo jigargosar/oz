@@ -359,8 +359,8 @@ searchPrev =
 
 
 searchNextWrapAtBottom : Query -> OD -> Maybe OD
-searchNextWrapAtBottom query =
-    firstOf [ searchNext query, firstRoot >> searchNext query ]
+searchNextWrapAtBottom =
+    matches >> findNextWrap
 
 
 searchPrevWrapAtTop : Query -> OD -> Maybe OD
@@ -514,6 +514,11 @@ odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
 findNext : (OD -> Bool) -> OD -> Maybe OD
 findNext pred =
     findX pred tryForward
+
+
+findNextWrap : (OD -> Bool) -> OD -> Maybe OD
+findNextWrap pred =
+    firstOf [ findNext pred, firstRoot >> findNext pred ]
 
 
 findPrev : (OD -> Bool) -> OD -> Maybe OD
