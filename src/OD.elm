@@ -111,18 +111,6 @@ initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
     Edit title od
 
 
-setTitleAndEditNew : String -> OD -> Generator State
-setTitleAndEditNew title od =
-    odSetTitle title od
-        |> addNew
-        |> Random.map initEditState
-
-
-setTitleAndNoEdit : String -> OD -> State
-setTitleAndNoEdit title od =
-    odSetTitle title od |> NoState
-
-
 
 -- Update
 
@@ -245,16 +233,6 @@ onQueryChange nqs (Model state _ seed) =
             Model state nqs seed
 
 
-removeLeafOrSetEmptyTitle : OD -> OD
-removeLeafOrSetEmptyTitle od =
-    case removeLeaf od of
-        Just nod ->
-            nod
-
-        Nothing ->
-            odSetTitle "" od
-
-
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
     case state of
@@ -278,6 +256,23 @@ onEnter ((Model state _ _) as model) =
 
         Search _ _ ->
             save model
+
+
+setTitleAndEditNew : String -> OD -> Generator State
+setTitleAndEditNew title od =
+    odSetTitle title od
+        |> addNew
+        |> Random.map initEditState
+
+
+removeLeafOrSetEmptyTitle : OD -> OD
+removeLeafOrSetEmptyTitle od =
+    case removeLeaf od of
+        Just nod ->
+            nod
+
+        Nothing ->
+            odSetTitle "" od
 
 
 onTitleChanged : String -> Model -> Model
