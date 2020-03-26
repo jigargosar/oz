@@ -270,7 +270,7 @@ update message model =
             mmODFocus (firstOf [ tryZoomIn, tryZoomInParent ]) model
 
         ZoomOut ->
-            onZoomOut model
+            mmODFocus tryZoomOut model
 
         Indent ->
             onIndent model
@@ -420,48 +420,6 @@ onUnIndent ((Model state qs seed) as model) =
 
         Nothing ->
             ( model, Cmd.none )
-
-
-onZoomIn : Model -> Ret
-onZoomIn ((Model state qs seed) as model) =
-    let
-        maybeRet =
-            case state of
-                NoState od ->
-                    case firstOf [ tryZoomIn, tryZoomInParent ] od of
-                        Just newOD ->
-                            ( Model (NoState newOD) qs seed
-                            , focusPrimary
-                            )
-                                |> Just
-
-                        Nothing ->
-                            Nothing
-
-                Edit _ _ ->
-                    Nothing
-    in
-    maybeRet |> Maybe.withDefault ( model, Cmd.none )
-
-
-onZoomOut : Model -> Ret
-onZoomOut ((Model state qs seed) as model) =
-    let
-        maybeRet =
-            case state of
-                NoState od ->
-                    case firstOf [ tryZoomOut ] od of
-                        Just newOD ->
-                            ( Model (NoState newOD) qs seed, focusPrimary )
-                                |> Just
-
-                        Nothing ->
-                            Nothing
-
-                Edit _ _ ->
-                    Nothing
-    in
-    maybeRet |> Maybe.withDefault ( model, Cmd.none )
 
 
 
