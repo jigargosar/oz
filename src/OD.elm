@@ -322,10 +322,10 @@ onCursorHelp arr ((Model state _ _) as model) =
                 Search _ _ ->
                     Nothing
     in
-    maybeRet |> Maybe.withDefault (save model)
+    maybeRet |> Maybe.withDefault ( model, Cmd.none )
 
 
-onIndent : Model -> Model
+onIndent : Model -> Ret
 onIndent ((Model state qs seed) as model) =
     let
         maybeNewState =
@@ -341,13 +341,13 @@ onIndent ((Model state qs seed) as model) =
     in
     case maybeNewState of
         Just newState ->
-            Model newState qs seed
+            ( Model newState qs seed, focusPrimary )
 
         Nothing ->
-            model
+            ( model, Cmd.none )
 
 
-onUnIndent : Model -> Model
+onUnIndent : Model -> Ret
 onUnIndent ((Model state qs seed) as model) =
     let
         maybeNewState =
@@ -363,10 +363,10 @@ onUnIndent ((Model state qs seed) as model) =
     in
     case maybeNewState of
         Just newState ->
-            Model newState qs seed
+            ( Model newState qs seed, focusPrimary )
 
         Nothing ->
-            model
+            ( model, Cmd.none )
 
 
 onZoomIn : Model -> Model
@@ -457,10 +457,10 @@ update message model =
             onCursorRight model
 
         Indent ->
-            onIndent model |> save
+            onIndent model
 
         UnIndent ->
-            onUnIndent model |> save
+            onUnIndent model
 
         ZoomIn ->
             onZoomIn model |> save
