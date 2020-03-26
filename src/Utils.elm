@@ -42,6 +42,11 @@ allPass fs val =
     List.all ((|>) val) fs
 
 
+anyPass : List (b -> Bool) -> b -> Bool
+anyPass fs val =
+    List.any ((|>) val) fs
+
+
 cond : List ( a -> Bool, a -> b ) -> a -> Maybe b
 cond conditions a =
     List.Extra.find (Tuple.first >> apply a) conditions
