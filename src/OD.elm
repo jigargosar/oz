@@ -284,39 +284,15 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
 
 
 onCursorUp : Model -> Ret
-onCursorUp ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryLeft, tryUp ] od of
-                Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    save model
-
-        Edit _ _ ->
-            save model
-
-        Search _ _ ->
-            save model
+onCursorUp model =
+    tryNoStateHelp (firstOf [ tryLeft, tryUp ]) model
+        |> Maybe.withDefault (save model)
 
 
 onCursorDown : Model -> Ret
-onCursorDown ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryDown, tryRight, tryRightOfAncestor ] od of
-                Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    save model
-
-        Edit _ _ ->
-            save model
-
-        Search _ _ ->
-            save model
+onCursorDown model =
+    tryNoStateHelp (firstOf [ tryDown, tryRight, tryRightOfAncestor ]) model
+        |> Maybe.withDefault (save model)
 
 
 tryNoStateHelp : (OD -> Maybe OD) -> Model -> Maybe Ret
