@@ -305,11 +305,6 @@ update message model =
             mmODFocus tryUnIndent model
 
 
-onQueryChange : String -> Model -> Model
-onQueryChange nqs (Model state _ seed) =
-    Model state nqs seed
-
-
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
     case state of
