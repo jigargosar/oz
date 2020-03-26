@@ -413,7 +413,7 @@ onCursorLeft =
 
 onCursorRight : Model -> Ret
 onCursorRight =
-    onCursorHelp [ tryExpand, tryDownVisible, tryRight, tryRightOfAncestor ]
+    onCursorHelp [ tryExpand, tryForwardVisible ]
 
 
 onCursorHelp : List (OD -> Maybe OD) -> Model -> Ret
