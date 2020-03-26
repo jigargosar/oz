@@ -238,7 +238,7 @@ onEnter ((Model state _ _) as model) =
     case state of
         NoState od ->
             setState (initEditState od) model
-                |> save
+                |> saveAndFocusPrimary
 
         Edit unsafeTitle od ->
             case nonBlank unsafeTitle of
@@ -251,11 +251,11 @@ onEnter ((Model state _ _) as model) =
                                 |> Random.map initEditState
                     in
                     stepSetState saveAndAddNew model
-                        |> save
+                        |> saveAndFocusPrimary
 
                 Nothing ->
                     setNoState (removeLeafOrSetEmptyTitle od) model
-                        |> save
+                        |> saveAndFocusPrimary
 
         Search _ _ ->
             save model
@@ -439,6 +439,11 @@ onZoomOut ((Model state qs seed) as model) =
 save : Model -> ( Model, Cmd Msg )
 save model =
     ( model, Cmd.none )
+
+
+saveAndFocusPrimary : Model -> Ret
+saveAndFocusPrimary model =
+    ( model, Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
