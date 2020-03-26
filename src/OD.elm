@@ -261,6 +261,19 @@ update message model =
         QueryChanged nqs ->
             ( onQueryChange nqs model, Cmd.none )
 
+        TitleChanged changedTitle ->
+            ( case model of
+                Model (Edit _ od) _ _ ->
+                    setState (Edit changedTitle od) model
+
+                _ ->
+                    model
+            , Cmd.none
+            )
+
+        OnEnter ->
+            onEnter model
+
         OnQueryEnter ->
             mmQOD searchNextWrapAtBottom model
 
@@ -292,23 +305,10 @@ update message model =
             mmODFocus tryZoomOut model
 
         Indent ->
-            onIndent model
+            mmODFocus indent model
 
         UnIndent ->
-            onUnIndent model
-
-        OnEnter ->
-            onEnter model
-
-        TitleChanged changedTitle ->
-            ( case model of
-                Model (Edit _ od) _ _ ->
-                    setState (Edit changedTitle od) model
-
-                _ ->
-                    model
-            , Cmd.none
-            )
+            mmODFocus unIndent model
 
 
 onQueryChange : String -> Model -> Model
