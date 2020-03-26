@@ -237,8 +237,9 @@ onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
     case state of
         NoState od ->
-            setState (initEditState od) model
-                |> saveAndFocusPrimary
+            ( setState (initEditState od) model
+            , focusPrimary
+            )
 
         Edit unsafeTitle od ->
             case nonBlank unsafeTitle of
@@ -250,12 +251,10 @@ onEnter ((Model state _ _) as model) =
                                 |> addNew
                                 |> Random.map initEditState
                     in
-                    stepSetState setTitleThenAddNew model
-                        |> saveAndFocusPrimary
+                    ( stepSetState setTitleThenAddNew model, focusPrimary )
 
                 Nothing ->
-                    setNoState (removeLeafOrSetEmptyTitle od) model
-                        |> saveAndFocusPrimary
+                    ( setNoState (removeLeafOrSetEmptyTitle od) model, focusPrimary )
 
         Search _ _ ->
             save model
@@ -290,8 +289,7 @@ onCursorUp ((Model state _ _) as model) =
         NoState od ->
             case firstOf [ tryLeft, tryUp ] od of
                 Just newOD ->
-                    setNoState newOD model
-                        |> saveAndFocusPrimary
+                    ( setNoState newOD model, focusPrimary )
 
                 Nothing ->
                     save model
@@ -442,9 +440,9 @@ save model =
     ( model, Cmd.none )
 
 
-saveAndFocusPrimary : Model -> Ret
-saveAndFocusPrimary model =
-    ( model, Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult )
+focusPrimary : Cmd Msg
+focusPrimary =
+    Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
 
 
 saveAndFocusSearch : Model -> Ret
