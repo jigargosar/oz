@@ -1148,7 +1148,7 @@ viewIV iv =
                     , ( KeyEvent.hot "ArrowUp", OnCursorUp )
                     , ( KeyEvent.hot "k", OnCursorUp )
                     , ( KeyEvent.hot "ArrowDown", OnCursorDown )
-                    , ( KeyEvent.hot "k", OnCursorDown )
+                    , ( KeyEvent.hot "j", OnCursorDown )
                     , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
                     , ( KeyEvent.hot "h", OnCursorLeft )
                     , ( KeyEvent.hot "ArrowRight", OnCursorRight )
