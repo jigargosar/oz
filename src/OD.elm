@@ -203,16 +203,6 @@ mmODFocus func model =
                     ( model, Cmd.none )
 
 
-odEqById : OD -> OD -> Bool
-odEqById =
-    eqBy odId
-
-
-odId : OD -> Id
-odId (OD _ _ (LTR _ (T (Item id _ _) _) _)) =
-    id
-
-
 mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
 mmQOD func model =
     case model of
@@ -521,6 +511,16 @@ odDecoder =
                 |> required "t" treeDecoder
                 |> requiredList "r" treeDecoder
             )
+
+
+odEqById : OD -> OD -> Bool
+odEqById =
+    eqBy odId
+
+
+odId : OD -> Id
+odId (OD _ _ (LTR _ (T (Item id _ _) _) _)) =
+    id
 
 
 new : Generator OD
