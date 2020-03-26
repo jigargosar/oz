@@ -964,7 +964,7 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 type IV
     = IVEdit String
     | IVShow String
-    | IVSearchFocused Query String
+    | IVFocused Query String
 
 
 type TV
@@ -1043,14 +1043,14 @@ viewOD qs state =
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
-                    (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVSearchFocused (Query qs) title) od))
+                    (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVFocused (Query qs) title) od))
                 ]
 
         Search query od ->
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
-                    (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVSearchFocused query title) od))
+                    (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVFocused query title) od))
                 ]
 
 
@@ -1123,7 +1123,7 @@ viewIV iv =
         IVShow title ->
             div [ class "flex-auto pa1" ] [ displayTitleEl title ]
 
-        IVSearchFocused (Query _) title ->
+        IVFocused (Query _) title ->
             div
                 [ Html.Attributes.id "primary-focus-node"
                 , class "flex-auto pa1 bg-lightest-blue"
