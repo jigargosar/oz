@@ -349,8 +349,8 @@ onEnter ((Model state _ _) as model) =
 
 
 initEditState : OD -> State
-initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
-    Edit title od
+initEditState od =
+    Edit (odTitle od) od
 
 
 searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
