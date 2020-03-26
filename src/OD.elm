@@ -971,23 +971,25 @@ toTV (T (Item _ collapsed title) ts) =
 viewOD : String -> State -> HM
 viewOD qs state =
     let
-        viewTVHelp =
-            viewTV (Query qs)
-    in
-    case state of
-        Edit title od ->
-            div []
-                [ viewZoomCrumbs od
-                , div []
-                    (List.map viewTVHelp (odToTVL (always (IVEdit title)) od))
-                ]
+        foo =
+            case state of
+                Edit title od ->
+                    ( always (IVEdit title), od )
 
-        NoState od ->
-            div []
-                [ viewZoomCrumbs od
-                , div []
-                    (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVFocused title) od))
-                ]
+                NoState od ->
+                    ( \(Item _ _ title) -> IVFocused title, od )
+    in
+    let
+        ( itemToIV, od ) =
+            foo
+
+        tvl =
+            odToTVL itemToIV od
+    in
+    div []
+        [ viewZoomCrumbs od
+        , div [] (List.map (viewTV (Query qs)) tvl)
+        ]
 
 
 viewZoomCrumbs : OD -> HM
