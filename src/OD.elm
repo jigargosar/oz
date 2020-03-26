@@ -1076,20 +1076,20 @@ viewTV query tv =
     treeContainer <|
         case tv of
             TVLeaf iv ->
-                [ viewLine True "chevron_right" iv ]
+                [ viewLine query True "chevron_right" iv ]
 
             TVCollapsed iv ->
-                [ viewLine False "chevron_right" iv ]
+                [ viewLine query False "chevron_right" iv ]
 
             TVExpanded iv tvs ->
-                [ viewLine False "expand_more" iv
+                [ viewLine query False "expand_more" iv
                 , treeChildrenContainer <|
                     List.map (viewTV query) tvs
                 ]
 
 
-viewLine : Bool -> String -> IV -> HM
-viewLine hideIcon iconName iv =
+viewLine : Query -> Bool -> String -> IV -> HM
+viewLine query hideIcon iconName iv =
     div [ class "flex" ]
         [ i
             [ class "self-start pt2 ph1 material-icons md-24 light-silver"
@@ -1097,13 +1097,13 @@ viewLine hideIcon iconName iv =
             ]
             [ text iconName ]
         , div [ class "flex-auto flex f4 lh-title" ]
-            [ viewIV iv
+            [ viewIV query iv
             ]
         ]
 
 
-viewIV : IV -> HM
-viewIV iv =
+viewIV : Query -> IV -> HM
+viewIV (Query _) iv =
     case iv of
         IVEdit title ->
             input
