@@ -359,7 +359,7 @@ onCursorUp ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case searchPrev query od of
+            case tryBackwardVisible od of
                 Just newOD ->
                     ( setState (Search query newOD) model, focusPrimary )
 
@@ -382,7 +382,7 @@ onCursorDown ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case searchNext query od of
+            case tryForwardVisible od of
                 Just newOD ->
                     ( setState (Search query newOD) model, focusPrimary )
 
@@ -405,7 +405,7 @@ onCursorRight ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case firstOf [ tryExpand, searchNext query ] od of
+            case firstOf [ tryExpand, tryForwardVisible ] od of
                 Just newOD ->
                     ( setState (Search query newOD) model, focusPrimary )
 
