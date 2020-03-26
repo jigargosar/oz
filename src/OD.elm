@@ -3,7 +3,7 @@ port module OD exposing (main)
 import Browser
 import Browser.Dom as Dom
 import Html exposing (Html, div, i, input, span, text)
-import Html.Attributes exposing (class, tabindex, value)
+import Html.Attributes exposing (class, placeholder, tabindex, value)
 import Html.Events exposing (onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
@@ -483,12 +483,26 @@ type alias LHM =
 
 
 view : Model -> Html Msg
-view (Model state _ _) =
+view (Model state qs _) =
     div []
         [ div [ class "center measure-wide" ]
             [ div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
+            , viewSearchQuery qs
             , viewOD state
             ]
+        ]
+
+
+viewSearchQuery : String -> HM
+viewSearchQuery qs =
+    div [ class "pv1 flex" ]
+        [ input
+            [ class "flex-auto"
+            , value qs
+            , onInput QueryChanged
+            , placeholder "Search..."
+            ]
+            []
         ]
 
 
