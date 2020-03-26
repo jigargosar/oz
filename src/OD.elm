@@ -327,8 +327,27 @@ onCursorDown ((Model state _ _) as model) =
         tryFnsNoState =
             [ tryDownVisible, tryRight, tryRightOfAncestor ]
 
-        tryFnsQuery query =
-            []
+        findX pred nf od =
+            case nf od of
+                Just nod ->
+                    if pred nod then
+                        Just nod
+
+                    else
+                        findX pred nf nod
+
+                Nothing ->
+                    Nothing
+
+        searchNext (Query qs) =
+            let
+                fwd =
+                    firstOf [ tryDown, tryRight, tryRightOfAncestor ]
+
+                pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+                    String.contains (String.toLower qs) (String.toLower title)
+            in
+            findX pred fwd
     in
     case state of
         NoState od ->
@@ -343,7 +362,7 @@ onCursorDown ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case firstOf (tryFnsQuery query) od of
+            case searchNext query od of
                 Just newOD ->
                     ( setNoState newOD model, focusPrimary )
 
@@ -555,8 +574,8 @@ tryDownVisible (OD pcs cs (LTR l t r)) =
             )
 
 
-tryDown2 : OD -> Maybe OD
-tryDown2 (OD pcs cs (LTR l (T item ts) r)) =
+tryDown : OD -> Maybe OD
+tryDown (OD pcs cs (LTR l (T item ts) r)) =
     case ts of
         [] ->
             Nothing
