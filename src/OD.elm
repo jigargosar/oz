@@ -923,7 +923,7 @@ viewIV iv =
         IVShowFocused title ->
             div
                 [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto pa1"
+                , class "flex-auto pa1 bg-lightest-blue"
                 , tabindex 0
                 , onKeyDownHelp
                     [ ( KeyEvent.hot "Enter", OnEnter )
@@ -943,7 +943,7 @@ viewIV iv =
         IVSearchFocused query title ->
             div
                 [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto pa1"
+                , class "flex-auto pa1 bg-lightest-blue"
                 , tabindex 0
                 , onKeyDownHelp
                     [ ( KeyEvent.hot "Enter", OnEnter )
