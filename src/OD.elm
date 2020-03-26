@@ -410,9 +410,9 @@ focusPrimary =
     Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
 
 
-saveAndFocusSearch : Model -> Ret
-saveAndFocusSearch model =
-    ( model, Dom.focus "search-input" |> Task.attempt OnFocusResult )
+focusSearch : Cmd Msg
+focusSearch =
+    Dom.focus "search-input" |> Task.attempt OnFocusResult
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -428,7 +428,7 @@ update message model =
             Debug.todo ("focus failed on: " ++ domId)
 
         FocusSearch ->
-            saveAndFocusSearch model
+            ( model, focusSearch )
 
         QueryChanged nqs ->
             ( onQueryChange nqs model, Cmd.none )
