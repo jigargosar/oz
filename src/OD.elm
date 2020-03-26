@@ -781,6 +781,7 @@ viewSearchQuery qs =
             , placeholder "Search..."
             , onKeyDownHelp
                 [ ( KeyEvent.hot "Enter", OnQueryEnter )
+                , ( KeyEvent.shift "Enter", OnQueryShiftEnter )
                 ]
             ]
             []
