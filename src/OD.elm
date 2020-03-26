@@ -383,11 +383,6 @@ matches (Query qs) od =
     String.contains (String.toLower qs) (String.toLower (odTitle od))
 
 
-odTitle : OD -> String
-odTitle (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
-    title
-
-
 findX : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
 findX pred nextValFunc val =
     case nextValFunc val of
@@ -530,6 +525,11 @@ odEqById =
 odId : OD -> Id
 odId (OD _ _ (LTR _ (T (Item id _ _) _) _)) =
     id
+
+
+odTitle : OD -> String
+odTitle (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+    title
 
 
 new : Generator OD
