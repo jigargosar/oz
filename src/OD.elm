@@ -132,6 +132,7 @@ type Msg
     = NoOp
     | OnFocusResult (Result Dom.Error ())
     | QueryChanged String
+    | OnQueryEnter
     | FocusSearch
     | OnEnter
     | TitleChanged String
@@ -200,6 +201,19 @@ update message model =
 
         QueryChanged nqs ->
             ( onQueryChange nqs model, Cmd.none )
+
+        OnQueryEnter ->
+            case model of
+                Model (Search query od) _ _ ->
+                    case searchNext query od of
+                        Just nod ->
+                            ( setState (Search query nod) model, focusPrimary )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         OnEnter ->
             onEnter model
@@ -331,7 +345,7 @@ onCursorUp ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case searchX query tryBackward od of
+            case searchPrev query od of
                 Just newOD ->
                     ( setState (Search query newOD) model, focusPrimary )
 
@@ -354,7 +368,7 @@ onCursorDown ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case searchX query tryForward od of
+            case searchNext query od of
                 Just newOD ->
                     ( setState (Search query newOD) model, focusPrimary )
 
@@ -377,7 +391,7 @@ onCursorRight ((Model state _ _) as model) =
             ( model, Cmd.none )
 
         Search query od ->
-            case firstOf [ tryExpand, searchX query tryForward ] od of
+            case firstOf [ tryExpand, searchNext query ] od of
                 Just newOD ->
                     ( setState (Search query newOD) model, focusPrimary )
 
@@ -392,6 +406,16 @@ onCursorRight ((Model state _ _) as model) =
 searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
 searchX query =
     findX (matches query)
+
+
+searchNext : Query -> OD -> Maybe OD
+searchNext query =
+    searchX query tryForward
+
+
+searchPrev : Query -> OD -> Maybe OD
+searchPrev query =
+    searchX query tryBackward
 
 
 matches : Query -> OD -> Bool
