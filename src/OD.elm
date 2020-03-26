@@ -49,7 +49,7 @@ fromString =
 
 
 type Model
-    = Model State Seed
+    = Model State String Seed
 
 
 type State
@@ -70,12 +70,12 @@ init flags =
                 ( newOD, seed ) =
                     Random.step new (Random.initialSeed flags.now)
             in
-            ( Model (NoEdit newOD) seed
+            ( Model (NoEdit newOD) "" seed
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
         Ok (Just od) ->
-            ( Model (NoEdit od) (Random.initialSeed flags.now)
+            ( Model (NoEdit od) "" (Random.initialSeed flags.now)
             , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
             )
 
@@ -104,12 +104,12 @@ type Msg
 
 
 aroundUpdate : Msg -> Model -> ( Model, Cmd Msg )
-aroundUpdate msg ((Model oldState _) as model) =
+aroundUpdate msg ((Model oldState _ _) as model) =
     let
         newModel =
             update msg model
 
-        (Model newState _) =
+        (Model newState _ _) =
             newModel
 
         shouldFocus =
@@ -147,7 +147,7 @@ cacheODCmd od =
 
 
 update : Msg -> Model -> Model
-update message ((Model state seed) as model) =
+update message ((Model state qs seed) as model) =
     case message of
         NoOp ->
             model
@@ -158,10 +158,10 @@ update message ((Model state seed) as model) =
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
 
-        QueryChanged q ->
+        QueryChanged nqs ->
             let
                 maybeNewState =
-                    case ( fromString q, state ) of
+                    case ( fromString nqs, state ) of
                         ( Just query, NoEdit od ) ->
                             Just (Search query od)
 
@@ -176,31 +176,31 @@ update message ((Model state seed) as model) =
             in
             case maybeNewState of
                 Just ns ->
-                    Model ns seed
+                    Model ns nqs seed
 
                 Nothing ->
-                    model
+                    Model state nqs seed
 
         OnEnter ->
             case state of
                 NoEdit od ->
                     case itemOf od of
                         Item _ _ title ->
-                            Model (Edit title od) seed
+                            Model (Edit title od) qs seed
 
                 Edit title od ->
                     case nonBlank title of
                         Just nbTitle ->
                             Random.step (addNew (odSetTitle nbTitle od)) seed
-                                |> uncurry (Edit "" >> Model)
+                                |> uncurry (Edit "" >> flip Model qs)
 
                         Nothing ->
                             case removeLeaf od of
                                 Just newOd ->
-                                    Model (NoEdit newOd) seed
+                                    Model (NoEdit newOd) qs seed
 
                                 Nothing ->
-                                    Model (NoEdit (odSetTitle "" od)) seed
+                                    Model (NoEdit (odSetTitle "" od)) qs seed
 
                 Search _ _ ->
                     model
@@ -208,7 +208,7 @@ update message ((Model state seed) as model) =
         TitleChanged changedTitle ->
             case state of
                 Edit _ od ->
-                    Model (Edit changedTitle od) seed
+                    Model (Edit changedTitle od) qs seed
 
                 NoEdit _ ->
                     model
@@ -221,7 +221,7 @@ update message ((Model state seed) as model) =
                 NoEdit od ->
                     case firstOf [ tryLeft, tryUp ] od of
                         Just newOD ->
-                            Model (NoEdit newOD) seed
+                            Model (NoEdit newOD) qs seed
 
                         Nothing ->
                             model
@@ -237,7 +237,7 @@ update message ((Model state seed) as model) =
                 NoEdit od ->
                     case firstOf [ tryDown, tryRight, tryRightOfAncestor ] od of
                         Just newOD ->
-                            Model (NoEdit newOD) seed
+                            Model (NoEdit newOD) qs seed
 
                         Nothing ->
                             model
@@ -253,7 +253,7 @@ update message ((Model state seed) as model) =
                 NoEdit od ->
                     case firstOf [ tryCollapse, tryUp, tryLeft ] od of
                         Just newOD ->
-                            Model (NoEdit newOD) seed
+                            Model (NoEdit newOD) qs seed
 
                         Nothing ->
                             model
@@ -269,7 +269,7 @@ update message ((Model state seed) as model) =
                 NoEdit od ->
                     case firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ] od of
                         Just newOD ->
-                            Model (NoEdit newOD) seed
+                            Model (NoEdit newOD) qs seed
 
                         Nothing ->
                             model
@@ -295,7 +295,7 @@ update message ((Model state seed) as model) =
             in
             case maybeNewState of
                 Just newState ->
-                    Model newState seed
+                    Model newState qs seed
 
                 Nothing ->
                     model
@@ -315,7 +315,7 @@ update message ((Model state seed) as model) =
             in
             case maybeNewState of
                 Just newState ->
-                    Model newState seed
+                    Model newState qs seed
 
                 Nothing ->
                     model
@@ -325,7 +325,7 @@ update message ((Model state seed) as model) =
                 NoEdit od ->
                     case firstOf [ tryZoomIn, tryZoomInParent ] od of
                         Just newOD ->
-                            Model (NoEdit newOD) seed
+                            Model (NoEdit newOD) qs seed
 
                         Nothing ->
                             model
@@ -341,7 +341,7 @@ update message ((Model state seed) as model) =
                 NoEdit od ->
                     case firstOf [ tryZoomOut ] od of
                         Just newOD ->
-                            Model (NoEdit newOD) seed
+                            Model (NoEdit newOD) qs seed
 
                         Nothing ->
                             model
@@ -483,7 +483,7 @@ type alias LHM =
 
 
 view : Model -> Html Msg
-view (Model state _) =
+view (Model state _ _) =
     div []
         [ div [ class "center measure-wide" ]
             [ div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
