@@ -971,7 +971,7 @@ toTV (T (Item _ collapsed title) ts) =
 viewOD : String -> State -> HM
 viewOD qs state =
     let
-        foo =
+        stateFu =
             case state of
                 Edit title od ->
                     ( always (IVEdit title), od )
@@ -981,7 +981,7 @@ viewOD qs state =
     in
     let
         ( itemToIV, od ) =
-            foo
+            stateFu
 
         tvl =
             odToTVL itemToIV od
