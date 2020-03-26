@@ -392,48 +392,6 @@ findX pred nextValFunc val =
             Nothing
 
 
-onIndent : Model -> Ret
-onIndent ((Model state qs seed) as model) =
-    let
-        maybeNewState =
-            case state of
-                NoState od ->
-                    tryIndent od |> Maybe.map NoState
-
-                Edit t od ->
-                    tryIndent od |> Maybe.map (Edit t)
-    in
-    case maybeNewState of
-        Just newState ->
-            ( Model newState qs seed, focusPrimary )
-
-        Nothing ->
-            ( model, Cmd.none )
-
-
-onUnIndent : Model -> Ret
-onUnIndent ((Model state qs seed) as model) =
-    let
-        maybeNewState =
-            case state of
-                NoState od ->
-                    tryUnIndent od |> Maybe.map NoState
-
-                Edit t od ->
-                    tryUnIndent od |> Maybe.map (Edit t)
-    in
-    case maybeNewState of
-        Just newState ->
-            ( Model newState qs seed, focusPrimary )
-
-        Nothing ->
-            ( model, Cmd.none )
-
-
-
---UPDATE HELPERS : OD
-
-
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch []
