@@ -317,8 +317,53 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
 
 
 onCursorUp : Model -> Ret
-onCursorUp =
-    onCursorHelp [ tryLeft, tryUp ]
+onCursorUp ((Model state _ _) as model) =
+    case state of
+        NoState od ->
+            case firstOf [ tryLeft, tryUp ] od of
+                Just newOD ->
+                    ( setNoState newOD model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Edit _ _ ->
+            ( model, Cmd.none )
+
+        Search query od ->
+            case searchPrevious query od of
+                Just newOD ->
+                    ( setState (Search query newOD) model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+
+
+--onCursorHelp [ tryLeft, tryUp ]
+
+
+onCursorDown : Model -> Ret
+onCursorDown ((Model state _ _) as model) =
+    case state of
+        NoState od ->
+            case firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ] od of
+                Just newOD ->
+                    ( setNoState newOD model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Edit _ _ ->
+            ( model, Cmd.none )
+
+        Search query od ->
+            case searchNext query od of
+                Just newOD ->
+                    ( setState (Search query newOD) model, focusPrimary )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 findX pred nextValFunc val =
@@ -356,29 +401,6 @@ searchPrevious (Query qs) =
             String.contains (String.toLower qs) (String.toLower title)
     in
     findX pred bwd
-
-
-onCursorDown : Model -> Ret
-onCursorDown ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ] od of
-                Just newOD ->
-                    ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-        Edit _ _ ->
-            ( model, Cmd.none )
-
-        Search query od ->
-            case searchNext query od of
-                Just newOD ->
-                    ( setState (Search query newOD) model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
 
 
 onCursorLeft : Model -> Ret
