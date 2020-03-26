@@ -154,16 +154,20 @@ aroundUpdate msg ((Model oldState _ _) as model) =
 
 
 cacheState : State -> State -> Cmd msg
-cacheState _ n =
-    case n of
-        Edit _ od ->
-            cacheODCmd od
+cacheState o n =
+    let
+        stateToOD state =
+            case state of
+                Edit _ od ->
+                    od
 
-        NoState od ->
-            cacheODCmd od
+                NoState od ->
+                    od
 
-        Search _ od ->
-            cacheODCmd od
+                Search _ od ->
+                    od
+    in
+    cmdIf (neqBy stateToOD o n) (cacheODCmd (stateToOD n))
 
 
 cacheODCmd : OD -> Cmd msg
