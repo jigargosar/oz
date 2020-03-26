@@ -290,21 +290,40 @@ onCursorUp model =
 
 
 onCursorDown : Model -> Ret
-onCursorDown model =
-    tryNoStateHelp (firstOf [ tryDown, tryRight, tryRightOfAncestor ]) model
-        |> Maybe.withDefault (save model)
+onCursorDown =
+    onCursorFirstOfHelp [ tryDown, tryRight, tryRightOfAncestor ]
 
 
 onCursorLeft : Model -> Ret
-onCursorLeft ((Model state _ _) as model) =
-    tryNoStateHelp (firstOf [ tryCollapse, tryUp, tryLeft ]) model
-        |> Maybe.withDefault (save model)
+onCursorLeft =
+    onCursorFirstOfHelp [ tryCollapse, tryUp, tryLeft ]
 
 
 onCursorRight : Model -> Ret
-onCursorRight model =
-    tryNoStateHelp (firstOf [ tryExpand, tryDown, tryRight, tryRightOfAncestor ]) model
-        |> Maybe.withDefault (save model)
+onCursorRight =
+    onCursorFirstOfHelp [ tryExpand, tryDown, tryRight, tryRightOfAncestor ]
+
+
+onCursorFirstOfHelp : List (OD -> Maybe OD) -> Model -> Ret
+onCursorFirstOfHelp arr ((Model state _ _) as model) =
+    let
+        maybeRet =
+            case state of
+                NoState od ->
+                    case firstOf arr od of
+                        Just newOD ->
+                            Just ( setNoState newOD model, focusPrimary )
+
+                        Nothing ->
+                            Nothing
+
+                Edit _ _ ->
+                    Nothing
+
+                Search _ _ ->
+                    Nothing
+    in
+    maybeRet |> Maybe.withDefault (save model)
 
 
 tryNoStateHelp : (OD -> Maybe OD) -> Model -> Maybe Ret
