@@ -99,7 +99,6 @@ setNoState =
 type State
     = Edit String OD
     | NoState OD
-    | Search Query OD
 
 
 
@@ -175,9 +174,6 @@ cacheState o n =
                     od
 
                 NoState od ->
-                    od
-
-                Search _ od ->
                     od
     in
     cmdIf (neqBy stateToOD o n) (cacheODCmd (stateToOD n))
@@ -326,9 +322,6 @@ onEnter ((Model state _ _) as model) =
                     , focusPrimary
                     )
 
-        Search _ _ ->
-            ( model, Cmd.none )
-
 
 initEditState : OD -> State
 initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
@@ -342,9 +335,6 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
             Model (Edit changedTitle od) qs seed
 
         NoState _ ->
-            model
-
-        Search _ _ ->
             model
 
 
@@ -362,14 +352,6 @@ onCursorUp ((Model state _ _) as model) =
         Edit _ _ ->
             ( model, Cmd.none )
 
-        Search query od ->
-            case tryBackwardVisible od of
-                Just newOD ->
-                    ( setState (Search query newOD) model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
 
 onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
@@ -384,14 +366,6 @@ onCursorDown ((Model state _ _) as model) =
 
         Edit _ _ ->
             ( model, Cmd.none )
-
-        Search query od ->
-            case tryForwardVisible od of
-                Just newOD ->
-                    ( setState (Search query newOD) model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
 
 
 onCursorRight : Model -> Ret
@@ -408,14 +382,6 @@ onCursorRight ((Model state _ _) as model) =
         Edit _ _ ->
             ( model, Cmd.none )
 
-        Search query od ->
-            case firstOf [ tryExpand, tryForwardVisible ] od of
-                Just newOD ->
-                    ( setState (Search query newOD) model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
 
 onCursorLeft : Model -> Ret
 onCursorLeft ((Model state _ _) as model) =
@@ -430,18 +396,6 @@ onCursorLeft ((Model state _ _) as model) =
 
         Edit _ _ ->
             ( model, Cmd.none )
-
-        Search query od ->
-            case firstOf [ tryCollapse, tryUp, tryLeft ] od of
-                Just newOD ->
-                    ( setState (Search query newOD) model, focusPrimary )
-
-                Nothing ->
-                    ( model, Cmd.none )
-
-
-
---onCursorHelp [ tryExpand, tryForwardVisible ]
 
 
 searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
@@ -553,9 +507,6 @@ onIndent ((Model state qs seed) as model) =
 
                 Edit t od ->
                     indent od |> Maybe.map (Edit t)
-
-                Search _ _ ->
-                    Nothing
     in
     case maybeNewState of
         Just newState ->
@@ -575,9 +526,6 @@ onUnIndent ((Model state qs seed) as model) =
 
                 Edit t od ->
                     unIndent od |> Maybe.map (Edit t)
-
-                Search _ _ ->
-                    Nothing
     in
     case maybeNewState of
         Just newState ->
@@ -605,9 +553,6 @@ onZoomIn ((Model state qs seed) as model) =
 
                 Edit _ _ ->
                     Nothing
-
-                Search _ _ ->
-                    Nothing
     in
     maybeRet |> Maybe.withDefault ( model, Cmd.none )
 
@@ -627,9 +572,6 @@ onZoomOut ((Model state qs seed) as model) =
                             Nothing
 
                 Edit _ _ ->
-                    Nothing
-
-                Search _ _ ->
                     Nothing
     in
     maybeRet |> Maybe.withDefault ( model, Cmd.none )
@@ -1041,13 +983,6 @@ viewOD qs state =
                 ]
 
         NoState od ->
-            div []
-                [ viewZoomCrumbs od
-                , treeChildrenContainer
-                    (List.map viewTVHelp (odToTVL (\(Item _ _ title) -> IVFocused title) od))
-                ]
-
-        Search query od ->
             div []
                 [ viewZoomCrumbs od
                 , treeChildrenContainer
