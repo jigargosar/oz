@@ -217,8 +217,8 @@ setTitleAndEditNewStateGenerator title od =
         |> Random.map initEditState
 
 
-setStateFromGenerator : Generator State -> Model -> Model
-setStateFromGenerator genF (Model _ qs seed0) =
+setStateGenerator : Generator State -> Model -> Model
+setStateGenerator genF (Model _ qs seed0) =
     let
         ( state, seed ) =
             Random.step genF seed0
@@ -226,27 +226,36 @@ setStateFromGenerator genF (Model _ qs seed0) =
     Model state qs seed
 
 
+setState : State -> Model -> Model
+setState state (Model _ qs seed) =
+    Model state qs seed
+
+
 onEnter : Model -> Ret
-onEnter ((Model state qs seed) as model) =
+onEnter ((Model state _ _) as model) =
     case state of
         NoEdit od ->
-            Model (initEditState od) qs seed
+            setState (initEditState od) model
                 |> save
 
         Edit title od ->
             case nonBlank title of
                 Just nbTitle ->
-                    setStateFromGenerator (setTitleAndEditNewStateGenerator nbTitle od) model
+                    let
+                        stateGen =
+                            setTitleAndEditNewStateGenerator nbTitle od
+                    in
+                    setStateGenerator stateGen model
                         |> save
 
                 Nothing ->
                     case removeLeaf od of
                         Just newOd ->
-                            Model (NoEdit newOd) qs seed
+                            setState (NoEdit newOd) model
                                 |> save
 
                         Nothing ->
-                            Model (NoEdit (odSetTitle "" od)) qs seed
+                            setState (NoEdit <| odSetTitle "" od) model
                                 |> save
 
         Search _ _ ->
