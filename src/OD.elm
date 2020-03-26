@@ -1119,25 +1119,6 @@ viewIV iv =
         IVShow title ->
             div [ class "flex-auto pa1" ] [ displayTitleEl title ]
 
-        --IVShowFocused title ->
-        --    div
-        --        [ Html.Attributes.id "primary-focus-node"
-        --        , class "flex-auto pa1 bg-lightest-blue"
-        --        , tabindex 0
-        --        , onKeyDownHelp
-        --            [ ( KeyEvent.hot "Enter", OnEnter )
-        --            , ( KeyEvent.hot "ArrowUp", OnCursorUp )
-        --            , ( KeyEvent.hot "ArrowDown", OnCursorDown )
-        --            , ( KeyEvent.hot "ArrowLeft", OnCursorLeft )
-        --            , ( KeyEvent.hot "ArrowRight", OnCursorRight )
-        --            , ( KeyEvent.hot "Tab", Indent )
-        --            , ( KeyEvent.shift "Tab", UnIndent )
-        --            , ( KeyEvent.shift "ArrowRight", ZoomIn )
-        --            , ( KeyEvent.shift "ArrowLeft", ZoomOut )
-        --            , ( KeyEvent.hot "/", FocusSearch )
-        --            ]
-        --        ]
-        --        [ displayTitleEl title ]
         IVSearchFocused (Query _) title ->
             div
                 [ Html.Attributes.id "primary-focus-node"
