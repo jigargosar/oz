@@ -284,9 +284,8 @@ onTitleChanged changedTitle ((Model state qs seed) as model) =
 
 
 onCursorUp : Model -> Ret
-onCursorUp model =
-    tryNoStateHelp (firstOf [ tryLeft, tryUp ]) model
-        |> Maybe.withDefault (save model)
+onCursorUp =
+    onCursorFirstOfHelp [ tryLeft, tryUp ]
 
 
 onCursorDown : Model -> Ret
