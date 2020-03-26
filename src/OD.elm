@@ -65,12 +65,12 @@ init flags =
                     Random.step new (Random.initialSeed flags.now)
             in
             ( Model (NoState newOD) "" seed
-            , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
+            , focusPrimary
             )
 
         Ok (Just od) ->
             ( Model (NoState od) "" (Random.initialSeed flags.now)
-            , Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
+            , focusPrimary
             )
 
         Err err ->
@@ -109,6 +109,20 @@ type State
 initEditState : OD -> State
 initEditState ((OD _ _ (LTR _ (T (Item _ _ title) _) _)) as od) =
     Edit title od
+
+
+
+-- DOM FOCUS
+
+
+focusPrimary : Cmd Msg
+focusPrimary =
+    Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
+
+
+focusSearch : Cmd Msg
+focusSearch =
+    Dom.focus "search-input" |> Task.attempt OnFocusResult
 
 
 
@@ -386,16 +400,6 @@ onZoomOut ((Model state qs seed) as model) =
                     Nothing
     in
     maybeRet |> Maybe.withDefault ( model, Cmd.none )
-
-
-focusPrimary : Cmd Msg
-focusPrimary =
-    Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
-
-
-focusSearch : Cmd Msg
-focusSearch =
-    Dom.focus "search-input" |> Task.attempt OnFocusResult
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
