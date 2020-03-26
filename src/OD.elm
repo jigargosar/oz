@@ -179,60 +179,6 @@ cacheState o n =
     cmdIf (neqBy stateToOD o n) (cacheODCmd (stateToOD n))
 
 
-mmODFocus : (OD -> Maybe OD) -> Model -> Ret
-mmODFocus func model =
-    case model of
-        Model (NoState od) _ _ ->
-            case func od of
-                Just nod ->
-                    ( setNoState nod model, focusPrimary )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        Model (Edit title od) _ _ ->
-            case func od of
-                Just nod ->
-                    if odEqById od nod then
-                        ( setState (Edit title nod) model, focusPrimary )
-
-                    else
-                        ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-
-mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
-mmQOD func model =
-    case model of
-        Model (NoState od) q _ ->
-            case func (Query q) od of
-                Just nod ->
-                    ( setNoState nod model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
-
-
-mmQODFocus : (Query -> OD -> Maybe OD) -> Model -> Ret
-mmQODFocus func model =
-    case model of
-        Model (NoState od) q _ ->
-            case func (Query q) od of
-                Just nod ->
-                    ( setNoState nod model, focusPrimary )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -303,6 +249,60 @@ update message model =
 
         UnIndent ->
             mmODFocus tryUnIndent model
+
+
+mmODFocus : (OD -> Maybe OD) -> Model -> Ret
+mmODFocus func model =
+    case model of
+        Model (NoState od) _ _ ->
+            case func od of
+                Just nod ->
+                    ( setNoState nod model, focusPrimary )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        Model (Edit title od) _ _ ->
+            case func od of
+                Just nod ->
+                    if odEqById od nod then
+                        ( setState (Edit title nod) model, focusPrimary )
+
+                    else
+                        ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+
+mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
+mmQOD func model =
+    case model of
+        Model (NoState od) q _ ->
+            case func (Query q) od of
+                Just nod ->
+                    ( setNoState nod model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
+
+
+mmQODFocus : (Query -> OD -> Maybe OD) -> Model -> Ret
+mmQODFocus func model =
+    case model of
+        Model (NoState od) q _ ->
+            case func (Query q) od of
+                Just nod ->
+                    ( setNoState nod model, focusPrimary )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
 
 
 onEnter : Model -> Ret
