@@ -398,22 +398,27 @@ onZoomIn ((Model state qs seed) as model) =
     maybeRet |> Maybe.withDefault ( model, Cmd.none )
 
 
-onZoomOut : Model -> Model
+onZoomOut : Model -> Ret
 onZoomOut ((Model state qs seed) as model) =
-    case state of
-        NoState od ->
-            case firstOf [ tryZoomOut ] od of
-                Just newOD ->
-                    Model (NoState newOD) qs seed
+    let
+        maybeRet =
+            case state of
+                NoState od ->
+                    case firstOf [ tryZoomOut ] od of
+                        Just newOD ->
+                            ( Model (NoState newOD) qs seed, focusPrimary )
+                                |> Just
 
-                Nothing ->
-                    model
+                        Nothing ->
+                            Nothing
 
-        Edit _ _ ->
-            model
+                Edit _ _ ->
+                    Nothing
 
-        Search _ _ ->
-            model
+                Search _ _ ->
+                    Nothing
+    in
+    maybeRet |> Maybe.withDefault ( model, Cmd.none )
 
 
 focusPrimary : Cmd Msg
@@ -469,10 +474,10 @@ update message model =
             onUnIndent model
 
         ZoomIn ->
-            ( onZoomIn model, Cmd.none )
+            onZoomIn model
 
         ZoomOut ->
-            ( onZoomOut model, Cmd.none )
+            onZoomOut model
 
 
 
