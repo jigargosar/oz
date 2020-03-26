@@ -89,6 +89,8 @@ type Msg
     | OnCursorRight
     | Indent
     | UnIndent
+    | ZoomIn
+    | ZoomOut
 
 
 odOf : State -> OD
@@ -265,6 +267,32 @@ update message ((Model state seed) as model) =
                     Model newState seed
 
                 Nothing ->
+                    model
+
+        ZoomIn ->
+            case state of
+                NoEdit od ->
+                    case firstOf [ tryZoomIn ] od of
+                        Just newOD ->
+                            Model (NoEdit newOD) seed
+
+                        Nothing ->
+                            model
+
+                Edit _ _ ->
+                    model
+
+        ZoomOut ->
+            case state of
+                NoEdit od ->
+                    case firstOf [ tryZoomOut ] od of
+                        Just newOD ->
+                            Model (NoEdit newOD) seed
+
+                        Nothing ->
+                            model
+
+                Edit _ _ ->
                     model
 
 
@@ -698,6 +726,8 @@ viewIV iv =
                     , ( KeyEvent.hot "ArrowRight", OnCursorRight )
                     , ( KeyEvent.hot "Tab", Indent )
                     , ( KeyEvent.shift "Tab", UnIndent )
+                    , ( KeyEvent.shift "ArrowRight", ZoomIn )
+                    , ( KeyEvent.shift "ArrowLeft", ZoomOut )
                     ]
                 ]
                 [ displayTitleEl title ]
