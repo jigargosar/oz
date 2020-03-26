@@ -77,8 +77,8 @@ init flags =
             Debug.todo (JD.errorToString err)
 
 
-setStateNew : Generator State -> Model -> Model
-setStateNew genF (Model _ qs seed0) =
+stepSetState : Generator State -> Model -> Model
+stepSetState genF (Model _ qs seed0) =
     let
         ( state, seed ) =
             Random.step genF seed0
@@ -89,6 +89,11 @@ setStateNew genF (Model _ qs seed0) =
 setState : State -> Model -> Model
 setState state (Model _ qs seed) =
     Model state qs seed
+
+
+setNoState : OD -> Model -> Model
+setNoState =
+    NoState >> setState
 
 
 
@@ -264,11 +269,11 @@ onEnter ((Model state _ _) as model) =
                         stateGen =
                             setTitleAndEditNew nbTitle od
                     in
-                    setStateNew stateGen model
+                    stepSetState stateGen model
                         |> save
 
                 Nothing ->
-                    setState (NoState <| removeLeafOrSetEmptyTitle od) model
+                    setNoState (removeLeafOrSetEmptyTitle od) model
                         |> save
 
         Search _ _ ->
