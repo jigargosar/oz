@@ -295,24 +295,6 @@ onCursorDown model =
         |> Maybe.withDefault (save model)
 
 
-tryNoStateHelp : (OD -> Maybe OD) -> Model -> Maybe Ret
-tryNoStateHelp func ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            case func od of
-                Just newOD ->
-                    Just ( setNoState newOD model, focusPrimary )
-
-                Nothing ->
-                    Nothing
-
-        Edit _ _ ->
-            Nothing
-
-        Search _ _ ->
-            Nothing
-
-
 onCursorLeft : Model -> Ret
 onCursorLeft ((Model state _ _) as model) =
     case state of
@@ -347,6 +329,24 @@ onCursorRight ((Model state qs seed) as model) =
 
         Search _ _ ->
             model
+
+
+tryNoStateHelp : (OD -> Maybe OD) -> Model -> Maybe Ret
+tryNoStateHelp func ((Model state _ _) as model) =
+    case state of
+        NoState od ->
+            case func od of
+                Just newOD ->
+                    Just ( setNoState newOD model, focusPrimary )
+
+                Nothing ->
+                    Nothing
+
+        Edit _ _ ->
+            Nothing
+
+        Search _ _ ->
+            Nothing
 
 
 onIndent : Model -> Model
