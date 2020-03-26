@@ -133,6 +133,7 @@ type Msg
     | OnFocusResult (Result Dom.Error ())
     | QueryChanged String
     | OnQueryEnter
+    | OnQueryShiftEnter
     | FocusSearch
     | OnEnter
     | TitleChanged String
@@ -206,6 +207,19 @@ update message model =
             case model of
                 Model (Search query od) _ _ ->
                     case searchNextWrapAtBottom query od of
+                        Just nod ->
+                            ( setState (Search query nod) model, Cmd.none )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        OnQueryShiftEnter ->
+            case model of
+                Model (Search query od) _ _ ->
+                    case searchPrevWrapAtTop query od of
                         Just nod ->
                             ( setState (Search query nod) model, Cmd.none )
 
@@ -418,9 +432,34 @@ searchNextWrapAtBottom query =
     firstOf [ searchNext query, firstRoot >> searchNext query ]
 
 
+searchPrevWrapAtTop : Query -> OD -> Maybe OD
+searchPrevWrapAtTop query =
+    firstOf [ searchPrev query, lastRoot >> lastDescendent >> searchPrev query ]
+
+
 firstRoot : OD -> OD
 firstRoot =
-    applyWhileJust tryUp >> applyWhileJust tryLeft
+    root >> applyWhileJust tryLeft
+
+
+lastRoot : OD -> OD
+lastRoot =
+    root >> applyWhileJust tryRight
+
+
+root : OD -> OD
+root =
+    applyWhileJust tryUp
+
+
+lastDescendent : OD -> OD
+lastDescendent od =
+    case tryDown od of
+        Just cod ->
+            lastDescendent (applyWhileJust tryRight cod)
+
+        Nothing ->
+            od
 
 
 searchPrev : Query -> OD -> Maybe OD
