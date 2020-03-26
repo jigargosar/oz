@@ -227,16 +227,16 @@ update message model =
             mmQODFocus searchBackward model
 
         OnCursorUp ->
-            mmODFocus tryBackwardVisible model
+            mmODFocus backwardVis model
 
         OnCursorDown ->
-            mmODFocus tryForwardVisible model
+            mmODFocus forwardVis model
 
         OnCursorLeft ->
             mmODFocus (firstOf [ tryCollapse, tryUp, tryLeft ]) model
 
         OnCursorRight ->
-            mmODFocus (firstOf [ tryExpand, tryForwardVisible ]) model
+            mmODFocus (firstOf [ tryExpand, forwardVis ]) model
 
         ZoomIn ->
             mmODFocus (firstOf [ tryZoomIn, tryZoomInParent ]) model
@@ -709,8 +709,8 @@ findPrev pred =
     findX pred tryBackward
 
 
-tryForwardVisible : OD -> Maybe OD
-tryForwardVisible =
+forwardVis : OD -> Maybe OD
+forwardVis =
     firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ]
 
 
@@ -719,8 +719,8 @@ tryForward =
     firstOf [ tryDown, tryRight, tryRightOfAncestor ]
 
 
-tryBackwardVisible : OD -> Maybe OD
-tryBackwardVisible =
+backwardVis : OD -> Maybe OD
+backwardVis =
     firstOf [ tryLeft >> Maybe.map lastDescendentVisible, tryUp ]
 
 
