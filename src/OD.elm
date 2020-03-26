@@ -405,11 +405,6 @@ onZoomOut ((Model state qs seed) as model) =
             model
 
 
-save : Model -> ( Model, Cmd Msg )
-save model =
-    ( model, Cmd.none )
-
-
 focusPrimary : Cmd Msg
 focusPrimary =
     Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult
