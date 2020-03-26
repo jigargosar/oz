@@ -346,6 +346,18 @@ searchNext (Query qs) =
     findX pred fwd
 
 
+searchPrevious : Query -> OD -> Maybe OD
+searchPrevious (Query qs) =
+    let
+        bwd =
+            firstOf [ tryLeft, tryUp ]
+
+        pred (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+            String.contains (String.toLower qs) (String.toLower title)
+    in
+    findX pred bwd
+
+
 onCursorDown : Model -> Ret
 onCursorDown ((Model state _ _) as model) =
     case state of
