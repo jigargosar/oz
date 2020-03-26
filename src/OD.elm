@@ -91,6 +91,7 @@ type Msg
     = NoOp
     | OnFocusResult (Result Dom.Error ())
     | QueryChanged String
+    | FocusSearch
     | OnEnter
     | TitleChanged String
     | OnCursorUp
@@ -112,17 +113,27 @@ aroundUpdate msg ((Model oldState _ _) as model) =
         (Model newState _ _) =
             newModel
 
-        shouldFocus =
+        shouldFocusPrimary =
             case ( oldState, newState ) of
                 ( Edit _ ood, Edit _ nod ) ->
                     ood /= nod
 
-                _ ->
-                    True
+                ( _, Search _ _ ) ->
+                    False
+
+                ( a, b ) ->
+                    neq a b
+
+        shouldFocusSearch =
+            msg == FocusSearch
     in
     ( newModel
     , Cmd.batch
-        [ cmdIf shouldFocus (Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult)
+        [ if shouldFocusSearch then
+            Dom.focus "search-input" |> Task.attempt OnFocusResult
+
+          else
+            cmdIf shouldFocusPrimary (Dom.focus "primary-focus-node" |> Task.attempt OnFocusResult)
         , cacheState oldState newState
         ]
     )
@@ -157,6 +168,9 @@ update message ((Model state qs seed) as model) =
 
         OnFocusResult (Err (Dom.NotFound domId)) ->
             Debug.todo ("focus failed on: " ++ domId)
+
+        FocusSearch ->
+            model
 
         QueryChanged nqs ->
             let
@@ -844,6 +858,7 @@ viewIV iv =
                     , ( KeyEvent.shift "Tab", UnIndent )
                     , ( KeyEvent.shift "ArrowRight", ZoomIn )
                     , ( KeyEvent.shift "ArrowLeft", ZoomOut )
+                    , ( KeyEvent.hot "/", FocusSearch )
                     ]
                 ]
                 [ displayTitleEl title ]
