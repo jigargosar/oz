@@ -240,6 +240,16 @@ onQueryChange nqs (Model state _ seed) =
             Model state nqs seed
 
 
+removeLeafOrSetEmptyTitle : OD -> OD
+removeLeafOrSetEmptyTitle od =
+    case removeLeaf od of
+        Just nod ->
+            nod
+
+        Nothing ->
+            odSetTitle "" od
+
+
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
     case state of
@@ -258,14 +268,8 @@ onEnter ((Model state _ _) as model) =
                         |> save
 
                 Nothing ->
-                    case removeLeaf od of
-                        Just newOd ->
-                            setState (NoEdit newOd) model
-                                |> save
-
-                        Nothing ->
-                            setState (setTitleAndNoEdit "" od) model
-                                |> save
+                    setState (NoEdit <| removeLeafOrSetEmptyTitle od) model
+                        |> save
 
         Search _ _ ->
             save model
