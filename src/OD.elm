@@ -362,6 +362,16 @@ onCursorDown ((Model state _ _) as model) =
                     ( model, Cmd.none )
 
 
+searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
+searchX query =
+    findX (matches query)
+
+
+matches : Query -> OD -> Bool
+matches (Query qs) (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
+    String.contains (String.toLower qs) (String.toLower title)
+
+
 findX : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
 findX pred nextValFunc val =
     case nextValFunc val of
@@ -374,16 +384,6 @@ findX pred nextValFunc val =
 
         Nothing ->
             Nothing
-
-
-searchX : Query -> (OD -> Maybe OD) -> OD -> Maybe OD
-searchX query =
-    findX (matches query)
-
-
-matches : Query -> OD -> Bool
-matches (Query qs) (OD _ _ (LTR _ (T (Item _ _ title) _) _)) =
-    String.contains (String.toLower qs) (String.toLower title)
 
 
 tryForwardVisible : OD -> Maybe OD
