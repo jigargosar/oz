@@ -2,7 +2,8 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Dom as Dom
-import Html exposing (Html, div, i, input, span, text)
+import File.Download as Download
+import Html exposing (Html, button, div, i, input, span, text)
 import Html.Attributes exposing (class, placeholder, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 import ItemId exposing (ItemId)
@@ -124,6 +125,7 @@ type alias Ret =
 
 type Msg
     = NoOp
+    | Download
     | OnFocusResult (Result Dom.Error ())
     | QueryChanged String
     | TitleChanged String
@@ -188,6 +190,9 @@ update message model =
     case message of
         NoOp ->
             ( model, Cmd.none )
+
+        Download ->
+            ( model, Download.string "draft.md" "text/markdown" "# header world" )
 
         OnFocusResult (Ok ()) ->
             ( model, Cmd.none )
@@ -406,7 +411,8 @@ view : Model -> Html Msg
 view (Model state qs _) =
     div []
         [ div [ class "center measure-wide" ]
-            [ div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
+            [ button [ onClick Download ] [ text "download" ]
+            , div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
             , viewSearchQuery qs
             , viewOD qs state
             ]
