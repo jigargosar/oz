@@ -8,7 +8,7 @@ import Html.Events exposing (onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import KeyEvent
+import KeyEvent exposing (KeyEvent)
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -405,6 +405,51 @@ view (Model state qs _) =
             , viewOD qs state
             ]
         ]
+
+
+type alias KeyMap =
+    { si : List ( KeyEvent -> Bool, Msg )
+    , ei : List ( KeyEvent -> Bool, Msg )
+    , fi : List ( KeyEvent -> Bool, Msg )
+    }
+
+
+km : KeyMap
+km =
+    let
+        key =
+            KeyEvent.hot
+
+        shift =
+            KeyEvent.shift
+
+        any =
+            anyPass
+    in
+    { si =
+        [ ( KeyEvent.hot "Enter", OnQueryEnter )
+        , ( KeyEvent.shift "Enter", OnQueryShiftEnter )
+        ]
+    , ei =
+        [ ( key "Enter", OnEnter )
+        , ( key "Tab", Indent )
+        , ( shift "Tab", UnIndent )
+        ]
+    , fi =
+        [ ( key "Enter", OnEnter )
+        , ( any [ key "ArrowUp", key "k" ], OnCursorUp )
+        , ( any [ key "ArrowDown", key "j" ], OnCursorDown )
+        , ( any [ key "ArrowLeft", key "h" ], OnCursorLeft )
+        , ( any [ key "ArrowRight", key "l" ], OnCursorRight )
+        , ( key "Tab", Indent )
+        , ( shift "Tab", UnIndent )
+        , ( key "n", SearchForward )
+        , ( shift "N", SearchBackward )
+        , ( shift "ArrowRight", ZoomIn )
+        , ( shift "ArrowLeft", ZoomOut )
+        , ( key "/", FocusSearch )
+        ]
+    }
 
 
 qkm =
