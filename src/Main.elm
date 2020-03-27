@@ -798,7 +798,8 @@ findId id =
 
 findNext : (OD -> Bool) -> OD -> Maybe OD
 findNext =
-    flip findX (firstOf [ firstChild, tryRight, tryRightOfAncestor ])
+    flip findX
+        (firstOf [ firstChild, tryRight, tryRightOfAncestor ])
 
 
 findPrev : (OD -> Bool) -> OD -> Maybe OD
