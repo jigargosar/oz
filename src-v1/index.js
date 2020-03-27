@@ -16,22 +16,30 @@ require('tachyons')
         ],
         oz: JSON.parse(localStorage.getItem('oz')) || null,
         od: JSON.parse(localStorage.getItem('od')) || null,
+        logDict: JSON.parse(localStorage.getItem('logDict') || '{}'),
+        projectDict: JSON.parse(
+          localStorage.getItem('projectDict') || '{}',
+        ),
+        changes: JSON.parse(localStorage.getItem('changes') || null),
       },
     },
-
+    // require('./MainV1.elm'),
     require('./OD.elm'),
   )
 
+  subscribe('getBeacons', function() {
+    const beaconEls = [...document.querySelectorAll('[data-beacon]')]
+    const beacons = beaconEls.map(beaconData)
+    app.ports.gotBeacons.send(beacons)
+  })
 
   subscribe('cacheKV', function([k,v]) {
     localStorage.setItem(k, JSON.stringify(v))
   })
 
-  subscribe('getBeacons', function() {
-      const beaconEls = [...document.querySelectorAll('[data-beacon]')]
-      const beacons = beaconEls.map(beaconData)
-      app.ports.gotBeacons.send(beacons)
-    })
+  subscribe('saveOZ', function(oz) {
+    localStorage.setItem("oz", JSON.stringify(oz))
+  })
 
   function beaconData(elem) {
     const boundingRect = elem.getBoundingClientRect()
