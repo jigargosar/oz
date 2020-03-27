@@ -2,9 +2,11 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Dom as Dom
+import File exposing (File)
 import File.Download as Download
+import File.Select as Select
 import Html exposing (Html, button, div, i, input, span, text)
-import Html.Attributes exposing (class, placeholder, tabindex, value)
+import Html.Attributes exposing (accesskey, class, placeholder, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
@@ -126,6 +128,8 @@ type alias Ret =
 type Msg
     = NoOp
     | Download
+    | Upload
+    | Uploaded File
     | OnFocusResult (Result Dom.Error ())
     | QueryChanged String
     | TitleChanged String
@@ -193,6 +197,16 @@ update message model =
 
         Download ->
             ( model, Download.string "draft.md" "text/markdown" "# header world" )
+
+        Upload ->
+            ( model, Select.file [ "application/zip" ] Uploaded )
+
+        Uploaded file ->
+            let
+                _ =
+                    Debug.log "file" file
+            in
+            ( model, Cmd.none )
 
         OnFocusResult (Ok ()) ->
             ( model, Cmd.none )
@@ -411,7 +425,10 @@ view : Model -> Html Msg
 view (Model state qs _) =
     div []
         [ div [ class "center measure-wide" ]
-            [ button [ onClick Download ] [ text "download" ]
+            [ button [ onClick Download, accesskey 's' ]
+                [ span [ class "underline" ] [ text "S" ], text "ave" ]
+            , button [ onClick Download, accesskey 'o' ]
+                [ span [ class "underline" ] [ text "O" ], text "pen" ]
             , div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
             , viewSearchQuery qs
             , viewOD qs state
