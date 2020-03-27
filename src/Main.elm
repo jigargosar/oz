@@ -320,11 +320,6 @@ mmQODFocus func model =
 
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
-    let
-        initEditState : OD -> State
-        initEditState od =
-            Edit (odTitle od) od
-    in
     case state of
         NoState od ->
             ( setState (initEditState od) model
@@ -353,34 +348,9 @@ onEnter ((Model state _ _) as model) =
                     )
 
 
-
---case nonBlank unsafeTitle of
---    Just title ->
---        let
---            setTitleThenAddNew : Generator State
---            setTitleThenAddNew =
---                odSetTitle title od
---                    |> addNew
---                    |> Random.map initEditState
---        in
---        ( stepSetState setTitleThenAddNew model
---        , focusPrimary
---        )
---
---    Nothing ->
---        let
---            removeLeafOrSetEmptyTitle : OD
---            removeLeafOrSetEmptyTitle =
---                case removeLeaf od of
---                    Just nod ->
---                        nod
---
---                    Nothing ->
---                        odSetTitle "" od
---        in
---        ( setNoState removeLeafOrSetEmptyTitle model
---        , focusPrimary
---        )
+initEditState : OD -> State
+initEditState od =
+    Edit (odTitle od) od
 
 
 setQ nqs (Model s _ seed) =
