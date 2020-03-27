@@ -917,10 +917,10 @@ tryUp (OD pcs cs (LTR l t r)) =
 
 
 tryDownVisible : OD -> Maybe OD
-tryDownVisible (OD pcs cs (LTR l t r)) =
-    treeWithVisibleChildren t
-        |> Maybe.andThen
-            (\(T item ts) ->
+tryDownVisible =
+    expandedWithChildren
+        >> Maybe.andThen
+            (\(OD pcs cs (LTR l (T item ts) r)) ->
                 case ts of
                     [] ->
                         Nothing
@@ -1194,20 +1194,6 @@ treeDecoder =
 treeFromId : Id -> T
 treeFromId id =
     T (itemFromId id) []
-
-
-treeHasVisibleChildren : T -> Bool
-treeHasVisibleChildren (T item ts) =
-    not (List.isEmpty ts) && itemExpanded item
-
-
-treeWithVisibleChildren : T -> Maybe T
-treeWithVisibleChildren t =
-    if treeHasVisibleChildren t then
-        Just t
-
-    else
-        Nothing
 
 
 isExpandedAndWithChildren : OD -> Bool
