@@ -425,24 +425,36 @@ keyMap =
 
         any =
             anyPass
+
+        enter =
+            key "Enter"
+
+        shiftEnter =
+            shift "Enter"
+
+        tab =
+            key "Tab"
+
+        shiftTab =
+            shift "Tab"
     in
     { query =
-        [ ( KeyEvent.hot "Enter", OnQueryEnter )
-        , ( KeyEvent.shift "Enter", OnQueryShiftEnter )
+        [ ( enter, OnQueryEnter )
+        , ( shiftEnter, OnQueryShiftEnter )
         ]
     , edit =
-        [ ( key "Enter", OnEnter )
-        , ( key "Tab", Indent )
-        , ( shift "Tab", UnIndent )
+        [ ( enter, OnEnter )
+        , ( tab, Indent )
+        , ( shiftTab, UnIndent )
         ]
     , focused =
-        [ ( key "Enter", OnEnter )
+        [ ( enter, OnEnter )
         , ( any [ key "ArrowUp", key "k" ], OnCursorUp )
         , ( any [ key "ArrowDown", key "j" ], OnCursorDown )
         , ( any [ key "ArrowLeft", key "h" ], OnCursorLeft )
         , ( any [ key "ArrowRight", key "l" ], OnCursorRight )
-        , ( key "Tab", Indent )
-        , ( shift "Tab", UnIndent )
+        , ( tab, Indent )
+        , ( shiftTab, UnIndent )
         , ( key "n", SearchForward )
         , ( shift "N", SearchBackward )
         , ( shift "ArrowRight", ZoomIn )
