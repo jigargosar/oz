@@ -793,33 +793,30 @@ odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
 
 findId : Id -> OD -> Maybe OD
 findId id =
-    firstRoot >> findNext (propEq odId id)
+    firstRoot >> findI (propEq odId id) next
 
 
-findNext : (OD -> Bool) -> OD -> Maybe OD
-findNext =
-    flip findX
-        (firstOf [ firstChild, tryRight, tryRightOfAncestor ])
+next : OD -> Maybe OD
+next =
+    firstOf [ firstChild, tryRight, tryRightOfAncestor ]
 
 
-findPrev : (OD -> Bool) -> OD -> Maybe OD
-findPrev =
-    flip findX
-        (firstOf
-            [ tryLeft >> Maybe.map (applyWhileJust lastChild)
-            , parent
-            ]
-        )
+prev : OD -> Maybe OD
+prev =
+    firstOf
+        [ tryLeft >> Maybe.map (applyWhileJust lastChild)
+        , parent
+        ]
 
 
 findNextWrap : (OD -> Bool) -> OD -> Maybe OD
 findNextWrap pred =
-    firstOf [ findNext pred, firstRoot >> findNext pred ]
+    firstOf [ findX pred next, firstRoot >> findI pred next ]
 
 
 findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
 findPrevWrap pred =
-    firstOf [ findPrev pred, lastDescendentOfLastRoot >> findPrev pred ]
+    firstOf [ findX pred prev, lastDescendentOfLastRoot >> findI pred prev ]
 
 
 lastDescendentOfLastRoot : OD -> OD
