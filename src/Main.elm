@@ -816,12 +816,10 @@ findNextWrap pred =
 
 findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
 findPrevWrap pred =
-    firstOf [ findX pred prev, lastDescendentOfLastRoot >> findI pred prev ]
-
-
-lastDescendentOfLastRoot : OD -> OD
-lastDescendentOfLastRoot =
-    lastRoot >> applyWhileJust lastChild
+    firstOf
+        [ findX pred prev
+        , lastRoot >> applyWhileJust lastChild >> findI pred prev
+        ]
 
 
 tryForward : OD -> Maybe OD
