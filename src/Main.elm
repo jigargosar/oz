@@ -1168,10 +1168,6 @@ hasChildren (T _ ts) =
     not (List.isEmpty ts)
 
 
-isLeaf =
-    hasChildren >> not
-
-
 hasVisibleChildren : T -> Bool
 hasVisibleChildren ((T item _) as t) =
     hasChildren t && itemExpanded item
