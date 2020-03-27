@@ -259,7 +259,7 @@ update message model =
             ( model, Cmd.none )
 
         OnCursorLeft ->
-            mmODFocus (firstOf [ tryCollapse, tryUp, tryLeft ]) model
+            mmODFocus (firstOf [ tryCollapse, parent, tryLeft ]) model
 
         OnCursorRight ->
             mmODFocus (firstOf [ tryExpand, tryForwardVisible ]) model
@@ -835,7 +835,7 @@ tryBackwardVisible : OD -> Maybe OD
 tryBackwardVisible =
     firstOf
         [ tryLeft >> Maybe.map (applyWhileJust (expandedAndWithChildren >> Maybe.andThen lastChild))
-        , tryUp
+        , parent
         ]
 
 
@@ -843,7 +843,7 @@ tryBackward : OD -> Maybe OD
 tryBackward =
     firstOf
         [ tryLeft >> Maybe.map (applyWhileJust lastChild)
-        , tryUp
+        , parent
         ]
 
 
@@ -907,8 +907,8 @@ tryLeft (OD pcs cs (LTR l t r)) =
             Nothing
 
 
-tryUp : OD -> Maybe OD
-tryUp (OD pcs cs (LTR l t r)) =
+parent : OD -> Maybe OD
+parent (OD pcs cs (LTR l t r)) =
     case cs of
         (Crumb cl item cr) :: rest ->
             LTR cl (T item (List.reverse l ++ t :: r)) cr
@@ -963,7 +963,7 @@ lastRoot =
 
 root : OD -> OD
 root =
-    applyWhileJust tryUp
+    applyWhileJust parent
 
 
 tryIndent : OD -> Maybe OD
