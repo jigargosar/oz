@@ -797,12 +797,8 @@ findId id =
 
 
 findNext : (OD -> Bool) -> OD -> Maybe OD
-findNext pred =
-    let
-        next =
-            firstOf [ firstChild, tryRight, tryRightOfAncestor ]
-    in
-    findX pred next
+findNext =
+    flip findX (firstOf [ firstChild, tryRight, tryRightOfAncestor ])
 
 
 findNextWrap : (OD -> Bool) -> OD -> Maybe OD
