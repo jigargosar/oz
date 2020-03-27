@@ -833,7 +833,10 @@ tryForward =
 
 tryBackwardVisible : OD -> Maybe OD
 tryBackwardVisible =
-    firstOf [ tryLeft >> Maybe.map lastDescendentVisible, tryUp ]
+    firstOf
+        [ tryLeft >> Maybe.map (applyWhileJust (expandedAndWithChildren >> Maybe.andThen lastChild))
+        , tryUp
+        ]
 
 
 tryBackward : OD -> Maybe OD
@@ -918,7 +921,7 @@ tryUp (OD pcs cs (LTR l t r)) =
 
 tryDownVisible : OD -> Maybe OD
 tryDownVisible =
-    expandedWithChildren
+    expandedAndWithChildren
         >> Maybe.andThen
             (\(OD pcs cs (LTR l (T item ts) r)) ->
                 case ts of
@@ -977,16 +980,6 @@ lastRoot =
 root : OD -> OD
 root =
     applyWhileJust tryUp
-
-
-lastDescendentVisible : OD -> OD
-lastDescendentVisible od =
-    case tryDownVisible od of
-        Just cod ->
-            lastDescendentVisible (applyWhileJust tryRight cod)
-
-        Nothing ->
-            od
 
 
 tryIndent : OD -> Maybe OD
@@ -1201,7 +1194,8 @@ isExpandedAndWithChildren (OD _ _ (LTR _ (T i ts) _)) =
     not (List.isEmpty ts) && itemExpanded i
 
 
-expandedWithChildren od =
+expandedAndWithChildren : OD -> Maybe OD
+expandedAndWithChildren od =
     if isExpandedAndWithChildren od then
         Just od
 
