@@ -1017,6 +1017,15 @@ removeLeaf ((OD _ _ (LTR _ t _)) as od) =
         removeGoLeftOrRightOrUp od
 
 
+removeBlankLeaf : OD -> Maybe OD
+removeBlankLeaf ((OD _ _ (LTR _ (T (Item _ _ title) ts) _)) as od) =
+    if isBlank title && List.isEmpty ts then
+        Nothing
+
+    else
+        removeGoLeftOrRightOrUp od
+
+
 removeGoLeftOrRightOrUp : OD -> Maybe OD
 removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
     case ( l, r, cs ) of
@@ -1157,6 +1166,10 @@ treeFromId id =
 hasChildren : T -> Bool
 hasChildren (T _ ts) =
     not (List.isEmpty ts)
+
+
+isLeaf =
+    hasChildren >> not
 
 
 hasVisibleChildren : T -> Bool
