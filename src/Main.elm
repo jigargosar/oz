@@ -218,7 +218,7 @@ update message model =
                     ( setQ "" model, focusPrimary )
 
                 Model (Edit _ od) _ _ ->
-                    case removeLeaf od of
+                    case removeBlankLeaf od of
                         Just nod ->
                             ( setNoState nod model, focusPrimary )
 
@@ -1025,10 +1025,10 @@ removeLeaf ((OD _ _ (LTR _ t _)) as od) =
 removeBlankLeaf : OD -> Maybe OD
 removeBlankLeaf ((OD _ _ (LTR _ (T (Item _ _ title) ts) _)) as od) =
     if isBlank title && List.isEmpty ts then
-        Nothing
+        removeGoLeftOrRightOrUp od
 
     else
-        removeGoLeftOrRightOrUp od
+        Nothing
 
 
 removeGoLeftOrRightOrUp : OD -> Maybe OD
