@@ -223,7 +223,7 @@ update message model =
                             ( setNoState nod model, focusPrimary )
 
                         Nothing ->
-                            ( model, Cmd.none )
+                            ( setNoState od model, focusPrimary )
 
         OnEscQ ->
             ( setQ "" model, focusPrimary )
