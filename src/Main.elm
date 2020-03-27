@@ -230,7 +230,7 @@ update message model =
             onEnter model
 
         IdClicked id ->
-            ( model, Cmd.none )
+            mmODFocus (findId id) model
 
         OnQueryEnter ->
             mmQOD searchForward model
@@ -763,6 +763,11 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
 odSetTitle : String -> OD -> OD
 odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
     OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
+
+
+findId : Id -> OD -> Maybe OD
+findId id =
+    firstRoot >> findNext (propEq odId id)
 
 
 findNext : (OD -> Bool) -> OD -> Maybe OD
