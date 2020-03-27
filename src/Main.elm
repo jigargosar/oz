@@ -762,12 +762,12 @@ addNew od =
 
 
 addNewHelp : ItemId -> OD -> OD
-addNewHelp id (OD pcs cs (LTR l t r)) =
+addNewHelp id ((OD pcs cs (LTR l t r)) as od) =
     let
         newT =
             treeFromId id
     in
-    if treeHasVisibleChildren t then
+    if isExpandedAndWithChildren od then
         -- prepend child
         let
             (T item children) =
@@ -1205,6 +1205,19 @@ treeWithVisibleChildren : T -> Maybe T
 treeWithVisibleChildren t =
     if treeHasVisibleChildren t then
         Just t
+
+    else
+        Nothing
+
+
+isExpandedAndWithChildren : OD -> Bool
+isExpandedAndWithChildren (OD _ _ (LTR _ (T i ts) _)) =
+    not (List.isEmpty ts) && itemExpanded i
+
+
+expandedWithChildren od =
+    if isExpandedAndWithChildren od then
+        Just od
 
     else
         Nothing
