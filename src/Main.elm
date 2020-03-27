@@ -129,7 +129,8 @@ type Msg
     = NoOp
     | Download
     | Upload
-    | Uploaded File
+    | GotFile File
+    | GotFileString String
     | OnFocusResult (Result Dom.Error ())
     | QueryChanged String
     | TitleChanged String
@@ -199,12 +200,15 @@ update message model =
             ( model, Download.string "draft.md" "text/markdown" "# header world" )
 
         Upload ->
-            ( model, Select.file [ "application/zip" ] Uploaded )
+            ( model, Select.file [] GotFile )
 
-        Uploaded file ->
+        GotFile file ->
+            ( model, File.toString file |> Task.perform GotFileString )
+
+        GotFileString fs ->
             let
                 _ =
-                    Debug.log "file" file
+                    Debug.log "fs" fs
             in
             ( model, Cmd.none )
 
@@ -427,7 +431,7 @@ view (Model state qs _) =
         [ div [ class "center measure-wide" ]
             [ button [ onClick Download, accesskey 's' ]
                 [ span [ class "underline" ] [ text "S" ], text "ave" ]
-            , button [ onClick Download, accesskey 'o' ]
+            , button [ onClick Upload, accesskey 'o' ]
                 [ span [ class "underline" ] [ text "O" ], text "pen" ]
             , div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
             , viewSearchQuery qs
