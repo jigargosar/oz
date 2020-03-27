@@ -357,6 +357,7 @@ initEdit od =
     Edit (odTitle od) od
 
 
+setQ : String -> Model -> Model
 setQ nqs (Model s _ seed) =
     Model s nqs seed
 
