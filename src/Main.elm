@@ -838,7 +838,7 @@ tryBackwardVisible =
 
 tryBackward : OD -> Maybe OD
 tryBackward =
-    firstOf [ tryLeft2 >> Maybe.map lastDescendent2, tryUp ]
+    firstOf [ tryLeft2 >> Maybe.map lastDescendent2, tryUp2 ]
 
 
 tryLeft2 : OD -> Maybe OD
