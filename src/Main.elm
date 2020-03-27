@@ -250,13 +250,13 @@ update message model =
             mmODFocus tryBackward model
 
         OnCursorUpRelocate ->
-            ( model, Cmd.none )
+            mmODFocus tryRelocateUp model
 
         OnCursorDown ->
             mmODFocus tryForward model
 
         OnCursorDownRelocate ->
-            ( model, Cmd.none )
+            mmODFocus tryRelocateDown model
 
         OnCursorLeft ->
             mmODFocus (firstOf [ tryCollapse, parent, tryLeft ]) model
@@ -1007,6 +1007,16 @@ tryUnIndent (OD pcs cs (LTR l t r)) =
             LTR (T item (List.reverse l ++ r) :: cl) t cr
                 |> OD pcs rest
                 |> Just
+
+
+tryRelocateUp : OD -> Maybe OD
+tryRelocateUp (OD pcs cs ltr) =
+    Nothing
+
+
+tryRelocateDown : OD -> Maybe OD
+tryRelocateDown (OD pcs cs ltr) =
+    Nothing
 
 
 tryZoomInParent : OD -> Maybe OD
