@@ -767,7 +767,7 @@ addNewHelp id (OD pcs cs (LTR l t r)) =
         newT =
             treeFromId id
     in
-    if hasVisibleChildren t then
+    if treeHasVisibleChildren t then
         -- prepend child
         let
             (T item children) =
@@ -918,7 +918,7 @@ tryUp (OD pcs cs (LTR l t r)) =
 
 tryDownVisible : OD -> Maybe OD
 tryDownVisible (OD pcs cs (LTR l t r)) =
-    visibleChildren t
+    treeWithVisibleChildren t
         |> Maybe.andThen
             (\(T item ts) ->
                 case ts of
@@ -1196,14 +1196,14 @@ treeFromId id =
     T (itemFromId id) []
 
 
-hasVisibleChildren : T -> Bool
-hasVisibleChildren (T item ts) =
+treeHasVisibleChildren : T -> Bool
+treeHasVisibleChildren (T item ts) =
     not (List.isEmpty ts) && itemExpanded item
 
 
-visibleChildren : T -> Maybe T
-visibleChildren t =
-    if hasVisibleChildren t then
+treeWithVisibleChildren : T -> Maybe T
+treeWithVisibleChildren t =
+    if treeHasVisibleChildren t then
         Just t
 
     else
