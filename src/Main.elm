@@ -9,7 +9,6 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import KeyEvent exposing (KeyEvent)
-import Maybe.Extra
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -320,32 +319,31 @@ mmQODFocus func model =
 
 onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
-    case state of
-        NoState od ->
-            ( setState (initEdit od) model
-            , focusPrimary
-            )
+    let
+        func =
+            case state of
+                NoState od ->
+                    setState (initEdit od)
 
-        Edit unsafeTitle od ->
-            let
-                tod =
-                    odSetTitle (String.trim unsafeTitle) od
-            in
-            case removeBlankLeaf tod of
-                Just nod ->
-                    ( setNoState nod model
-                    , focusPrimary
-                    )
+                Edit unsafeTitle od ->
+                    let
+                        tod =
+                            odSetTitle (String.trim unsafeTitle) od
+                    in
+                    case removeBlankLeaf tod of
+                        Just nod ->
+                            setNoState nod
 
-                Nothing ->
-                    ( stepSetState
-                        (tod
-                            |> addNew
-                            |> Random.map initEdit
-                        )
-                        model
-                    , focusPrimary
-                    )
+                        Nothing ->
+                            stepSetState
+                                (tod
+                                    |> addNew
+                                    |> Random.map initEdit
+                                )
+    in
+    ( func model
+    , focusPrimary
+    )
 
 
 initEdit : OD -> State
@@ -999,15 +997,6 @@ tryZoomOut (OD pcs cs ltr) =
 
         first :: rest ->
             OD rest (cs ++ [ first ]) ltr |> Just
-
-
-removeLeaf : OD -> Maybe OD
-removeLeaf ((OD _ _ (LTR _ t _)) as od) =
-    if hasChildren t then
-        Nothing
-
-    else
-        removeGoLeftOrRightOrUp od
 
 
 removeBlankLeaf : OD -> Maybe OD
