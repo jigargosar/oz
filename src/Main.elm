@@ -461,10 +461,10 @@ keyMap =
         ]
     , focused =
         [ ( enter, OnEnter )
-        , ( any [ key "ArrowUp", key "k" ], OnCursorUp )
-        , ( any [ key "ArrowDown", key "j" ], OnCursorDown )
-        , ( any [ key "ArrowLeft", key "h" ], OnCursorLeft )
-        , ( any [ key "ArrowRight", key "l" ], OnCursorRight )
+        , ( any [ up, key "k" ], OnCursorUp )
+        , ( any [ down, key "j" ], OnCursorDown )
+        , ( any [ left, key "h" ], OnCursorLeft )
+        , ( any [ right, key "l" ], OnCursorRight )
         , ( tab, Indent )
         , ( shiftTab, UnIndent )
         , ( key "n", SearchForward )
