@@ -377,7 +377,7 @@ searchForward =
 
 searchBackward : Query -> OD -> Maybe OD
 searchBackward =
-    matches >> findPrevWrap
+    matches >> findPrev
 
 
 matches : Query -> OD -> Bool
@@ -791,6 +791,11 @@ odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
     OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
 
 
+type FindDirection
+    = Next
+    | Previous
+
+
 findId : Id -> OD -> Maybe OD
 findId id =
     firstRoot >> findNext (propEq odId id)
@@ -805,6 +810,11 @@ findNext pred =
     findX pred next
 
 
+findNextWrap : (OD -> Bool) -> OD -> Maybe OD
+findNextWrap pred =
+    firstOf [ findNext pred, firstRoot >> findNext pred ]
+
+
 findPrev : (OD -> Bool) -> OD -> Maybe OD
 findPrev pred =
     let
@@ -814,17 +824,7 @@ findPrev pred =
                 , parent
                 ]
     in
-    findX pred prev
-
-
-findNextWrap : (OD -> Bool) -> OD -> Maybe OD
-findNextWrap pred =
-    firstOf [ findNext pred, firstRoot >> findNext pred ]
-
-
-findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
-findPrevWrap pred =
-    firstOf [ findPrev pred, lastDescendentOfLastRoot >> findPrev pred ]
+    firstOf [ findX pred prev, lastDescendentOfLastRoot >> findX pred prev ]
 
 
 lastDescendentOfLastRoot : OD -> OD
