@@ -9,6 +9,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import KeyEvent exposing (KeyEvent)
+import Maybe.Extra
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -838,36 +839,15 @@ tryBackwardVisible =
 
 tryBackward : OD -> Maybe OD
 tryBackward =
-    firstOf [ tryLeft2 >> Maybe.map lastDescendent2, tryUp2 ]
+    firstOf
+        [ tryLeft >> andThenApplyWhileJust (tryDown >> andThenApplyWhileJust tryRight)
+        , tryUp
+        ]
 
 
-tryLeft2 : OD -> Maybe OD
-tryLeft2 (OD pcs cs (LTR l t r)) =
-    case l of
-        first :: rest ->
-            LTR rest first (t :: r)
-                |> OD pcs cs
-                |> Just
-
-        [] ->
-            Nothing
-
-
-lastDescendent2 : OD -> OD
-lastDescendent2 =
-    applyWhileJust (tryDown >> Maybe.map (applyWhileJust tryRight))
-
-
-tryUp2 : OD -> Maybe OD
-tryUp2 (OD pcs cs (LTR l t r)) =
-    case cs of
-        (Crumb cl item cr) :: rest ->
-            LTR cl (T item (List.reverse l ++ t :: r)) cr
-                |> OD pcs rest
-                |> Just
-
-        [] ->
-            Nothing
+andThenApplyWhileJust : (a -> Maybe a) -> Maybe a -> Maybe a
+andThenApplyWhileJust func =
+    Maybe.map (applyWhileJust func)
 
 
 tryExpand : OD -> Maybe OD
