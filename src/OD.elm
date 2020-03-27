@@ -2,7 +2,6 @@ port module OD exposing (main)
 
 import Browser
 import Browser.Dom as Dom
-import CollapseState
 import Html exposing (Html, div, i, input, span, text)
 import Html.Attributes exposing (class, placeholder, tabindex, value)
 import Html.Events exposing (onInput)
@@ -413,6 +412,12 @@ viewSearchQuery qs =
 -- OD VM View
 
 
+type CollapseState
+    = NoChildren
+    | Collapsed
+    | Expanded
+
+
 type IV
     = IVEdit String
     | IVShow String
@@ -476,30 +481,30 @@ viewTV query tv =
         ( iv2, collapseState, tvs2 ) =
             case tv of
                 TVLeaf iv ->
-                    ( iv, CollapseState.NoChildren, [] )
+                    ( iv, NoChildren, [] )
 
                 TVCollapsed iv ->
-                    ( iv, CollapseState.Collapsed, [] )
+                    ( iv, Collapsed, [] )
 
                 TVExpanded iv tvs ->
-                    ( iv, CollapseState.Expanded, tvs )
+                    ( iv, Expanded, tvs )
 
         iconName =
             case collapseState of
-                CollapseState.NoChildren ->
+                NoChildren ->
                     "chevron_right"
 
-                CollapseState.Expanded ->
+                Expanded ->
                     "expand_more"
 
-                CollapseState.Collapsed ->
+                Collapsed ->
                     "chevron_right"
     in
     treeContainer
         [ div [ class "flex" ]
             [ i
                 [ class "self-start pt2 ph1 material-icons md-24 light-silver"
-                , classIf (collapseState == CollapseState.NoChildren) "o-0"
+                , classIf (collapseState == NoChildren) "o-0"
                 ]
                 [ text iconName ]
             , div [ class "flex-auto flex f4 lh-title" ]
@@ -971,7 +976,7 @@ removeGoLeftOrRightOrUp (OD pcs cs (LTR l _ r)) =
 
 
 odToTVL : IV -> OD -> List TV
-odToTVL iv (OD _ cs (LTR l (T ((Item _ collapsed _) as item) ts) r)) =
+odToTVL iv (OD _ cs (LTR l (T (Item _ collapsed _) ts) r)) =
     let
         tv =
             case ( ts, collapsed ) of
