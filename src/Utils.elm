@@ -232,3 +232,12 @@ findX pred nextValFunc val =
 
         Nothing ->
             Nothing
+
+
+findI : (a -> Bool) -> (a -> Maybe a) -> a -> Maybe a
+findI pred nextValFunc val =
+    if pred val then
+        Just val
+
+    else
+        findX pred nextValFunc val

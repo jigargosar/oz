@@ -811,7 +811,7 @@ findNextWrap pred =
         next =
             firstOf [ firstChild, tryRight, tryRightOfAncestor ]
     in
-    firstOf [ findX pred next, firstRoot >> findX pred next ]
+    firstOf [ findX pred next, firstRoot >> findI pred next ]
 
 
 findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
