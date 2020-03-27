@@ -449,6 +449,12 @@ keyMap =
 
         right =
             key "ArrowRight"
+
+        shiftRight =
+            shift "ArrowRight"
+
+        shiftLeft =
+            shift "ArrowLeft"
     in
     { query =
         [ ( enter, OnQueryEnter )
@@ -469,8 +475,8 @@ keyMap =
         , ( shiftTab, UnIndent )
         , ( key "n", SearchForward )
         , ( shift "N", SearchBackward )
-        , ( shift "ArrowRight", ZoomIn )
-        , ( shift "ArrowLeft", ZoomOut )
+        , ( shiftRight, ZoomIn )
+        , ( shiftLeft, ZoomOut )
         , ( key "/", FocusSearch )
         ]
     }
