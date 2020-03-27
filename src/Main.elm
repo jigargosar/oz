@@ -213,12 +213,14 @@ update message model =
             )
 
         OnEsc ->
-            case model of
+            ( case model of
                 Model (NoState _) _ _ ->
-                    ( setQ "" model, focusPrimary )
+                    setQ "" model
 
                 Model (Edit _ od) _ _ ->
-                    ( setNoState (ignoreNothing removeBlankLeaf od) model, focusPrimary )
+                    setNoState (ignoreNothing removeBlankLeaf od) model
+            , focusPrimary
+            )
 
         OnEscQ ->
             ( setQ "" model, focusPrimary )
