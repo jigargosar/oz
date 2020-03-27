@@ -218,7 +218,12 @@ update message model =
                     ( setQ "" model, focusPrimary )
 
                 Model (Edit _ od) _ _ ->
-                    ( setNoState od model, focusPrimary )
+                    case removeLeaf od of
+                        Just nod ->
+                            ( setNoState nod model, focusPrimary )
+
+                        Nothing ->
+                            ( model, Cmd.none )
 
         OnEscQ ->
             ( setQ "" model, focusPrimary )
