@@ -823,7 +823,11 @@ findPrev pred =
 
 tryForwardVisible : OD -> Maybe OD
 tryForwardVisible =
-    firstOf [ expandedAndWithChildren >> Maybe.andThen firstChild, tryRight, tryRightOfAncestor ]
+    firstOf
+        [ expandedAndWithChildren >> Maybe.andThen firstChild
+        , tryRight
+        , tryRightOfAncestor
+        ]
 
 
 tryForward : OD -> Maybe OD
