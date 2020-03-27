@@ -1162,15 +1162,6 @@ setItemExpanded =
 
 
 
---itemDisplayTitle : Item -> String
---itemDisplayTitle (Item _ _ ti) =
---    case nonBlank ti of
---        Just title ->
---            title
---
---        Nothing ->
---            "Untitled"
---
 -- Id
 
 
