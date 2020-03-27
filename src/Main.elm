@@ -855,12 +855,36 @@ tryLeft2 (OD pcs cs (LTR l t r)) =
 
 lastDescendent2 : OD -> OD
 lastDescendent2 od =
-    case tryDown od of
+    case tryDown2 od of
         Just cod ->
-            lastDescendent2 (applyWhileJust tryRight cod)
+            lastDescendent2 (applyWhileJust tryRight2 cod)
 
         Nothing ->
             od
+
+
+tryDown2 : OD -> Maybe OD
+tryDown2 (OD pcs cs (LTR l (T item ts) r)) =
+    case ts of
+        [] ->
+            Nothing
+
+        first :: rest ->
+            LTR [] first rest
+                |> OD pcs (Crumb l item r :: cs)
+                |> Just
+
+
+tryRight2 : OD -> Maybe OD
+tryRight2 (OD pcs cs (LTR l t r)) =
+    case r of
+        first :: rest ->
+            LTR (t :: l) first rest
+                |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
 
 
 tryUp2 : OD -> Maybe OD
