@@ -814,7 +814,7 @@ findPrevWrap pred =
 
 lastDescendentOfLastRoot : OD -> OD
 lastDescendentOfLastRoot =
-    lastRoot >> lastDescendent
+    lastRoot >> applyWhileJust lastChild
 
 
 findPrev : (OD -> Bool) -> OD -> Maybe OD
@@ -840,14 +840,21 @@ tryBackwardVisible =
 tryBackward : OD -> Maybe OD
 tryBackward =
     firstOf
-        [ tryLeft >> andThenApplyWhileJust (tryDown >> andThenApplyWhileJust tryRight)
+        [ tryLeft >> Maybe.map (applyWhileJust lastChild)
         , tryUp
         ]
 
 
-andThenApplyWhileJust : (a -> Maybe a) -> Maybe a -> Maybe a
-andThenApplyWhileJust func =
-    Maybe.map (applyWhileJust func)
+lastChild : OD -> Maybe OD
+lastChild (OD pcs cs (LTR l (T i ts) r)) =
+    case List.reverse ts of
+        first :: rest ->
+            LTR rest first []
+                |> OD pcs (Crumb l i r :: cs)
+                |> Just
+
+        [] ->
+            Nothing
 
 
 tryExpand : OD -> Maybe OD
@@ -971,16 +978,6 @@ lastRoot =
 root : OD -> OD
 root =
     applyWhileJust tryUp
-
-
-lastDescendent : OD -> OD
-lastDescendent od =
-    case tryDown od of
-        Just cod ->
-            lastDescendent (applyWhileJust tryRight cod)
-
-        Nothing ->
-            od
 
 
 lastDescendentVisible : OD -> OD
