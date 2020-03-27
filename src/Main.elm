@@ -126,13 +126,15 @@ type Msg
     = NoOp
     | OnFocusResult (Result Dom.Error ())
     | QueryChanged String
+    | TitleChanged String
+    | OnEsc
+    | OnEscQ
+    | OnEnter
     | OnQueryEnter
     | OnQueryShiftEnter
     | SearchForward
     | SearchBackward
     | FocusSearch
-    | OnEnter
-    | TitleChanged String
     | OnCursorUp
     | OnCursorDown
     | OnCursorLeft
@@ -209,6 +211,17 @@ update message model =
                     model
             , Cmd.none
             )
+
+        OnEsc ->
+            case model of
+                Model (NoState _) _ _ ->
+                    ( setQ "" model, focusPrimary )
+
+                Model (Edit _ od) _ _ ->
+                    ( setNoState od model, focusPrimary )
+
+        OnEscQ ->
+            ( setQ "" model, focusPrimary )
 
         OnEnter ->
             onEnter model
@@ -347,20 +360,8 @@ onEnter ((Model state _ _) as model) =
                     )
 
 
-setQOD qs od (Model _ _ seed) =
-    Model od qs seed
-
-
-onEscEdit od model =
-    ( setNoState od model, focusPrimary )
-
-
-onEscQuery od model =
-    ( setQOD "" od model, focusPrimary )
-
-
-onEsc od model =
-    ( setQOD "" od model, focusPrimary )
+setQ nqs (Model s _ seed) =
+    Model s nqs seed
 
 
 searchForward : Query -> OD -> Maybe OD
