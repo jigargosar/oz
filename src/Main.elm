@@ -437,6 +437,18 @@ keyMap =
 
         shiftTab =
             shift "Tab"
+
+        up =
+            key "ArrowUp"
+
+        down =
+            key "ArrowDown"
+
+        left =
+            key "ArrowLeft"
+
+        right =
+            key "ArrowRight"
     in
     { query =
         [ ( enter, OnQueryEnter )
