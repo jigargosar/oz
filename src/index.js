@@ -23,7 +23,7 @@ require('tachyons')
         changes: JSON.parse(localStorage.getItem('changes') || null),
       },
     },
-    // require('./Main.elm'),
+    // require('./MainV1.elm'),
     require('./OD.elm'),
   )
 

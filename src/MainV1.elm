@@ -1,4 +1,4 @@
-port module Main exposing (main)
+port module MainV1 exposing (main)
 
 import Browser
 import Browser.Dom as Dom
