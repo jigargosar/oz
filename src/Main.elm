@@ -138,6 +138,8 @@ type Msg
     | FocusSearch
     | OnCursorUp
     | OnCursorDown
+    | OnCursorUpRelocate
+    | OnCursorDownRelocate
     | OnCursorLeft
     | OnCursorRight
     | Indent
@@ -247,8 +249,14 @@ update message model =
         OnCursorUp ->
             mmODFocus tryBackwardVisible model
 
+        OnCursorUpRelocate ->
+            ( model, Cmd.none )
+
         OnCursorDown ->
             mmODFocus tryForwardVisible model
+
+        OnCursorDownRelocate ->
+            ( model, Cmd.none )
 
         OnCursorLeft ->
             mmODFocus (firstOf [ tryCollapse, tryUp, tryLeft ]) model
@@ -436,26 +444,41 @@ keyMap =
         shiftTab =
             shift "Tab"
 
+        aUp =
+            "ArrowUp"
+
+        aDown =
+            "ArrowDown"
+
+        aLeft =
+            "ArrowLeft"
+
+        aRight =
+            "ArrowRight"
+
         up =
-            key "ArrowUp"
+            key aUp
 
         down =
-            key "ArrowDown"
+            key aDown
 
         left =
-            key "ArrowLeft"
+            key aLeft
 
         right =
-            key "ArrowRight"
+            key aRight
 
         shiftRight =
-            shift "ArrowRight"
+            shift aRight
 
         shiftLeft =
-            shift "ArrowLeft"
+            shift aLeft
 
         esc =
             key "Escape"
+
+        ctrl =
+            KeyEvent.ctrl
     in
     { query =
         [ ( enter, OnQueryEnter )
@@ -472,7 +495,9 @@ keyMap =
         [ ( enter, OnEnter )
         , ( esc, OnEsc )
         , ( any [ up, key "k" ], OnCursorUp )
+        , ( any [ ctrl aUp, ctrl "k" ], OnCursorUpRelocate )
         , ( any [ down, key "j" ], OnCursorDown )
+        , ( any [ ctrl aDown, ctrl "j" ], OnCursorDownRelocate )
         , ( any [ left, key "h" ], OnCursorLeft )
         , ( any [ right, key "l" ], OnCursorRight )
         , ( tab, Indent )
@@ -953,7 +978,7 @@ lastDescendentVisible : OD -> OD
 lastDescendentVisible od =
     case tryDownVisible od of
         Just cod ->
-            lastDescendent (applyWhileJust tryRight cod)
+            lastDescendentVisible (applyWhileJust tryRight cod)
 
         Nothing ->
             od
