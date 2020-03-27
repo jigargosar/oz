@@ -614,7 +614,7 @@ viewIV (Query _) iv =
         IVEdit title ->
             input
                 [ Html.Attributes.id "primary-focus-node"
-                , class "flex-auto pa1 bn bw0 ma0"
+                , class "flex-auto pa1 bg-light-green bn bw0 ma0"
                 , tabindex 0
                 , value title
                 , onInput TitleChanged
