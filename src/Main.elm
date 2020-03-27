@@ -828,7 +828,7 @@ tryForwardVisible =
 
 tryForward : OD -> Maybe OD
 tryForward =
-    firstOf [ tryDown, tryRight, tryRightOfAncestor ]
+    firstOf [ firstChild, tryRight, tryRightOfAncestor ]
 
 
 tryBackwardVisible : OD -> Maybe OD
@@ -932,8 +932,8 @@ tryDownVisible =
             )
 
 
-tryDown : OD -> Maybe OD
-tryDown (OD pcs cs (LTR l (T item ts) r)) =
+firstChild : OD -> Maybe OD
+firstChild (OD pcs cs (LTR l (T item ts) r)) =
     case ts of
         [] ->
             Nothing
