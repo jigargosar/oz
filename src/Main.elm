@@ -455,18 +455,24 @@ keyMap =
 
         shiftLeft =
             shift "ArrowLeft"
+
+        esc =
+            key "Escape"
     in
     { query =
         [ ( enter, OnQueryEnter )
         , ( shiftEnter, OnQueryShiftEnter )
+        , ( esc, OnEscQ )
         ]
     , edit =
         [ ( enter, OnEnter )
+        , ( esc, OnEsc )
         , ( tab, Indent )
         , ( shiftTab, UnIndent )
         ]
     , focused =
         [ ( enter, OnEnter )
+        , ( esc, OnEsc )
         , ( any [ up, key "k" ], OnCursorUp )
         , ( any [ down, key "j" ], OnCursorDown )
         , ( any [ left, key "h" ], OnCursorLeft )
