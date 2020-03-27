@@ -407,6 +407,55 @@ view (Model state qs _) =
         ]
 
 
+qkm =
+    [ ( KeyEvent.hot "Enter", OnQueryEnter )
+    , ( KeyEvent.shift "Enter", OnQueryShiftEnter )
+    ]
+
+
+ekm =
+    let
+        key =
+            KeyEvent.hot
+
+        shift =
+            KeyEvent.shift
+
+        any =
+            anyPass
+    in
+    [ ( key "Enter", OnEnter )
+    , ( key "Tab", Indent )
+    , ( shift "Tab", UnIndent )
+    ]
+
+
+fkm =
+    let
+        key =
+            KeyEvent.hot
+
+        shift =
+            KeyEvent.shift
+
+        any =
+            anyPass
+    in
+    [ ( key "Enter", OnEnter )
+    , ( any [ key "ArrowUp", key "k" ], OnCursorUp )
+    , ( any [ key "ArrowDown", key "j" ], OnCursorDown )
+    , ( any [ key "ArrowLeft", key "h" ], OnCursorLeft )
+    , ( any [ key "ArrowRight", key "l" ], OnCursorRight )
+    , ( key "Tab", Indent )
+    , ( shift "Tab", UnIndent )
+    , ( key "n", SearchForward )
+    , ( shift "N", SearchBackward )
+    , ( shift "ArrowRight", ZoomIn )
+    , ( shift "ArrowLeft", ZoomOut )
+    , ( key "/", FocusSearch )
+    ]
+
+
 viewSearchQuery : String -> HM
 viewSearchQuery qs =
     div [ class "pv1 flex" ]
@@ -416,10 +465,7 @@ viewSearchQuery qs =
             , value qs
             , onInput QueryChanged
             , placeholder "Search..."
-            , onKeyDownHelp
-                [ ( KeyEvent.hot "Enter", OnQueryEnter )
-                , ( KeyEvent.shift "Enter", OnQueryShiftEnter )
-                ]
+            , onKeyDownHelp qkm
             ]
             []
         ]
@@ -535,16 +581,6 @@ viewTV query tv =
 
 viewIV : Query -> IV -> HM
 viewIV (Query _) iv =
-    let
-        key =
-            KeyEvent.hot
-
-        shift =
-            KeyEvent.shift
-
-        any =
-            anyPass
-    in
     case iv of
         IVEdit title ->
             input
@@ -553,11 +589,7 @@ viewIV (Query _) iv =
                 , tabindex 0
                 , value title
                 , onInput TitleChanged
-                , onKeyDownHelp
-                    [ ( key "Enter", OnEnter )
-                    , ( key "Tab", Indent )
-                    , ( shift "Tab", UnIndent )
-                    ]
+                , onKeyDownHelp ekm
                 ]
                 []
 
@@ -569,20 +601,7 @@ viewIV (Query _) iv =
                 [ Html.Attributes.id "primary-focus-node"
                 , class "flex-auto pa1 bg-lightest-blue"
                 , tabindex 0
-                , onKeyDownHelp
-                    [ ( key "Enter", OnEnter )
-                    , ( any [ key "ArrowUp", key "k" ], OnCursorUp )
-                    , ( any [ key "ArrowDown", key "j" ], OnCursorDown )
-                    , ( any [ key "ArrowLeft", key "h" ], OnCursorLeft )
-                    , ( any [ key "ArrowRight", key "l" ], OnCursorRight )
-                    , ( key "Tab", Indent )
-                    , ( shift "Tab", UnIndent )
-                    , ( key "n", SearchForward )
-                    , ( shift "N", SearchBackward )
-                    , ( shift "ArrowRight", ZoomIn )
-                    , ( shift "ArrowLeft", ZoomOut )
-                    , ( key "/", FocusSearch )
-                    ]
+                , onKeyDownHelp fkm
                 ]
                 [ displayTitleEl title ]
 
