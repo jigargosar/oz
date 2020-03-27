@@ -247,13 +247,13 @@ update message model =
             mmQODFocus searchBackward model
 
         OnCursorUp ->
-            mmODFocus tryBackwardVisible model
+            mmODFocus tryBackward model
 
         OnCursorUpRelocate ->
             ( model, Cmd.none )
 
         OnCursorDown ->
-            mmODFocus tryForwardVisible model
+            mmODFocus tryForward model
 
         OnCursorDownRelocate ->
             ( model, Cmd.none )
@@ -262,7 +262,7 @@ update message model =
             mmODFocus (firstOf [ tryCollapse, parent, tryLeft ]) model
 
         OnCursorRight ->
-            mmODFocus (firstOf [ tryExpand, tryForwardVisible ]) model
+            mmODFocus (firstOf [ tryExpand, tryForward ]) model
 
         ZoomIn ->
             mmODFocus (firstOf [ tryZoomIn, tryZoomInParent ]) model
@@ -824,8 +824,8 @@ lastDescendentOfLastRoot =
     lastRoot >> applyWhileJust lastChild
 
 
-tryForwardVisible : OD -> Maybe OD
-tryForwardVisible =
+tryForward : OD -> Maybe OD
+tryForward =
     firstOf
         [ expandedAndWithChildren >> Maybe.andThen firstChild
         , tryRight
@@ -833,8 +833,8 @@ tryForwardVisible =
         ]
 
 
-tryBackwardVisible : OD -> Maybe OD
-tryBackwardVisible =
+tryBackward : OD -> Maybe OD
+tryBackward =
     firstOf
         [ tryLeft
             >> Maybe.map
