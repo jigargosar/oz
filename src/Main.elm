@@ -791,11 +791,6 @@ odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
     OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
 
 
-type FindDirection
-    = Next
-    | Previous
-
-
 findId : Id -> OD -> Maybe OD
 findId id =
     firstRoot >> findNext (propEq odId id)
@@ -812,7 +807,11 @@ findNext pred =
 
 findNextWrap : (OD -> Bool) -> OD -> Maybe OD
 findNextWrap pred =
-    firstOf [ findNext pred, firstRoot >> findNext pred ]
+    let
+        next =
+            firstOf [ firstChild, tryRight, tryRightOfAncestor ]
+    in
+    firstOf [ findX pred next, firstRoot >> findX pred next ]
 
 
 findPrev : (OD -> Bool) -> OD -> Maybe OD
