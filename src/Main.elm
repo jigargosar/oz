@@ -9,7 +9,6 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import KeyEvent exposing (KeyEvent)
-import Maybe.Extra
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -1197,14 +1196,9 @@ treeFromId id =
     T (itemFromId id) []
 
 
-hasChildren : T -> Bool
-hasChildren (T _ ts) =
-    not (List.isEmpty ts)
-
-
 hasVisibleChildren : T -> Bool
-hasVisibleChildren ((T item _) as t) =
-    hasChildren t && itemExpanded item
+hasVisibleChildren (T item ts) =
+    not (List.isEmpty ts) && itemExpanded item
 
 
 visibleChildren : T -> Maybe T
