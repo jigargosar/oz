@@ -19,7 +19,7 @@ require('tachyons')
       },
     },
 
-    require('./OD.elm'),
+    require('./Main.elm'),
   )
 
 
