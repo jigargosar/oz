@@ -1130,12 +1130,6 @@ itemDecoder =
         |> requiredString "title"
 
 
-
---idOf : Item -> Id
---idOf (Item id _ _) =
---    id
-
-
 itemFromId : Id -> Item
 itemFromId id =
     Item id False ""
