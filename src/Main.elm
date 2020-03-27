@@ -791,32 +791,25 @@ odSetTitle title (OD pcs cs (LTR l (T (Item id collapsed _) ts) r)) =
     OD pcs cs (LTR l (T (Item id collapsed title) ts) r)
 
 
-findX : (a -> Maybe a) -> (a -> Bool) -> a -> Maybe a
-findX nextValFunc pred val =
-    case nextValFunc val of
-        Just nod ->
-            if pred nod then
-                Just nod
-
-            else
-                findX nextValFunc pred nod
-
-        Nothing ->
-            Nothing
-
-
-findI : (a -> Maybe a) -> (a -> Bool) -> a -> Maybe a
-findI nextValFunc pred val =
-    if pred val then
-        Just val
-
-    else
-        findX nextValFunc pred val
-
-
 findId : Id -> OD -> Maybe OD
 findId id =
     findFirst (propEq odId id)
+
+
+findNextWrap : (OD -> Bool) -> OD -> Maybe OD
+findNextWrap pred =
+    firstOf
+        [ findNext pred
+        , findFirst pred
+        ]
+
+
+findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
+findPrevWrap pred =
+    firstOf
+        [ findPrev pred
+        , findLast pred
+        ]
 
 
 findFirst : (OD -> Bool) -> OD -> Maybe OD
@@ -849,22 +842,6 @@ prev =
     firstOf
         [ tryLeft >> Maybe.map (applyWhileJust lastChild)
         , parent
-        ]
-
-
-findNextWrap : (OD -> Bool) -> OD -> Maybe OD
-findNextWrap pred =
-    firstOf
-        [ findNext pred
-        , findFirst pred
-        ]
-
-
-findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
-findPrevWrap pred =
-    firstOf
-        [ findPrev pred
-        , findLast pred
         ]
 
 

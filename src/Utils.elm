@@ -218,3 +218,26 @@ uncurry f ( a, b ) =
 
 eqById a b =
     a.id == b.id
+
+
+findX : (a -> Maybe a) -> (a -> Bool) -> a -> Maybe a
+findX nextValFunc pred val =
+    case nextValFunc val of
+        Just nod ->
+            if pred nod then
+                Just nod
+
+            else
+                findX nextValFunc pred nod
+
+        Nothing ->
+            Nothing
+
+
+findI : (a -> Maybe a) -> (a -> Bool) -> a -> Maybe a
+findI nextValFunc pred val =
+    if pred val then
+        Just val
+
+    else
+        findX nextValFunc pred val
