@@ -9,6 +9,7 @@ import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import KeyEvent exposing (KeyEvent)
+import Maybe.Extra
 import Random exposing (Generator, Seed)
 import Task
 import Utils exposing (..)
@@ -331,33 +332,55 @@ onEnter ((Model state _ _) as model) =
             )
 
         Edit unsafeTitle od ->
-            case nonBlank unsafeTitle of
-                Just title ->
-                    let
-                        setTitleThenAddNew : Generator State
-                        setTitleThenAddNew =
-                            odSetTitle title od
-                                |> addNew
-                                |> Random.map initEditState
-                    in
-                    ( stepSetState setTitleThenAddNew model
+            let
+                tod =
+                    odSetTitle (String.trim unsafeTitle) od
+            in
+            case removeBlankLeaf tod of
+                Just nod ->
+                    ( setNoState nod model
                     , focusPrimary
                     )
 
                 Nothing ->
-                    let
-                        removeLeafOrSetEmptyTitle : OD
-                        removeLeafOrSetEmptyTitle =
-                            case removeLeaf od of
-                                Just nod ->
-                                    nod
-
-                                Nothing ->
-                                    odSetTitle "" od
-                    in
-                    ( setNoState removeLeafOrSetEmptyTitle model
+                    ( stepSetState
+                        (tod
+                            |> addNew
+                            |> Random.map initEditState
+                        )
+                        model
                     , focusPrimary
                     )
+
+
+
+--case nonBlank unsafeTitle of
+--    Just title ->
+--        let
+--            setTitleThenAddNew : Generator State
+--            setTitleThenAddNew =
+--                odSetTitle title od
+--                    |> addNew
+--                    |> Random.map initEditState
+--        in
+--        ( stepSetState setTitleThenAddNew model
+--        , focusPrimary
+--        )
+--
+--    Nothing ->
+--        let
+--            removeLeafOrSetEmptyTitle : OD
+--            removeLeafOrSetEmptyTitle =
+--                case removeLeaf od of
+--                    Just nod ->
+--                        nod
+--
+--                    Nothing ->
+--                        odSetTitle "" od
+--        in
+--        ( setNoState removeLeafOrSetEmptyTitle model
+--        , focusPrimary
+--        )
 
 
 setQ nqs (Model s _ seed) =
