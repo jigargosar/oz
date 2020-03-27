@@ -408,14 +408,14 @@ view (Model state qs _) =
 
 
 type alias KeyMap =
-    { si : List ( KeyEvent -> Bool, Msg )
-    , ei : List ( KeyEvent -> Bool, Msg )
-    , fi : List ( KeyEvent -> Bool, Msg )
+    { query : List ( KeyEvent -> Bool, Msg )
+    , edit : List ( KeyEvent -> Bool, Msg )
+    , focused : List ( KeyEvent -> Bool, Msg )
     }
 
 
-km : KeyMap
-km =
+keyMap : KeyMap
+keyMap =
     let
         key =
             KeyEvent.hot
@@ -426,16 +426,16 @@ km =
         any =
             anyPass
     in
-    { si =
+    { query =
         [ ( KeyEvent.hot "Enter", OnQueryEnter )
         , ( KeyEvent.shift "Enter", OnQueryShiftEnter )
         ]
-    , ei =
+    , edit =
         [ ( key "Enter", OnEnter )
         , ( key "Tab", Indent )
         , ( shift "Tab", UnIndent )
         ]
-    , fi =
+    , focused =
         [ ( key "Enter", OnEnter )
         , ( any [ key "ArrowUp", key "k" ], OnCursorUp )
         , ( any [ key "ArrowDown", key "j" ], OnCursorDown )
