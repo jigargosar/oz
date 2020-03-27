@@ -377,7 +377,7 @@ searchForward =
 
 searchBackward : Query -> OD -> Maybe OD
 searchBackward =
-    matches >> findPrev
+    matches >> findPrevWrap
 
 
 matches : Query -> OD -> Bool
@@ -814,8 +814,8 @@ findNextWrap pred =
     firstOf [ findX pred next, firstRoot >> findX pred next ]
 
 
-findPrev : (OD -> Bool) -> OD -> Maybe OD
-findPrev pred =
+findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
+findPrevWrap pred =
     let
         prev =
             firstOf
