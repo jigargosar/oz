@@ -4,7 +4,7 @@ import Browser
 import Browser.Dom as Dom
 import Html exposing (Html, div, i, input, span, text)
 import Html.Attributes exposing (class, placeholder, tabindex, value)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onClick, onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -130,6 +130,7 @@ type Msg
     | OnEsc
     | OnEscQ
     | OnEnter
+    | IdClicked Id
     | OnQueryEnter
     | OnQueryShiftEnter
     | SearchForward
@@ -227,6 +228,9 @@ update message model =
 
         OnEnter ->
             onEnter model
+
+        IdClicked id ->
+            ( model, Cmd.none )
 
         OnQueryEnter ->
             mmQOD searchForward model
@@ -508,7 +512,7 @@ type CollapseState
 
 type IV
     = IVEdit String
-    | IVShow String
+    | IVShow Id String
     | IVFocused String
 
 
@@ -618,8 +622,12 @@ viewIV (Query _) iv =
                 ]
                 []
 
-        IVShow title ->
-            div [ class "flex-auto pa1" ] [ displayTitleEl title ]
+        IVShow id title ->
+            div
+                [ class "flex-auto pa1"
+                , onClick (IdClicked id)
+                ]
+                [ displayTitleEl title ]
 
         IVFocused title ->
             div
@@ -627,6 +635,7 @@ viewIV (Query _) iv =
                 , class "flex-auto pa1 bg-lightest-blue"
                 , tabindex 0
                 , onKeyDownHelp keyMap.focused
+                , onClick OnEnter
                 ]
                 [ displayTitleEl title ]
 
@@ -1068,8 +1077,8 @@ type LVR
 
 
 crumbToLVR : Crumb -> LVR -> LVR
-crumbToLVR (Crumb l (Item _ _ title) r) lvr =
-    LVR l (TVExpanded (IVShow title) (lvrToTVL lvr)) r
+crumbToLVR (Crumb l (Item id _ title) r) lvr =
+    LVR l (TVExpanded (IVShow id title) (lvrToTVL lvr)) r
 
 
 lvrToTVL : LVR -> List TV
@@ -1078,16 +1087,20 @@ lvrToTVL (LVR l tv r) =
 
 
 toTV : T -> TV
-toTV (T (Item _ collapsed title) ts) =
+toTV (T (Item id collapsed title) ts) =
+    let
+        iv =
+            IVShow id title
+    in
     case ( ts, collapsed ) of
         ( [], _ ) ->
-            TVLeaf (IVShow title)
+            TVLeaf iv
 
         ( _, True ) ->
-            TVCollapsed (IVShow title)
+            TVCollapsed iv
 
         ( _, False ) ->
-            TVExpanded (IVShow title) (List.map toTV ts)
+            TVExpanded iv (List.map toTV ts)
 
 
 
