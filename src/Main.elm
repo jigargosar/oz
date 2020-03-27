@@ -838,7 +838,41 @@ tryBackwardVisible =
 
 tryBackward : OD -> Maybe OD
 tryBackward =
-    firstOf [ tryLeft >> Maybe.map lastDescendent, tryUp ]
+    firstOf [ tryLeft2 >> Maybe.map lastDescendent2, tryUp ]
+
+
+tryLeft2 : OD -> Maybe OD
+tryLeft2 (OD pcs cs (LTR l t r)) =
+    case l of
+        first :: rest ->
+            LTR rest first (t :: r)
+                |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
+
+
+lastDescendent2 : OD -> OD
+lastDescendent2 od =
+    case tryDown od of
+        Just cod ->
+            lastDescendent2 (applyWhileJust tryRight cod)
+
+        Nothing ->
+            od
+
+
+tryUp2 : OD -> Maybe OD
+tryUp2 (OD pcs cs (LTR l t r)) =
+    case cs of
+        (Crumb cl item cr) :: rest ->
+            LTR cl (T item (List.reverse l ++ t :: r)) cr
+                |> OD pcs rest
+                |> Just
+
+        [] ->
+            Nothing
 
 
 tryExpand : OD -> Maybe OD
