@@ -801,25 +801,24 @@ findNext =
     flip findX (firstOf [ firstChild, tryRight, tryRightOfAncestor ])
 
 
+findPrev : (OD -> Bool) -> OD -> Maybe OD
+findPrev =
+    flip findX
+        (firstOf
+            [ tryLeft >> Maybe.map (applyWhileJust lastChild)
+            , parent
+            ]
+        )
+
+
 findNextWrap : (OD -> Bool) -> OD -> Maybe OD
 findNextWrap pred =
-    let
-        next =
-            firstOf [ firstChild, tryRight, tryRightOfAncestor ]
-    in
-    firstOf [ findX pred next, firstRoot >> findX pred next ]
+    firstOf [ findNext pred, firstRoot >> findNext pred ]
 
 
 findPrevWrap : (OD -> Bool) -> OD -> Maybe OD
 findPrevWrap pred =
-    let
-        prev =
-            firstOf
-                [ tryLeft >> Maybe.map (applyWhileJust lastChild)
-                , parent
-                ]
-    in
-    firstOf [ findX pred prev, lastDescendentOfLastRoot >> findX pred prev ]
+    firstOf [ findPrev pred, lastDescendentOfLastRoot >> findPrev pred ]
 
 
 lastDescendentOfLastRoot : OD -> OD
