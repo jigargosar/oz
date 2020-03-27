@@ -821,6 +821,19 @@ findPrev pred =
     findX pred tryBackward
 
 
+tryForward : OD -> Maybe OD
+tryForward =
+    firstOf [ firstChild, tryRight, tryRightOfAncestor ]
+
+
+tryBackward : OD -> Maybe OD
+tryBackward =
+    firstOf
+        [ tryLeft >> Maybe.map (applyWhileJust lastChild)
+        , parent
+        ]
+
+
 tryForwardVisible : OD -> Maybe OD
 tryForwardVisible =
     firstOf
@@ -830,23 +843,14 @@ tryForwardVisible =
         ]
 
 
-tryForward : OD -> Maybe OD
-tryForward =
-    firstOf [ firstChild, tryRight, tryRightOfAncestor ]
-
-
 tryBackwardVisible : OD -> Maybe OD
 tryBackwardVisible =
     firstOf
-        [ tryLeft >> Maybe.map (applyWhileJust (expandedAndWithChildren >> Maybe.andThen lastChild))
-        , parent
-        ]
-
-
-tryBackward : OD -> Maybe OD
-tryBackward =
-    firstOf
-        [ tryLeft >> Maybe.map (applyWhileJust lastChild)
+        [ tryLeft
+            >> Maybe.map
+                (applyWhileJust
+                    (expandedAndWithChildren >> Maybe.andThen lastChild)
+                )
         , parent
         ]
 
