@@ -823,7 +823,7 @@ findPrev pred =
 
 tryForwardVisible : OD -> Maybe OD
 tryForwardVisible =
-    firstOf [ tryDownVisible, tryRight, tryRightOfAncestor ]
+    firstOf [ expandedAndWithChildren >> Maybe.andThen firstChild, tryRight, tryRightOfAncestor ]
 
 
 tryForward : OD -> Maybe OD
@@ -917,22 +917,6 @@ tryUp (OD pcs cs (LTR l t r)) =
 
         [] ->
             Nothing
-
-
-tryDownVisible : OD -> Maybe OD
-tryDownVisible =
-    expandedAndWithChildren
-        >> Maybe.andThen
-            (\(OD pcs cs (LTR l (T item ts) r)) ->
-                case ts of
-                    [] ->
-                        Nothing
-
-                    first :: rest ->
-                        LTR [] first rest
-                            |> OD pcs (Crumb l item r :: cs)
-                            |> Just
-            )
 
 
 firstChild : OD -> Maybe OD
