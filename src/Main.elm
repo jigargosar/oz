@@ -798,7 +798,19 @@ findId id =
 
 findNext : (OD -> Bool) -> OD -> Maybe OD
 findNext pred =
-    findX pred tryForward
+    findX pred (firstOf [ firstChild, tryRight, tryRightOfAncestor ])
+
+
+findPrev : (OD -> Bool) -> OD -> Maybe OD
+findPrev pred =
+    let
+        backward =
+            firstOf
+                [ tryLeft >> Maybe.map (applyWhileJust lastChild)
+                , parent
+                ]
+    in
+    findX pred backward
 
 
 findNextWrap : (OD -> Bool) -> OD -> Maybe OD
@@ -814,24 +826,6 @@ findPrevWrap pred =
 lastDescendentOfLastRoot : OD -> OD
 lastDescendentOfLastRoot =
     lastRoot >> applyWhileJust lastChild
-
-
-findPrev : (OD -> Bool) -> OD -> Maybe OD
-findPrev pred =
-    findX pred tryBackward
-
-
-tryForward : OD -> Maybe OD
-tryForward =
-    firstOf [ firstChild, tryRight, tryRightOfAncestor ]
-
-
-tryBackward : OD -> Maybe OD
-tryBackward =
-    firstOf
-        [ tryLeft >> Maybe.map (applyWhileJust lastChild)
-        , parent
-        ]
 
 
 tryForwardVisible : OD -> Maybe OD
