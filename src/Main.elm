@@ -322,7 +322,7 @@ onEnter : Model -> Ret
 onEnter ((Model state _ _) as model) =
     case state of
         NoState od ->
-            ( setState (initEditState od) model
+            ( setState (initEdit od) model
             , focusPrimary
             )
 
@@ -341,15 +341,15 @@ onEnter ((Model state _ _) as model) =
                     ( stepSetState
                         (tod
                             |> addNew
-                            |> Random.map initEditState
+                            |> Random.map initEdit
                         )
                         model
                     , focusPrimary
                     )
 
 
-initEditState : OD -> State
-initEditState od =
+initEdit : OD -> State
+initEdit od =
     Edit (odTitle od) od
 
 
