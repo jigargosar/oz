@@ -347,6 +347,22 @@ onEnter ((Model state _ _) as model) =
                     )
 
 
+setQOD qs od (Model _ _ seed) =
+    Model od qs seed
+
+
+onEscEdit od model =
+    ( setNoState od model, focusPrimary )
+
+
+onEscQuery od model =
+    ( setQOD "" od model, focusPrimary )
+
+
+onEsc od model =
+    ( setQOD "" od model, focusPrimary )
+
+
 searchForward : Query -> OD -> Maybe OD
 searchForward =
     matches >> findNextWrap
