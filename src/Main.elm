@@ -452,55 +452,6 @@ keyMap =
     }
 
 
-qkm =
-    [ ( KeyEvent.hot "Enter", OnQueryEnter )
-    , ( KeyEvent.shift "Enter", OnQueryShiftEnter )
-    ]
-
-
-ekm =
-    let
-        key =
-            KeyEvent.hot
-
-        shift =
-            KeyEvent.shift
-
-        any =
-            anyPass
-    in
-    [ ( key "Enter", OnEnter )
-    , ( key "Tab", Indent )
-    , ( shift "Tab", UnIndent )
-    ]
-
-
-fkm =
-    let
-        key =
-            KeyEvent.hot
-
-        shift =
-            KeyEvent.shift
-
-        any =
-            anyPass
-    in
-    [ ( key "Enter", OnEnter )
-    , ( any [ key "ArrowUp", key "k" ], OnCursorUp )
-    , ( any [ key "ArrowDown", key "j" ], OnCursorDown )
-    , ( any [ key "ArrowLeft", key "h" ], OnCursorLeft )
-    , ( any [ key "ArrowRight", key "l" ], OnCursorRight )
-    , ( key "Tab", Indent )
-    , ( shift "Tab", UnIndent )
-    , ( key "n", SearchForward )
-    , ( shift "N", SearchBackward )
-    , ( shift "ArrowRight", ZoomIn )
-    , ( shift "ArrowLeft", ZoomOut )
-    , ( key "/", FocusSearch )
-    ]
-
-
 viewSearchQuery : String -> HM
 viewSearchQuery qs =
     div [ class "pv1 flex" ]
@@ -510,7 +461,7 @@ viewSearchQuery qs =
             , value qs
             , onInput QueryChanged
             , placeholder "Search..."
-            , onKeyDownHelp qkm
+            , onKeyDownHelp keyMap.query
             ]
             []
         ]
@@ -634,7 +585,7 @@ viewIV (Query _) iv =
                 , tabindex 0
                 , value title
                 , onInput TitleChanged
-                , onKeyDownHelp ekm
+                , onKeyDownHelp keyMap.edit
                 ]
                 []
 
@@ -646,7 +597,7 @@ viewIV (Query _) iv =
                 [ Html.Attributes.id "primary-focus-node"
                 , class "flex-auto pa1 bg-lightest-blue"
                 , tabindex 0
-                , onKeyDownHelp fkm
+                , onKeyDownHelp keyMap.focused
                 ]
                 [ displayTitleEl title ]
 
