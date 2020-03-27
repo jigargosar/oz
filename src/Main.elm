@@ -250,13 +250,13 @@ update message model =
             mmODFocus tryBackward model
 
         OnCursorUpRelocate ->
-            mmODFocus tryRelocateUp model
+            mmODFocus relocateBefore model
 
         OnCursorDown ->
             mmODFocus tryForward model
 
         OnCursorDownRelocate ->
-            mmODFocus tryRelocateDown model
+            mmODFocus relocateAfter model
 
         OnCursorLeft ->
             mmODFocus (firstOf [ tryCollapse, parent, tryLeft ]) model
@@ -1009,14 +1009,28 @@ tryUnIndent (OD pcs cs (LTR l t r)) =
                 |> Just
 
 
-tryRelocateUp : OD -> Maybe OD
-tryRelocateUp (OD pcs cs ltr) =
-    Nothing
+relocateBefore : OD -> Maybe OD
+relocateBefore (OD pcs cs (LTR l t r)) =
+    case l of
+        first :: rest ->
+            LTR rest t (first :: r)
+                |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
 
 
-tryRelocateDown : OD -> Maybe OD
-tryRelocateDown (OD pcs cs ltr) =
-    Nothing
+relocateAfter : OD -> Maybe OD
+relocateAfter (OD pcs cs (LTR l t r)) =
+    case r of
+        first :: rest ->
+            LTR (first :: l) t rest
+                |> OD pcs cs
+                |> Just
+
+        [] ->
+            Nothing
 
 
 tryZoomInParent : OD -> Maybe OD
