@@ -3,9 +3,9 @@ import { anyPass, pathOr, whereEq } from 'ramda'
 require('./styles.css')
 require('tachyons')
 
-function parseOrNull(str) {
+function parseTruthyOrNull(str) {
   try {
-    return JSON.parse(str)
+    return JSON.parse(str) || null
   } catch (e) {
     return null
   }
@@ -22,8 +22,8 @@ function parseOrNull(str) {
           window.innerWidth - document.body.clientWidth,
           window.innerHeight - document.body.clientHeight,
         ],
-        oz: parseOrNull(localStorage.getItem('oz')) || null,
-        od: parseOrNull(localStorage.getItem('od')) || null,
+        oz: parseTruthyOrNull(localStorage.getItem('oz')),
+        od: parseTruthyOrNull(localStorage.getItem('od')),
       },
     },
 
