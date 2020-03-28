@@ -26,7 +26,7 @@ function Cache(keys) {
     },
     getAll: () => {
       const getParsed = key => parseTruthyOrNull(localStorage.getItem(key))
-      return tap(console.log)(fromKeys(getParsed)(keys))
+      return fromKeys(getParsed)(keys)
     },
   }
 }
@@ -44,13 +44,12 @@ function Cache(keys) {
           window.innerHeight - document.body.clientHeight,
         ],
         ...cache.getAll(),
-        oz: parseTruthyOrNull(localStorage.getItem('oz')),
-        od: parseTruthyOrNull(localStorage.getItem('od')),
       },
     },
 
     require('./Main.elm'),
   )
+  subscribe('cacheKV', cache.onCacheKV)
 
   window.addEventListener('keydown', function(e) {
     const { ctrl } = HotKey
@@ -61,8 +60,6 @@ function Cache(keys) {
       e.preventDefault()
     }
   })
-
-  subscribe('cacheKV', cache.onCacheKV)
 
   // subscribe('getBeacons', function() {
   //   const beaconEls = [...document.querySelectorAll('[data-beacon]')]
