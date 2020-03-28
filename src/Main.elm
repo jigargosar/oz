@@ -603,7 +603,11 @@ viewAppBar =
             , accesskey 's'
             ]
             [ i [ class "material-icons" ] [ text "save_alt" ] ]
-        , button [ onClick Upload, accesskey 'o' ]
+        , button
+            [ class "bg-inherit color-inherit pa1 ma0 bn flex"
+            , onClick Upload
+            , accesskey 'o'
+            ]
             [ i [ class "material-icons" ] [ text "folder_open" ] ]
         ]
 
