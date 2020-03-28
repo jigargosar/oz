@@ -1,4 +1,4 @@
-import { pathOr , omit, allPass} from 'ramda'
+import { pathOr, omit, allPass } from 'ramda'
 
 require('./styles.css')
 require('tachyons')
@@ -21,29 +21,31 @@ require('tachyons')
 
     require('./Main.elm'),
   )
+  const onlySK = osk => e =>{
+    const softKeys = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
+    const func = allPass(sk => (osk.includes(sk) ? e[sk] : !e[sk]))
+    return func(softKeys)
+  }
 
-  window.addEventListener("keydown", function(e) {
-    const softKeys = ["ctrlKey", "shiftKey","altKey","metaKey"]
-    const onlySK = ok => allPass((sk) => ok.includes(sk) ? e[sk] : !e[sk] )(softKeys)
+  window.addEventListener('keydown', function(e) {
     const ctrl = k => e.key === k && onlySK(['ctrlKey'])
 
-    if (ctrl('o')){
+    if (ctrl('o')) {
       e.preventDefault()
-    }
-    else if (e.ctrlKey && e.key === 's'){
+    } else if (e.ctrlKey && e.key === 's') {
       e.preventDefault()
     }
   })
 
-  subscribe('cacheKV', function([k,v]) {
+  subscribe('cacheKV', function([k, v]) {
     localStorage.setItem(k, JSON.stringify(v))
   })
 
   subscribe('getBeacons', function() {
-      const beaconEls = [...document.querySelectorAll('[data-beacon]')]
-      const beacons = beaconEls.map(beaconData)
-      app.ports.gotBeacons.send(beacons)
-    })
+    const beaconEls = [...document.querySelectorAll('[data-beacon]')]
+    const beacons = beaconEls.map(beaconData)
+    app.ports.gotBeacons.send(beacons)
+  })
 
   function beaconData(elem) {
     const boundingRect = elem.getBoundingClientRect()
