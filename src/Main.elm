@@ -147,6 +147,7 @@ type Msg
     | SearchForward
     | SearchBackward
     | FocusSearch
+    | FocusPrimary
     | OnCursorUp
     | OnCursorDown
     | OnCursorUpRelocate
@@ -255,6 +256,9 @@ update message model =
 
         FocusSearch ->
             ( model, focusSearch )
+
+        FocusPrimary ->
+            ( model, focusPrimary )
 
         QueryChanged nqs ->
             ( case model of
