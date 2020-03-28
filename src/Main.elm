@@ -291,7 +291,18 @@ update message model =
             onEnter model
 
         NewBefore ->
-            ( model, Cmd.none )
+            case model of
+                Model (NoState od) _ _ ->
+                    ( stepSetState
+                        (addNewBefore od
+                            |> Random.map initEdit
+                        )
+                        model
+                    , focusPrimary
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         NewAfter ->
             ( model, Cmd.none )
