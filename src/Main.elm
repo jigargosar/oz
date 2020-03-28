@@ -353,6 +353,22 @@ update message model =
             mmODFocus tryUnIndent model
 
 
+ane : AddNew -> Model -> Ret
+ane addKind ((Model state _ _) as model) =
+    case state of
+        NoState od ->
+            ( stepSetState
+                (addNew addKind od
+                    |> Random.map initEdit
+                )
+                model
+            , focusPrimary
+            )
+
+        _ ->
+            ( model, Cmd.none )
+
+
 mmODFocus : (OD -> Maybe OD) -> Model -> Ret
 mmODFocus func model =
     case model of
