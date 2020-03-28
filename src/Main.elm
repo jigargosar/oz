@@ -203,11 +203,11 @@ update message model =
 
         DownloadNow now ->
             let
-                nowFormatted =
+                formattedNow =
                     Time.posixToMillis now |> String.fromInt
 
                 fileName =
-                    "oz_" ++ nowFormatted ++ ".json"
+                    "oz_" ++ formattedNow ++ ".json"
             in
             ( model, Download.string fileName "application/json" "# header world" )
 
