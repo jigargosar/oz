@@ -581,7 +581,7 @@ view : Model -> Html Msg
 view (Model state qs _) =
     div []
         [ div [ class "center measure-wide" ]
-            [ viewAppBar
+            [ viewAppBar qs
             , button [ onClick Download, accesskey 's' ]
                 [ i [ class "material-icons" ] [ text "save_alt" ] ]
             , button [ onClick Upload, accesskey 'o' ]
@@ -593,20 +593,24 @@ view (Model state qs _) =
         ]
 
 
-viewAppBar =
+viewAppBar qs =
     div [ class "pv2 flex items-center f4 bg-washed-blue black" ]
-        [ div [ class "ph1" ] [ text "OZ" ]
+        [ div [ class "ph2" ] [ text "OZ" ]
         , div [ class "ph1 flex-auto flex" ]
             [ input
-                [ class "flex-grow-1"
-                , placeholder "Search"
+                [ Html.Attributes.id "search-input"
+                , class "flex-grow-1 ph1"
+                , placeholder "Search..."
+                , onInput QueryChanged
+                , value qs
+                , onKeyDownHelp keyMap.query
+                , autofocus True
                 ]
                 []
             ]
         , button
-            [ class "bg-inherit color-inherit pa1 ma0 bn flex"
+            [ class "bg-inherit color-inherit pa1 ma1 bn flex"
             , onClick Download
-            , autofocus True
             , accesskey 's'
             ]
             [ i [ class "material-icons" ] [ text "save_alt" ] ]
