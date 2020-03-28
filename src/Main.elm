@@ -918,6 +918,25 @@ newHelp id =
     OD [] [] (LTR [] (treeFromId id) [])
 
 
+type AddNew
+    = AddNew
+    | AddBefore
+    | AddAfter
+
+
+add : AddNew -> OD -> Generator OD
+add addType od =
+    case addType of
+        AddNew ->
+            idGen |> Random.map (flip addNewHelp od)
+
+        AddBefore ->
+            addGen addBefore od
+
+        AddAfter ->
+            addGen addAfter od
+
+
 addNew : OD -> Generator OD
 addNew od =
     idGen |> Random.map (flip addNewHelp od)
