@@ -582,17 +582,12 @@ view (Model state qs _) =
     div []
         [ div [ class "center measure-wide" ]
             [ viewAppBar qs
-            , button [ onClick Download, accesskey 's' ]
-                [ i [ class "material-icons" ] [ text "save_alt" ] ]
-            , button [ onClick Upload, accesskey 'o' ]
-                [ i [ class "material-icons" ] [ text "folder_open" ] ]
-            , div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
-            , viewSearchQuery qs
             , viewOD qs state
             ]
         ]
 
 
+viewAppBar : String -> HM
 viewAppBar qs =
     div [ class "pv2 flex items-center f4 bg-washed-blue black" ]
         [ div [ class "ph2" ] [ text "OZ" ]
@@ -620,21 +615,6 @@ viewAppBar qs =
             , accesskey 'o'
             ]
             [ i [ class "material-icons" ] [ text "folder_open" ] ]
-        ]
-
-
-viewSearchQuery : String -> HM
-viewSearchQuery qs =
-    div [ class "pv1 flex" ]
-        [ input
-            [ Html.Attributes.id "search-input"
-            , class "flex-auto"
-            , value qs
-            , onInput QueryChanged
-            , placeholder "Search..."
-            , onKeyDownHelp keyMap.query
-            ]
-            []
         ]
 
 
