@@ -917,9 +917,14 @@ tGen =
     idGen |> Random.map treeFromId
 
 
+addGen : (T -> b -> a) -> b -> Generator a
+addGen func od =
+    tGen |> Random.map (flip func od)
+
+
 addNewAfter : OD -> Generator OD
-addNewAfter od =
-    tGen |> Random.map (flip addAfter od)
+addNewAfter =
+    addGen addAfter
 
 
 addAfter : T -> OD -> OD
@@ -928,8 +933,8 @@ addAfter newT (OD pcs cs (LTR l t r)) =
 
 
 addNewBefore : OD -> Generator OD
-addNewBefore od =
-    tGen |> Random.map (flip addBefore od)
+addNewBefore =
+    addGen addBefore
 
 
 addBefore newT (OD pcs cs (LTR l t r)) =
