@@ -554,8 +554,9 @@ keyMap =
         , ( any [ ctrl aLeft, ctrl "h" ], UnIndent )
         , ( any [ right, key "l" ], OnCursorRight )
         , ( any [ ctrl aRight, ctrl "l" ], Indent )
-        , ( tab, Indent )
-        , ( shiftTab, UnIndent )
+
+        --, ( tab, Indent )
+        --, ( shiftTab, UnIndent )
         , ( key "n", SearchForward )
         , ( shift "N", SearchBackward )
         , ( shiftRight, ZoomIn )
