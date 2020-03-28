@@ -460,7 +460,12 @@ searchBackward =
 
 matches : Query -> OD -> Bool
 matches (Query qs) od =
-    String.contains (String.toLower qs) (String.toLower (odTitle od))
+    case qs of
+        "" ->
+            False
+
+        _ ->
+            String.contains (String.toLower qs) (String.toLower (odTitle od))
 
 
 subscriptions : Model -> Sub Msg
