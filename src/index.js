@@ -3,8 +3,16 @@ import { anyPass, pathOr, whereEq } from 'ramda'
 require('./styles.css')
 require('tachyons')
 
+function parseOrNull(str) {
+  try {
+    return JSON.parse(str)
+  } catch (e) {
+    return null
+  }
+}
+
 {
-  const [app, subscribe] = initElmModuleWithPortHelpers(
+  const [_, subscribe] = initElmModuleWithPortHelpers(
     {
       node: document.getElementById('root'),
       flags: {
@@ -14,8 +22,8 @@ require('tachyons')
           window.innerWidth - document.body.clientWidth,
           window.innerHeight - document.body.clientHeight,
         ],
-        oz: JSON.parse(localStorage.getItem('oz')) || null,
-        od: JSON.parse(localStorage.getItem('od')) || null,
+        oz: parseOrNull(localStorage.getItem('oz')) || null,
+        od: parseOrNull(localStorage.getItem('od')) || null,
       },
     },
 
@@ -46,31 +54,31 @@ require('tachyons')
     localStorage.setItem(k, JSON.stringify(v))
   })
 
-  subscribe('getBeacons', function() {
-    const beaconEls = [...document.querySelectorAll('[data-beacon]')]
-    const beacons = beaconEls.map(beaconData)
-    app.ports.gotBeacons.send(beacons)
-  })
+  // subscribe('getBeacons', function() {
+  //   const beaconEls = [...document.querySelectorAll('[data-beacon]')]
+  //   const beacons = beaconEls.map(beaconData)
+  //   app.ports.gotBeacons.send(beacons)
+  // })
+  //
+  // function beaconData(elem) {
+  //   const boundingRect = elem.getBoundingClientRect()
+  //   const beaconId = elem.getAttribute('data-beacon')
+  //   return {
+  //     id: tryParse(beaconId),
+  //     x: boundingRect.x,
+  //     y: boundingRect.y,
+  //     width: boundingRect.width,
+  //     height: boundingRect.height,
+  //   }
+  // }
 
-  function beaconData(elem) {
-    const boundingRect = elem.getBoundingClientRect()
-    const beaconId = elem.getAttribute('data-beacon')
-    return {
-      id: tryParse(beaconId),
-      x: boundingRect.x,
-      y: boundingRect.y,
-      width: boundingRect.width,
-      height: boundingRect.height,
-    }
-  }
-
-  function tryParse(str) {
-    try {
-      return JSON.parse(str)
-    } catch (e) {
-      return str
-    }
-  }
+  // function tryParse(str) {
+  //   try {
+  //     return JSON.parse(str)
+  //   } catch (e) {
+  //     return str
+  //   }
+  // }
   // subscribe('focusSelector', function(selector) {
   //   requestAnimationFrame(function() {
   //     const el = document.querySelector(selector)
