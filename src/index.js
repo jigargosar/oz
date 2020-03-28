@@ -32,7 +32,7 @@ function Cache(keys) {
 }
 
 {
-  const cache = Cache(['od', 'oz'])
+  const cache = Cache(['od'])
   const [_, subscribe] = initElmModuleWithPortHelpers(
     {
       node: document.getElementById('root'),

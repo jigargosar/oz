@@ -11,7 +11,6 @@ import Html.Attributes exposing (accesskey, class, placeholder, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
-import Json.Decode.Extra
 import Json.Encode as JE exposing (Value)
 import KeyEvent exposing (KeyEvent)
 import Random exposing (Generator, Seed)
@@ -181,7 +180,7 @@ cacheState o n =
     let
         cacheODCmd : OD -> Cmd msg
         cacheODCmd od =
-            cacheKV ( "od", odEncoder od )
+            Cmd.batch [ cacheKV ( "od", odEncoder od ) ]
 
         stateToOD state =
             case state of
