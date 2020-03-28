@@ -760,7 +760,7 @@ viewIV query iv =
                 , onKeyDownHelp keyMap.focused
                 , onClick OnEnter
                 ]
-                [ displayTitleEl title ]
+                [ displayTitleQuery query title ]
 
 
 treeChildrenContainer : LHM -> HM
