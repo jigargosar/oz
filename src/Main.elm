@@ -192,6 +192,10 @@ cacheState o n =
     cmdIf (neqBy stateToOD o n) (cacheODCmd (stateToOD n))
 
 
+jsonMIMEType =
+    "application/json"
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -221,10 +225,10 @@ update message model =
                     odEncoder od2
                         |> JE.encode 2
             in
-            ( model, Download.string fileName "application/json" fileContent )
+            ( model, Download.string fileName jsonMIMEType fileContent )
 
         Upload ->
-            ( model, Select.file [ "application/json" ] GotFile )
+            ( model, Select.file [ jsonMIMEType ] GotFile )
 
         GotFile file ->
             ( model, File.toString file |> Task.perform GotFileString )
