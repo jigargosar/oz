@@ -54,7 +54,7 @@ type Model
 
 
 type alias Flags =
-    { now : Int, od : Value }
+    { now : Int, od : Value, cacheKVs : Value }
 
 
 init : Flags -> ( Model, Cmd Msg )
