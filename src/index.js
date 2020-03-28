@@ -1,9 +1,12 @@
 import {
   pathOr,
+  identity,
+  equals,
   anyPass,
   all,
   both,
   flip,
+  values,
   pipe,
   not,
   allPass,
@@ -38,18 +41,17 @@ require('tachyons')
   )
 
   const [ctrl] = (function() {
-    const propTrue = flip(propEq)(true)
-    const propFalse = flip(propEq)(false)
 
-    const allTrue = e => all(flip(propTrue)(e))
-    const allFalse = e => all(flip(propFalse)(e))
+    const pickValues = props => obj => values(pick(props)(obj))
+    const allValues = ps => pred => obj => pipe(pickValues(ps), all(pred))(obj)
 
     const allSoftProps = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
 
     const onlyModifiers = downProps => {
       const upProps = without(downProps)(allSoftProps)
 
-      return both(allTrue(downProps), allFalse(upProps))
+
+      return both(allValues(downProps)(equals(true)), allValues(upProps)(equals(false)))
     }
 
     const onlyCtrl = onlyModifiers(['ctrlKey'])
