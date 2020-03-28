@@ -53,9 +53,9 @@ require('tachyons')
   const ctrl = k => both(keyEq(k), onlyCtrl)
 
   window.addEventListener('keydown', function(e) {
-    const fns = [ctrl('o'), ctrl('s')]
+    const shouldPreventDefault = anyPass([ctrl('o'), ctrl('s')])
 
-    if (anyPass(fns)(e)) {
+    if (shouldPreventDefault(e)) {
       e.preventDefault()
     }
   })
