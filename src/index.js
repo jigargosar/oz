@@ -21,12 +21,12 @@ require('tachyons')
 
     require('./Main.elm'),
   )
-  const onlyModifiers = downMS => e => {
-    const upMs = without(downMS)(['ctrlKey', 'shiftKey', 'altKey', 'metaKey'])
+  const onlyModifiers = downProps => e => {
+    const upProps = without(downProps)(['ctrlKey', 'shiftKey', 'altKey', 'metaKey'])
 
-    const allDown = all(prop(__, e))
+    const allTrue = all(prop(__, e))
 
-    return allDown(downMS) && !allDown(upMs)
+    return allTrue(downProps) && !allTrue(upProps)
   }
   const ctrl = k => e => e.key === k && onlyModifiers(['ctrlKey'])(e)
 
