@@ -37,6 +37,9 @@ require('tachyons')
   )
 
   const [ctrl] = (function() {
+    const propTrue = pn => propEq(pn)(true)
+    const propFalse = pn => propEq(pn)(false)
+
     const allTrue = e => all(pn => propEq(pn)(true)(e))
     const allFalse = e => all(pn => propEq(pn)(false)(e))
 
