@@ -142,6 +142,7 @@ type Msg
     | OnEnter
     | NewBefore
     | NewAfter
+    | ANE AddNew
     | IdClicked Id
     | OnQueryEnter
     | OnQueryShiftEnter
@@ -289,6 +290,9 @@ update message model =
 
         OnEnter ->
             onEnter model
+
+        ANE addType ->
+            ane addType model
 
         NewBefore ->
             ane NBefore model
