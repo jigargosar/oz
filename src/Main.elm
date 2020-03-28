@@ -300,42 +300,10 @@ update message model =
             mmODFocus (findId id) model
 
         OnQueryEnter ->
-            let
-                matches2 : Query -> OD -> Bool
-                matches2 (Query qs) od =
-                    (qs /= "")
-                        && String.contains (String.toLower qs) (String.toLower (odTitle od))
-            in
-            case model of
-                Model (NoState od) qs _ ->
-                    case findNextWrap (matches2 (Query qs)) od of
-                        Just nod ->
-                            ( setNoState nod model, Cmd.none )
-
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            mmQOD searchForward model
 
         OnQueryShiftEnter ->
-            let
-                matches2 : Query -> OD -> Bool
-                matches2 (Query qs) od =
-                    (qs /= "")
-                        && String.contains (String.toLower qs) (String.toLower (odTitle od))
-            in
-            case model of
-                Model (NoState od) qs _ ->
-                    case findPrevWrap (matches2 (Query qs)) od of
-                        Just nod ->
-                            ( setNoState nod model, Cmd.none )
-
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            mmQOD searchBackward model
 
         SearchForward ->
             mmQODFocus searchForward model
@@ -414,20 +382,19 @@ mmODFocus func model =
                     ( model, Cmd.none )
 
 
+mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
+mmQOD func model =
+    case model of
+        Model (NoState od) q _ ->
+            case func (Query q) od of
+                Just nod ->
+                    ( setNoState nod model, Cmd.none )
 
---mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
---mmQOD func model =
---    case model of
---        Model (NoState od) q _ ->
---            case func (Query q) od of
---                Just nod ->
---                    ( setNoState nod model, Cmd.none )
---
---                _ ->
---                    ( model, Cmd.none )
---
---        _ ->
---            ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
 
 
 mmQODFocus : (Query -> OD -> Maybe OD) -> Model -> Ret
