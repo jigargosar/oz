@@ -41,8 +41,8 @@ require('tachyons')
     const propTrue = flip(propEq)(true)
     const propFalse = flip(propEq)(false)
 
-    const allTrue = e => all(pn => propEq(pn)(true)(e))
-    const allFalse = e => all(pn => propEq(pn)(false)(e))
+    const allTrue = e => all(flip(propTrue)(e))
+    const allFalse = e => all(flip(propFalse)(e))
 
     const allSoftProps = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
 
