@@ -787,9 +787,6 @@ displayTitleEl title =
 displayTitleQuery : Query -> String -> HM
 displayTitleQuery (Query unverifiedQS) unverifiedTitle =
     case ( nonBlank unverifiedTitle, nonBlank unverifiedQS ) of
-        ( Just title, Nothing ) ->
-            span [ class "" ] [ text title ]
-
         ( Just title, Just qs ) ->
             let
                 hiEl =
@@ -803,8 +800,8 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
             in
             el
 
-        ( Nothing, _ ) ->
-            span [ class "silver" ] [ text "Untitled" ]
+        _ ->
+            displayTitleEl unverifiedTitle
 
 
 onKeyDownHelp : List ( KeyEvent.KeyEvent -> Bool, a ) -> Html.Attribute a
