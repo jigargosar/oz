@@ -732,7 +732,7 @@ viewTV query tv =
 
 
 viewIV : Query -> IV -> HM
-viewIV (Query _) iv =
+viewIV query iv =
     case iv of
         IVEdit title ->
             input
@@ -750,7 +750,7 @@ viewIV (Query _) iv =
                 [ class "flex-auto pa1"
                 , onClick (IdClicked id)
                 ]
-                [ displayTitleEl title ]
+                [ displayTitleQuery query title ]
 
         IVFocused title ->
             div
@@ -791,10 +791,13 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
 
         ( Just title, Just qs ) ->
             let
+                hiEl =
+                    span [ class "bg-yellow" ] [ text qs ]
+
                 el =
                     String.split qs title
                         |> List.map text
-                        |> List.intersperse (span [ class "yellow" ] [ text qs ])
+                        |> List.intersperse hiEl
                         |> span []
             in
             el
