@@ -797,6 +797,27 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
                         |> List.map text
                         |> List.intersperse hiEl
                         |> span []
+
+                qsLen =
+                    String.length qs
+
+                _ =
+                    String.split (String.toLower qs) (String.toLower title)
+                        |> List.map String.length
+                        |> List.foldl func ( String.toList title, [] )
+
+                func : Int -> ( List Char, List a ) -> ( List Char, List a )
+                func len ( chars, acc ) =
+                    let
+                        plainTxt =
+                            List.take len chars |> String.fromList
+
+                        hiTxt =
+                            List.drop len chars
+                                |> List.take qsLen
+                                |> String.fromList
+                    in
+                    ( List.drop (len + qsLen) chars, acc )
             in
             el
 
