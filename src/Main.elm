@@ -559,8 +559,8 @@ keyMap =
         --, ( shiftTab, UnIndent )
         , ( key "n", SearchForward )
         , ( shift "N", SearchBackward )
-        , ( any [ shiftRight, shift "l" ], ZoomIn )
-        , ( any [ shiftLeft, shift "h" ], ZoomOut )
+        , ( any [ shiftRight, shift "L" ], ZoomIn )
+        , ( any [ shiftLeft, shift "H" ], ZoomOut )
         , ( key "/", FocusSearch )
         ]
     }
