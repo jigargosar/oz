@@ -234,10 +234,6 @@ update message model =
             ( model, File.toString file |> Task.perform GotFileString )
 
         GotFileString fs ->
-            let
-                _ =
-                    Debug.log "fs" fs
-            in
             case JD.decodeString odDecoder fs of
                 Ok od ->
                     ( setNoState od model, focusPrimary )
