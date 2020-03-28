@@ -3,22 +3,6 @@ import { zip, anyPass, pathOr, whereEq } from 'ramda'
 require('./styles.css')
 require('tachyons')
 
-function parseTruthyOrNull(str) {
-  try {
-    return JSON.parse(str) || null
-  } catch (e) {
-    return null
-  }
-}
-
-function fromKeys(kfn) {
-  return fromKeysC1
-
-  function fromKeysC1(ks) {
-    return zip(ks, ks.map(kfn))
-  }
-}
-
 const HotKey = (function HotKey() {
   const noModifiers = {
     ctrlKey: false,
@@ -147,4 +131,20 @@ function initElmModuleWithPortHelpers(initParams, module) {
   }
 
   return [app, subscribe]
+}
+
+function parseTruthyOrNull(str) {
+  try {
+    return JSON.parse(str) || null
+  } catch (e) {
+    return null
+  }
+}
+
+function fromKeys(kfn) {
+  return fromKeysC1
+
+  function fromKeysC1(ks) {
+    return zip(ks, ks.map(kfn))
+  }
 }
