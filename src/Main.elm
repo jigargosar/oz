@@ -7,7 +7,7 @@ import File exposing (File)
 import File.Download as Download
 import File.Select as Select
 import Html exposing (Html, button, div, i, input, span, text)
-import Html.Attributes exposing (accesskey, class, placeholder, tabindex, value)
+import Html.Attributes exposing (accesskey, autofocus, class, placeholder, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
@@ -70,7 +70,7 @@ init flags =
 
         Ok (Just od) ->
             ( Model (NoState od) "" (Random.initialSeed flags.now)
-            , focusPrimary
+            , focusPrimary |> always Cmd.none
             )
 
         Err err ->
@@ -600,6 +600,7 @@ viewAppBar =
         , button
             [ class "bg-inherit color-inherit pa1 ma0 bn flex"
             , onClick Download
+            , autofocus True
             , accesskey 's'
             ]
             [ i [ class "material-icons" ] [ text "save_alt" ] ]
