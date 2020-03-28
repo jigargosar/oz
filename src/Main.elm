@@ -14,6 +14,7 @@ import Json.Encode as JE exposing (Value)
 import KeyEvent exposing (KeyEvent)
 import Random exposing (Generator, Seed)
 import Task
+import Time exposing (Posix)
 import Utils exposing (..)
 
 
@@ -128,6 +129,7 @@ type alias Ret =
 type Msg
     = NoOp
     | Download
+    | DownloadNow Posix
     | Upload
     | GotFile File
     | GotFileString String
@@ -197,7 +199,17 @@ update message model =
             ( model, Cmd.none )
 
         Download ->
-            ( model, Download.string "draft.md" "text/markdown" "# header world" )
+            ( model, Time.now |> Task.perform DownloadNow )
+
+        DownloadNow now ->
+            let
+                nowFormatted =
+                    Time.posixToMillis now |> String.fromInt
+
+                fileName =
+                    "oz_" ++ nowFormatted ++ ".json"
+            in
+            ( model, Download.string fileName "application/json" "# header world" )
 
         Upload ->
             ( model, Select.file [] GotFile )
