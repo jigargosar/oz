@@ -3,6 +3,7 @@ import {
   anyPass,
   all,
   both,
+  pipe, not,
   allPass,
   pick,
   pluck,
@@ -34,19 +35,16 @@ require('tachyons')
     require('./Main.elm'),
   )
 
-  const [ctrl] = (function(){
+  const [ctrl] = (function() {
     {
-        const onlyModifiers = downProps => e => {
-        const upProps = without(downProps)([
-          'ctrlKey',
-          'shiftKey',
-          'altKey',
-          'metaKey',
-        ])
+      const allTrue = props => e => all(prop(__, e))(props)
+      const allFalse = pipe(allTrue, not)
 
-        const allTrue = all(prop(__, e))
+      const allSoftProps = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
 
-        return allTrue(downProps) && !allTrue(upProps)
+      const onlyModifiers = downProps =>  {
+        const upProps = without(downProps)(allSoftProps)
+        return both(allTrue(downProps) , allFalse(upProps))
       }
 
       const onlyCtrl = onlyModifiers(['ctrlKey'])
@@ -54,7 +52,7 @@ require('tachyons')
 
       const ctrl = k => both(keyEq(k), onlyCtrl)
       return [ctrl]
-      }
+    }
   })()
 
   window.addEventListener('keydown', function(e) {
