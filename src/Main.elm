@@ -457,30 +457,7 @@ failWhenNothing =
 
 
 
--- VIEW
-
-
-type alias HM =
-    Html Msg
-
-
-type alias LHM =
-    List (Html Msg)
-
-
-view : Model -> Html Msg
-view (Model state qs _) =
-    div []
-        [ div [ class "center measure-wide" ]
-            [ button [ onClick Download, accesskey 's' ]
-                [ i [ class "material-icons" ] [ text "save_alt" ] ]
-            , button [ onClick Upload, accesskey 'o' ]
-                [ i [ class "material-icons" ] [ text "folder_open" ] ]
-            , div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
-            , viewSearchQuery qs
-            , viewOD qs state
-            ]
-        ]
+-- KEYMAP
 
 
 type alias KeyMap =
@@ -586,6 +563,45 @@ keyMap =
         , ( key "/", FocusSearch )
         ]
     }
+
+
+
+-- VIEW
+
+
+type alias HM =
+    Html Msg
+
+
+type alias LHM =
+    List (Html Msg)
+
+
+view : Model -> Html Msg
+view (Model state qs _) =
+    div []
+        [ div [ class "center measure-wide" ]
+            [ viewAppBar
+            , button [ onClick Download, accesskey 's' ]
+                [ i [ class "material-icons" ] [ text "save_alt" ] ]
+            , button [ onClick Upload, accesskey 'o' ]
+                [ i [ class "material-icons" ] [ text "folder_open" ] ]
+            , div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
+            , viewSearchQuery qs
+            , viewOD qs state
+            ]
+        ]
+
+
+viewAppBar =
+    div [ class "pv2 flex items-center f4 bg-purple white" ]
+        [ div [] [ text "OZ" ]
+        , div [] [ text "Search" ]
+        , button [ class "bg-inherit color-inherit pa0 ma0 bn lh0", onClick Download, accesskey 's' ]
+            [ i [ class "material-icons" ] [ text "save_alt" ] ]
+        , button [ onClick Upload, accesskey 'o' ]
+            [ i [ class "material-icons" ] [ text "folder_open" ] ]
+        ]
 
 
 viewSearchQuery : String -> HM
