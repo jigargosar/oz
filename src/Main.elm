@@ -294,7 +294,7 @@ update message model =
             case model of
                 Model (NoState od) _ _ ->
                     ( stepSetState
-                        (addNew AddBefore od
+                        (addNew NBefore od
                             |> Random.map initEdit
                         )
                         model
@@ -428,7 +428,7 @@ onEnter ((Model state _ _) as model) =
                         Nothing ->
                             stepSetState
                                 (tod
-                                    |> addNew AddNew
+                                    |> addNew NAuto
                                     |> Random.map initEdit
                                 )
     in
@@ -919,21 +919,21 @@ newHelp id =
 
 
 type AddNew
-    = AddNew
-    | AddBefore
-    | AddAfter
+    = NAuto
+    | NBefore
+    | NAfter
 
 
 addNew : AddNew -> OD -> Generator OD
 addNew addType od =
     case addType of
-        AddNew ->
+        NAuto ->
             addGen addNewHelp od
 
-        AddBefore ->
+        NBefore ->
             addGen addBefore od
 
-        AddAfter ->
+        NAfter ->
             addGen addAfter od
 
 
