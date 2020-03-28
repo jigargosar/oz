@@ -22,7 +22,14 @@ require('tachyons')
     require('./Main.elm'),
   )
 
-
+  window.addEventListener("onkeydown", function(e) {
+    if (e.ctrlKey && e.key === 'o'){
+      e.preventDefault()
+    }
+    else if (e.ctrlKey && e.key === 's'){
+      e.preventDefault()
+    }
+  })
   subscribe('cacheKV', function([k,v]) {
     localStorage.setItem(k, JSON.stringify(v))
   })
