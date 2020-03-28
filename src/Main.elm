@@ -428,7 +428,7 @@ onEnter ((Model state _ _) as model) =
                         Nothing ->
                             stepSetState
                                 (tod
-                                    |> addNew
+                                    |> add AddNew
                                     |> Random.map initEdit
                                 )
     in
@@ -935,11 +935,6 @@ add addType od =
 
         AddAfter ->
             addGen addAfter od
-
-
-addNew : OD -> Generator OD
-addNew =
-    add AddNew
 
 
 tGen : Generator T
