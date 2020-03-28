@@ -792,9 +792,18 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
                 qsLen =
                     String.length qs
 
-                toHiEl : List Char -> Html msg
-                toHiEl chars =
-                    case chars of
+                toPlainEl : Int -> List Char -> Html msg
+                toPlainEl len chars =
+                    List.take len chars
+                        |> String.fromList
+                        |> text
+
+                toHiEl : Int -> List Char -> Html msg
+                toHiEl len chars =
+                    case
+                        List.drop len chars
+                            |> List.take qsLen
+                    of
                         [] ->
                             noHtml
 
@@ -803,18 +812,9 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
 
                 func : Int -> ( List Char, List (Html msg) ) -> ( List Char, List (Html msg) )
                 func len ( chars, acc ) =
-                    let
-                        plainTxt =
-                            List.take len chars
-                                |> String.fromList
-                                |> text
-
-                        hiTxt =
-                            List.drop len chars
-                                |> List.take qsLen
-                                |> toHiEl
-                    in
-                    ( List.drop (len + qsLen) chars, hiTxt :: plainTxt :: acc )
+                    ( List.drop (len + qsLen) chars
+                    , toHiEl len chars :: toPlainEl len chars :: acc
+                    )
             in
             String.split (String.toLower qs) (String.toLower title)
                 |> List.map String.length
