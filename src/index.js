@@ -3,7 +3,8 @@ import {
   anyPass,
   all,
   both,
-  pipe, not,
+  pipe,
+  not,
   allPass,
   pick,
   pluck,
@@ -37,26 +38,28 @@ require('tachyons')
 
   const [ctrl] = (function() {
     {
-      const allTrue = props => e => all(prop(__, e))(props)
-      const allFalse = pipe(allTrue, not)
+      const allTrue = props => e => all(pn => prop(pn)(e))(props)
 
       const allSoftProps = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
 
-      const onlyModifiers = downProps => e=> {
+      const onlyModifiers = downProps => e => {
         const upProps = without(downProps)(allSoftProps)
-        return both(allTrue(downProps) , allFalse(upProps))(e)
+
+        return allTrue(downProps)(e) && !allTrue(upProps)(e)
       }
 
       const onlyCtrl = onlyModifiers(['ctrlKey'])
       const keyEq = propEq('key')
 
-      const ctrl = k => both(keyEq(k), onlyCtrl)
+      const ctrl = k => e => {
+        return both(onlyCtrl, keyEq(k))(e)
+      }
       return [ctrl]
     }
   })()
 
   window.addEventListener('keydown', function(e) {
-    const shouldPreventDefault = anyPass([ctrl('o'), ctrl('s')])
+    const shouldPreventDefault = e => anyPass([ctrl('o'), ctrl('s')])(e)
 
     if (shouldPreventDefault(e)) {
       e.preventDefault()
