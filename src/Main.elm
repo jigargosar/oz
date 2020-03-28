@@ -589,8 +589,8 @@ view (Model state qs _) =
 
 viewAppBar : String -> HM
 viewAppBar qs =
-    div [ class "pv2 flex items-center f4 bg-washed-blue black" ]
-        [ div [ class "ph2" ] [ text "OZ" ]
+    div [ class "ph1 pv2 flex items-center f4   " ]
+        [ div [ class "ph1" ] [ text "OZ" ]
         , div [ class "ph1 flex-auto flex" ]
             [ input
                 [ Html.Attributes.id "search-input"
@@ -604,18 +604,22 @@ viewAppBar qs =
                 []
             ]
         , button
-            [ class "bg-inherit color-inherit pa1 ma1 bn flex"
+            [ appBarIBStyle
             , onClick Download
             , accesskey 's'
             ]
             [ i [ class "material-icons" ] [ text "save_alt" ] ]
         , button
-            [ class "bg-inherit color-inherit pa1 ma0 bn flex"
+            [ appBarIBStyle
             , onClick Upload
             , accesskey 'o'
             ]
             [ i [ class "material-icons" ] [ text "folder_open" ] ]
         ]
+
+
+appBarIBStyle =
+    class "bg-inherit color-inherit pa1 ma0 bn flex"
 
 
 
