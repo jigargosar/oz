@@ -2,6 +2,7 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Dom as Dom
+import Browser.Events
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -10,6 +11,7 @@ import Html.Attributes exposing (accesskey, class, placeholder, tabindex, value)
 import Html.Events exposing (onClick, onInput)
 import ItemId exposing (ItemId)
 import Json.Decode as JD exposing (Decoder)
+import Json.Decode.Extra
 import Json.Encode as JE exposing (Value)
 import KeyEvent exposing (KeyEvent)
 import Random exposing (Generator, Seed)
@@ -443,7 +445,24 @@ matches (Query qs) od =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.batch []
+    Sub.batch
+        [ Browser.Events.onKeyDown
+            (KeyEvent.decoder
+                |> JD.andThen
+                    (condAlways
+                        [ ( KeyEvent.ctrl "o", Upload )
+                        , ( KeyEvent.ctrl "s", Download )
+                        ]
+                        >> failWhenNothing
+                    )
+            )
+        ]
+
+
+failWhenNothing : Maybe a -> Decoder a
+failWhenNothing =
+    Maybe.map JD.succeed
+        >> Maybe.withDefault (JD.fail "not interested")
 
 
 
