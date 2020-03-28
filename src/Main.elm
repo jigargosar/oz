@@ -794,7 +794,7 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
                 el =
                     String.split qs title
                         |> List.map text
-                        |> List.intersperse (span [ class "yellow" ] [ qs ])
+                        |> List.intersperse (span [ class "yellow" ] [ text qs ])
                         |> span []
             in
             el
