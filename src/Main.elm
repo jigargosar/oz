@@ -912,18 +912,22 @@ addNew od =
     idGen |> Random.map (flip addNewHelp od)
 
 
+tGen : Generator T
 tGen =
     idGen |> Random.map treeFromId
 
 
+addNewAfter : OD -> Generator OD
 addNewAfter od =
     tGen |> Random.map (flip addAfter od)
 
 
+addAfter : T -> OD -> OD
 addAfter newT (OD pcs cs (LTR l t r)) =
     OD pcs cs (LTR (t :: l) newT r)
 
 
+addNewBefore : OD -> Generator OD
 addNewBefore od =
     tGen |> Random.map (flip addBefore od)
 
