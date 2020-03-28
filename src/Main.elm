@@ -287,14 +287,14 @@ update message model =
         OnEscQ ->
             ( setQ "" model, focusPrimary )
 
+        OnEnter ->
+            onEnter model
+
         NewBefore ->
             ( model, Cmd.none )
 
         NewAfter ->
             ( model, Cmd.none )
-
-        OnEnter ->
-            onEnter model
 
         IdClicked id ->
             mmODFocus (findId id) model
