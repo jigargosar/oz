@@ -294,7 +294,7 @@ update message model =
             case model of
                 Model (NoState od) _ _ ->
                     ( stepSetState
-                        (addNewBefore od
+                        (add AddBefore od
                             |> Random.map initEdit
                         )
                         model
@@ -952,19 +952,9 @@ addGen func od =
     tGen |> Random.map (flip func od)
 
 
-addNewAfter : OD -> Generator OD
-addNewAfter =
-    addGen addAfter
-
-
 addAfter : T -> OD -> OD
 addAfter newT (OD pcs cs (LTR l t r)) =
     OD pcs cs (LTR (t :: l) newT r)
-
-
-addNewBefore : OD -> Generator OD
-addNewBefore =
-    addGen addBefore
 
 
 addBefore newT (OD pcs cs (LTR l t r)) =
