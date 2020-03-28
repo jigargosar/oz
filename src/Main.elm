@@ -140,8 +140,6 @@ type Msg
     | OnEsc
     | OnEscQ
     | OnEnter
-    | NewBefore
-    | NewAfter
     | ANE AddNew
     | IdClicked Id
     | OnQueryEnter
@@ -293,12 +291,6 @@ update message model =
 
         ANE addType ->
             ane addType model
-
-        NewBefore ->
-            ane NBefore model
-
-        NewAfter ->
-            ane NAfter model
 
         IdClicked id ->
             mmODFocus (findId id) model
@@ -574,8 +566,8 @@ keyMap =
         ]
     , focused =
         [ ( enter, OnEnter )
-        , ( shift "O", NewAfter )
-        , ( key "o", NewBefore )
+        , ( shift "O", ANE NBefore )
+        , ( key "o", ANE NAfter )
         , ( esc, OnEsc )
         , ( any [ up, key "k" ], OnCursorUp )
         , ( any [ ctrl aUp, ctrl "k" ], OnCursorUpRelocate )
