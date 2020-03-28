@@ -807,8 +807,8 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
                         [] ->
                             noHtml
 
-                        _ ->
-                            span [ class "bg-yellow" ] [ text (String.fromList chars) ]
+                        hiChars ->
+                            span [ class "bg-yellow" ] [ text (String.fromList hiChars) ]
 
                 func : Int -> ( List Char, List (Html msg) ) -> ( List Char, List (Html msg) )
                 func len ( chars, acc ) =
