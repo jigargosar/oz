@@ -37,8 +37,8 @@ require('tachyons')
   )
 
   const [ctrl] = (function() {
-    const allTrue = props => e => all(pn => propEq(pn)(true)(e))(props)
-    const allFalse = props => e => all(pn => propEq(pn)(false)(e))(props)
+    const allTrue = e => all(pn => propEq(pn)(true)(e))
+    const allFalse = e => all(pn => propEq(pn)(false)(e))
 
     const allSoftProps = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
 
