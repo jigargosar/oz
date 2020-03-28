@@ -789,6 +789,16 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
         ( Just title, Nothing ) ->
             span [ class "" ] [ text title ]
 
+        ( Just title, Just qs ) ->
+            let
+                el =
+                    String.split qs title
+                        |> List.map text
+                        |> List.intersperse (span [ class "yellow" ] [ qs ])
+                        |> span []
+            in
+            el
+
         ( Nothing, _ ) ->
             span [ class "silver" ] [ text "Untitled" ]
 
