@@ -463,9 +463,9 @@ view (Model state qs _) =
     div []
         [ div [ class "center measure-wide" ]
             [ button [ onClick Download, accesskey 's' ]
-                [ span [ class "underline" ] [ text "S" ], text "ave" ]
+                [ i [ class "material-icons" ] [ text "save_alt" ] ]
             , button [ onClick Upload, accesskey 'o' ]
-                [ span [ class "underline" ] [ text "O" ], text "pen" ]
+                [ i [ class "material-icons" ] [ text "folder_open" ] ]
             , div [ class "pa1 f4 lh-title" ] [ text "OZ OUTLINING V2" ]
             , viewSearchQuery qs
             , viewOD qs state
