@@ -912,6 +912,18 @@ addNew od =
     idGen |> Random.map (flip addNewHelp od)
 
 
+tGen =
+    idGen |> Random.map treeFromId
+
+
+addNewAfter od =
+    tGen |> Random.map (flip addAfter od)
+
+
+addAfter newT ((OD pcs cs (LTR l t r)) as od) =
+    OD pcs cs (LTR (t :: l) newT r)
+
+
 addNewHelp : ItemId -> OD -> OD
 addNewHelp id ((OD pcs cs (LTR l t r)) as od) =
     let
