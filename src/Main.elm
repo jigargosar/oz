@@ -238,7 +238,16 @@ update message model =
                 _ =
                     Debug.log "fs" fs
             in
-            ( model, Cmd.none )
+            case JD.decodeString odDecoder fs of
+                Ok od ->
+                    ( setNoState od model, focusPrimary )
+
+                Err e ->
+                    let
+                        _ =
+                            Debug.log "GotFileString" (JD.errorToString e)
+                    in
+                    ( model, Cmd.none )
 
         OnFocusResult (Ok ()) ->
             ( model, Cmd.none )
