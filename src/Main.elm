@@ -358,19 +358,20 @@ mmODFocus func model =
                     ( model, Cmd.none )
 
 
-mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
-mmQOD func model =
-    case model of
-        Model (NoState od) q _ ->
-            case func (Query q) od of
-                Just nod ->
-                    ( setNoState nod model, Cmd.none )
 
-                _ ->
-                    ( model, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
+--mmQOD : (Query -> OD -> Maybe OD) -> Model -> Ret
+--mmQOD func model =
+--    case model of
+--        Model (NoState od) q _ ->
+--            case func (Query q) od of
+--                Just nod ->
+--                    ( setNoState nod model, Cmd.none )
+--
+--                _ ->
+--                    ( model, Cmd.none )
+--
+--        _ ->
+--            ( model, Cmd.none )
 
 
 mmQODFocus : (Query -> OD -> Maybe OD) -> Model -> Ret
