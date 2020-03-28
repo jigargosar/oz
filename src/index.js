@@ -1,4 +1,4 @@
-import { anyPass, pathOr, whereEq } from 'ramda'
+import { zip, anyPass, pathOr, whereEq } from 'ramda'
 
 require('./styles.css')
 require('tachyons')
@@ -11,7 +11,28 @@ function parseTruthyOrNull(str) {
   }
 }
 
+function fromKeys(kfn) {
+  return fromKeysC1
+
+  function fromKeysC1(ks) {
+    return zip(ks, ks.map(kfn))
+  }
+}
+
+function Cache(keys) {
+  return {
+    set: (key, v) => {
+      localStorage.setItem(key, v)
+    },
+    getAll: () => {
+      const getParsed = key => parseTruthyOrNull(localStorage.getItem(key))
+      return fromKeys(getParsed)(keys)
+    },
+  }
+}
+
 {
+  const cache = Cache('od')
   const [_, subscribe] = initElmModuleWithPortHelpers(
     {
       node: document.getElementById('root'),
