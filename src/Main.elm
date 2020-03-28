@@ -789,37 +789,39 @@ displayTitleQuery (Query unverifiedQS) unverifiedTitle =
     case ( nonBlank unverifiedTitle, nonBlank unverifiedQS ) of
         ( Just title, Just qs ) ->
             let
-                hiEl =
-                    span [ class "bg-yellow" ] [ text qs ]
-
-                el =
-                    String.split qs title
-                        |> List.map text
-                        |> List.intersperse hiEl
-                        |> span []
-
                 qsLen =
                     String.length qs
 
-                _ =
-                    String.split (String.toLower qs) (String.toLower title)
-                        |> List.map String.length
-                        |> List.foldl func ( String.toList title, [] )
+                toHiEl : List Char -> Html msg
+                toHiEl chars =
+                    case chars of
+                        [] ->
+                            noHtml
 
-                func : Int -> ( List Char, List a ) -> ( List Char, List a )
+                        _ ->
+                            span [ class "bg-yellow" ] [ text (String.fromList chars) ]
+
+                func : Int -> ( List Char, List (Html msg) ) -> ( List Char, List (Html msg) )
                 func len ( chars, acc ) =
                     let
                         plainTxt =
-                            List.take len chars |> String.fromList
+                            List.take len chars
+                                |> String.fromList
+                                |> text
 
                         hiTxt =
                             List.drop len chars
                                 |> List.take qsLen
-                                |> String.fromList
+                                |> toHiEl
                     in
-                    ( List.drop (len + qsLen) chars, acc )
+                    ( List.drop (len + qsLen) chars, hiTxt :: plainTxt :: acc )
             in
-            el
+            String.split (String.toLower qs) (String.toLower title)
+                |> List.map String.length
+                |> List.foldl func ( String.toList title, [] )
+                |> Tuple.second
+                |> List.reverse
+                |> span []
 
         _ ->
             displayTitleEl unverifiedTitle
