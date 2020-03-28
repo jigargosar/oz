@@ -1,23 +1,4 @@
-import {
-  pathOr,
-  identity,
-  equals,
-  anyPass,
-  whereEq,
-  all,
-  both,
-  flip,
-  values,
-  pipe,
-  not,
-  allPass,
-  pick,
-  pluck,
-  propEq,
-  without,
-  prop,
-  __,
-} from 'ramda'
+import { anyPass, pathOr, whereEq } from 'ramda'
 
 require('./styles.css')
 require('tachyons')
