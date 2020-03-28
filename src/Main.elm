@@ -306,7 +306,7 @@ update message model =
                 Model (NoState od) qs _ ->
                     case findNextWrap (matches2 (Query qs)) od of
                         Just nod ->
-                            ( setNoState nod model, focusPrimary )
+                            ( setNoState nod model, Cmd.none )
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -325,7 +325,7 @@ update message model =
                 Model (NoState od) qs _ ->
                     case findPrevWrap (matches2 (Query qs)) od of
                         Just nod ->
-                            ( setNoState nod model, focusPrimary )
+                            ( setNoState nod model, Cmd.none )
 
                         Nothing ->
                             ( model, Cmd.none )
