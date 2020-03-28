@@ -1,4 +1,16 @@
-import { pathOr, anyPass,all, allPass, pick, pluck, without, prop, __ } from 'ramda'
+import {
+  pathOr,
+  anyPass,
+  all,
+  both,
+  allPass,
+  pick,
+  pluck,
+  propEq,
+  without,
+  prop,
+  __,
+} from 'ramda'
 
 require('./styles.css')
 require('tachyons')
@@ -21,17 +33,26 @@ require('tachyons')
 
     require('./Main.elm'),
   )
+
   const onlyModifiers = downProps => e => {
-    const upProps = without(downProps)(['ctrlKey', 'shiftKey', 'altKey', 'metaKey'])
+    const upProps = without(downProps)([
+      'ctrlKey',
+      'shiftKey',
+      'altKey',
+      'metaKey',
+    ])
 
     const allTrue = all(prop(__, e))
 
     return allTrue(downProps) && !allTrue(upProps)
   }
-  const ctrl = k => e => e.key === k && onlyModifiers(['ctrlKey'])(e)
+
+  const onlyCtrl = onlyModifiers(['ctrlKey'])
+  const keyEq = propEq('key')
+
+  const ctrl = k => both(keyEq(k), onlyCtrl)
 
   window.addEventListener('keydown', function(e) {
-
     const fns = [ctrl('o'), ctrl('s')]
 
     if (anyPass(fns)(e)) {
