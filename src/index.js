@@ -26,9 +26,10 @@ require('tachyons')
     const func = allPass(sk => (downSK.includes(sk) ? e[sk] : !e[sk]))
     return func(softKeys)
   }
+  const ctrl = k => e => e.key === k && onlySK(['ctrlKey'])(e)
 
   window.addEventListener('keydown', function(e) {
-    const ctrl = k => e.key === k && onlySK(['ctrlKey'])
+
 
     if (ctrl('o')) {
       e.preventDefault()
