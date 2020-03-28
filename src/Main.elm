@@ -920,8 +920,16 @@ addNewAfter od =
     tGen |> Random.map (flip addAfter od)
 
 
-addAfter newT ((OD pcs cs (LTR l t r)) as od) =
+addAfter newT (OD pcs cs (LTR l t r)) =
     OD pcs cs (LTR (t :: l) newT r)
+
+
+addNewBefore od =
+    tGen |> Random.map (flip addBefore od)
+
+
+addBefore newT (OD pcs cs (LTR l t r)) =
+    OD pcs cs (LTR l newT (t :: r))
 
 
 addNewHelp : ItemId -> OD -> OD
