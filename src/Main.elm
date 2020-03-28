@@ -291,21 +291,10 @@ update message model =
             onEnter model
 
         NewBefore ->
-            case model of
-                Model (NoState od) _ _ ->
-                    ( stepSetState
-                        (addNew NBefore od
-                            |> Random.map initEdit
-                        )
-                        model
-                    , focusPrimary
-                    )
-
-                _ ->
-                    ( model, Cmd.none )
+            ane NBefore model
 
         NewAfter ->
-            ( model, Cmd.none )
+            ane NAfter model
 
         IdClicked id ->
             mmODFocus (findId id) model
