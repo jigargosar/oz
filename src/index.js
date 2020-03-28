@@ -54,7 +54,7 @@ function Cache(keys) {
   window.addEventListener('keydown', function(e) {
     const { ctrl } = HotKey
 
-    const shouldPreventDefault = e => anyPass([ctrl('o'), ctrl('s')])(e)
+    const shouldPreventDefault = anyPass([ctrl('o'), ctrl('s')])
 
     if (shouldPreventDefault(e)) {
       e.preventDefault()
