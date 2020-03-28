@@ -42,9 +42,9 @@ require('tachyons')
 
       const allSoftProps = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
 
-      const onlyModifiers = downProps =>  {
+      const onlyModifiers = downProps => e=> {
         const upProps = without(downProps)(allSoftProps)
-        return both(allTrue(downProps) , allFalse(upProps))
+        return both(allTrue(downProps) , allFalse(upProps))(e)
       }
 
       const onlyCtrl = onlyModifiers(['ctrlKey'])
