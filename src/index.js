@@ -22,7 +22,7 @@ require('tachyons')
     require('./Main.elm'),
   )
 
-  window.addEventListener("onkeydown", function(e) {
+  window.addEventListener("keydown", function(e) {
     if (e.ctrlKey && e.key === 'o'){
       e.preventDefault()
     }
