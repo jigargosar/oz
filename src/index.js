@@ -44,6 +44,7 @@ function Cache(keys) {
           window.innerHeight - document.body.clientHeight,
         ],
         ...cache.getAll(),
+        cacheKVs: cache.getAll(),
       },
     },
 
