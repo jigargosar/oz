@@ -1,4 +1,4 @@
-import { pathOr } from 'ramda'
+import { pathOr , omit, allPass} from 'ramda'
 
 require('./styles.css')
 require('tachyons')
@@ -23,7 +23,11 @@ require('tachyons')
   )
 
   window.addEventListener("keydown", function(e) {
-    if (e.ctrlKey && e.key === 'o'){
+    const softKeys = ["ctrlKey", "shiftKey","altKey","metaKey"]
+    const onlySK = ok => allPass((sk) => ok.includes(sk) ? e[sk] : !e[sk] )(softKeys)
+    const ctrl = k => e.key === k && onlySK(['ctrlKey'])
+
+    if (ctrl('o')){
       e.preventDefault()
     }
     else if (e.ctrlKey && e.key === 's'){
