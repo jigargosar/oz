@@ -224,7 +224,7 @@ update message model =
             ( model, Download.string fileName "application/json" fileContent )
 
         Upload ->
-            ( model, Select.file [] GotFile )
+            ( model, Select.file [ "application/json" ] GotFile )
 
         GotFile file ->
             ( model, File.toString file |> Task.perform GotFileString )
