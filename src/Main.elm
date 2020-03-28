@@ -594,10 +594,14 @@ view (Model state qs _) =
 
 
 viewAppBar =
-    div [ class "pv2 flex items-center f4 bg-purple white" ]
+    div [ class "pv2 flex items-center f4 bg-washed-blue black" ]
         [ div [] [ text "OZ" ]
         , div [] [ text "Search" ]
-        , button [ class "bg-inherit color-inherit pa0 ma0 bn lh0", onClick Download, accesskey 's' ]
+        , button
+            [ class "bg-inherit color-inherit pa1 ma0 bn flex"
+            , onClick Download
+            , accesskey 's'
+            ]
             [ i [ class "material-icons" ] [ text "save_alt" ] ]
         , button [ onClick Upload, accesskey 'o' ]
             [ i [ class "material-icons" ] [ text "folder_open" ] ]
