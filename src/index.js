@@ -41,17 +41,20 @@ require('tachyons')
   )
 
   const [ctrl] = (function() {
-
     const pickValues = props => obj => values(pick(props)(obj))
-    const allValues = ps => pred => obj => pipe(pickValues(ps), all(pred))(obj)
+    const allPropValues = ps => pred => obj =>
+      pipe(pickValues(ps), all(pred))(obj)
+    const are = equals
 
     const allSoftProps = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
 
     const onlyModifiers = downProps => {
       const upProps = without(downProps)(allSoftProps)
 
-
-      return both(allValues(downProps)(equals(true)), allValues(upProps)(equals(false)))
+      return both(
+        allPropValues(downProps)(are(true)),
+        allPropValues(upProps)(are(false)),
+      )
     }
 
     const onlyCtrl = onlyModifiers(['ctrlKey'])
