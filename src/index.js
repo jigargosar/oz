@@ -30,6 +30,7 @@ require('tachyons')
       e.preventDefault()
     }
   })
+
   subscribe('cacheKV', function([k,v]) {
     localStorage.setItem(k, JSON.stringify(v))
   })
