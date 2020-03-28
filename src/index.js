@@ -3,6 +3,7 @@ import {
   identity,
   equals,
   anyPass,
+  whereEq,
   all,
   both,
   flip,
@@ -41,28 +42,14 @@ require('tachyons')
   )
 
   const [ctrl] = (function() {
-    const pickValues = props => obj => values(pick(props)(obj))
-    const allPropValues = ps => pred => obj =>
-      pipe(pickValues(ps), all(pred))(obj)
-    const are = equals
-
-    const allSoftProps = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
-
-    const onlyModifiers = downProps => {
-      const upProps = without(downProps)(allSoftProps)
-
-      return both(
-        allPropValues(downProps)(are(true)),
-        allPropValues(upProps)(are(false)),
-      )
+    const noModifiers = {
+      ctrlKey: false,
+      shiftKey: false,
+      altKey: false,
+      metaKey: false,
     }
 
-    const onlyCtrl = onlyModifiers(['ctrlKey'])
-    const keyEq = propEq('key')
-
-    const ctrl = k => e => {
-      return both(onlyCtrl, keyEq(k))(e)
-    }
+    const ctrl = key => whereEq({ ...noModifiers, ctrlKey: true, key })
     return [ctrl]
   })()
 
