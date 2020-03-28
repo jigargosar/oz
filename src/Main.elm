@@ -534,17 +534,20 @@ keyMap =
         shift =
             KeyEvent.shift
 
+        ctrl =
+            KeyEvent.ctrl
+
         any =
             anyPass
 
         enter =
             key "Enter"
 
-        ctrlEnter =
-            ctrl "Enter"
-
         shiftEnter =
             shift "Enter"
+
+        ctrlEnter =
+            ctrl "Enter"
 
         tab =
             key "Tab"
@@ -584,9 +587,6 @@ keyMap =
 
         esc =
             key "Escape"
-
-        ctrl =
-            KeyEvent.ctrl
     in
     { global =
         [ ( ctrl "o", Upload )
