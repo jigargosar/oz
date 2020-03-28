@@ -593,6 +593,7 @@ keyMap =
         [ ( enter, OnQueryEnter )
         , ( shiftEnter, OnQueryShiftEnter )
         , ( esc, OnEscQ )
+        , ( ctrl "Enter", FocusPrimary )
         ]
     , edit =
         [ ( enter, OnEnter )
