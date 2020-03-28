@@ -928,7 +928,7 @@ add : AddNew -> OD -> Generator OD
 add addType od =
     case addType of
         AddNew ->
-            idGen |> Random.map (flip addNewHelp od)
+            addGen addNewHelp od
 
         AddBefore ->
             addGen addBefore od
@@ -938,8 +938,8 @@ add addType od =
 
 
 addNew : OD -> Generator OD
-addNew od =
-    idGen |> Random.map (flip addNewHelp od)
+addNew =
+    add AddNew
 
 
 tGen : Generator T
@@ -961,12 +961,8 @@ addBefore newT (OD pcs cs (LTR l t r)) =
     OD pcs cs (LTR l newT (t :: r))
 
 
-addNewHelp : ItemId -> OD -> OD
-addNewHelp id ((OD pcs cs (LTR l t r)) as od) =
-    let
-        newT =
-            treeFromId id
-    in
+addNewHelp : T -> OD -> OD
+addNewHelp newT ((OD pcs cs (LTR l t r)) as od) =
     if isExpandedAndWithChildren od then
         -- prepend child
         let
