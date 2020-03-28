@@ -296,7 +296,23 @@ update message model =
             mmODFocus (findId id) model
 
         OnQueryEnter ->
-            mmQODFocus searchForward model
+            let
+                matches2 : Query -> OD -> Bool
+                matches2 (Query qs) od =
+                    (qs /= "")
+                        && String.contains (String.toLower qs) (String.toLower (odTitle od))
+            in
+            case model of
+                Model (NoState od) qs _ ->
+                    case findNextWrap (matches2 (Query qs)) od of
+                        Just nod ->
+                            ( setNoState nod model, focusPrimary )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         OnQueryShiftEnter ->
             mmQODFocus searchBackward model
