@@ -19,6 +19,18 @@ function fromKeys(kfn) {
   }
 }
 
+const HotKey = (function HotKey() {
+  const noModifiers = {
+    ctrlKey: false,
+    shiftKey: false,
+    altKey: false,
+    metaKey: false,
+  }
+
+  const ctrl = key => whereEq({ ...noModifiers, ctrlKey: true, key })
+  return { ctrl }
+})()
+
 function Cache(keys) {
   return {
     onCacheKV: ([key, val]) => {
@@ -56,19 +68,9 @@ function Cache(keys) {
     require('./Main.elm'),
   )
 
-  const [ctrl] = (function() {
-    const noModifiers = {
-      ctrlKey: false,
-      shiftKey: false,
-      altKey: false,
-      metaKey: false,
-    }
-
-    const ctrl = key => whereEq({ ...noModifiers, ctrlKey: true, key })
-    return [ctrl]
-  })()
-
   window.addEventListener('keydown', function(e) {
+    const { ctrl } = HotKey
+
     const shouldPreventDefault = e => anyPass([ctrl('o'), ctrl('s')])(e)
 
     if (shouldPreventDefault(e)) {
