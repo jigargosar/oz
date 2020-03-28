@@ -1,4 +1,4 @@
-import { zip, anyPass, pathOr, whereEq } from 'ramda'
+import { tap, zipObj, anyPass, pathOr, whereEq } from 'ramda'
 
 require('./styles.css')
 require('tachyons')
@@ -26,7 +26,7 @@ function Cache(keys) {
     },
     getAll: () => {
       const getParsed = key => parseTruthyOrNull(localStorage.getItem(key))
-      return fromKeys(getParsed)(keys)
+      return tap(console.log)(fromKeys(getParsed)(keys))
     },
   }
 }
@@ -145,6 +145,6 @@ function fromKeys(kfn) {
   return fromKeysC1
 
   function fromKeysC1(ks) {
-    return zip(ks, ks.map(kfn))
+    return zipObj(ks, ks.map(kfn))
   }
 }
