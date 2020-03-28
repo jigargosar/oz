@@ -292,10 +292,10 @@ update message model =
             mmODFocus (findId id) model
 
         OnQueryEnter ->
-            mmQOD searchForward model
+            mmQODFocus searchForward model
 
         OnQueryShiftEnter ->
-            mmQOD searchBackward model
+            mmQODFocus searchBackward model
 
         SearchForward ->
             mmQODFocus searchForward model
