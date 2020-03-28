@@ -447,15 +447,7 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Browser.Events.onKeyDown
-            (KeyEvent.decoder
-                |> JD.andThen
-                    (condAlways
-                        [ ( KeyEvent.ctrl "o", Upload )
-                        , ( KeyEvent.ctrl "s", Download )
-                        ]
-                        >> failWhenNothing
-                    )
-            )
+            (KeyEvent.decoder |> JD.andThen (condAlways keyMap.global >> failWhenNothing))
         ]
 
 
@@ -493,7 +485,8 @@ view (Model state qs _) =
 
 
 type alias KeyMap =
-    { query : List ( KeyEvent -> Bool, Msg )
+    { global : List ( KeyEvent -> Bool, Msg )
+    , query : List ( KeyEvent -> Bool, Msg )
     , edit : List ( KeyEvent -> Bool, Msg )
     , focused : List ( KeyEvent -> Bool, Msg )
     }
@@ -559,7 +552,11 @@ keyMap =
         ctrl =
             KeyEvent.ctrl
     in
-    { query =
+    { global =
+        [ ( ctrl "o", Upload )
+        , ( ctrl "s", Download )
+        ]
+    , query =
         [ ( enter, OnQueryEnter )
         , ( shiftEnter, OnQueryShiftEnter )
         , ( esc, OnEscQ )
