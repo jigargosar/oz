@@ -140,6 +140,8 @@ type Msg
     | OnEsc
     | OnEscQ
     | OnEnter
+    | NewAbove
+    | NewBelow
     | IdClicked Id
     | OnQueryEnter
     | OnQueryShiftEnter
@@ -284,6 +286,12 @@ update message model =
 
         OnEscQ ->
             ( setQ "" model, focusPrimary )
+
+        NewAbove ->
+            ( model, Cmd.none )
+
+        NewBelow ->
+            ( model, Cmd.none )
 
         OnEnter ->
             onEnter model
@@ -546,6 +554,8 @@ keyMap =
         ]
     , focused =
         [ ( enter, OnEnter )
+        , ( shift "O", NewAbove )
+        , ( key "o", NewBelow )
         , ( esc, OnEsc )
         , ( any [ up, key "k" ], OnCursorUp )
         , ( any [ ctrl aUp, ctrl "k" ], OnCursorUpRelocate )
