@@ -21,9 +21,9 @@ require('tachyons')
 
     require('./Main.elm'),
   )
-  const onlySK = osk => e =>{
+  const onlySK = downSK => e =>{
     const softKeys = ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']
-    const func = allPass(sk => (osk.includes(sk) ? e[sk] : !e[sk]))
+    const func = allPass(sk => (downSK.includes(sk) ? e[sk] : !e[sk]))
     return func(softKeys)
   }
 
