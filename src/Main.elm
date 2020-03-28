@@ -783,6 +783,16 @@ displayTitleEl title =
             span [ class "silver" ] [ text "Untitled" ]
 
 
+displayTitleQuery : Query -> String -> HM
+displayTitleQuery (Query unverifiedQS) unverifiedTitle =
+    case ( nonBlank unverifiedTitle, nonBlank unverifiedQS ) of
+        ( Just title, Nothing ) ->
+            span [ class "" ] [ text title ]
+
+        ( Nothing, _ ) ->
+            span [ class "silver" ] [ text "Untitled" ]
+
+
 onKeyDownHelp : List ( KeyEvent.KeyEvent -> Bool, a ) -> Html.Attribute a
 onKeyDownHelp conditions =
     Html.Events.preventDefaultOn "keydown"
