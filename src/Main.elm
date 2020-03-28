@@ -496,7 +496,7 @@ searchBackward =
 
 matches : Query -> OD -> Bool
 matches (Query qs) od =
-    String.contains (String.toLower qs) (String.toLower (odTitle od))
+    qs /= "" && String.contains (String.toLower qs) (String.toLower (odTitle od))
 
 
 subscriptions : Model -> Sub Msg
