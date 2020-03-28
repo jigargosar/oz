@@ -595,8 +595,14 @@ view (Model state qs _) =
 
 viewAppBar =
     div [ class "pv2 flex items-center f4 bg-washed-blue black" ]
-        [ div [] [ text "OZ" ]
-        , div [] [ text "Search" ]
+        [ div [ class "ph1" ] [ text "OZ" ]
+        , div [ class "ph1 flex-auto flex" ]
+            [ input
+                [ class "flex-grow-1"
+                , placeholder "Search"
+                ]
+                []
+            ]
         , button
             [ class "bg-inherit color-inherit pa1 ma0 bn flex"
             , onClick Download
