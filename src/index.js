@@ -21,8 +21,12 @@ function fromKeys(kfn) {
 
 function Cache(keys) {
   return {
-    set: (key, v) => {
-      localStorage.setItem(key, v)
+    onCacheKV: ([key, val]) => {
+      if (keys.includes(key)) {
+        localStorage.setItem(key, JSON.stringify(val))
+      } else {
+        console.error('Invalid Cache Key:', key, 'validKeys:', keys)
+      }
     },
     getAll: () => {
       const getParsed = key => parseTruthyOrNull(localStorage.getItem(key))
@@ -32,7 +36,7 @@ function Cache(keys) {
 }
 
 {
-  const cache = Cache('od')
+  const cache = Cache(['od', 'oz'])
   const [_, subscribe] = initElmModuleWithPortHelpers(
     {
       node: document.getElementById('root'),
@@ -43,6 +47,7 @@ function Cache(keys) {
           window.innerWidth - document.body.clientWidth,
           window.innerHeight - document.body.clientHeight,
         ],
+        ...cache.getAll(),
         oz: parseTruthyOrNull(localStorage.getItem('oz')),
         od: parseTruthyOrNull(localStorage.getItem('od')),
       },
@@ -71,9 +76,7 @@ function Cache(keys) {
     }
   })
 
-  subscribe('cacheKV', function([k, v]) {
-    localStorage.setItem(k, JSON.stringify(v))
-  })
+  subscribe('cacheKV', cache.onCacheKV)
 
   // subscribe('getBeacons', function() {
   //   const beaconEls = [...document.querySelectorAll('[data-beacon]')]
