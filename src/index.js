@@ -34,23 +34,28 @@ require('tachyons')
     require('./Main.elm'),
   )
 
-  const onlyModifiers = downProps => e => {
-    const upProps = without(downProps)([
-      'ctrlKey',
-      'shiftKey',
-      'altKey',
-      'metaKey',
-    ])
+  const [ctrl] = (function(){
+    {
+        const onlyModifiers = downProps => e => {
+        const upProps = without(downProps)([
+          'ctrlKey',
+          'shiftKey',
+          'altKey',
+          'metaKey',
+        ])
 
-    const allTrue = all(prop(__, e))
+        const allTrue = all(prop(__, e))
 
-    return allTrue(downProps) && !allTrue(upProps)
-  }
+        return allTrue(downProps) && !allTrue(upProps)
+      }
 
-  const onlyCtrl = onlyModifiers(['ctrlKey'])
-  const keyEq = propEq('key')
+      const onlyCtrl = onlyModifiers(['ctrlKey'])
+      const keyEq = propEq('key')
 
-  const ctrl = k => both(keyEq(k), onlyCtrl)
+      const ctrl = k => both(keyEq(k), onlyCtrl)
+      return [ctrl]
+      }
+  })()
 
   window.addEventListener('keydown', function(e) {
     const shouldPreventDefault = anyPass([ctrl('o'), ctrl('s')])
