@@ -208,8 +208,20 @@ update message model =
 
                 fileName =
                     "oz_" ++ formattedNow ++ ".json"
+
+                od2 =
+                    case model of
+                        Model (NoState od) _ _ ->
+                            od
+
+                        Model (Edit _ od) _ _ ->
+                            od
+
+                fileContent =
+                    odEncoder od2
+                        |> JE.encode 2
             in
-            ( model, Download.string fileName "application/json" "# header world" )
+            ( model, Download.string fileName "application/json" fileContent )
 
         Upload ->
             ( model, Select.file [] GotFile )
